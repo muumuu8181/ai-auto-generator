@@ -113,6 +113,7 @@ Automatically fetch project requirements and generate complete web applications 
 !mkdir -p ./temp-deploy/app-$APP_NUM-$UNIQUE_ID
 
 # CRITICAL: Create reflection.md in app folder (NOT in root)
+# 重要: REFLECTION_GUIDE.mdを参考に詳細で具体的な振り返りを作成
 !echo "## App Generation Reflection - app-$APP_NUM-$UNIQUE_ID
 
 ### Generated: $(date)
@@ -130,22 +131,66 @@ Automatically fetch project requirements and generate complete web applications 
 - 📋 Requirements Commit: $(git -C ./temp-req rev-parse --short HEAD)
 - 🕒 Fetched at: $(date)
 
-#### Key Insights:
-[AI should add specific insights from this generation process]
+#### 🎯 プロジェクト概要:
+[作成したアプリの内容と主要機能を3-4行で要約]
 
-#### Challenges Overcome:
-[AI should note any issues resolved during generation]
+#### 🏗️ 技術実装の詳細:
+- **使用技術**: [HTML5, CSS3, JavaScript等の具体的なバージョンやライブラリ]
+- **アーキテクチャ**: [ファイル構成と役割分担の説明]
+- **キー機能の実装方法**: [重要な機能がどのように実装されたか]
 
-#### わかりづらかったこと:
-[AI should note what was confusing, unclear, or needed better documentation]
+#### 🚧 発生した課題と解決策:
+[課題がなかった場合は「特につまずいた課題はありませんでした」と明記]
+- **課題1**: [具体的な問題]
+  - **解決策**: [どのように解決したか]
+  - **学習内容**: [この解決から得られた知見]
+- **課題2**: [同様に具体的に記述]
 
-#### Recommendations for Future:
-[AI should suggest improvements based on experience]
+#### 💡 重要な発見・学習:
+- [実装中に気づいた重要なポイント]
+- [予想外の動作や便利な手法]
+- [パフォーマンス改善のヒント]
 
-#### Technical Notes:
+#### 😕 わかりづらかった・改善が必要な箇所:
+- [ドキュメントの不明瞭な部分]
+- [エラーメッセージの不親切さ]
+- [手順の複雑さや曖昧さ]
+
+#### 🎨 ユーザー体験の考察:
+- [実際の使いやすさの評価]
+- [見た目・デザインの工夫点]
+- [モバイル対応やアクセシビリティ]
+
+#### ⚡ パフォーマンス分析:
+- [動作速度の体感評価]
+- [ファイルサイズの最適化]
+- [読み込み時間への配慮]
+
+#### 🔧 次回への改善提案:
+- [具体的な技術的改善案]
+- [ワークフローの効率化案]
+- [ツールや手法の提案]
+
+#### 📊 作業効率の振り返り:
+- **開始時刻**: [実際の開始時刻]
+- **完了時刻**: $(date)
+- **総作業時間**: [概算時間]
+- **効率的だった作業**: [スムーズに進んだ部分]
+- **時間がかかった作業**: [予想以上に時間を要した部分]
+
+#### 🔍 品質チェック結果:
+- [動作確認の詳細結果]
+- [異なるブラウザでのテスト]
+- [モバイル環境での確認]
+- [発見されたバグとその対処]
+
+#### 📝 Technical Notes:
 - Generation timestamp: $(date -u)
-- App structure: [describe the app created]
-- Technologies used: [list technologies]
+- Session ID: $SESSION_ID
+- App ID: app-$APP_NUM-$UNIQUE_ID
+- Files created: [index.html, style.css, script.js等]
+- Total file size: [概算サイズ]
+- GitHub Pages URL: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/
 
 ---
 *Reflection specific to app-$APP_NUM-$UNIQUE_ID - Part of multi-AI generation ecosystem*" > ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/reflection.md
