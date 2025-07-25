@@ -1,4 +1,4 @@
-# /wk-st - AI Auto Workflow v0.5
+# /wk-st - AI Auto Workflow v0.6
 
 ## System Overview & Your Role
 
@@ -38,7 +38,7 @@ Automatically fetch project requirements and generate complete web applications 
 !echo "✅ Generator updated to latest version"
 
 # Version verification
-!echo "📋 Workflow Version: v0.5"
+!echo "📋 Workflow Version: v0.6"
 !echo "📅 Last Updated: $(date)"
 !echo "🔍 Current commit: $(git rev-parse --short HEAD)"
 
@@ -52,9 +52,10 @@ Automatically fetch project requirements and generate complete web applications 
 !node core/work-monitor.cjs monitor-start $SESSION_ID
 !echo "✅ Work monitor active - all actions will be logged"
 
-# Fetch latest requirements
+# Fetch latest requirements (強制最新取得でキャッシュ問題解決)
 !node core/session-tracker.cjs log $SESSION_ID "Fetching requirements" info
-!git clone https://github.com/muumuu8181/app-request-list ./temp-req 2>/dev/null || git -C ./temp-req pull
+!rm -rf ./temp-req
+!git clone https://github.com/muumuu8181/app-request-list ./temp-req
 
 # Verify requirements repository version
 !echo "📋 Requirements Repository Status:"
@@ -69,8 +70,16 @@ Automatically fetch project requirements and generate complete web applications 
 
 ### Phase 2: Project Selection
 ```bash
-# Get next app number
-!APP_NUM=$(node core/app-counter.cjs https://github.com/muumuu8181/published-apps)
+# Get next app number (複数AI衝突回避の緊急修正)
+!echo "🆔 Checking app-type-registry for proper ID assignment..."
+!if [ -f ./temp-req/system/app-type-registry.json ]; then
+  NEXT_ID=$(cat ./temp-req/system/app-type-registry.json | grep next_available_id | cut -d'"' -f4)
+  echo "📋 Next available ID from registry: $NEXT_ID"
+  APP_NUM=$NEXT_ID
+else
+  echo "⚠️  Registry not found, using timestamp-based ID to avoid collision"
+  APP_NUM=$(date +%s | tail -c 3)
+fi
 !UNIQUE_ID=$(node core/id-generator.cjs)
 !echo "🆔 App ID: app-$APP_NUM-$UNIQUE_ID"
 
@@ -127,7 +136,7 @@ Automatically fetch project requirements and generate complete web applications 
 - ✅ Session tracking maintained
 
 #### Version Information:
-- 🔧 Workflow Version: v0.5
+- 🔧 Workflow Version: v0.6
 - 📋 Requirements Commit: $(git -C ./temp-req rev-parse --short HEAD)
 - 🕒 Fetched at: $(date)
 
@@ -267,7 +276,7 @@ EOF
 # 5.7. 統計表示
 !node core/session-tracker.cjs stats
 !echo "🎉 Generation complete! 3点セット配置済み: reflection.md, requirements.md, work_log.md"
-!echo "🔧 Workflow Version: v0.5 確認完了"
+!echo "🔧 Workflow Version: v0.6 確認完了"
 !echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
 !echo "🔍 Work monitoring log saved: logs/work-monitor-$SESSION_ID.json"
 !echo "次回実行: /wk-st"
