@@ -9,6 +9,11 @@ Automatically fetch project requirements and generate complete web applications 
 ```bash
 !echo "🚀 AI Auto Generator Starting..."
 
+# Update generator system to latest version
+!echo "📥 Updating AI Auto Generator..."
+!git fetch origin main && git reset --hard origin/main
+!echo "✅ Generator updated to latest version"
+
 # Initialize session tracking
 !DEVICE_ID=$(node core/device-manager.cjs get)
 !SESSION_ID=$(node core/session-tracker.cjs start $DEVICE_ID)

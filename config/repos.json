@@ -1,0 +1,12 @@
+{
+  "appRequests": "https://github.com/[YOUR_USERNAME]/app-request-list",
+  "publishedApps": "https://github.com/[YOUR_USERNAME]/published-apps",
+  "generatorRepo": "https://github.com/muumuu8181/ai-auto-generator",
+  "notes": {
+    "setup": "Replace [YOUR_USERNAME] with your actual GitHub username",
+    "requirements": [
+      "app-request-list: Private/Public repository with app-requests.md",
+      "published-apps: PUBLIC repository with GitHub Pages enabled"
+    ]
+  }
+}

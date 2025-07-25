@@ -10,6 +10,12 @@ An automated system where AI autonomously creates applications and deploys them 
 ```bash
 git clone https://github.com/muumuu8181/ai-auto-generator.git
 cd ai-auto-generator
+```
+
+**⚠️ Setup Required**: See [SETUP.md](SETUP.md) for one-time configuration
+
+After setup:
+```bash
 claude
 /generate
 ```
