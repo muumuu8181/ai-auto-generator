@@ -1,4 +1,4 @@
-# /wk-st - AI Auto Workflow v0.4
+# /wk-st - AI Auto Workflow v0.5
 
 ## System Overview & Your Role
 
@@ -38,7 +38,7 @@ Automatically fetch project requirements and generate complete web applications 
 !echo "✅ Generator updated to latest version"
 
 # Version verification
-!echo "📋 Workflow Version: v0.4"
+!echo "📋 Workflow Version: v0.5"
 !echo "📅 Last Updated: $(date)"
 !echo "🔍 Current commit: $(git rev-parse --short HEAD)"
 
@@ -127,7 +127,7 @@ Automatically fetch project requirements and generate complete web applications 
 - ✅ Session tracking maintained
 
 #### Version Information:
-- 🔧 Workflow Version: v0.4
+- 🔧 Workflow Version: v0.5
 - 📋 Requirements Commit: $(git -C ./temp-req rev-parse --short HEAD)
 - 🕒 Fetched at: $(date)
 
@@ -267,7 +267,7 @@ EOF
 # 5.7. 統計表示
 !node core/session-tracker.cjs stats
 !echo "🎉 Generation complete! 3点セット配置済み: reflection.md, requirements.md, work_log.md"
-!echo "🔧 Workflow Version: v0.4 確認完了"
+!echo "🔧 Workflow Version: v0.5 確認完了"
 !echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
 !echo "🔍 Work monitoring log saved: logs/work-monitor-$SESSION_ID.json"
 !echo "次回実行: /wk-st"
