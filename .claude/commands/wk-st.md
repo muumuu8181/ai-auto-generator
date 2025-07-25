@@ -1,4 +1,4 @@
-# /wk-st - AI Auto Workflow
+# /wk-st - AI Auto Workflow v2.1
 
 ## System Overview & Your Role
 
@@ -37,6 +37,11 @@ Automatically fetch project requirements and generate complete web applications 
 !git fetch origin main && git reset --hard origin/main
 !echo "✅ Generator updated to latest version"
 
+# Version verification
+!echo "📋 Workflow Version: v2.1"
+!echo "📅 Last Updated: $(date)"
+!echo "🔍 Current commit: $(git rev-parse --short HEAD)"
+
 # Initialize session tracking
 !DEVICE_ID=$(node core/device-manager.cjs get)
 !SESSION_ID=$(node core/session-tracker.cjs start $DEVICE_ID)
@@ -45,6 +50,12 @@ Automatically fetch project requirements and generate complete web applications 
 # Fetch latest requirements
 !node core/session-tracker.cjs log $SESSION_ID "Fetching requirements" info
 !git clone https://github.com/muumuu8181/app-request-list ./temp-req 2>/dev/null || git -C ./temp-req pull
+
+# Verify requirements repository version
+!echo "📋 Requirements Repository Status:"
+!echo "🔍 Latest commit: $(git -C ./temp-req rev-parse --short HEAD)"
+!echo "📅 Commit date: $(git -C ./temp-req log -1 --format=%cd)"
+!echo "👤 Last author: $(git -C ./temp-req log -1 --format=%an)"
 
 # Convert markdown to structured data
 !node core/md-converter.cjs ./temp-req/app-requests.md ./temp-req/processed.json
@@ -96,6 +107,11 @@ Automatically fetch project requirements and generate complete web applications 
 - ✅ App generation completed
 - ✅ GitHub Pages deployment successful
 - ✅ Session tracking maintained
+
+#### Version Information:
+- 🔧 Workflow Version: v2.1
+- 📋 Requirements Commit: $(git -C ./temp-req rev-parse --short HEAD)
+- 🕒 Fetched at: $(date)
 
 #### Key Insights:
 [AI should add specific insights from this generation process]
@@ -180,6 +196,8 @@ EOF
 # 5.6. 統計表示
 !node core/session-tracker.cjs stats
 !echo "🎉 Generation complete! 3点セット配置済み: reflection.md, requirements.md, work_log.md"
+!echo "🔧 Workflow Version: v2.1 確認完了"
+!echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
 !echo "次回実行: /wk-st"
 ```
 
