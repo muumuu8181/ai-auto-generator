@@ -136,12 +136,30 @@ claude                # Start Claude Code
 /wk-st               # Generate apps
 ```
 
+## Important Notes from Real AI Experience
+
+### Configuration Management (Learned from reflection.md)
+- **Backup configs before updates**: git hard reset can reset your settings
+- **Verify working directory**: Always check with `pwd` before operations  
+- **Use absolute paths**: Avoid relative path navigation errors
+
+### GitHub Pages Deployment
+- **Enable Pages immediately**: Use GitHub CLI API for reliable activation
+- **Verify deployment**: Check both repository settings and live URL
+- **Allow processing time**: Pages may take 5-10 minutes to activate
+
+### File Organization Rules
+- **Stay in project directory**: /wk-st only works in ai-auto-generator folder
+- **Maintain structure**: Each app gets its own organized folder
+- **Reflection placement**: reflection.md goes INSIDE each app folder, not root
+
 ## Features
 
 ✅ **Auto-Update**: Generator updates itself every run  
 ✅ **Session Tracking**: Detailed logs with timestamps  
 ✅ **Device Management**: Prevents duplicate generation  
-✅ **Error Recovery**: Continues on failures  
+✅ **Error Recovery**: Proven strategies from real AI generations
 ✅ **Statistics**: Track generation success rate  
+✅ **Knowledge Base**: Incorporates lessons from successful deployments
 
-**Ready to generate unlimited apps with `/generate`!**
+**Ready to generate unlimited apps with `/wk-st` - Enhanced with real-world insights!**
