@@ -121,18 +121,63 @@ Automatically fetch project requirements and generate complete web applications 
 !node core/session-tracker.cjs log $SESSION_ID "Deployment successful" info
 ```
 
-### Phase 5: Cleanup & Stats
+### Phase 5: 詳細記録・完了処理
 ```bash
-# Record completion
+# 5.1. 要件・仕様書作成（必須）
+!cat > ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/requirements.md << 'EOF'
+# 要件・仕様書: [アプリ名]
+
+## 元要求
+[ユーザーからの最初の要求をそのまま記録]
+
+## 解釈した仕様
+[AIが理解・解釈した具体的仕様]
+
+## 技術的制約・判断
+[実装上の制約や技術選択の理由]
+
+## 変更履歴
+- $(date): 初回作成
+EOF
+
+# 5.2. 作業履歴詳細記録（必須）
+!cat > ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/work_log.md << 'EOF'
+# 作業履歴: [アプリ名]
+
+## 作業概要
+- 開始時刻: [開始時刻]
+- 完了時刻: $(date)
+- 担当AI: Claude
+- 作業内容: [概要]
+
+## 実行コマンド詳細
+[実際に実行したコマンドを全て記録]
+
+## エラー・問題と対処
+[発生した問題と解決方法]
+
+## 最終確認項目
+- [x] GitHub Pages動作確認
+- [x] 要件満足度確認
+- [x] reflection.md作成完了
+- [x] requirements.md作成完了
+- [x] work_log.md作成完了
+EOF
+
+# 5.3. 3点セット再プッシュ
+!cd ./temp-deploy && git add . && git commit -m "Add documentation: requirements.md + work_log.md" && git push
+
+# 5.4. 完了記録
 !node core/device-manager.cjs mark-complete app-$APP_NUM-$UNIQUE_ID
 !node core/session-tracker.cjs complete $SESSION_ID app-$APP_NUM-$UNIQUE_ID success
 
-# Cleanup temporary files
+# 5.5. 一時ファイル削除
 !rm -rf ./temp-req ./temp-deploy
 
-# Show statistics
+# 5.6. 統計表示
 !node core/session-tracker.cjs stats
-!echo "🎉 Generation complete! Run /generate for next app"
+!echo "🎉 Generation complete! 3点セット配置済み: reflection.md, requirements.md, work_log.md"
+!echo "次回実行: /wk-st"
 ```
 
 ## Configuration
@@ -167,4 +212,15 @@ Automatically fetch project requirements and generate complete web applications 
 - **Each reflection is specific to its app** - enables proper organization
 - **Template structure must be consistent** for multi-AI environment
 
+## 🚨 データ保護 (最優先)
+**変更前必須チェック**: [CRITICAL_DATA_PROTECTION.md](../docs/CRITICAL_DATA_PROTECTION.md)を必ず確認
+
+```bash
+# すべての変更前に実行必須
+!cp ./temp-requests/app-requests.md ./temp-requests/app-requests.md.backup.$(date +%Y%m%d_%H%M%S)
+!echo "$(date): [バックアップ] app-requests.md before processing" >> work_history.log
+!git -C ./temp-requests tag "backup-$(date +%Y%m%d_%H%M%S)" -m "処理前自動バックアップ"
+```
+
 **Goal: Complete deployment regardless of minor issues while maintaining ecosystem organization!**
+**絶対ルール**: ユーザーデータの復元不可能な変更は厳禁!
