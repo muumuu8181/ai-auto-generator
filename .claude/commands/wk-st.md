@@ -1,4 +1,4 @@
-# /wk-st - AI Auto Workflow v2.1
+# /wk-st - AI Auto Workflow v0.3
 
 ## System Overview & Your Role
 
@@ -38,7 +38,7 @@ Automatically fetch project requirements and generate complete web applications 
 !echo "✅ Generator updated to latest version"
 
 # Version verification
-!echo "📋 Workflow Version: v2.1"
+!echo "📋 Workflow Version: v0.3"
 !echo "📅 Last Updated: $(date)"
 !echo "🔍 Current commit: $(git rev-parse --short HEAD)"
 
@@ -46,6 +46,11 @@ Automatically fetch project requirements and generate complete web applications 
 !DEVICE_ID=$(node core/device-manager.cjs get)
 !SESSION_ID=$(node core/session-tracker.cjs start $DEVICE_ID)
 !echo "📱 Session: $SESSION_ID"
+
+# Initialize work monitoring (嘘検出システム)
+!echo "🔍 Starting work monitoring..."
+!node core/work-monitor.cjs monitor-start $SESSION_ID
+!echo "✅ Work monitor active - all actions will be logged"
 
 # Fetch latest requirements
 !node core/session-tracker.cjs log $SESSION_ID "Fetching requirements" info
@@ -80,7 +85,19 @@ Automatically fetch project requirements and generate complete web applications 
 # Select appropriate template
 # Generate code using Gemini CLI
 # Apply requirements to template
-# Validate basic functionality
+
+# 🚨 重要: 作業監視ツールを使用してください（必須）
+# ファイル作成時
+!node core/work-monitor.cjs file-created $SESSION_ID ./app-$APP_NUM-$UNIQUE_ID/index.html
+
+# UI要素追加時
+!node core/work-monitor.cjs button-added $SESSION_ID "submitBtn" "送信" ./app-$APP_NUM-$UNIQUE_ID/index.html
+
+# 機能実装時
+!node core/work-monitor.cjs feature-implemented $SESSION_ID "Calculator" "四則演算機能" ./app-$APP_NUM-$UNIQUE_ID/index.html ./app-$APP_NUM-$UNIQUE_ID/script.js
+
+# 動作確認時（必須）
+!node core/work-monitor.cjs button-tested $SESSION_ID "submitBtn" true ./app-$APP_NUM-$UNIQUE_ID/index.html
 
 !node core/session-tracker.cjs log $SESSION_ID "Generation complete" info
 ```
@@ -109,7 +126,7 @@ Automatically fetch project requirements and generate complete web applications 
 - ✅ Session tracking maintained
 
 #### Version Information:
-- 🔧 Workflow Version: v2.1
+- 🔧 Workflow Version: v0.3
 - 📋 Requirements Commit: $(git -C ./temp-req rev-parse --short HEAD)
 - 🕒 Fetched at: $(date)
 
@@ -137,6 +154,11 @@ Automatically fetch project requirements and generate complete web applications 
 !cd ./temp-deploy && git add . && git commit -m "Deploy: app-$APP_NUM-$UNIQUE_ID with reflection" && git push
 
 !echo "✅ Live at: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/"
+
+# デプロイ検証（必須）
+!sleep 10  # GitHub Pagesの反映待ち
+!node core/work-monitor.cjs deployment-verified $SESSION_ID "https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/" 200 1500
+
 !node core/session-tracker.cjs log $SESSION_ID "Deployment successful" info
 ```
 
@@ -193,11 +215,16 @@ EOF
 # 5.5. 一時ファイル削除
 !rm -rf ./temp-req ./temp-deploy
 
-# 5.6. 統計表示
+# 5.6. 作業監視レポート生成（必須）
+!echo "🔍 Generating work monitoring report..."
+!node core/work-monitor.cjs report $SESSION_ID
+
+# 5.7. 統計表示
 !node core/session-tracker.cjs stats
 !echo "🎉 Generation complete! 3点セット配置済み: reflection.md, requirements.md, work_log.md"
-!echo "🔧 Workflow Version: v2.1 確認完了"
+!echo "🔧 Workflow Version: v0.3 確認完了"
 !echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
+!echo "🔍 Work monitoring log saved: logs/work-monitor-$SESSION_ID.json"
 !echo "次回実行: /wk-st"
 ```
 
