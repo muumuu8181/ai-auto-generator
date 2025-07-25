@@ -103,6 +103,9 @@ Automatically fetch project requirements and generate complete web applications 
 #### Challenges Overcome:
 [AI should note any issues resolved during generation]
 
+#### わかりづらかったこと:
+[AI should note what was confusing, unclear, or needed better documentation]
+
 #### Recommendations for Future:
 [AI should suggest improvements based on experience]
 
