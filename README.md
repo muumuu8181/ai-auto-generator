@@ -1,23 +1,20 @@
 # AI Auto Generator
 
-AI-powered automatic app generation and deployment template.
+AI-powered automatic app generation and deployment system.
 
-## Overview
-An automated system where AI autonomously creates applications and deploys them to GitHub Pages.
-
-## Quick Start
+## Quick Setup
 
 ```bash
+# 1. Clone
 git clone https://github.com/muumuu8181/ai-auto-generator.git
 cd ai-auto-generator
-```
 
-**⚠️ Setup Required**: See [SETUP.md](SETUP.md) for one-time configuration
+# 2. Setup (one-time)
+# Follow SETUP.md
 
-After setup:
-```bash
+# 3. Use
 claude
-/generate    # or /wk-st (see WK-ST-SETUP.md)
+/wk-st
 ```
 
 ## Features
@@ -25,20 +22,9 @@ claude
 - 🤖 **AI-Powered Generation**: Google Gemini CLI integration
 - 🚀 **Auto Deployment**: Direct GitHub Pages publishing  
 - 📝 **Natural Language Input**: Simple Markdown requirements
-- 🔄 **Multi-Device Support**: Terminal ID management
-- 📊 **Work History Tracking**: Detailed session logs
+- 🔄 **Auto Update**: System updates itself every run
+- 📊 **Session Tracking**: Detailed logs with timestamps
 - 🎯 **Template System**: Reusable app templates
-
-## System Architecture
-
-```
-ai-auto-generator/
-├── core/              # Core generation scripts
-├── templates/         # App templates
-├── docs/             # Documentation
-├── config/           # Configuration files
-└── .claude/          # Claude Code commands
-```
 
 ## Workflow
 
@@ -48,9 +34,10 @@ ai-auto-generator/
 4. **Deploy**: Automatically publishes to GitHub Pages
 5. **Track**: Records session history and statistics
 
-## AI Implementation
+## Setup Required
 
-- **Engine**: Google Gemini CLI (OAuth authentication)
-- **Models**: gemini-2.5-pro, gemini-2.5-flash
-- **Reference**: claude-ai-toolkit integration patterns
-- **Security**: Prompt injection protection, input sanitization
+See [SETUP.md](SETUP.md) for one-time configuration:
+- External repositories creation
+- GitHub Pages setup  
+- Gemini CLI authentication
+- Configuration file editing

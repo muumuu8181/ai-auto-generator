@@ -63,18 +63,15 @@ npx @google/gemini-cli -p "Hello, test"
 claude
 
 # Test the command
-/generate
+/wk-st
 ```
-
-### 6. Optional: Use /wk-st Command Name
-If you prefer the original `/wk-st` command name, see [WK-ST-SETUP.md](WK-ST-SETUP.md)
 
 ## Daily Usage
 
 Just run:
 ```bash
 claude
-/generate
+/wk-st
 ```
 
 The system will:

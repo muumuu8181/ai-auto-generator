@@ -1,4 +1,4 @@
-# /generate - AI Auto App Generator
+# /wk-st - AI Auto Workflow
 
 ## Objective
 Automatically fetch project requirements and generate complete web applications with GitHub Pages deployment.
