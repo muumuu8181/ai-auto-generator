@@ -17,7 +17,7 @@ cd ai-auto-generator
 After setup:
 ```bash
 claude
-/generate
+/generate    # or /wk-st (see WK-ST-SETUP.md)
 ```
 
 ## Features

@@ -66,6 +66,9 @@ claude
 /generate
 ```
 
+### 6. Optional: Use /wk-st Command Name
+If you prefer the original `/wk-st` command name, see [WK-ST-SETUP.md](WK-ST-SETUP.md)
+
 ## Daily Usage
 
 Just run:
