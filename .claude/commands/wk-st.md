@@ -1,4 +1,4 @@
-# /wk-st - AI Auto Workflow v0.6
+# /wk-st - AI Auto Workflow v0.8
 
 ## System Overview & Your Role
 
@@ -38,7 +38,7 @@ Automatically fetch project requirements and generate complete web applications 
 !echo "✅ Generator updated to latest version"
 
 # Version verification
-!echo "📋 Workflow Version: v0.6"
+!echo "📋 Workflow Version: v0.8"
 !echo "📅 Last Updated: $(date)"
 !echo "🔍 Current commit: $(git rev-parse --short HEAD)"
 
@@ -75,18 +75,37 @@ Automatically fetch project requirements and generate complete web applications 
 
 ### Phase 2: Project Selection
 ```bash
-# Get next app number (複数AI衝突回避の緊急修正)
-!echo "🆔 Checking app-type-registry for proper ID assignment..."
-!if [ -f ./temp-req/system/app-type-registry.json ]; then
-  NEXT_ID=$(cat ./temp-req/system/app-type-registry.json | grep next_available_id | cut -d'"' -f4)
-  echo "📋 Next available ID from registry: $NEXT_ID"
-  APP_NUM=$NEXT_ID
-else
-  echo "⚠️  Registry not found, using timestamp-based ID to avoid collision"
-  APP_NUM=$(date +%s | tail -c 3)
+# User-Managed App Number Assignment (手作業ナンバリング対応)
+!echo "🎯 Extracting app number from user-defined titles..."
+
+# タイトル番号抽出（優先）
+!TITLE_EXTRACT_RESULT=$(node core/title-number-extractor.cjs extract ./temp-req/app-requests.md 2>/dev/null || echo '{"success":false,"number":"999","method":"error"}')
+!APP_NUM=$(echo $TITLE_EXTRACT_RESULT | jq -r '.number' 2>/dev/null || echo "999")
+!EXTRACT_METHOD=$(echo $TITLE_EXTRACT_RESULT | jq -r '.method' 2>/dev/null || echo "fallback")
+!APP_TITLE=$(echo $TITLE_EXTRACT_RESULT | jq -r '.title' 2>/dev/null || echo "Unknown App")
+
+!echo "📱 Extracted app number: $APP_NUM (method: $EXTRACT_METHOD)"
+!echo "📋 App title: $APP_TITLE"
+
+# タイトル番号抽出が失敗した場合のフォールバック（旧システム）
+!if [ "$APP_NUM" == "999" ] || [ "$APP_NUM" == "null" ] || [ -z "$APP_NUM" ]; then
+  echo "⚠️ Title number extraction failed, trying type detection fallback..."
+  REQUIREMENTS_TEXT=$(cat ./temp-req/app-requests.md | head -20 | tr '\n' ' ' 2>/dev/null || echo "fallback app")
+  APP_TYPE_RESULT=$(node core/app-type-manager.cjs detect "$REQUIREMENTS_TEXT" 2>/dev/null || echo '{"number":"999","typeId":"unknown"}')
+  APP_NUM=$(echo $APP_TYPE_RESULT | jq -r '.number' 2>/dev/null || echo "999")
+  APP_TYPE=$(echo $APP_TYPE_RESULT | jq -r '.typeId' 2>/dev/null || echo "unknown")
+  echo "📱 Fallback app number: $APP_NUM (type: $APP_TYPE)"
 fi
+
 !UNIQUE_ID=$(node core/id-generator.cjs)
-!echo "🆔 App ID: app-$APP_NUM-$UNIQUE_ID"
+!echo "🆔 Final App ID: app-$APP_NUM-$UNIQUE_ID ($APP_TYPE)"
+
+# 空き容量チェック（新機能）
+!echo "💾 Checking disk space..."
+!node core/phase-checker.cjs validate --phase=pre-generation --action=git_upload --app-id=app-$APP_NUM-$UNIQUE_ID
+
+# 統合ログにアプリ番号情報を記録
+!node core/unified-logger.cjs log $SESSION_ID system app_number_assigned "App number extracted and assigned" "{\"appNumber\":\"$APP_NUM\",\"appTitle\":\"$APP_TITLE\",\"extractMethod\":\"$EXTRACT_METHOD\",\"appId\":\"app-$APP_NUM-$UNIQUE_ID\"}" info
 
 # Check for duplicates on this device
 !node core/device-manager.cjs check-completed
@@ -100,17 +119,28 @@ fi
 # Generate code using Gemini CLI
 # Apply requirements to template
 
-# 🚨 重要: 作業監視ツールを使用してください（必須）
-# ファイル作成時
+# 🚨 重要: 作業監視・エラー記録ツールを使用してください（必須）
+
+# *** アプリ生成実作業をここで実行 ***
+# (Gemini CLI使用、テンプレート適用、要件実装など)
+
+# エラー発生時の記録例（コマンド実行でエラーが出た場合）
+# !node core/work-monitor.cjs record-error $SESSION_ID "npm install" "Error: EACCES permission denied" "sudo権限で実行" "medium"
+
+# ハリボテ実装の場合は必ず自己申告
+# !echo "⚠️ This implementation uses mockup/simulation data"
+# !node core/mockup-detector.cjs mark ./app-$APP_NUM-$UNIQUE_ID mockup "AI generated simulation - not real functionality"
+
+# ファイル作成時の記録
 !node core/work-monitor.cjs file-created $SESSION_ID ./app-$APP_NUM-$UNIQUE_ID/index.html
 
-# UI要素追加時
+# UI要素追加時の記録
 !node core/work-monitor.cjs button-added $SESSION_ID "submitBtn" "送信" ./app-$APP_NUM-$UNIQUE_ID/index.html
 
-# 機能実装時
+# 機能実装時の記録
 !node core/work-monitor.cjs feature-implemented $SESSION_ID "Calculator" "四則演算機能" ./app-$APP_NUM-$UNIQUE_ID/index.html ./app-$APP_NUM-$UNIQUE_ID/script.js
 
-# 動作確認時（必須）
+# 動作確認時の記録（必須）
 !node core/work-monitor.cjs button-tested $SESSION_ID "submitBtn" true ./app-$APP_NUM-$UNIQUE_ID/index.html
 
 !node core/session-tracker.cjs log $SESSION_ID "Generation complete" info
@@ -289,7 +319,8 @@ EOF
 !node core/session-tracker.cjs stats
 !echo "🎉 Generation complete! 4点セット配置済み: reflection.md, requirements.md, work_log.md, session-log.json"
 !echo "📊 統合ログ公開: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/session-log.json"
-!echo "🔧 Workflow Version: v0.6 確認完了"
+# ワークフローバージョン確認完了
+!echo "🔧 Workflow Version: v0.8 確認完了"
 !echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
 !echo "🔗 Unified log saved: logs/unified-$SESSION_ID.json"
 !echo "次回実行: /wk-st"

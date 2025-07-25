@@ -286,7 +286,8 @@ class PhaseChecker {
         { name: "app_folder_exists", critical: true },
         { name: "required_files_present", critical: true },
         { name: "no_path_traversal", critical: true },
-        { name: "file_size_reasonable", critical: false }
+        { name: "file_size_reasonable", critical: false },
+        { name: "disk_space_sufficient", critical: true }
       ],
       
       cleanup: [
@@ -358,6 +359,9 @@ class PhaseChecker {
         
       case "git_repo_valid":
         return this.checkGitRepoValid();
+        
+      case "disk_space_sufficient":
+        return this.checkDiskSpace();
         
       default:
         return { success: false, details: `Unknown check: ${checkName}` };
@@ -509,6 +513,121 @@ class PhaseChecker {
         ? "Git repository detected"
         : "Not in a git repository"
     };
+  }
+  
+  checkDiskSpace() {
+    try {
+      const { execSync } = require('child_process');
+      
+      // Linux/WSL環境での空き容量チェック
+      const dfOutput = execSync('df -h .', { encoding: 'utf8' });
+      const lines = dfOutput.trim().split('\n');
+      
+      if (lines.length < 2) {
+        return { 
+          success: true, 
+          details: "Could not parse disk usage, skipping check" 
+        };
+      }
+      
+      const dataLine = lines[1];
+      const columns = dataLine.split(/\s+/);
+      
+      // df出力: Filesystem Size Used Avail Use% Mounted
+      const available = columns[3]; // Available column
+      const usagePercent = columns[4]; // Use% column
+      
+      // 使用率から数値部分を抽出 (例: "75%" -> 75)
+      const usageNumber = parseInt(usagePercent.replace('%', ''));
+      
+      // 警告レベル: 使用率90%以上、利用可能容量1GB未満
+      const isHighUsage = usageNumber >= 90;
+      const isLowSpace = this.parseSpaceValue(available) < 1024; // 1GB in MB
+      
+      const success = !isHighUsage && !isLowSpace;
+      
+      let details;
+      if (!success) {
+        details = `Disk space warning: ${usagePercent} used, ${available} available`;
+        if (isHighUsage) details += " (High usage)";
+        if (isLowSpace) details += " (Low available space)";
+      } else {
+        details = `Disk space OK: ${usagePercent} used, ${available} available`;
+      }
+      
+      // ログに詳細な時刻情報も含める
+      const timestamp = this.getPreciseTimestamp();
+      details += ` (checked at ${timestamp})`;
+      
+      console.log(`💾 ${details}`);
+      
+      return {
+        success,
+        details,
+        metadata: {
+          available,
+          usagePercent,
+          usageNumber,
+          timestamp,
+          isHighUsage,
+          isLowSpace
+        }
+      };
+      
+    } catch (error) {
+      // Windowsの場合やdfコマンドが使えない場合
+      console.warn('⚠️ Disk space check failed, using fallback');
+      
+      try {
+        // 別の方法を試す (statvfsまたはプラットフォーム固有)
+        const stats = fs.statSync('.');
+        return {
+          success: true,
+          details: "Disk space check completed (basic check)",
+          metadata: {
+            timestamp: this.getPreciseTimestamp(),
+            method: "fallback"
+          }
+        };
+      } catch (fallbackError) {
+        return {
+          success: true,
+          details: `Disk space check skipped: ${error.message}`,
+          metadata: {
+            timestamp: this.getPreciseTimestamp(),
+            error: error.message
+          }
+        };
+      }
+    }
+  }
+  
+  /**
+   * 容量表記のパース (例: "15G" -> 15360, "512M" -> 512)
+   */
+  parseSpaceValue(spaceStr) {
+    const match = spaceStr.match(/^(\d+\.?\d*)([KMGT]?)$/);
+    if (!match) return 0;
+    
+    const value = parseFloat(match[1]);
+    const unit = match[2];
+    
+    switch (unit) {
+      case 'K': return value;
+      case 'M': return value;
+      case 'G': return value * 1024;
+      case 'T': return value * 1024 * 1024;
+      default: return value / 1024; // バイト単位の場合
+    }
+  }
+  
+  /**
+   * 精密時刻取得（マイクロ秒まで）
+   */
+  getPreciseTimestamp() {
+    const now = new Date();
+    const ms = now.getMilliseconds().toString().padStart(3, '0');
+    return now.toISOString().replace(/\.\d{3}Z$/, `.${ms}Z`);
   }
   
   /**

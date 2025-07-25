@@ -1,0 +1,212 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-07-25T23:26:40.332Z",
+  "appTypes": {
+    "calculator": {
+      "number": "001",
+      "description": "計算機・電卓アプリ",
+      "keywords": [
+        "計算",
+        "電卓",
+        "calculator",
+        "math"
+      ]
+    },
+    "timer": {
+      "number": "002",
+      "description": "タイマー・ストップウォッチ",
+      "keywords": [
+        "タイマー",
+        "timer",
+        "ストップウォッチ",
+        "stopwatch"
+      ]
+    },
+    "notepad": {
+      "number": "003",
+      "description": "メモ帳・ノート",
+      "keywords": [
+        "メモ",
+        "note",
+        "notepad",
+        "text"
+      ]
+    },
+    "clock": {
+      "number": "004",
+      "description": "時計・アラーム",
+      "keywords": [
+        "時計",
+        "clock",
+        "アラーム",
+        "alarm",
+        "時間"
+      ]
+    },
+    "money": {
+      "number": "005",
+      "description": "お金管理・家計簿",
+      "keywords": [
+        "お金",
+        "money",
+        "家計簿",
+        "収支",
+        "expense"
+      ]
+    },
+    "game": {
+      "number": "021",
+      "description": "ゲーム・パズル",
+      "keywords": [
+        "ゲーム",
+        "game",
+        "パズル",
+        "puzzle"
+      ]
+    },
+    "music": {
+      "number": "022",
+      "description": "音楽・オーディオ",
+      "keywords": [
+        "音楽",
+        "music",
+        "audio",
+        "sound"
+      ]
+    },
+    "drawing": {
+      "number": "023",
+      "description": "お絵描き・ペイント",
+      "keywords": [
+        "絵",
+        "drawing",
+        "paint",
+        "canvas",
+        "描画"
+      ]
+    },
+    "quiz": {
+      "number": "024",
+      "description": "クイズ・問題集",
+      "keywords": [
+        "クイズ",
+        "quiz",
+        "問題",
+        "テスト"
+      ]
+    },
+    "todo": {
+      "number": "041",
+      "description": "TODO・タスク管理",
+      "keywords": [
+        "todo",
+        "task",
+        "タスク",
+        "やること"
+      ]
+    },
+    "calendar": {
+      "number": "042",
+      "description": "カレンダー・スケジュール",
+      "keywords": [
+        "カレンダー",
+        "calendar",
+        "スケジュール",
+        "予定"
+      ]
+    },
+    "reminder": {
+      "number": "043",
+      "description": "リマインダー・通知",
+      "keywords": [
+        "リマインダー",
+        "reminder",
+        "通知",
+        "alert"
+      ]
+    },
+    "habit": {
+      "number": "044",
+      "description": "習慣・ルーチン管理",
+      "keywords": [
+        "習慣",
+        "habit",
+        "ルーチン",
+        "routine"
+      ]
+    },
+    "presentation": {
+      "number": "061",
+      "description": "プレゼンテーション",
+      "keywords": [
+        "プレゼン",
+        "presentation",
+        "slide",
+        "発表"
+      ]
+    },
+    "chart": {
+      "number": "062",
+      "description": "チャート・グラフ",
+      "keywords": [
+        "チャート",
+        "chart",
+        "グラフ",
+        "graph"
+      ]
+    },
+    "invoice": {
+      "number": "063",
+      "description": "請求書・見積書",
+      "keywords": [
+        "請求",
+        "invoice",
+        "見積",
+        "estimate"
+      ]
+    },
+    "experimental": {
+      "number": "081",
+      "description": "実験的・その他",
+      "keywords": [
+        "実験",
+        "experimental",
+        "test",
+        "その他"
+      ]
+    },
+    "demo": {
+      "number": "082",
+      "description": "デモ・サンプル",
+      "keywords": [
+        "デモ",
+        "demo",
+        "sample",
+        "example"
+      ]
+    },
+    "educational": {
+      "number": "083",
+      "description": "教育・学習",
+      "keywords": [
+        "教育",
+        "education",
+        "学習",
+        "learning"
+      ]
+    },
+    "unknown": {
+      "number": "999",
+      "description": "分類不可能",
+      "keywords": []
+    }
+  },
+  "statistics": {
+    "totalAppsCreated": 2,
+    "typeDistribution": {
+      "clock": 1,
+      "money": 1
+    },
+    "lastUsed": "2025-07-25T23:26:48.501Z"
+  }
+}

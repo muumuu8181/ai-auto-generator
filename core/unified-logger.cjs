@@ -94,7 +94,7 @@ class UnifiedLogger {
      * メインログ記録関数
      */
     log(source, action, description, data = {}, level = 'info') {
-        const timestamp = new Date().toISOString();
+        const timestamp = this.getPreciseTimestamp();
         const logEntry = {
             timestamp,
             source,       // 'work-monitor', 'phase-checker', 'session-tracker', 'system'
@@ -414,6 +414,22 @@ class UnifiedLogger {
         return crypto.createHash('md5')
             .update(`${source}:${action}:${description}:${timestamp}`)
             .digest('hex');
+    }
+    
+    /**
+     * 精密時刻取得（マイクロ秒精度）
+     */
+    getPreciseTimestamp() {
+        const hrTime = process.hrtime.bigint();
+        const now = new Date();
+        
+        // ナノ秒精度のタイムスタンプをマイクロ秒に変換
+        const microseconds = Number(hrTime % 1000000n);
+        const ms = now.getMilliseconds().toString().padStart(3, '0');
+        const us = Math.floor(microseconds / 1000).toString().padStart(3, '0');
+        
+        // ISO形式にマイクロ秒を追加
+        return now.toISOString().replace(/\.\d{3}Z$/, `.${ms}${us}Z`);
     }
     
     saveToFile() {

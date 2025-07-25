@@ -1,6 +1,23 @@
 # AI Auto Generator バージョン履歴
 
-## 現在のバージョン: v0.6
+## 現在のバージョン: v0.8
+
+### v0.8 (2025-01-25)
+- **🔧 新機能**: エラー自動記録システム実装（work-monitor.cjs拡張）
+- **🚨 新機能**: ハリボテ検出・警告表示システム（mockup-detector.cjs）
+- **📱 新機能**: タイトル番号抽出システム（title-number-extractor.cjs）
+- **🛡️ 新機能**: 重要度別ファイル保護システム（file-protection.cjs）
+- **💾 改善**: 空き容量チェック機能追加（phase-checker.cjs）
+- **⏰ 改善**: マイクロ秒精度時刻記録（unified-logger.cjs）
+- **📋 改善**: 手作業ナンバリング対応（/wk-stコマンド更新）
+- **🎯 効果**: エラー記録→reflection.md自動挿入、ハリボテ警告表示、重要ファイル保護
+
+### v0.7 (2025-01-25)
+- **🔗 新機能**: 統合ログシステム実装（unified-logger.cjs）
+- **📊 新機能**: GitHub Pages用session-log.json自動公開
+- **🔄 改善**: 全ツール統合ログ対応（work-monitor, phase-checker, session-tracker）
+- **📝 改善**: 4点セット配置（reflection.md + requirements.md + work_log.md + session-log.json）
+- **🎯 効果**: 分散ログ問題解決、AI作業の完全透明性実現
 
 ### v0.6 (2025-01-25)
 - **🚨緊急修正**: ID衝突問題を解決

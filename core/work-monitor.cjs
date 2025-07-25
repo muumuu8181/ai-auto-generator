@@ -127,6 +127,38 @@ class WorkMonitor {
   }
   
   /**
+   * エラー記録システム
+   */
+  recordError(command, errorMessage, solution = '', severity = 'medium') {
+    this.log('error_encountered', `Error in command: ${command}`, {
+      command,
+      errorMessage,
+      solution,
+      severity, // 'low', 'medium', 'high', 'critical'
+      timestamp: new Date().toISOString(),
+      errorHash: this.generateHash('error', command, errorMessage, new Date().toISOString())
+    });
+  }
+  
+  recordErrorWithSolution(command, errorMessage, solution, learningNote = '') {
+    this.log('error_resolved', `Error resolved: ${command}`, {
+      command,
+      errorMessage,
+      solution,
+      learningNote,
+      timestamp: new Date().toISOString(),
+      helpful: this.calculateHelpfulness(solution, learningNote)
+    });
+  }
+  
+  calculateHelpfulness(solution, learningNote) {
+    // 解決策とメモの詳細度から有用性スコアを計算
+    const solutionScore = solution.length > 50 ? 3 : solution.length > 20 ? 2 : 1;
+    const noteScore = learningNote.length > 100 ? 3 : learningNote.length > 30 ? 2 : 1;
+    return Math.min(solutionScore + noteScore, 5); // 1-5スケール
+  }
+  
+  /**
    * デプロイ監視
    */
   deploymentAttempted(repoUrl, targetPath) {
