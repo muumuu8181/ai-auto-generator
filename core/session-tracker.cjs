@@ -10,9 +10,11 @@ const path = require('path');
 const os = require('os');
 
 class SessionTracker {
-    constructor() {
+    constructor(useUnifiedLogging = true) {
         this.configDir = path.join(os.homedir(), '.ai-generator');
         this.sessionFile = path.join(this.configDir, 'sessions.json');
+        this.useUnifiedLogging = useUnifiedLogging;
+        this.unifiedLogger = null;
         this.ensureConfigDir();
     }
 
@@ -71,6 +73,17 @@ class SessionTracker {
         const data = this.loadSessions();
         const sessionId = `gen-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
         
+        // 統合ログ機能初期化
+        if (this.useUnifiedLogging) {
+            try {
+                const UnifiedLogger = require('./unified-logger.cjs');
+                this.unifiedLogger = new UnifiedLogger(sessionId);
+            } catch (error) {
+                console.warn('⚠️ Unified logging not available, falling back to standalone mode');
+                this.useUnifiedLogging = false;
+            }
+        }
+        
         const session = {
             sessionId,
             deviceId,
@@ -92,6 +105,15 @@ class SessionTracker {
         data.stats.totalSessions++;
         
         this.saveSessions(data);
+        
+        // 統合ログに記録
+        if (this.useUnifiedLogging && this.unifiedLogger) {
+            this.unifiedLogger.log('session-tracker', 'session_start', `Session started for device ${deviceId}`, {
+                sessionId,
+                deviceId,
+                environment: session.environment
+            });
+        }
         
         console.log(`🚀 Session started: ${sessionId}`);
         console.log(`📅 Start time: ${session.startTimeReadable}`);
@@ -128,6 +150,15 @@ class SessionTracker {
             Math.round((data.stats.totalApps / completedSessions.length) * 100) : 0;
 
         this.saveSessions(data);
+        
+        // 統合ログに記録
+        if (this.useUnifiedLogging && this.unifiedLogger) {
+            this.unifiedLogger.updateSessionTracking({
+                duration,
+                statistics: data.stats
+            });
+            this.unifiedLogger.completeSession(appId, status);
+        }
         
         console.log(`✅ Session completed: ${sessionId}`);
         console.log(`📅 End time: ${session.endTimeReadable}`);

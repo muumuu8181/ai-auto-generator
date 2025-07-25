@@ -47,6 +47,11 @@ Automatically fetch project requirements and generate complete web applications 
 !SESSION_ID=$(node core/session-tracker.cjs start $DEVICE_ID)
 !echo "📱 Session: $SESSION_ID"
 
+# Initialize unified logging system (統合ログシステム)
+!echo "🔗 Initializing unified logging system..."
+!node core/unified-logger.cjs init $SESSION_ID
+!echo "✅ Unified logging active - all tools integrated"
+
 # Initialize work monitoring (嘘検出システム)
 !echo "🔍 Starting work monitoring..."
 !node core/work-monitor.cjs monitor-start $SESSION_ID
@@ -204,10 +209,16 @@ fi
 ---
 *Reflection specific to app-$APP_NUM-$UNIQUE_ID - Part of multi-AI generation ecosystem*" > ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/reflection.md
 
+# Export unified session log for GitHub Pages (統合ログ公開)
+!echo "📊 Exporting unified session log..."
+!node core/unified-logger.cjs export $SESSION_ID ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/
+!echo "✅ Session log exported as session-log.json"
+
 # Configure and push
-!cd ./temp-deploy && git add . && git commit -m "Deploy: app-$APP_NUM-$UNIQUE_ID with reflection" && git push
+!cd ./temp-deploy && git add . && git commit -m "Deploy: app-$APP_NUM-$UNIQUE_ID with reflection and session log" && git push
 
 !echo "✅ Live at: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/"
+!echo "📊 Session log: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/session-log.json"
 
 # デプロイ検証（必須）
 !sleep 10  # GitHub Pagesの反映待ち
@@ -269,16 +280,18 @@ EOF
 # 5.5. 一時ファイル削除
 !rm -rf ./temp-req ./temp-deploy
 
-# 5.6. 作業監視レポート生成（必須）
-!echo "🔍 Generating work monitoring report..."
-!node core/work-monitor.cjs report $SESSION_ID
+# 5.6. 統合ログ最終処理とレポート生成
+!echo "📊 Generating unified session report..."
+!node core/unified-logger.cjs stats $SESSION_ID
+!node core/unified-logger.cjs complete $SESSION_ID app-$APP_NUM-$UNIQUE_ID success
 
 # 5.7. 統計表示
 !node core/session-tracker.cjs stats
-!echo "🎉 Generation complete! 3点セット配置済み: reflection.md, requirements.md, work_log.md"
+!echo "🎉 Generation complete! 4点セット配置済み: reflection.md, requirements.md, work_log.md, session-log.json"
+!echo "📊 統合ログ公開: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/session-log.json"
 !echo "🔧 Workflow Version: v0.6 確認完了"
 !echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
-!echo "🔍 Work monitoring log saved: logs/work-monitor-$SESSION_ID.json"
+!echo "🔗 Unified log saved: logs/unified-$SESSION_ID.json"
 !echo "次回実行: /wk-st"
 ```
 

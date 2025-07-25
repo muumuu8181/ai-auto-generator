@@ -8,10 +8,23 @@ const path = require('path');
 const crypto = require('crypto');
 
 class WorkMonitor {
-  constructor(sessionId) {
+  constructor(sessionId, useUnifiedLogging = true) {
     this.sessionId = sessionId;
     this.logFile = path.join(__dirname, `../logs/work-monitor-${sessionId}.json`);
     this.activities = [];
+    this.useUnifiedLogging = useUnifiedLogging;
+    this.unifiedLogger = null;
+    
+    // 統合ログ機能初期化
+    if (this.useUnifiedLogging) {
+      try {
+        const UnifiedLogger = require('./unified-logger.cjs');
+        this.unifiedLogger = new UnifiedLogger(sessionId);
+      } catch (error) {
+        console.warn('⚠️ Unified logging not available, falling back to standalone mode');
+        this.useUnifiedLogging = false;
+      }
+    }
     
     // ログディレクトリ作成
     const logDir = path.dirname(this.logFile);
@@ -36,6 +49,12 @@ class WorkMonitor {
     };
     
     this.activities.push(activity);
+    
+    // 統合ログにも記録
+    if (this.useUnifiedLogging && this.unifiedLogger) {
+      this.unifiedLogger.addWorkMonitoringActivity(activity);
+    }
+    
     this.saveToFile();
     console.log(`📝 [MONITOR] ${timestamp}: ${action} - ${description}`);
   }
