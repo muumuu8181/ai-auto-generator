@@ -12,10 +12,13 @@ cd ai-auto-generator
 # 2. Setup (one-time)
 # Follow SETUP.md
 
-# 3. Use
+# 3. Daily Use
+cd ai-auto-generator  # Navigate to project directory
 claude
 /wk-st
 ```
+
+**Note**: The `/wk-st` command works only within the ai-auto-generator directory. See [WORKSPACE-GUIDE.md](WORKSPACE-GUIDE.md) for details.
 
 ## Features
 

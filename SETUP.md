@@ -5,7 +5,7 @@
 ### 1. Clone Repository
 ```bash
 git clone https://github.com/muumuu8181/ai-auto-generator.git
-cd ai-auto-generator
+cd ai-auto-generator  # Important: Navigate into the project directory
 ```
 
 ### 2. Required External Repositories
@@ -59,6 +59,9 @@ npx @google/gemini-cli -p "Hello, test"
 
 ### 5. Claude Code Setup
 ```bash
+# Make sure you're in the ai-auto-generator directory
+cd ai-auto-generator
+
 # Start Claude Code
 claude
 
@@ -68,11 +71,14 @@ claude
 
 ## Daily Usage
 
-Just run:
+**Important**: Always navigate to the project directory first:
 ```bash
-claude
-/wk-st
+cd ai-auto-generator  # Navigate to project directory
+claude                # Start Claude Code
+/wk-st               # Use the command
 ```
+
+The `/wk-st` command only works within the ai-auto-generator directory.
 
 The system will:
 1. **Auto-update** to latest generator version
@@ -120,6 +126,15 @@ rm -rf ~/.gemini
 - Ensure `app-request-list` exists and has `app-requests.md`
 - Ensure `published-apps` is PUBLIC with GitHub Pages enabled
 - Check repository URLs in `config/repos.json`
+
+## Quick Reference
+
+### Every time you want to use /wk-st:
+```bash
+cd ai-auto-generator  # Navigate to project directory
+claude                # Start Claude Code  
+/wk-st               # Generate apps
+```
 
 ## Features
 
