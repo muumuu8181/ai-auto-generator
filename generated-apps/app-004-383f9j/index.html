@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Stylish Tetris - app-004-383f9j</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="background-effects">
+            <div class="particle-system" id="particles"></div>
+            <div class="matrix-rain" id="matrix"></div>
+        </div>
+        
+        <header class="game-header">
+            <h1 class="game-title">ULTRA TETRIS</h1>
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-label">SCORE</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">LEVEL</span>
+                    <span class="stat-value" id="level">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">LINES</span>
+                    <span class="stat-value" id="lines">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-main">
+            <div class="side-panel left">
+                <div class="next-piece-container">
+                    <h3>NEXT</h3>
+                    <canvas id="next-canvas" width="120" height="80"></canvas>
+                </div>
+                
+                <div class="effects-panel">
+                    <h3>EFFECTS</h3>
+                    <button class="effect-btn" id="particle-toggle">Particles</button>
+                    <button class="effect-btn" id="matrix-toggle">Matrix</button>
+                    <button class="effect-btn" id="shake-toggle">Screen Shake</button>
+                    <button class="effect-btn" id="sound-toggle">Sound</button>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <canvas id="game-canvas" width="300" height="600"></canvas>
+                <div class="combo-display" id="combo"></div>
+                <div class="line-clear-effect" id="lineEffect"></div>
+            </div>
+
+            <div class="side-panel right">
+                <div class="controls-info">
+                    <h3>CONTROLS</h3>
+                    <div class="control-item">
+                        <span class="key">←→</span>
+                        <span class="action">Move</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↓</span>
+                        <span class="action">Soft Drop</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↑/Space</span>
+                        <span class="action">Rotate</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">Shift</span>
+                        <span class="action">Hard Drop</span>
+                    </div>
+                </div>
+
+                <div class="audio-visualizer">
+                    <h3>AUDIO</h3>
+                    <div class="visualizer-bars" id="visualizer">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button class="control-btn" id="start-btn">START</button>
+            <button class="control-btn" id="pause-btn">PAUSE</button>
+            <button class="control-btn" id="reset-btn">RESET</button>
+        </div>
+
+        <div class="game-over-screen" id="gameOver">
+            <div class="game-over-content">
+                <h2>GAME OVER</h2>
+                <div class="final-score">
+                    <span>Final Score: </span>
+                    <span id="finalScore">0</span>
+                </div>
+                <button class="restart-btn" id="restartBtn">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
