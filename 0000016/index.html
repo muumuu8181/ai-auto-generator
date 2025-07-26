@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>めちゃくちゃ格好良い砂時計 - Epic Hourglass Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #00ffff;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
+            to { text-shadow: 0 0 30px #ff6b6b, 0 0 40px #ff6b6b; }
+        }
+
+        .hourglass-container {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+
+        .hourglass {
+            width: 200px;
+            height: 300px;
+            position: absolute;
+            background: linear-gradient(45deg, #333, #555);
+            clip-path: polygon(30% 0%, 70% 0%, 50% 50%, 70% 100%, 30% 100%, 50% 50%);
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 30px #00ffff, inset 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn, .time-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .control-btn:hover, .time-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .time-display {
+            font-size: 2rem;
+            margin: 20px 0;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 20px auto;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            border-radius: 5px;
+            transition: width 0.1s ease;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, #ffff00, #ff6b6b);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 3s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5) translateY(100px); }
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            color: #4ecdc4;
+            text-shadow: 0 0 10px #4ecdc4;
+        }
+
+        .time-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .time-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 1.8rem; }
+            .hourglass-container { width: 150px; height: 225px; }
+            .hourglass { width: 150px; height: 225px; }
+            #canvas { width: 150px; height: 225px; }
+            .progress-bar { width: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation" id="backgroundCanvas"></div>
+    
+    <div class="container">
+        <h1 class="title">⏳ Epic Hourglass Timer ⏳</h1>
+        
+        <div class="hourglass-container">
+            <div class="hourglass"></div>
+            <canvas id="canvas" width="200" height="300"></canvas>
+        </div>
+        
+        <div class="time-display" id="timeDisplay">03:00</div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        
+        <div class="status" id="status">Ready to start ✨</div>
+        
+        <div class="time-buttons">
+            <button class="time-btn" onclick="setTime(30)">30秒</button>
+            <button class="time-btn" onclick="setTime(60)">1分</button>
+            <button class="time-btn" onclick="setTime(180)">3分</button>
+            <button class="time-btn" onclick="setTime(300)">5分</button>
+            <button class="time-btn" onclick="setTime(600)">10分</button>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="startTimer()">🚀 Start</button>
+            <button class="control-btn" onclick="pauseTimer()">⏸️ Pause</button>
+            <button class="control-btn" onclick="resetTimer()">🔄 Reset</button>
+        </div>
+    </div>
+
+    <script>
+        class EpicHourglassTimer {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.timeDisplay = document.getElementById('timeDisplay');
+                this.progressFill = document.getElementById('progressFill');
+                this.status = document.getElementById('status');
+                
+                this.totalTime = 180; // 3分デフォルト
+                this.remainingTime = this.totalTime;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.animationId = null;
+                
+                this.particles = [];
+                this.sandParticles = [];
+                this.effects = [];
+                
+                this.audioContext = null;
+                this.initAudioContext();
+                
+                this.setupCanvas();
+                this.setupBackgroundAnimation();
+                this.animate();
+            }
+            
+            initAudioContext() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Audio context not available');
+                }
+            }
+            
+            playSound(frequency, duration, type = 'sine') {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+            
+            setupCanvas() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = 200;
+                this.canvas.height = 300;
+            }
+            
+            setupBackgroundAnimation() {
+                const backgroundDiv = document.getElementById('backgroundCanvas');
+                setInterval(() => {
+                    if (Math.random() < 0.3) {
+                        this.createBackgroundParticle(backgroundDiv);
+                    }
+                }, 100);
+            }
+            
+            createBackgroundParticle(container) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = '-10px';
+                particle.style.animationDuration = (2 + Math.random() * 3) + 's';
+                
+                container.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 5000);
+            }
+            
+            setTime(seconds) {
+                if (!this.isRunning) {
+                    this.totalTime = seconds;
+                    this.remainingTime = seconds;
+                    this.updateDisplay();
+                    this.status.textContent = `Set to ${this.formatTime(seconds)} ⏰`;
+                    this.playSound(440, 0.1);
+                }
+            }
+            
+            start() {
+                if (this.remainingTime <= 0) {
+                    this.remainingTime = this.totalTime;
+                }
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                this.status.textContent = 'Timer Running ⚡';
+                this.playSound(523, 0.2);
+                
+                this.timerInterval = setInterval(() => {
+                    if (this.isRunning && !this.isPaused) {
+                        this.remainingTime--;
+                        this.updateDisplay();
+                        this.createSandParticle();
+                        
+                        if (this.remainingTime <= 0) {
+                            this.complete();
+                        }
+                        
+                        // 効果音（残り時間に応じて）
+                        if (this.remainingTime % 10 === 0 && this.remainingTime > 0) {
+                            this.playSound(330, 0.1);
+                        }
+                    }
+                }, 1000);
+            }
+            
+            pause() {
+                this.isPaused = !this.isPaused;
+                this.status.textContent = this.isPaused ? 'Paused ⏸️' : 'Timer Running ⚡';
+                this.playSound(392, 0.15);
+            }
+            
+            reset() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.remainingTime = this.totalTime;
+                this.sandParticles = [];
+                this.effects = [];
+                
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                this.updateDisplay();
+                this.status.textContent = 'Reset Complete ✨';
+                this.playSound(659, 0.2);
+            }
+            
+            complete() {
+                this.isRunning = false;
+                this.status.textContent = '🎉 Time\'s Up! 🎉';
+                
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                // 完了時の派手なエフェクト
+                this.createCompletionEffect();
+                this.playCompletionSound();
+                
+                // 自動リセット（3秒後）
+                setTimeout(() => {
+                    this.reset();
+                    this.status.textContent = 'Ready for next round! ✨';
+                }, 3000);
+            }
+            
+            createCompletionEffect() {
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        this.effects.push({
+                            x: Math.random() * this.canvas.width,
+                            y: Math.random() * this.canvas.height,
+                            vx: (Math.random() - 0.5) * 10,
+                            vy: (Math.random() - 0.5) * 10,
+                            life: 60,
+                            maxLife: 60,
+                            color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+                            size: Math.random() * 5 + 2
+                        });
+                    }, i * 20);
+                }
+            }
+            
+            playCompletionSound() {
+                const notes = [523, 659, 784, 1047];
+                notes.forEach((note, index) => {
+                    setTimeout(() => {
+                        this.playSound(note, 0.3, 'triangle');
+                    }, index * 150);
+                });
+            }
+            
+            createSandParticle() {
+                if (this.sandParticles.length < 100) {
+                    // 上部から砂が落ちる
+                    if (Math.random() < 0.8) {
+                        this.sandParticles.push({
+                            x: 85 + Math.random() * 30, // 砂時計の上部の幅に合わせて
+                            y: 20,
+                            vx: (Math.random() - 0.5) * 2,
+                            vy: Math.random() * 3 + 2,
+                            life: 200 + Math.random() * 100,
+                            maxLife: 300,
+                            color: this.getSandColor(),
+                            size: Math.random() * 2 + 1,
+                            inBottle: false
+                        });
+                    }
+                }
+            }
+            
+            getSandColor() {
+                const colors = [
+                    '#FFD700', '#FFA500', '#FF8C00', '#FF7F50',
+                    '#FFE4B5', '#FFEAA7', '#FDCB6E', '#E17055'
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            updateDisplay() {
+                this.timeDisplay.textContent = this.formatTime(this.remainingTime);
+                
+                const progress = ((this.totalTime - this.remainingTime) / this.totalTime) * 100;
+                this.progressFill.style.width = progress + '%';
+            }
+            
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 砂時計の内部背景
+                this.drawHourglassInterior();
+                
+                // 砂粒子の更新と描画
+                this.updateSandParticles();
+                
+                // エフェクトの更新と描画
+                this.updateEffects();
+                
+                // キラキラエフェクト
+                this.drawSparkles();
+                
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+            
+            drawHourglassInterior() {
+                const ctx = this.ctx;
+                
+                // 上部の砂溜まり
+                const topSandHeight = (this.remainingTime / this.totalTime) * 120;
+                if (topSandHeight > 0) {
+                    const gradient = ctx.createLinearGradient(0, 20, 0, 20 + topSandHeight);
+                    gradient.addColorStop(0, '#FFD700');
+                    gradient.addColorStop(0.5, '#FFA500');
+                    gradient.addColorStop(1, '#FF8C00');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.moveTo(60, 20);
+                    ctx.lineTo(140, 20);
+                    ctx.lineTo(140 - (topSandHeight * 0.3), 20 + topSandHeight);
+                    ctx.lineTo(60 + (topSandHeight * 0.3), 20 + topSandHeight);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                // 下部の砂溜まり
+                const bottomSandHeight = ((this.totalTime - this.remainingTime) / this.totalTime) * 120;
+                if (bottomSandHeight > 0) {
+                    const gradient = ctx.createLinearGradient(0, 280, 0, 280 - bottomSandHeight);
+                    gradient.addColorStop(0, '#FF8C00');
+                    gradient.addColorStop(0.5, '#FFA500');
+                    gradient.addColorStop(1, '#FFD700');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.moveTo(60, 280);
+                    ctx.lineTo(140, 280);
+                    ctx.lineTo(140 - (bottomSandHeight * 0.3), 280 - bottomSandHeight);
+                    ctx.lineTo(60 + (bottomSandHeight * 0.3), 280 - bottomSandHeight);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+            
+            updateSandParticles() {
+                const ctx = this.ctx;
+                
+                for (let i = this.sandParticles.length - 1; i >= 0; i--) {
+                    const particle = this.sandParticles[i];
+                    
+                    // 物理演算
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vy += 0.1; // 重力
+                    
+                    // 砂時計の形状による衝突判定
+                    if (particle.y > 140 && particle.y < 160) {
+                        // 中央のくびれ部分
+                        const centerX = 100;
+                        const maxDistance = 10;
+                        if (Math.abs(particle.x - centerX) > maxDistance) {
+                            particle.vx *= -0.5;
+                            particle.x = centerX + (particle.x > centerX ? maxDistance : -maxDistance);
+                        }
+                    }
+                    
+                    // 下部に到達
+                    if (particle.y > 250) {
+                        particle.vy = 0;
+                        particle.vx *= 0.8;
+                        particle.inBottle = true;
+                    }
+                    
+                    // 描画
+                    ctx.fillStyle = particle.color;
+                    ctx.shadowColor = particle.color;
+                    ctx.shadowBlur = 3;
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    
+                    particle.life--;
+                    if (particle.life <= 0 || particle.y > 300) {
+                        this.sandParticles.splice(i, 1);
+                    }
+                }
+            }
+            
+            updateEffects() {
+                const ctx = this.ctx;
+                
+                for (let i = this.effects.length - 1; i >= 0; i--) {
+                    const effect = this.effects[i];
+                    
+                    effect.x += effect.vx;
+                    effect.y += effect.vy;
+                    effect.vx *= 0.98;
+                    effect.vy *= 0.98;
+                    
+                    const alpha = effect.life / effect.maxLife;
+                    ctx.fillStyle = effect.color;
+                    ctx.globalAlpha = alpha;
+                    ctx.beginPath();
+                    ctx.arc(effect.x, effect.y, effect.size * alpha, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    
+                    effect.life--;
+                    if (effect.life <= 0) {
+                        this.effects.splice(i, 1);
+                    }
+                }
+            }
+            
+            drawSparkles() {
+                const ctx = this.ctx;
+                const time = Date.now() * 0.005;
+                
+                for (let i = 0; i < 5; i++) {
+                    const x = 50 + Math.sin(time + i) * 80 + Math.random() * 20;
+                    const y = 50 + Math.cos(time + i * 1.5) * 100 + Math.random() * 20;
+                    
+                    ctx.fillStyle = `hsla(${(time * 50 + i * 60) % 360}, 100%, 80%, ${0.3 + Math.sin(time * 3 + i) * 0.3})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1 + Math.sin(time * 4 + i) * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        
+        // グローバル関数
+        let timer;
+        
+        function initTimer() {
+            timer = new EpicHourglassTimer();
+        }
+        
+        function setTime(seconds) {
+            timer.setTime(seconds);
+        }
+        
+        function startTimer() {
+            timer.start();
+        }
+        
+        function pauseTimer() {
+            timer.pause();
+        }
+        
+        function resetTimer() {
+            timer.reset();
+        }
+        
+        // 初期化
+        window.addEventListener('load', initTimer);
+        
+        // レスポンシブ対応
+        window.addEventListener('resize', () => {
+            if (timer) {
+                timer.setupCanvas();
+            }
+        });
+        
+        // タッチ対応
+        document.addEventListener('touchstart', function(e) {
+            // 音声コンテキストの初期化（モバイル用）
+            if (timer && timer.audioContext && timer.audioContext.state === 'suspended') {
+                timer.audioContext.resume();
+            }
+        });
+    </script>
+</body>
+</html>
