@@ -1,0 +1,84 @@
+{
+  "files": {
+    "MANAGEMENT_AI_RULES[超重要L10].md": {
+      "path": "/mnt/c/Users/user/ai-auto-generator/MANAGEMENT_AI_RULES[超重要L10].md",
+      "hash": "18cf4ab19a92595fa44f0c92d40360e5",
+      "size": 3459,
+      "lastModified": "2025-07-26T01:08:04.196Z",
+      "status": "found"
+    },
+    "AI_MUTUAL_MONITORING_SYSTEM[超重要L10].md": {
+      "path": "/mnt/c/Users/user/ai-auto-generator/AI_MUTUAL_MONITORING_SYSTEM[超重要L10].md",
+      "hash": "275aff2e821c261c00daf3cd39b72200",
+      "size": 6730,
+      "lastModified": "2025-07-26T21:35:03.481Z",
+      "status": "found"
+    },
+    "INSPECTOR_AI_MANUAL[超重要L10].md": {
+      "path": "/mnt/c/Users/user/ai-auto-generator/INSPECTOR_AI_MANUAL[超重要L10].md",
+      "hash": "29148cebea99d9c5036d54863a2e5489",
+      "size": 8145,
+      "lastModified": "2025-07-26T21:41:52.135Z",
+      "status": "found"
+    },
+    "MANAGEMENT_AI_TEAM_STRUCTURE[超重要L10].md": {
+      "path": "/mnt/c/Users/user/ai-auto-generator/MANAGEMENT_AI_TEAM_STRUCTURE[超重要L10].md",
+      "hash": "9ea6b739bb0b057982675339f1038031",
+      "size": 5916,
+      "lastModified": "2025-07-26T13:30:09.519Z",
+      "status": "found"
+    },
+    "REFLECTION_MISTAKE_SAMPLES[超重要L10].md": {
+      "path": "/mnt/c/Users/user/ai-auto-generator/REFLECTION_MISTAKE_SAMPLES[超重要L10].md",
+      "hash": "6fb52f49866da806aa6ee7d3aad195a8",
+      "size": 8258,
+      "lastModified": "2025-07-26T13:57:09.038Z",
+      "status": "found"
+    }
+  },
+  "lastSync": "2025-07-26T22:12:36.381Z",
+  "lastChanges": {
+    "new": [
+      {
+        "file": "MANAGEMENT_AI_RULES[超重要L10].md",
+        "type": "new",
+        "details": "New rule file detected"
+      },
+      {
+        "file": "AI_MUTUAL_MONITORING_SYSTEM[超重要L10].md",
+        "type": "new",
+        "details": "New rule file detected"
+      },
+      {
+        "file": "INSPECTOR_AI_MANUAL[超重要L10].md",
+        "type": "new",
+        "details": "New rule file detected"
+      },
+      {
+        "file": "MANAGEMENT_AI_TEAM_STRUCTURE[超重要L10].md",
+        "type": "new",
+        "details": "New rule file detected"
+      },
+      {
+        "file": "REFLECTION_MISTAKE_SAMPLES[超重要L10].md",
+        "type": "new",
+        "details": "New rule file detected"
+      }
+    ],
+    "modified": [],
+    "deleted": [],
+    "unchanged": [],
+    "summary": {
+      "totalChanges": 5,
+      "criticalChanges": 0,
+      "hasNewRules": true
+    }
+  },
+  "syncHistory": [
+    {
+      "timestamp": "2025-07-26T22:12:36.381Z",
+      "changesCount": 5,
+      "criticalChanges": 0
+    }
+  ]
+}
