@@ -1,4 +1,10 @@
-# /wk-st - AI Auto Workflow v0.9
+# /wk-st - AI Auto Workflow v0.17
+
+## 使用方法
+- `/wk-st` - 単一アプリ生成（従来通り）
+- `/wk-st 3` - 3個のアプリを連続生成
+- `/wk-st 5` - 5個のアプリを連続生成
+- `/wk-st 13` - 13個のアプリを連続生成
 
 ## System Overview & Your Role
 
@@ -32,13 +38,46 @@ Automatically fetch project requirements and generate complete web applications 
 ```bash
 !echo "🚀 AI Auto Generator Starting..."
 
+# 🔢 引数チェック（連続生成モード判定）
+!GENERATION_COUNT=${1:-1}
+!echo "📊 生成モード判定: ${GENERATION_COUNT}個のアプリ生成"
+
+# 数値引数の検証
+!if ! [[ "$GENERATION_COUNT" =~ ^[0-9]+$ ]] || [ "$GENERATION_COUNT" -lt 1 ] || [ "$GENERATION_COUNT" -gt 50 ]; then
+  echo "❌ エラー: 生成数は1-50の数値で指定してください"
+  echo "使用例: /wk-st 3, /wk-st 5, /wk-st 13"
+  exit 1
+fi
+
+# 🔄 連続生成モード（2個以上の場合）
+!if [ "$GENERATION_COUNT" -gt 1 ]; then
+  echo "🚀 連続生成モード開始: ${GENERATION_COUNT}個のアプリを生成"
+  echo "⚠️ 重要度L8: 全アプリ完了まで中断禁止"
+  
+  # 連続生成システム実行
+  node core/continuous-app-generator.cjs $GENERATION_COUNT "" false false
+  
+  CONTINUOUS_RESULT=$?
+  if [ $CONTINUOUS_RESULT -eq 0 ]; then
+    echo "✅ 連続生成完了: ${GENERATION_COUNT}個のアプリが正常に生成されました"
+  else
+    echo "⚠️ 連続生成で一部問題が発生しました（詳細は上記を確認）"
+  fi
+  
+  # 連続生成モードはここで終了
+  exit $CONTINUOUS_RESULT
+fi
+
+# 📱 単一生成モード（従来通り）
+!echo "📱 単一アプリ生成モード"
+
 # Update generator system to latest version
 !echo "📥 Updating AI Auto Generator..."
 !git fetch origin main && git reset --hard origin/main
 !echo "✅ Generator updated to latest version"
 
 # Version verification
-!echo "📋 Workflow Version: v0.9"
+!echo "📋 Workflow Version: v0.17"
 !echo "📅 Last Updated: $(date)"
 !echo "🔍 Current commit: $(git rev-parse --short HEAD)"
 
@@ -110,12 +149,30 @@ fi
 # Check for duplicates on this device
 !node core/device-manager.cjs check-completed
 
-# 2.7. アプリタイプ別重複チェック（v0.15新機能）
+# 2.7. アプリタイプ別重複チェック・強制停止（v0.16強化）
 !echo "🔍 Checking for duplicate app types..."
 !APP_TYPE_FROM_NUM=$(node core/app-type-manager.cjs get-type-by-number $APP_NUM 2>/dev/null || echo "unknown")
 !DUPLICATE_CHECK_RESULT=$(node core/app-generation-history.cjs check $APP_TYPE_FROM_NUM)
 !echo "📊 Duplicate check result: $DUPLICATE_CHECK_RESULT"
-!echo "⚠️ IMPORTANT: Review duplicate check result above before proceeding"
+
+# 2.8. 重複発見時の強制停止・事故報告（v0.16新機能）
+!SHOULD_PROCEED=$(echo $DUPLICATE_CHECK_RESULT | jq -r '.shouldProceed // true')
+!if [ "$SHOULD_PROCEED" = "false" ]; then
+  echo "🚨 CRITICAL: Duplicate app type detected! Generation STOPPED."
+  echo "📋 Duplicate Details: $DUPLICATE_CHECK_RESULT"
+  
+  # 事故報告生成
+  node core/incident-reporter.cjs report duplicate_generation "$APP_TYPE_FROM_NUM" "$UNIQUE_ID" "$DUPLICATE_CHECK_RESULT" "$SESSION_ID"
+  
+  # セッション終了
+  node core/session-tracker.cjs complete $SESSION_ID app-$APP_NUM-$UNIQUE_ID failed_duplicate_detected
+  
+  echo "❌ WORKFLOW TERMINATED: Duplicate app generation prevented"
+  echo "📝 Incident report generated for Management AI review"
+  exit 1
+fi
+
+!echo "✅ No duplicates detected. Safe to proceed with generation."
 ```
 
 ### Phase 3: AI Generation
