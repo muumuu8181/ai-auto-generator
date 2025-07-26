@@ -491,15 +491,15 @@ class PhaseChecker {
       return { success: false, details: "No app ID provided" };
     }
     
-    // app-XXX-YYYY 形式をチェック
-    const pattern = /^app-\d{3}-[a-zA-Z0-9]+$/;
+    // app-XXXXXXXX-YYYY 形式をチェック（3-8桁の数字）
+    const pattern = /^app-\d{3,8}-[a-zA-Z0-9]+$/;
     const isValid = pattern.test(appId);
     
     return {
       success: isValid,
       details: isValid 
         ? `App ID format valid: ${appId}`
-        : `App ID format invalid: ${appId} (expected: app-XXX-YYYY)`
+        : `App ID format invalid: ${appId} (expected: app-XXXXXXXX-YYYY, 3-8 digits)`
     };
   }
   

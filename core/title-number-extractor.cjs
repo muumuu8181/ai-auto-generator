@@ -10,11 +10,11 @@ const fs = require('fs');
 class TitleNumberExtractor {
     constructor() {
         this.patterns = [
-            /##\s*\((\d{3})\)\s*(.+)/,     // ## (004) 時計アプリ
-            /##\s*\[(\d{3})\]\s*(.+)/,     // ## [004] 時計アプリ
-            /##\s*(\d{3})\.\s*(.+)/,       // ## 004. 時計アプリ
-            /##\s*(\d{3})\s*[:：]\s*(.+)/, // ## 004: 時計アプリ
-            /##\s*(\d{3})\s*[-－]\s*(.+)/, // ## 004 - 時計アプリ
+            /##\s*\((\d{3,8})\)\s*(.+)/,     // ## (004) or (00000004) 時計アプリ
+            /##\s*\[(\d{3,8})\]\s*(.+)/,     // ## [004] or [00000004] 時計アプリ
+            /##\s*(\d{3,8})\.\s*(.+)/,       // ## 004. or 00000004. 時計アプリ
+            /##\s*(\d{3,8})\s*[:：]\s*(.+)/, // ## 004: or 00000004: 時計アプリ
+            /##\s*(\d{3,8})\s*[-－]\s*(.+)/, // ## 004 - or 00000004 - 時計アプリ
         ];
     }
     
@@ -78,7 +78,7 @@ class TitleNumberExtractor {
      */
     findAppByNumber(filePath, targetNumber) {
         const apps = this.extractAppsFromMarkdown(filePath);
-        const paddedNumber = targetNumber.toString().padStart(3, '0');
+        const paddedNumber = targetNumber.toString().padStart(8, '0');
         
         return apps.find(app => app.number === paddedNumber);
     }
@@ -202,11 +202,11 @@ class TitleNumberExtractor {
             return { valid: false, reason: 'Not a number' };
         }
         
-        if (num < 1 || num > 999) {
-            return { valid: false, reason: 'Number out of range (1-999)' };
+        if (num < 1 || num > 99999999) {
+            return { valid: false, reason: 'Number out of range (1-99999999)' };
         }
         
-        const formatted = num.toString().padStart(3, '0');
+        const formatted = num.toString().padStart(8, '0');
         
         return {
             valid: true,
@@ -224,25 +224,25 @@ class TitleNumberExtractor {
             const stats = this.getStatistics(filePath);
             
             if (stats.totalApps === 0) {
-                console.log('📱 No apps found, using 001');
-                return '001';
+                console.log('📱 No apps found, using 00000001');
+                return '00000001';
             }
             
             // 最小の隙間を使用
             if (stats.gaps.length > 0) {
-                const firstGap = stats.gaps[0].toString().padStart(3, '0');
+                const firstGap = stats.gaps[0].toString().padStart(8, '0');
                 console.log(`📱 Using gap number: ${firstGap}`);
                 return firstGap;
             }
             
             // 最大番号+1を使用
-            const nextNumber = (stats.range.max + 1).toString().padStart(3, '0');
+            const nextNumber = (stats.range.max + 1).toString().padStart(8, '0');
             console.log(`📱 Using next sequential number: ${nextNumber}`);
             return nextNumber;
             
         } catch (error) {
-            console.warn('⚠️ Fallback number generation failed, using 999');
-            return '999';
+            console.warn('⚠️ Fallback number generation failed, using 99999999');
+            return '99999999';
         }
     }
     
@@ -289,7 +289,7 @@ class TitleNumberExtractor {
             console.error(`❌ Number extraction failed: ${error.message}`);
             return {
                 success: false,
-                number: '999',
+                number: '99999999',
                 title: 'Error fallback',
                 method: 'error_fallback',
                 error: error.message
@@ -368,11 +368,11 @@ if (require.main === module) {
             console.log('  number <file-path>      - Get app number only (for wk-st)');
             console.log('  validate <number>       - Validate number format');
             console.log('\nSupported formats:');
-            console.log('  ## (004) 時計アプリ');
-            console.log('  ## [004] 時計アプリ');
-            console.log('  ## 004. 時計アプリ');
-            console.log('  ## 004: 時計アプリ');
-            console.log('  ## 004 - 時計アプリ');
+            console.log('  ## (00000004) 時計アプリ');
+            console.log('  ## [00000004] 時計アプリ');
+            console.log('  ## 00000004. 時計アプリ');
+            console.log('  ## 00000004: 時計アプリ');
+            console.log('  ## 00000004 - 時計アプリ');
     }
 }
 

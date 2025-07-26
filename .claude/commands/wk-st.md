@@ -1,4 +1,4 @@
-# /wk-st - AI Auto Workflow v0.8
+# /wk-st - AI Auto Workflow v0.9
 
 ## System Overview & Your Role
 
@@ -38,7 +38,7 @@ Automatically fetch project requirements and generate complete web applications 
 !echo "✅ Generator updated to latest version"
 
 # Version verification
-!echo "📋 Workflow Version: v0.8"
+!echo "📋 Workflow Version: v0.9"
 !echo "📅 Last Updated: $(date)"
 !echo "🔍 Current commit: $(git rev-parse --short HEAD)"
 
@@ -320,7 +320,7 @@ EOF
 !echo "🎉 Generation complete! 4点セット配置済み: reflection.md, requirements.md, work_log.md, session-log.json"
 !echo "📊 統合ログ公開: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/session-log.json"
 # ワークフローバージョン確認完了
-!echo "🔧 Workflow Version: v0.8 確認完了"
+!echo "🔧 Workflow Version: v0.9 確認完了"
 !echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
 !echo "🔗 Unified log saved: logs/unified-$SESSION_ID.json"
 !echo "次回実行: /wk-st"

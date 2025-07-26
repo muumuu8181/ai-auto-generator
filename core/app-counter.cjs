@@ -19,27 +19,27 @@ class AppCounter {
             const readmePath = `${this.tempDir}/README.md`;
             
             if (!fs.existsSync(readmePath)) {
-                console.log('📱 First app - starting with 001');
-                return '001';
+                console.log('📱 First app - starting with 00000001');
+                return '00000001';
             }
 
             const content = fs.readFileSync(readmePath, 'utf8');
             const numbers = this.extractAppNumbers(content);
             
             if (numbers.length === 0) {
-                return '001';
+                return '00000001';
             }
 
             const maxNumber = Math.max(...numbers);
             const nextNumber = maxNumber + 1;
-            const formatted = String(nextNumber).padStart(3, '0');
+            const formatted = String(nextNumber).padStart(8, '0');
 
             console.log(`📱 Next app number: ${formatted} (max found: ${maxNumber})`);
             return formatted;
 
         } catch (error) {
             console.error('⚠️ Counter error:', error.message);
-            return '001';
+            return '00000001';
         } finally {
             this.cleanup();
         }
@@ -70,8 +70,8 @@ class AppCounter {
     }
 
     extractAppNumbers(content) {
-        // Extract app-001-abc123 patterns
-        const pattern = /app-(\d{3})-[a-z0-9]{6}/g;
+        // Extract app-00000001-abc123 patterns
+        const pattern = /app-(\d{3,8})-[a-z0-9]{6}/g;
         const numbers = [];
         let match;
 
