@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Palette - 創造的物語作成ツール</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>🎨 Word Palette</h1>
+            <p class="subtitle">単語をドラッグして創造的な物語を作ろう</p>
+        </header>
+
+        <main class="main-content">
+            <!-- 単語パレット -->
+            <section class="word-palette">
+                <h2>🎯 単語パレット</h2>
+                <div class="palette-controls">
+                    <button id="refreshWords" class="btn btn-primary">新しい単語を生成</button>
+                    <select id="categorySelect" class="category-select">
+                        <option value="mixed">ミックス</option>
+                        <option value="fantasy">ファンタジー</option>
+                        <option value="science">科学</option>
+                        <option value="nature">自然</option>
+                        <option value="emotion">感情</option>
+                        <option value="action">アクション</option>
+                    </select>
+                </div>
+                <div id="wordContainer" class="word-container"></div>
+            </section>
+
+            <!-- 物語作成エリア -->
+            <section class="story-workspace">
+                <h2>📝 物語作成エリア</h2>
+                <div class="workspace-controls">
+                    <button id="clearStory" class="btn btn-secondary">クリア</button>
+                    <button id="saveStory" class="btn btn-success">保存</button>
+                    <button id="exportStory" class="btn btn-info">エクスポート</button>
+                </div>
+                <div id="storyArea" class="story-area" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <p class="placeholder">ここに単語をドラッグ&ドロップして物語を作成してください...</p>
+                </div>
+                <div class="word-count">
+                    <span id="wordCount">単語数: 0</span>
+                    <span id="charCount">文字数: 0</span>
+                </div>
+            </section>
+
+            <!-- 保存された物語 -->
+            <section class="saved-stories">
+                <h2>💾 保存された物語</h2>
+                <div id="savedStoriesList" class="stories-list"></div>
+            </section>
+        </main>
+
+        <!-- モーダル -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <h3 id="modalTitle">物語の詳細</h3>
+                <div id="modalBody"></div>
+                <div class="modal-actions">
+                    <button id="deleteStory" class="btn btn-danger">削除</button>
+                    <button id="editStory" class="btn btn-primary">編集</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- フィードバック -->
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
