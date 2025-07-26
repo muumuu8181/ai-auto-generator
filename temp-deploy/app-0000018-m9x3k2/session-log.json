@@ -1,0 +1,30 @@
+{
+  "sessionId": "gen-1753536120000-xgBOU0",
+  "appId": "app-0000018-m9x3k2",
+  "appTitle": "Idea Canvas - 創造的思考ツール",
+  "appDescription": "アイデアをビジュアルノードとして配置・接続し、思考を整理・拡張できるマインドマップツール",
+  "generatedAt": "2025-07-26T13:27:35Z",
+  "deviceId": "localhost-u0a193-mdj93xm2-0ea449",
+  "version": "v0.16",
+  "deployment": {
+    "status": "deploying",
+    "targetUrl": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+    "startTime": "2025-07-26T13:27:35Z"
+  },
+  "files": [
+    "index.html",
+    "styles.css", 
+    "script.js"
+  ],
+  "features": [
+    "ドラッグ&ドロップによるノード配置",
+    "ノード間の接続線描画",
+    "5色カラーパレット",
+    "右クリックコンテキストメニュー",
+    "ローカルストレージ自動保存",
+    "レスポンシブデザイン",
+    "リアルタイムレンダリング",
+    "接続モードUI",
+    "全消去機能"
+  ]
+}

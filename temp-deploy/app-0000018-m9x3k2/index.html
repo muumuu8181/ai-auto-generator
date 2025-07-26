@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idea Canvas - 創造的思考ツール</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app-container">
+        <header class="app-header">
+            <h1>Idea Canvas</h1>
+            <p>アイデアを繋げて、思考を広げよう</p>
+        </header>
+
+        <div id="toolbar">
+            <input type="text" id="idea-input" placeholder="新しいアイデアを入力...">
+            <button id="add-idea-btn" class="control-btn" aria-label="アイデアを追加">追加</button>
+            <div class="color-palette">
+                <span class="color-box active" data-color="#ffdddd" style="background: #ffdddd;" aria-label="赤色を選択"></span>
+                <span class="color-box" data-color="#ddffdd" style="background: #ddffdd;" aria-label="緑色を選択"></span>
+                <span class="color-box" data-color="#ddddff" style="background: #ddddff;" aria-label="青色を選択"></span>
+                <span class="color-box" data-color="#ffffdd" style="background: #ffffdd;" aria-label="黄色を選択"></span>
+                <span class="color-box" data-color="#f0f0f0" style="background: #f0f0f0;" aria-label="灰色を選択"></span>
+            </div>
+            <button id="clear-canvas-btn" class="control-btn danger-btn" aria-label="キャンバスを消去">全消去</button>
+        </div>
+
+        <main id="canvas-container">
+            <svg id="canvas"></svg>
+            <div id="nodes-container"></div>
+        </main>
+
+        <div id="context-menu" class="context-menu">
+            <button id="connect-btn">接続モード</button>
+            <button id="delete-btn">削除</button>
+        </div>
+
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
