@@ -269,6 +269,33 @@ class AppTypeManager {
     }
     
     /**
+     * 番号からアプリタイプを逆引き（v0.15新機能）
+     */
+    getTypeByNumber(number) {
+        const registry = this.loadRegistry();
+        const paddedNumber = number.toString().padStart(3, '0');
+        
+        for (const [typeId, typeInfo] of Object.entries(registry.appTypes)) {
+            if (typeInfo.number === paddedNumber) {
+                return {
+                    typeId: typeId,
+                    number: typeInfo.number,
+                    description: typeInfo.description,
+                    keywords: typeInfo.keywords || []
+                };
+            }
+        }
+        
+        console.warn(`⚠️ App type not found for number: ${paddedNumber}`);
+        return {
+            typeId: 'unknown',
+            number: '999',
+            description: '分類不可能',
+            keywords: []
+        };
+    }
+    
+    /**
      * 外部リポジトリ用のレジストリを生成
      */
     generateExternalRegistry() {
@@ -359,18 +386,31 @@ if (require.main === module) {
             console.log(numberResult.number);
             break;
             
+        case 'get-type-by-number':
+            // 番号からアプリタイプを逆引き（v0.15新機能）
+            const appNumber = process.argv[3];
+            if (!appNumber) {
+                console.error('Usage: node app-type-manager.cjs get-type-by-number <number>');
+                process.exit(1);
+            }
+            const typeResult = manager.getTypeByNumber(appNumber);
+            console.log(typeResult.typeId);
+            break;
+            
         default:
             console.log('App Type Manager Commands:');
-            console.log('  detect <requirements> [app-name]  - Detect app type and get number');
-            console.log('  manual <type-id>                  - Manually assign app type');
-            console.log('  list                             - List all available app types');
-            console.log('  stats                            - Show usage statistics');
-            console.log('  health                           - Run health check');
-            console.log('  export                           - Generate external registry');
-            console.log('  number <requirements> [app-name] - Get app number only (for wk-st)');
+            console.log('  detect <requirements> [app-name]     - Detect app type and get number');
+            console.log('  manual <type-id>                     - Manually assign app type');
+            console.log('  list                                - List all available app types');
+            console.log('  stats                               - Show usage statistics');
+            console.log('  health                              - Run health check');
+            console.log('  export                              - Generate external registry');
+            console.log('  number <requirements> [app-name]    - Get app number only (for wk-st)');
+            console.log('  get-type-by-number <number>         - Get app type from number (v0.15)');
             console.log('\nExample:');
             console.log('  node app-type-manager.cjs detect "時計アプリを作りたい" "時計"');
             console.log('  node app-type-manager.cjs manual clock');
+            console.log('  node app-type-manager.cjs get-type-by-number 005');
     }
 }
 

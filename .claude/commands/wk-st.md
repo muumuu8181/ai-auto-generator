@@ -109,6 +109,13 @@ fi
 
 # Check for duplicates on this device
 !node core/device-manager.cjs check-completed
+
+# 2.7. アプリタイプ別重複チェック（v0.15新機能）
+!echo "🔍 Checking for duplicate app types..."
+!APP_TYPE_FROM_NUM=$(node core/app-type-manager.cjs get-type-by-number $APP_NUM 2>/dev/null || echo "unknown")
+!DUPLICATE_CHECK_RESULT=$(node core/app-generation-history.cjs check $APP_TYPE_FROM_NUM)
+!echo "📊 Duplicate check result: $DUPLICATE_CHECK_RESULT"
+!echo "⚠️ IMPORTANT: Review duplicate check result above before proceeding"
 ```
 
 ### Phase 3: AI Generation
@@ -357,6 +364,12 @@ EOF
 # 5.4. 完了記録
 !node core/device-manager.cjs mark-complete app-$APP_NUM-$UNIQUE_ID
 !node core/session-tracker.cjs complete $SESSION_ID app-$APP_NUM-$UNIQUE_ID success
+
+# 5.4.5. アプリ生成履歴記録（v0.15新機能）
+!echo "📝 Recording app generation history..."
+!FINAL_APP_TYPE=$(node core/app-type-manager.cjs get-type-by-number $APP_NUM 2>/dev/null || echo "unknown")
+!node core/app-generation-history.cjs record app-$APP_NUM-$UNIQUE_ID $FINAL_APP_TYPE "$APP_TITLE"
+!echo "✅ App generation history recorded with duplicate detection"
 
 # 5.5. 一時ファイル削除
 !rm -rf ./temp-req ./temp-deploy
