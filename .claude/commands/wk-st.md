@@ -115,14 +115,21 @@ fi
 ```bash
 !node core/session-tracker.cjs log $SESSION_ID "Starting AI generation" info
 
-# Select appropriate template
-# Generate code using Gemini CLI
-# Apply requirements to template
-
 # 🚨 重要: 作業監視・エラー記録ツールを使用してください（必須）
 
+# 3.1. アプリコンテキスト分析（Gemini統合開始）
+!echo "🔍 Starting Gemini AI analysis..."
+!mkdir -p ./temp-deploy/app-$APP_NUM-$UNIQUE_ID
+!node core/gemini-analyzer.cjs analyze ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/ initial $SESSION_ID
+
+# 3.2. 要件に基づくアプリ生成実作業
+!echo "⚡ Starting app generation with requirements..."
 # *** アプリ生成実作業をここで実行 ***
-# (Gemini CLI使用、テンプレート適用、要件実装など)
+# Select appropriate template, Generate code using Gemini CLI, Apply requirements to template
+
+# 3.3. 中間Gemini分析（生成後改善提案）
+!echo "📊 Running mid-generation Gemini analysis..."
+!node core/gemini-analyzer.cjs analyze ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/ mid $SESSION_ID
 
 # エラー発生時の記録例（コマンド実行でエラーが出た場合）
 # !node core/work-monitor.cjs record-error $SESSION_ID "npm install" "Error: EACCES permission denied" "sudo権限で実行" "medium"
@@ -171,9 +178,10 @@ fi
 - ✅ Session tracking maintained
 
 #### Version Information:
-- 🔧 Workflow Version: v0.6
+- 🔧 Workflow Version: v0.14 (Gemini統合版)
 - 📋 Requirements Commit: $(git -C ./temp-req rev-parse --short HEAD)
 - 🕒 Fetched at: $(date)
+- 🤖 Gemini AI分析: 実行済み
 
 #### 🎯 プロジェクト概要:
 [作成したアプリの内容と主要機能を3-4行で要約]
@@ -222,11 +230,48 @@ fi
 - **効率的だった作業**: [スムーズに進んだ部分]
 - **時間がかかった作業**: [予想以上に時間を要した部分]
 
-#### 🔍 品質チェック結果:
-- [動作確認の詳細結果]
-- [異なるブラウザでのテスト]
-- [モバイル環境での確認]
-- [発見されたバグとその対処]
+#### 🔍 品質チェック結果（必須確認項目）:
+
+**基本動作確認**:
+- [ ] メインページ読み込み（GitHub Pages URL）
+- [ ] 全ての主要機能が動作
+- [ ] エラーコンソールにクリティカルエラーなし
+- [ ] レスポンシブデザイン確認
+
+**ブラウザ互換性**:
+- [ ] Chrome最新版で動作
+- [ ] Firefox最新版で動作  
+- [ ] Safari（可能であれば）で動作
+- [ ] Edge（可能であれば）で動作
+
+**モバイル・レスポンシブ**:
+- [ ] スマートフォン画面（375px以下）で表示正常
+- [ ] タブレット画面（768px〜1024px）で表示正常
+- [ ] タッチ操作（該当機能がある場合）正常動作
+
+**パフォーマンス確認**:
+- [ ] ページ読み込み時間3秒以内
+- [ ] JavaScript実行エラーなし
+- [ ] CSS表示崩れなし
+- [ ] 画像・リソース読み込み正常
+
+**アクセシビリティ基本確認**:
+- [ ] キーボードナビゲーション可能（該当する場合）
+- [ ] コントラスト比確認（文字が読みやすい）
+- [ ] 基本的なHTMLセマンティクス使用
+
+**Gemini分析結果確認**:
+- [ ] gemini-feedback.txtファイル生成確認
+- [ ] 改善提案の妥当性確認
+- [ ] 高優先度改善項目の認識
+
+**デプロイ確認**:
+- [ ] GitHub Pages URL正常アクセス
+- [ ] 全ファイル（CSS/JS）正常読み込み
+- [ ] session-log.json公開確認
+
+**検出されたバグ・問題**:
+- [実際に発見された問題とその対処法を記録]
 
 #### 📝 Technical Notes:
 - Generation timestamp: $(date -u)
@@ -238,6 +283,12 @@ fi
 
 ---
 *Reflection specific to app-$APP_NUM-$UNIQUE_ID - Part of multi-AI generation ecosystem*" > ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/reflection.md
+
+# 4.5. 最終Gemini分析・フィードバック生成（v0.14新機能）
+!echo "🎯 Generating final Gemini feedback..."
+!node core/gemini-analyzer.cjs analyze ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/ final $SESSION_ID
+!node core/gemini-feedback-generator.cjs generate ./temp-deploy/app-$APP_NUM-$UNIQUE_ID/ $SESSION_ID
+!echo "✅ Gemini feedback generated: gemini-feedback.txt"
 
 # Export unified session log for GitHub Pages (統合ログ公開)
 !echo "📊 Exporting unified session log..."

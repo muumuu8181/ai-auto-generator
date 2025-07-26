@@ -1,0 +1,15 @@
+{
+  "sessionId": "management-ai-session-1753499837",
+  "activities": [
+    {
+      "timestamp": "2025-07-26T03:17:17.317Z",
+      "action": "monitor_start",
+      "description": "Work monitoring initiated",
+      "data": {
+        "sessionId": "management-ai-session-1753499837"
+      },
+      "hash": "ad718f6b5a51d556a9f7f647220171ec"
+    }
+  ],
+  "lastUpdated": "2025-07-26T03:17:17.370Z"
+}
