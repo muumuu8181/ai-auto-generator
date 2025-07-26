@@ -1,6 +1,16 @@
 # AI Auto Generator バージョン履歴
 
-## 現在のバージョン: v0.17
+## 現在のバージョン: v0.18
+
+### v0.18 (2025-07-26)
+- **🔍 革命的品質保証**: Gemini CLI提案による3段階検証システム実装
+- **🚨 Worker AIミス防止**: 不正Author・ファイル構造・リポジトリ誤認識を自動検知・修正
+- **⚙️ 新機能**: worker-quality-validator.cjs（Phase 0+各Phase後+Phase 3.5検証）
+- **🤖 新機能**: auto-improvement-loop.cjs（Management AI自動改善ループ）
+- **🔧 改善**: /wk-st.mdに環境検証→自己診断→統合検証の完全品質チェック統合
+- **🛡️ 改善**: Git設定自動修正・ファイル構造安全性チェック・処理中断型安全機能
+- **🔄 改善**: Gemini CLIアドバイス基づく段階的エラーハンドリング実装
+- **🎯 効果**: Worker AIミス完全防止・Management AI自律的改善ループ確立
 
 ### v0.17 (2025-07-26)
 - **🚨 重要度L8**: 作業中断防止ルール強化（completion-enforcer.cjs）

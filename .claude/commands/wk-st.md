@@ -71,6 +71,20 @@ fi
 # 📱 単一生成モード（従来通り）
 !echo "📱 単一アプリ生成モード"
 
+# Phase 0: 環境検証フェーズ（Gemini CLI提案による事前チェック）
+!echo "🔍 Phase 0: 環境検証フェーズ開始..."
+!node core/worker-quality-validator.cjs environment
+
+!ENVIRONMENT_CHECK_RESULT=$?
+!if [ $ENVIRONMENT_CHECK_RESULT -ne 0 ]; then
+  echo "🚨 CRITICAL: 環境検証で問題が検出されました"
+  echo "Worker AI品質検証システムにより処理を中断します"
+  echo "詳細は上記のエラーメッセージを確認してください"
+  exit $ENVIRONMENT_CHECK_RESULT
+fi
+
+!echo "✅ Phase 0: 環境検証完了 - 全ての前提条件をクリア"
+
 # Update generator system to latest version
 !echo "📥 Updating AI Auto Generator..."
 !git fetch origin main && git reset --hard origin/main
@@ -173,6 +187,19 @@ fi
 fi
 
 !echo "✅ No duplicates detected. Safe to proceed with generation."
+
+# Phase 1完了後検証（Gemini CLI提案による自己診断）
+!echo "🔍 Phase 1完了後検証..."
+!node core/worker-quality-validator.cjs phase 1 "Environment Setup and Project Selection"
+
+!PHASE1_CHECK_RESULT=$?
+!if [ $PHASE1_CHECK_RESULT -ne 0 ]; then
+  echo "⚠️ WARNING: Phase 1検証で問題が検出されました"
+  echo "継続可能ですが、品質に影響する可能性があります"
+  # 警告のみで継続
+fi
+
+!echo "✅ Phase 1検証完了 - 環境設定・プロジェクト選択フェーズ正常"
 ```
 
 ### Phase 3: AI Generation
@@ -215,6 +242,44 @@ fi
 !node core/work-monitor.cjs button-tested $SESSION_ID "submitBtn" true ./app-$APP_NUM-$UNIQUE_ID/index.html
 
 !node core/session-tracker.cjs log $SESSION_ID "Generation complete" info
+
+# Phase 3完了後検証（Gemini CLI提案による自己診断）
+!echo "🔍 Phase 3完了後検証..."
+!node core/worker-quality-validator.cjs phase 3 "AI Generation"
+
+!PHASE3_CHECK_RESULT=$?
+!if [ $PHASE3_CHECK_RESULT -ne 0 ]; then
+  echo "⚠️ WARNING: Phase 3検証で問題が検出されました"
+  echo "継続可能ですが、品質に影響する可能性があります"
+  # 警告のみで継続
+fi
+
+!echo "✅ Phase 3検証完了 - AI生成フェーズ正常"
+```
+
+### Phase 3.5: 生成物統合検証フェーズ（Gemini CLI提案による最終品質保証）
+```bash
+!echo "🔍 Phase 3.5: 生成物統合検証フェーズ開始..."
+!echo "重要: デプロイ前の最終品質チェックを実行します"
+
+# 生成物統合検証（Critical: 失敗時は処理を中断）
+!node core/worker-quality-validator.cjs artifacts app-$APP_NUM-$UNIQUE_ID ./temp-deploy/app-$APP_NUM-$UNIQUE_ID
+
+!ARTIFACTS_CHECK_RESULT=$?
+!if [ $ARTIFACTS_CHECK_RESULT -ne 0 ]; then
+  echo "🚨 CRITICAL: 生成物検証で重大な問題が検出されました"
+  echo "デプロイを中断します - 手動確認が必要です"
+  
+  # セッション終了（失敗）
+  node core/session-tracker.cjs complete $SESSION_ID app-$APP_NUM-$UNIQUE_ID failed_validation_failure
+  
+  echo "❌ WORKFLOW TERMINATED: 品質検証失敗"
+  echo "📝 品質問題の詳細は上記を確認してください"
+  exit 1
+fi
+
+!echo "✅ Phase 3.5検証完了 - 全ての生成物が品質基準をクリア"
+!echo "🚀 デプロイ実行許可 - 安全にデプロイを開始します"
 ```
 
 ### Phase 4: Auto Deploy
@@ -440,11 +505,25 @@ EOF
 !node core/session-tracker.cjs stats
 !echo "🎉 Generation complete! 4点セット配置済み: reflection.md, requirements.md, work_log.md, session-log.json"
 !echo "📊 統合ログ公開: https://muumuu8181.github.io/published-apps/app-$APP_NUM-$UNIQUE_ID/session-log.json"
+# Phase 5完了後検証（Gemini CLI提案による最終確認）
+!echo "🔍 Phase 5完了後検証..."
+!node core/worker-quality-validator.cjs phase 5 "Documentation and Completion"
+
+!PHASE5_CHECK_RESULT=$?
+!if [ $PHASE5_CHECK_RESULT -ne 0 ]; then
+  echo "⚠️ WARNING: Phase 5検証で問題が検出されました"
+  echo "ドキュメントに不備がある可能性があります"
+  # 警告のみで継続
+fi
+
+!echo "✅ Phase 5検証完了 - ドキュメント・完了処理フェーズ正常"
+
 # ワークフローバージョン確認完了
-!echo "🔧 Workflow Version: v0.9 確認完了"
+!echo "🔧 Workflow Version: v0.17 確認完了（3段階品質検証対応）"
 !echo "📋 Requirements最新版確認済み: $(git -C ./temp-req rev-parse --short HEAD)"
 !echo "🔗 Unified log saved: logs/unified-$SESSION_ID.json"
-!echo "次回実行: /wk-st"
+!echo "🔍 品質検証: Phase 0 + Phase完了後 + Phase 3.5統合検証 = 完全品質保証"
+!echo "次回実行: /wk-st [数値] (例: /wk-st 3 で3個連続生成)"
 ```
 
 ## Configuration
