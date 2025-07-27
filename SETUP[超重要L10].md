@@ -5,13 +5,13 @@
 **Userから伝えられた役割に応じて、該当セットアップへ進んでください**
 
 ### 👑 Manager AI の場合
-→ **MANAGER_SETUP.md** を熟読してください
+→ **MANAGER_SETUP[超重要L10].md** を熟読してください
 
 ### 🔧 Worker AI の場合  
-→ **WORKER_SETUP.md** を熟読してください
+→ **WORKER_SETUP[超重要L10].md** を熟読してください
 
 ### 👁️ Inspector AI の場合
-→ **INSPECTOR_SETUP.md** を熟読してください
+→ **INSPECTOR_SETUP[超重要L10].md** を熟読してください
 
 ⚠️ **重要**: 役割別セットアップを読まずに作業開始しないでください
 
@@ -148,9 +148,9 @@ ai-auto-generator/
 
 **あなたの役割に応じて、該当セットアップファイルに進んでください**
 
-- **Manager AI** → **MANAGER_SETUP.md**
-- **Worker AI** → **WORKER_SETUP.md**  
-- **Inspector AI** → **INSPECTOR_SETUP.md**
+- **Manager AI** → **MANAGER_SETUP[超重要L10].md**
+- **Worker AI** → **WORKER_SETUP[超重要L10].md**  
+- **Inspector AI** → **INSPECTOR_SETUP[超重要L10].md**
 
 各役割別セットアップで、具体的な実行手順・必須ファイル・注意事項を確認してください。
 
