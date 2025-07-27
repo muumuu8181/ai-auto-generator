@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-07-27T04:00:23.095Z",
+  "totalApps": 1,
+  "workingApps": [],
+  "brokenApps": [
+    "app-001-auctrh"
+  ],
+  "allApps": [
+    "app-001-auctrh"
+  ],
+  "baseUrl": "https://muumuu8181.github.io/published-apps/",
+  "analysis": {
+    "successRate": 0,
+    "recommendedActions": [
+      "1件の404エラーアプリの修復が必要"
+    ],
+    "detectionMethods": [
+      "href属性パターンマッチング",
+      "HTML内容テキスト抽出",
+      "ディレクトリリスト解析"
+    ]
+  }
+}
