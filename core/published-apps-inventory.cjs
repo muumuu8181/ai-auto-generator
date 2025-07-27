@@ -12,42 +12,60 @@ class PublishedAppsInventory {
     constructor() {
         this.repoApiUrl = 'https://api.github.com/repos/muumuu8181/published-apps/git/trees/main?recursive=1';
         this.baseUrl = 'https://muumuu8181.github.io/published-apps/';
+        this.localClonePath = '/mnt/c/Users/user/ai-auto-generator/published-apps';
         this.inventory = {
             timestamp: new Date().toISOString(),
             totalApps: 0,
             workingApps: [],
             brokenApps: [],
             allApps: [],
-            summary: {}
+            summary: {},
+            dataSource: 'github-clone' // データソース明記
         };
     }
 
     /**
-     * GitHubリポジトリから全アプリディレクトリを取得
+     * 最新GitHubリポジトリクローン実行
      */
-    async fetchAllAppsFromRepo() {
-        console.log('🔍 GitHub Repository Apps Inventory: 開始');
-        console.log(`📄 対象リポジトリ: muumuu8181/published-apps`);
+    async cloneFreshRepo() {
+        console.log('🔄 最新published-appsリポジトリクローン開始');
         
         return new Promise((resolve, reject) => {
-            // GitHub API contents エンドポイントから直接取得（Python使用）
-            const command = `curl -s "https://api.github.com/repos/muumuu8181/published-apps/contents" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-apps = [item['name'] for item in data if item['name'].startswith('app-')]
-for app in sorted(apps):
-    print(app)
-"`;
+            const cloneCommand = `cd /mnt/c/Users/user/ai-auto-generator && rm -rf published-apps && git clone https://github.com/muumuu8181/published-apps.git`;
+            
+            exec(cloneCommand, (error, stdout, stderr) => {
+                if (error) {
+                    console.error('❌ GitHubクローンエラー:', error.message);
+                    reject(error);
+                    return;
+                }
+                
+                console.log('✅ GitHub clone完了: /mnt/c/Users/user/ai-auto-generator/published-apps');
+                resolve();
+            });
+        });
+    }
+
+    /**
+     * クローンしたローカルリポジトリから全アプリ取得
+     */
+    async fetchAllAppsFromLocalClone() {
+        console.log('🔍 ローカルクローンからアプリディレクトリ検出開始');
+        console.log(`📄 対象ディレクトリ: ${this.localClonePath}`);
+        
+        return new Promise((resolve, reject) => {
+            // ローカルクローンからapp-ディレクトリを検出
+            const command = `cd ${this.localClonePath} && ls -1 | grep '^app-' | sort`;
             
             exec(command, (error, stdout, stderr) => {
                 if (error) {
-                    console.error('❌ GitHub API取得エラー:', error.message);
+                    console.error('❌ ローカルディレクトリ読み取りエラー:', error.message);
                     reject(error);
                     return;
                 }
                 
                 const apps = stdout.trim().split('\n').filter(app => app.length > 0);
-                console.log(`📋 リポジトリから検出したアプリ: ${apps.length}件`);
+                console.log(`📋 クローンから検出したアプリ: ${apps.length}件`);
                 apps.forEach((app, index) => {
                     console.log(`  ${index + 1}. ${app}`);
                 });
@@ -236,21 +254,24 @@ ${inventory.summary.recommendations.map(rec => `- ${rec}`).join('\n')}
      */
     async run() {
         try {
-            // Step 1: GitHubリポジトリから全アプリ取得
-            const allApps = await this.fetchAllAppsFromRepo();
+            // Step 1: 最新リポジトリクローン
+            await this.cloneFreshRepo();
+            
+            // Step 2: クローンから全アプリ取得
+            const allApps = await this.fetchAllAppsFromLocalClone();
             
             if (allApps.length === 0) {
                 console.log('❌ アプリが見つかりませんでした');
                 return null;
             }
 
-            // Step 2: 各アプリの動作確認
+            // Step 3: 各アプリの動作確認
             const { workingApps, brokenApps } = await this.testAppFunctionality(allApps);
 
-            // Step 3: サマリー生成
+            // Step 4: サマリー生成
             const summary = this.generateSummary(workingApps, brokenApps, allApps);
 
-            // Step 4: インベントリ完成
+            // Step 5: インベントリ完成
             this.inventory = {
                 timestamp: new Date().toISOString(),
                 totalApps: allApps.length,
@@ -260,10 +281,10 @@ ${inventory.summary.recommendations.map(rec => `- ${rec}`).join('\n')}
                 summary: summary
             };
 
-            // Step 5: 結果保存
+            // Step 6: 結果保存
             await this.saveResults(this.inventory);
 
-            // Step 6: コンソール最終結果
+            // Step 7: コンソール最終結果
             console.log('\n📊 Published Apps Inventory 完了結果:');
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             console.log(`🎯 総アプリ数: ${summary.totalApps}件`);
