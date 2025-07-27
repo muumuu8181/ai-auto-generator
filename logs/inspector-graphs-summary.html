@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Inspector AI - 5グラフ要約</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .timestamp {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+        
+        /* 5つグラフ横並びレイアウト */
+        .graphs-container {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+        
+        .graph-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 280px;
+            flex: 1;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .graph-title {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+        
+        .graph-summary {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(103, 126, 234, 0.1);
+            border-radius: 8px;
+        }
+        
+        .summary-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .summary-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* 詳細リンク */
+        .detail-links {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .detail-link {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 15px 30px;
+            margin: 0 10px;
+            border-radius: 25px;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .detail-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .graphs-container {
+                flex-direction: column;
+            }
+            
+            .graph-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Inspector AI - 5グラフ要約</h1>
+        <div class="timestamp">最終更新: 2025/7/27 11:50:00</div>
+    </div>
+    
+    <!-- 5つグラフ横並び -->
+    <div class="graphs-container">
+        <!-- グラフ1: アプリ統計 -->
+        <div class="graph-card">
+            <div class="graph-title">📱 アプリ統計</div>
+            <div class="chart-container">
+                <canvas id="appChart"></canvas>
+            </div>
+            <div class="graph-summary">
+                <div class="summary-number">4</div>
+                <div class="summary-label">総アプリ数</div>
+            </div>
+        </div>
+        
+        <!-- グラフ2: URL健全性 -->
+        <div class="graph-card">
+            <div class="graph-title">🌐 URL健全性</div>
+            <div class="chart-container">
+                <canvas id="urlChart"></canvas>
+            </div>
+            <div class="graph-summary">
+                <div class="summary-number">75%</div>
+                <div class="summary-label">正常率</div>
+            </div>
+        </div>
+        
+        <!-- グラフ3: チェックツール -->
+        <div class="graph-card">
+            <div class="graph-title">🔧 チェックツール</div>
+            <div class="chart-container">
+                <canvas id="toolChart"></canvas>
+            </div>
+            <div class="graph-summary">
+                <div class="summary-number">14</div>
+                <div class="summary-label">監視ツール数</div>
+            </div>
+        </div>
+        
+        <!-- グラフ4: チェックリスト -->
+        <div class="graph-card">
+            <div class="graph-title">📋 チェックリスト</div>
+            <div class="chart-container">
+                <canvas id="checklistChart"></canvas>
+            </div>
+            <div class="graph-summary">
+                <div class="summary-number">220+</div>
+                <div class="summary-label">チェック項目数</div>
+            </div>
+        </div>
+        
+        <!-- グラフ5: システム健全性 -->
+        <div class="graph-card">
+            <div class="graph-title">💊 システム健全性</div>
+            <div class="chart-container">
+                <canvas id="healthChart"></canvas>
+            </div>
+            <div class="graph-summary">
+                <div class="summary-number">72%</div>
+                <div class="summary-label">総合スコア</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 詳細ページリンク -->
+    <div class="detail-links">
+        <a href="inspector-visual-dashboard.html" class="detail-link">📊 詳細ダッシュボード</a>
+        <a href="http://localhost:3001" class="detail-link">🌐 リアルタイム監視</a>
+        <a href="../reports-to-user/inspector-reports/" class="detail-link">📄 レポート一覧</a>
+    </div>
+
+    <script>
+        // Chart.js設定
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false;
+        
+        // グラフ1: アプリ統計
+        new Chart(document.getElementById('appChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['本番', '開発中'],
+                datasets: [{
+                    data: [1, 3],
+                    backgroundColor: ['#667eea', '#764ba2'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        
+        // グラフ2: URL健全性
+        new Chart(document.getElementById('urlChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['正常', '404エラー'],
+                datasets: [{
+                    data: [3, 1],
+                    backgroundColor: ['#27ae60', '#e74c3c'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        
+        // グラフ3: チェックツール
+        new Chart(document.getElementById('toolChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Scanner', 'Monitor', 'Logger', 'Checker'],
+                datasets: [{
+                    data: [4, 3, 2, 5],
+                    backgroundColor: ['#3498db', '#9b59b6', '#f39c12', '#e67e22'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { display: false },
+                    x: { display: false }
+                }
+            }
+        });
+        
+        // グラフ4: チェックリスト
+        new Chart(document.getElementById('checklistChart'), {
+            type: 'line',
+            data: {
+                labels: ['Manager', 'Worker', 'Inspector', 'System'],
+                datasets: [{
+                    data: [48, 50, 43, 79],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(103, 126, 234, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { display: false },
+                    x: { display: false }
+                }
+            }
+        });
+        
+        // グラフ5: システム健全性
+        new Chart(document.getElementById('healthChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['良好', '要改善'],
+                datasets: [{
+                    data: [72, 28],
+                    backgroundColor: ['#27ae60', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

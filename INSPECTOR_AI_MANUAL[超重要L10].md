@@ -14,6 +14,20 @@ claude
 /ins-st
 ```
 
+### 🎯 毎回会話時の自動実行
+**User要求**: 「毎回会話をするたびに全体の状況を視覚化して示す」
+
+#### 自動実行コマンド
+```bash
+node core/inspector-auto-display.cjs
+```
+
+#### 実行内容
+- 📊 最新データ自動収集
+- 🎨 視覚ダッシュボード自動生成  
+- 🌐 ブラウザ自動表示 (http://localhost:3001)
+- 📋 コンソール要約表示
+
 ### 実行前確認事項
 - [ ] ai-auto-generatorディレクトリにいるか確認
 - [ ] 最新のMANAGEMENT_AI_RULES[超重要L10].mdを読み込み済みか

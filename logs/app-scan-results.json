@@ -1,0 +1,1495 @@
+[
+  {
+    "timestamp": "2025-07-26T22:56:35.740Z",
+    "scanId": "scan-1753570595740",
+    "summary": {
+      "totalApps": 3,
+      "totalUrls": 6,
+      "accessibleUrls": 6,
+      "failedUrls": 0,
+      "duration": 4195
+    },
+    "apps": [
+      {
+        "appId": "app-0000001-297gku",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html"
+        ],
+        "features": [],
+        "lastModified": "2025-07-26T03:44:07.717Z",
+        "deploymentInfo": null,
+        "errors": []
+      },
+      {
+        "appId": "app-0000017-k7x9m2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップ単語選択",
+          "6つのカテゴリ（ミックス、ファンタジー、科学、自然、感情、アクション）",
+          "物語作成エリア",
+          "ローカルストレージによる保存機能",
+          "物語エクスポート機能",
+          "レスポンシブデザイン",
+          "アクセシビリティ対応",
+          "キーボードショートカット",
+          "ダークモード対応"
+        ],
+        "lastModified": "2025-07-26T21:40:23.413Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:12:47Z"
+        },
+        "errors": [],
+        "title": "Word Palette - 創造的物語作成ツール",
+        "description": "ランダムに選ばれた単語をドラッグ&ドロップして創造的な物語を作成するアプリケーション"
+      },
+      {
+        "appId": "app-0000018-m9x3k2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップによるノード配置",
+          "ノード間の接続線描画",
+          "5色カラーパレット",
+          "右クリックコンテキストメニュー",
+          "ローカルストレージ自動保存",
+          "レスポンシブデザイン",
+          "リアルタイムレンダリング",
+          "接続モードUI",
+          "全消去機能"
+        ],
+        "lastModified": "2025-07-26T21:40:23.483Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:27:35Z"
+        },
+        "errors": [],
+        "title": "Idea Canvas - 創造的思考ツール",
+        "description": "アイデアをビジュアルノードとして配置・接続し、思考を整理・拡張できるマインドマップツール"
+      }
+    ],
+    "urlResults": [
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 343,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:48:16 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"68855b30-ee71\"",
+          "expires": "Sat, 26 Jul 2025 23:06:32 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "9BCE:08F9:4112F6:41CE9E:68855D1F",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:56:32 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11960-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753570592.923290,VS0,VE181",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "87af6488923cef75deb26a6dcd4b18bdfc81b095"
+        },
+        "timestamp": "2025-07-26T22:56:32.106Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 232,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:48:16 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"68855b30-ee71\"",
+          "expires": "Sat, 26 Jul 2025 23:06:32 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "58D5:C02ED:A51134:A76806:68855D20",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:56:32 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11962-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753570593.664451,VS0,VE181",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "13dba80461e29971de155df1999f4914c6201c95"
+        },
+        "timestamp": "2025-07-26T22:56:32.840Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 226,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "x-origin-cache": "HIT",
+          "last-modified": "Sat, 26 Jul 2025 22:48:16 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"68855b30-d04\"",
+          "expires": "Sat, 26 Jul 2025 23:06:33 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "44B3:39D48E:A7B55C:AA0C1D:68855D21",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:56:33 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11959-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753570593.389929,VS0,VE172",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "272f0719694e118cca4965369478e342ed810677"
+        },
+        "timestamp": "2025-07-26T22:56:33.569Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 232,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:48:16 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"68855b30-d04\"",
+          "expires": "Sat, 26 Jul 2025 23:06:34 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "B4AA:14E7B0:8487F8:864648:68855D22",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:56:34 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11966-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753570594.128084,VS0,VE175",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "9f82b9932ed0cc5ac4d4fa4a44f96711eb11d0a0"
+        },
+        "timestamp": "2025-07-26T22:56:34.302Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 225,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:48:16 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"68855b30-7e5\"",
+          "expires": "Sat, 26 Jul 2025 23:06:34 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "143C:2B774F:EFC86:F2FC3:68855D22",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:56:35 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11945-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753570595.855010,VS0,VE177",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "6d7b0e6ac604d7f0d01cc48c07099a7d8bd4f517"
+        },
+        "timestamp": "2025-07-26T22:56:35.028Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 211,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:56:34 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"68855d22-7e5\"",
+          "expires": "Sat, 26 Jul 2025 23:06:35 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "E93C:111B01:A5CE48:A82579:68855D23",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:56:35 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11939-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753570596.567112,VS0,VE178",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "5051dc4e9e352eefa7ab3bd8fae85af2e0b5a5b8"
+        },
+        "timestamp": "2025-07-26T22:56:35.740Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-26T22:38:59.337Z",
+    "scanId": "scan-1753569539337",
+    "summary": {
+      "totalApps": 3,
+      "totalUrls": 6,
+      "accessibleUrls": 6,
+      "failedUrls": 0,
+      "duration": 4002
+    },
+    "apps": [
+      {
+        "appId": "app-0000001-297gku",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html"
+        ],
+        "features": [],
+        "lastModified": "2025-07-26T03:44:07.717Z",
+        "deploymentInfo": null,
+        "errors": []
+      },
+      {
+        "appId": "app-0000017-k7x9m2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップ単語選択",
+          "6つのカテゴリ（ミックス、ファンタジー、科学、自然、感情、アクション）",
+          "物語作成エリア",
+          "ローカルストレージによる保存機能",
+          "物語エクスポート機能",
+          "レスポンシブデザイン",
+          "アクセシビリティ対応",
+          "キーボードショートカット",
+          "ダークモード対応"
+        ],
+        "lastModified": "2025-07-26T21:40:23.413Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:12:47Z"
+        },
+        "errors": [],
+        "title": "Word Palette - 創造的物語作成ツール",
+        "description": "ランダムに選ばれた単語をドラッグ&ドロップして創造的な物語を作成するアプリケーション"
+      },
+      {
+        "appId": "app-0000018-m9x3k2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップによるノード配置",
+          "ノード間の接続線描画",
+          "5色カラーパレット",
+          "右クリックコンテキストメニュー",
+          "ローカルストレージ自動保存",
+          "レスポンシブデザイン",
+          "リアルタイムレンダリング",
+          "接続モードUI",
+          "全消去機能"
+        ],
+        "lastModified": "2025-07-26T21:40:23.483Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:27:35Z"
+        },
+        "errors": [],
+        "title": "Idea Canvas - 創造的思考ツール",
+        "description": "アイデアをビジュアルノードとして配置・接続し、思考を整理・拡張できるマインドマップツール"
+      }
+    ],
+    "urlResults": [
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 289,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-ee71\"",
+          "expires": "Sat, 26 Jul 2025 22:48:55 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "BE38:14E7B0:82452D:83FC48:688558FF",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:38:55 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11972-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569536.538956,VS0,VE182",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "2eb8d115aad03f35827a4c422b792fc4df8f1828"
+        },
+        "timestamp": "2025-07-26T22:38:55.712Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 226,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-ee71\"",
+          "expires": "Sat, 26 Jul 2025 22:48:56 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "5B87:2B535A:A56D0B:A7BCD5:68855900",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:38:56 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11943-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569536.269438,VS0,VE181",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "f721a224e1df6924d41469b2174d62a52d9680b4"
+        },
+        "timestamp": "2025-07-26T22:38:56.441Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 224,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-d04\"",
+          "expires": "Sat, 26 Jul 2025 22:48:57 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "5419:2A2947:A32649:A575E3:68855900",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:38:57 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11933-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569537.999474,VS0,VE179",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "27ea2d87cd4e85b639fa799cf0d958dffde2b690"
+        },
+        "timestamp": "2025-07-26T22:38:57.166Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 214,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-d04\"",
+          "expires": "Sat, 26 Jul 2025 22:48:57 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "E26C:370286:A11BDC:A36C14:68855901",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:38:57 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11977-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569538.717745,VS0,VE175",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "affcfec053ca5e28d769a578ee670fd681309998"
+        },
+        "timestamp": "2025-07-26T22:38:57.881Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 230,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-7e5\"",
+          "expires": "Sat, 26 Jul 2025 22:48:58 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "6993:167C1A:A31756:A566D8:68855902",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:38:58 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11921-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569538.437817,VS0,VE179",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "332f6d19746363885bb91ec2732f6ea9d07cfb49"
+        },
+        "timestamp": "2025-07-26T22:38:58.613Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 221,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "x-origin-cache": "HIT",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-7e5\"",
+          "expires": "Sat, 26 Jul 2025 22:48:59 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "6E7C:284A0A:A3AC25:A5FC20:68855903",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:38:59 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11983-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569539.172453,VS0,VE174",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "ecd7b07dfef1db5fa6f5ad0cb0b37598fbecbd91"
+        },
+        "timestamp": "2025-07-26T22:38:59.336Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-26T22:33:58.598Z",
+    "scanId": "scan-1753569238598",
+    "summary": {
+      "totalApps": 3,
+      "totalUrls": 6,
+      "accessibleUrls": 6,
+      "failedUrls": 0,
+      "duration": 4270
+    },
+    "apps": [
+      {
+        "appId": "app-0000001-297gku",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html"
+        ],
+        "features": [],
+        "lastModified": "2025-07-26T03:44:07.717Z",
+        "deploymentInfo": null,
+        "errors": []
+      },
+      {
+        "appId": "app-0000017-k7x9m2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップ単語選択",
+          "6つのカテゴリ（ミックス、ファンタジー、科学、自然、感情、アクション）",
+          "物語作成エリア",
+          "ローカルストレージによる保存機能",
+          "物語エクスポート機能",
+          "レスポンシブデザイン",
+          "アクセシビリティ対応",
+          "キーボードショートカット",
+          "ダークモード対応"
+        ],
+        "lastModified": "2025-07-26T21:40:23.413Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:12:47Z"
+        },
+        "errors": [],
+        "title": "Word Palette - 創造的物語作成ツール",
+        "description": "ランダムに選ばれた単語をドラッグ&ドロップして創造的な物語を作成するアプリケーション"
+      },
+      {
+        "appId": "app-0000018-m9x3k2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップによるノード配置",
+          "ノード間の接続線描画",
+          "5色カラーパレット",
+          "右クリックコンテキストメニュー",
+          "ローカルストレージ自動保存",
+          "レスポンシブデザイン",
+          "リアルタイムレンダリング",
+          "接続モードUI",
+          "全消去機能"
+        ],
+        "lastModified": "2025-07-26T21:40:23.483Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:27:35Z"
+        },
+        "errors": [],
+        "title": "Idea Canvas - 創造的思考ツール",
+        "description": "アイデアをビジュアルノードとして配置・接続し、思考を整理・拡張できるマインドマップツール"
+      }
+    ],
+    "urlResults": [
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 478,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-ee71\"",
+          "expires": "Sat, 26 Jul 2025 22:43:54 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "C3E6:2A2947:A27427:A4C1A5:688557D2",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:33:54 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11925-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569235.551603,VS0,VE355",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "c2a89fe1dda7ef6d6cc790c3a344d37ebb293d98"
+        },
+        "timestamp": "2025-07-26T22:33:54.897Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 235,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-ee71\"",
+          "expires": "Sat, 26 Jul 2025 22:43:55 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "8454:36B189:A2C01F:A50D81:688557D3",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:33:55 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11968-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569235.472173,VS0,VE181",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "296220af4a6c07f93a37a9696c0294eb742bbe29"
+        },
+        "timestamp": "2025-07-26T22:33:55.638Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 232,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-d04\"",
+          "expires": "Sat, 26 Jul 2025 22:43:56 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "6DA9:3E5C92:A3A48A:A5F27F:688557D4",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:33:56 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11970-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569236.205975,VS0,VE181",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "61d2531cf4f87f8dcc6ab103e81cfbe4d0fd1d48"
+        },
+        "timestamp": "2025-07-26T22:33:56.372Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 246,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-d04\"",
+          "expires": "Sat, 26 Jul 2025 22:43:57 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "E5FB:111B01:A321B8:A56FA9:688557D4",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:33:57 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11925-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569237.953885,VS0,VE179",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "551b5b0bd6ab1f4db454c3eb0037d721b15672d4"
+        },
+        "timestamp": "2025-07-26T22:33:57.119Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 253,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "x-origin-cache": "HIT",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-7e5\"",
+          "expires": "Sat, 26 Jul 2025 22:43:57 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "B84E:12102A:A4D6FA:A724CE:688557D4",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:33:57 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11971-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569238.715741,VS0,VE173",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "b1a9fc9baf40dce97e7935e8a2da26d84ca467e2"
+        },
+        "timestamp": "2025-07-26T22:33:57.873Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 221,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:32:47 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"6885578f-7e5\"",
+          "expires": "Sat, 26 Jul 2025 22:43:58 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "33C7:2B535A:A4C2E9:A710AB:688557D6",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:33:58 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11929-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753569238.433953,VS0,VE175",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "32ad9801bfd16ddf6b7c6c474cf5d8431379bf35"
+        },
+        "timestamp": "2025-07-26T22:33:58.598Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-26T22:17:50.824Z",
+    "scanId": "scan-1753568270824",
+    "summary": {
+      "totalApps": 3,
+      "totalUrls": 6,
+      "accessibleUrls": 6,
+      "failedUrls": 0,
+      "duration": 3906
+    },
+    "apps": [
+      {
+        "appId": "app-0000001-297gku",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000001-297gku/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html"
+        ],
+        "features": [],
+        "lastModified": "2025-07-26T03:44:07.717Z",
+        "deploymentInfo": null,
+        "errors": []
+      },
+      {
+        "appId": "app-0000017-k7x9m2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000017-k7x9m2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップ単語選択",
+          "6つのカテゴリ（ミックス、ファンタジー、科学、自然、感情、アクション）",
+          "物語作成エリア",
+          "ローカルストレージによる保存機能",
+          "物語エクスポート機能",
+          "レスポンシブデザイン",
+          "アクセシビリティ対応",
+          "キーボードショートカット",
+          "ダークモード対応"
+        ],
+        "lastModified": "2025-07-26T21:40:23.413Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:12:47Z"
+        },
+        "errors": [],
+        "title": "Word Palette - 創造的物語作成ツール",
+        "description": "ランダムに選ばれた単語をドラッグ&ドロップして創造的な物語を作成するアプリケーション"
+      },
+      {
+        "appId": "app-0000018-m9x3k2",
+        "type": "temp-deploy",
+        "appDir": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2",
+        "sessionLogPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/session-log.json",
+        "indexHtmlPath": "/mnt/c/Users/user/ai-auto-generator/temp-deploy/app-0000018-m9x3k2/index.html",
+        "status": "files_exist",
+        "urls": [
+          {
+            "type": "deployment_target",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "found_in_object",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "session-log.deployment.targetUrl"
+          },
+          {
+            "type": "predicted",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+            "source": "pattern_prediction"
+          },
+          {
+            "type": "predicted_with_index",
+            "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+            "source": "pattern_prediction_index"
+          }
+        ],
+        "files": [
+          "index.html",
+          "script.js",
+          "styles.css"
+        ],
+        "features": [
+          "ドラッグ&ドロップによるノード配置",
+          "ノード間の接続線描画",
+          "5色カラーパレット",
+          "右クリックコンテキストメニュー",
+          "ローカルストレージ自動保存",
+          "レスポンシブデザイン",
+          "リアルタイムレンダリング",
+          "接続モードUI",
+          "全消去機能"
+        ],
+        "lastModified": "2025-07-26T21:40:23.483Z",
+        "deploymentInfo": {
+          "status": "deploying",
+          "startTime": "2025-07-26T13:27:35Z"
+        },
+        "errors": [],
+        "title": "Idea Canvas - 創造的思考ツール",
+        "description": "アイデアをビジュアルノードとして配置・接続し、思考を整理・拡張できるマインドマップツール"
+      }
+    ],
+    "urlResults": [
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 285,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:07:46 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"688551b2-ee71\"",
+          "expires": "Sat, 26 Jul 2025 22:27:47 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "4821:2F982C:A16852:A3AF8B:6885540A",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:17:47 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11956-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753568267.163601,VS0,VE182",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "fdb0451d42cf4b3c616a76bdbd1e53642b907619"
+        },
+        "timestamp": "2025-07-26T22:17:47.321Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000001-297gku/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 243,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "61041",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:07:46 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"688551b2-ee71\"",
+          "expires": "Sat, 26 Jul 2025 22:27:47 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "60F6:2B774F:9FB36:A1E6C:6885540B",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:17:48 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11956-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753568268.907193,VS0,VE179",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "1f6e51ce8096e908d8e8abfc7575d980afe69a91"
+        },
+        "timestamp": "2025-07-26T22:17:48.066Z",
+        "error": null,
+        "appId": "app-0000001-297gku",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 264,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "x-origin-cache": "HIT",
+          "last-modified": "Sat, 26 Jul 2025 22:07:46 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"688551b2-d04\"",
+          "expires": "Sat, 26 Jul 2025 22:27:48 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "51BA:3FED6:A22014:A4670D:6885540B",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:17:48 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11942-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753568269.655975,VS0,VE195",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "c756c10b01bb82f04cfb591aaa3053ac165acb3c"
+        },
+        "timestamp": "2025-07-26T22:17:48.832Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 218,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "3332",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "x-origin-cache": "HIT",
+          "last-modified": "Sat, 26 Jul 2025 22:07:46 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"688551b2-d04\"",
+          "expires": "Sat, 26 Jul 2025 22:27:49 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "8D58:36B189:A0B3DB:A2FA99:6885540D",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:17:49 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11967-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753568269.404996,VS0,VE174",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "3c9021dfb5a9a78ba539eef1f4d997234c7d2a0f"
+        },
+        "timestamp": "2025-07-26T22:17:49.553Z",
+        "error": null,
+        "appId": "app-0000017-k7x9m2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 47,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:07:46 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"688551b2-7e5\"",
+          "expires": "Sat, 26 Jul 2025 22:26:22 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "4B2D:C02ED:9FE9D0:A23024:688553B6",
+          "accept-ranges": "bytes",
+          "age": "88",
+          "date": "Sat, 26 Jul 2025 22:17:50 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11958-TYO",
+          "x-cache": "HIT",
+          "x-cache-hits": "0",
+          "x-timer": "S1753568270.127187,VS0,VE1",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "5199c5bc5403376f53bec5ba0d70546da1c53bb0"
+        },
+        "timestamp": "2025-07-26T22:17:50.101Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted",
+        "urlSource": "pattern_prediction"
+      },
+      {
+        "url": "https://muumuu8181.github.io/published-apps/app-0000018-m9x3k2/index.html",
+        "status": 200,
+        "statusText": "OK",
+        "responseTime": 222,
+        "accessible": true,
+        "is404": false,
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "2021",
+          "server": "GitHub.com",
+          "content-type": "text/html; charset=utf-8",
+          "last-modified": "Sat, 26 Jul 2025 22:07:46 GMT",
+          "access-control-allow-origin": "*",
+          "strict-transport-security": "max-age=31556952",
+          "etag": "\"688551b2-7e5\"",
+          "expires": "Sat, 26 Jul 2025 22:27:50 GMT",
+          "cache-control": "max-age=600",
+          "x-proxy-cache": "MISS",
+          "x-github-request-id": "FC98:12102A:A2D284:A519B1:6885540E",
+          "accept-ranges": "bytes",
+          "age": "0",
+          "date": "Sat, 26 Jul 2025 22:17:50 GMT",
+          "via": "1.1 varnish",
+          "x-served-by": "cache-tyo11929-TYO",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1753568271.667815,VS0,VE177",
+          "vary": "Accept-Encoding",
+          "x-fastly-request-id": "0fd25ed922bb521da554abe70f689d28be24f6f8"
+        },
+        "timestamp": "2025-07-26T22:17:50.824Z",
+        "error": null,
+        "appId": "app-0000018-m9x3k2",
+        "urlType": "predicted_with_index",
+        "urlSource": "pattern_prediction_index"
+      }
+    ]
+  }
+]

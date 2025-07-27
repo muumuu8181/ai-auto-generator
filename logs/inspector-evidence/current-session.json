@@ -1,0 +1,43 @@
+{
+  "sessionId": "inspector-session-1753570581413",
+  "timestamp": "2025-07-26T22:56:21.413Z",
+  "startTime": "2025-07-26T22:56:21.413Z",
+  "rulesRead": [
+    {
+      "file": "/mnt/c/Users/user/ai-auto-generator/MANAGEMENT_AI_RULES[超重要L10].md",
+      "timestamp": "2025-07-26T22:56:21.418Z",
+      "checksum": "18cf4ab19a92595fa44f0c92d40360e5",
+      "status": "confirmed"
+    },
+    {
+      "file": "/mnt/c/Users/user/ai-auto-generator/AI_MUTUAL_MONITORING_SYSTEM[超重要L10].md",
+      "timestamp": "2025-07-26T22:56:21.468Z",
+      "checksum": "275aff2e821c261c00daf3cd39b72200",
+      "status": "confirmed"
+    },
+    {
+      "file": "/mnt/c/Users/user/ai-auto-generator/INSPECTOR_AI_MANUAL[超重要L10].md",
+      "timestamp": "2025-07-26T22:56:21.487Z",
+      "checksum": "29148cebea99d9c5036d54863a2e5489",
+      "status": "confirmed"
+    },
+    {
+      "file": "/mnt/c/Users/user/ai-auto-generator/MANAGEMENT_AI_TEAM_STRUCTURE[超重要L10].md",
+      "timestamp": "2025-07-26T22:56:21.505Z",
+      "checksum": "9ea6b739bb0b057982675339f1038031",
+      "status": "confirmed"
+    },
+    {
+      "file": "/mnt/c/Users/user/ai-auto-generator/REFLECTION_MISTAKE_SAMPLES[超重要L10].md",
+      "timestamp": "2025-07-26T22:56:21.529Z",
+      "checksum": "6fb52f49866da806aa6ee7d3aad195a8",
+      "status": "confirmed"
+    }
+  ],
+  "filesChecked": [],
+  "changesDetected": [],
+  "validationsPerformed": 0,
+  "issuesFound": [],
+  "actionsTaken": [],
+  "status": "active"
+}

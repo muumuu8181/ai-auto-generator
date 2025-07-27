@@ -1,165 +1,115 @@
-# Setup Guide
+# AI Auto Generator セットアップガイド（メイン）
 
-## Initial Setup (One-time only)
+## 🎯 最初に確認: あなたの役割は？
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/muumuu8181/ai-auto-generator.git
-cd ai-auto-generator  # Important: Navigate into the project directory
-```
+**Userから伝えられた役割に応じて、該当セットアップへ進んでください**
 
-### 2. Required External Repositories
-Create these repositories on GitHub:
+### 👑 Manager AI の場合
+→ **MANAGER_SETUP.md** を熟読してください
 
-**A. App Request Repository**
-```bash
-# Create: https://github.com/[YOUR_USERNAME]/app-request-list
-# Add file: app-requests.md with format:
+### 🔧 Worker AI の場合  
+→ **WORKER_SETUP.md** を熟読してください
 
-## Money Management App
-- Input income and expenses
-- Edit entries after creation
-- Download data as CSV
+### 👁️ Inspector AI の場合
+→ **INSPECTOR_SETUP.md** を熟読してください
 
-## Todo App
-- Add/remove tasks
-- Mark as complete
-- Priority levels
-```
+⚠️ **重要**: 役割別セットアップを読まずに作業開始しないでください
 
-**B. Published Apps Repository**
-```bash
-# Create: https://github.com/[YOUR_USERNAME]/published-apps (PUBLIC)
-# Enable GitHub Pages: Settings → Pages → Deploy from branch → main
-```
+---
 
-### 3. Update Configuration
-Edit these files with your GitHub username:
+## 📚 全AI共通の基礎知識
 
-**config/repos.json**
-```json
-{
-  "appRequests": "https://github.com/[YOUR_USERNAME]/app-request-list",
-  "publishedApps": "https://github.com/[YOUR_USERNAME]/published-apps"
-}
-```
+### システム全体目標
+**「他のAIでは1ヶ月かかるものを一発指示で作れる」システムの実現**
 
-### 4. Gemini CLI Setup
-```bash
-# Install Gemini CLI
-npm install -g @google/gemini-cli
+### 基本構成
+- **User**: システム所有者・最終決定者
+- **Manager AI**: システム管理・戦略立案・環境提供
+- **Worker AI**: 高品質Webアプリ生成・品質確保
+- **Inspector AI**: 客観的第三者評価・品質監査
 
-# Setup OAuth (recommended - free)
-mkdir -p ~/.gemini
-echo '{"selectedAuthType": "oauth-personal", "theme": "Default"}' > ~/.gemini/settings.json
+### 3者相互監視システム
+- **階層なし平等**: 上下関係なし・相互チェック
+- **専門分業**: 各AIが得意領域に集中
+- **継続改善**: 全員参加型システム改善
 
-# Test authentication
-npx @google/gemini-cli -p "Hello, test"
-```
+### 重要度システム
+- **[超重要L10]**: 最優先読み込み必須
+- **[重要L7]**: 高優先度
+- **重要度6以上**: User事前承認必須（Manager AI）
+- **重要度5以下**: 独自判断可（後付け報告OK）
 
-### 5. Claude Code Setup
-```bash
-# Make sure you're in the ai-auto-generator directory
-cd ai-auto-generator
+---
 
-# Start Claude Code
-claude
-
-# Test the command
-/wk-st
-```
-
-## Daily Usage
-
-**Important**: Always navigate to the project directory first:
-```bash
-cd ai-auto-generator  # Navigate to project directory
-claude                # Start Claude Code
-/wk-st               # Use the command
-```
-
-The `/wk-st` command only works within the ai-auto-generator directory.
-
-The system will:
-1. **Auto-update** to latest generator version
-2. **Fetch** latest app requirements  
-3. **Generate** next priority app
-4. **Deploy** to GitHub Pages automatically
-5. **Track** session history and statistics
-
-## File Structure After Setup
+## 📁 フォルダ構成概要
 
 ```
 ai-auto-generator/
-├── core/                  # Core generation scripts
-├── templates/             # App templates  
-├── config/               # Your configuration
-│   └── repos.json        # Repository URLs
-├── .claude/
-│   └── commands/
-│       └── generate.md   # Main command
-└── README.md
+├── manager-ai/          # Manager AI専用
+├── inspector-ai/        # Inspector AI専用  
+├── worker-ai/          # Worker AI専用
+├── shared/             # 全AI共有
+├── reports-to-user/    # User報告専用
+├── core/              # システムファイル（共通）
+└── [役割別セットアップファイル]
 ```
 
-## Troubleshooting
+### アクセス権限
+- **読み取り**: 全AI・全フォルダ読み取り可能
+- **書き込み**: 専用フォルダ + shared/ のみ
+- **User報告**: reports-to-user/ 活用
 
-### GitHub Authentication
-```bash
-# Check GitHub CLI auth
-gh auth status
+---
 
-# Login if needed
-gh auth login
-```
+## 🔄 基本ワークフロー
 
-### Gemini CLI Issues
-```bash
-# Check authentication
-npx @google/gemini-cli -p "test"
+### Worker AI
+1. `/wk-st` または `/ws` コマンドでアプリ生成
+2. 4点セット作成（index.html, reflection.md, requirements.md, work_log.md）
+3. GitHub Pages自動デプロイ
 
-# Reset if needed
-rm -rf ~/.gemini
-# Then redo step 4
-```
+### Inspector AI  
+1. `/ins-st` コマンドで品質監査
+2. アプリスキャン・URL確認・品質評価
+3. 視覚ダッシュボード生成
 
-### Repository Access
-- Ensure `app-request-list` exists and has `app-requests.md`
-- Ensure `published-apps` is PUBLIC with GitHub Pages enabled
-- Check repository URLs in `config/repos.json`
+### Manager AI
+1. MANAGEMENT_AI_RULES[超重要L10].md遵守
+2. 環境提供・システム改善・問題解決
+3. Gemini CLI相談・統合ログ記録
 
-## Quick Reference
+---
 
-### Every time you want to use /wk-st:
-```bash
-cd ai-auto-generator  # Navigate to project directory
-claude                # Start Claude Code  
-/wk-st               # Generate apps
-```
+## ⚡ 重要な注意事項
 
-## Important Notes from Real AI Experience
+### バージョン管理
+- **現在バージョン**: VERSION.mdで確認
+- **自動アップデート**: 各実行時に最新版取得
+- **変更記録**: 全変更をVERSION.mdに記録
 
-### Configuration Management (Learned from reflection.md)
-- **Backup configs before updates**: git hard reset can reset your settings
-- **Verify working directory**: Always check with `pwd` before operations  
-- **Use absolute paths**: Avoid relative path navigation errors
+### 品質保証
+- **相互監視**: 他AIの作業も評価・フィードバック
+- **学習記録**: reflection.md詳細記録必須
+- **継続改善**: 問題発見時は積極的改善提案
 
-### GitHub Pages Deployment
-- **Enable Pages immediately**: Use GitHub CLI API for reliable activation
-- **Verify deployment**: Check both repository settings and live URL
-- **Allow processing time**: Pages may take 5-10 minutes to activate
+### User報告
+- **定期報告**: reports-to-user/での効率的報告
+- **緊急報告**: reports-to-user/alerts/での即座報告
+- **URL一覧**: reports-to-user/url-lists/でアプリ管理
 
-### File Organization Rules
-- **Stay in project directory**: /wk-st only works in ai-auto-generator folder
-- **Maintain structure**: Each app gets its own organized folder
-- **Reflection placement**: reflection.md goes INSIDE each app folder, not root
+---
 
-## Features
+## 🚀 今すぐ次のステップ
 
-✅ **Auto-Update**: Generator updates itself every run  
-✅ **Session Tracking**: Detailed logs with timestamps  
-✅ **Device Management**: Prevents duplicate generation  
-✅ **Error Recovery**: Proven strategies from real AI generations
-✅ **Statistics**: Track generation success rate  
-✅ **Knowledge Base**: Incorporates lessons from successful deployments
+**あなたの役割に応じて、該当セットアップファイルに進んでください**
 
-**Ready to generate unlimited apps with `/wk-st` - Enhanced with real-world insights!**
+- **Manager AI** → **MANAGER_SETUP.md**
+- **Worker AI** → **WORKER_SETUP.md**  
+- **Inspector AI** → **INSPECTOR_SETUP.md**
+
+各役割別セットアップで、具体的な実行手順・必須ファイル・注意事項を確認してください。
+
+---
+
+**最終更新**: 2025-07-27  
+**適用バージョン**: v0.23以降

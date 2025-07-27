@@ -65,6 +65,11 @@ class WorkerQualityValidator {
             validation.checks.push(workdirCheck);
             if (!workdirCheck.passed) validation.issues.push(...workdirCheck.issues);
 
+            // 5. バージョン情報取得・記録
+            const versionCheck = await this.validateAndRecordVersion();
+            validation.checks.push(versionCheck);
+            if (!versionCheck.passed) validation.issues.push(...versionCheck.issues);
+
             // Critical failures判定
             validation.criticalFailures = validation.issues.filter(issue => issue.severity === 'critical');
             validation.canProceed = validation.criticalFailures.length === 0;
@@ -846,16 +851,339 @@ if (require.main === module) {
                     process.exit(1);
                 });
             break;
+
+        case 'version-compliance':
+            const checkAppId = process.argv[3];
+            const reflectionPath = process.argv[4];
+            const workLogPath = process.argv[5];
+            
+            if (!checkAppId || !reflectionPath || !workLogPath) {
+                console.error('Usage: node worker-quality-validator.cjs version-compliance <appId> <reflectionPath> <workLogPath>');
+                process.exit(1);
+            }
+            
+            validator.validateCompletionVersionInfo(checkAppId, reflectionPath, workLogPath)
+                .then(result => {
+                    console.log('\n📊 バージョン情報検証完了');
+                    if (result.isCompliant) {
+                        console.log('✅ バージョン情報は要件に準拠しています');
+                    } else {
+                        console.log('❌ バージョン情報に問題があります:');
+                        result.issues.forEach(issue => {
+                            console.log(`   - ${issue.description}`);
+                        });
+                    }
+                    process.exit(result.isCompliant ? 0 : 1);
+                })
+                .catch(error => {
+                    console.error('❌ バージョン情報検証失敗:', error.message);
+                    process.exit(1);
+                });
+            break;
             
         default:
             console.log('Worker Quality Validator Commands:');
             console.log('  environment                        - Phase 0: Environment validation');
             console.log('  phase <number> [description]       - Phase completion validation');
             console.log('  artifacts <appId> <deploymentDir>  - Phase 3.5: Generated artifacts validation');
+            console.log('  version-compliance <appId> <reflectionPath> <workLogPath> - Version reporting compliance check');
             console.log('\nExamples:');
             console.log('  node worker-quality-validator.cjs environment');
             console.log('  node worker-quality-validator.cjs phase 1 "Environment Setup"');
             console.log('  node worker-quality-validator.cjs artifacts app-001-abc123 ./temp-deploy/app-001-abc123');
+            console.log('  node worker-quality-validator.cjs version-compliance app-001-abc123 ./temp-deploy/app-001-abc123/reflection.md ./temp-deploy/app-001-abc123/work_log.md');
+    }
+    /**
+     * バージョン情報検証・記録
+     */
+    async validateAndRecordVersion() {
+        const check = {
+            name: 'Version Information',
+            startTime: new Date().toISOString(),
+            passed: false,
+            issues: [],
+            versionInfo: null
+        };
+
+        try {
+            console.log('📋 バージョン情報取得・記録中...');
+
+            // バージョン情報取得
+            const versionInfo = this.getSystemVersionInfo();
+            check.versionInfo = versionInfo;
+
+            if (!versionInfo.version || versionInfo.version === 'unknown') {
+                check.issues.push({
+                    type: 'version_detection_failed',
+                    severity: 'high',
+                    description: 'VERSION.mdからバージョン情報を取得できませんでした',
+                    solution: 'VERSION.mdファイルの存在と形式を確認してください'
+                });
+            }
+
+            if (!versionInfo.gitHash || versionInfo.gitHash === 'unknown') {
+                check.issues.push({
+                    type: 'git_hash_detection_failed',
+                    severity: 'medium',
+                    description: 'Git commit hashを取得できませんでした',
+                    solution: 'Gitリポジトリ内で作業していることを確認してください'
+                });
+            }
+
+            // セッション開始時にバージョン情報をログに記録
+            this.log('version_info', 'Version information recorded at session start', {
+                autoGeneratorVersion: versionInfo.version,
+                gitCommitHash: versionInfo.gitHash,
+                workingDirectory: versionInfo.workingDirectory,
+                sessionStartTime: new Date().toISOString()
+            });
+
+            // Worker AI用バージョン情報表示
+            console.log('🔧 作業環境バージョン情報:');
+            console.log(`   AI Auto Generator: ${versionInfo.version}`);
+            console.log(`   Git Commit Hash: ${versionInfo.gitHash}`);
+            console.log(`   作業ディレクトリ: ${versionInfo.workingDirectory}`);
+            console.log(`   確認時刻: ${new Date().toISOString()}`);
+
+            check.passed = check.issues.filter(i => i.severity === 'high' || i.severity === 'critical').length === 0;
+
+        } catch (error) {
+            check.issues.push({
+                type: 'version_check_error',
+                severity: 'critical',
+                description: `バージョン情報チェックでエラー: ${error.message}`,
+                solution: '環境設定を確認してください'
+            });
+        }
+
+        check.endTime = new Date().toISOString();
+        return check;
+    }
+
+    /**
+     * システムバージョン情報取得
+     */
+    getSystemVersionInfo() {
+        try {
+            let version = 'unknown';
+            let gitHash = 'unknown';
+            
+            // VERSION.mdからバージョン取得
+            const versionPath = path.join(this.projectRoot, 'VERSION.md');
+            if (fs.existsSync(versionPath)) {
+                const versionContent = fs.readFileSync(versionPath, 'utf8');
+                const versionMatch = versionContent.match(/現在のバージョン:\s*(v[\d\.]+)/);
+                if (versionMatch) {
+                    version = versionMatch[1];
+                }
+            }
+
+            // Git commit hash取得
+            try {
+                gitHash = execSync('git rev-parse --short HEAD', { 
+                    encoding: 'utf8',
+                    cwd: this.projectRoot 
+                }).trim();
+            } catch (gitError) {
+                gitHash = 'git-error';
+            }
+
+            return {
+                version,
+                gitHash,
+                workingDirectory: process.cwd(),
+                detectionTime: new Date().toISOString()
+            };
+
+        } catch (error) {
+            return {
+                version: 'error',
+                gitHash: 'error',
+                workingDirectory: process.cwd(),
+                error: error.message,
+                detectionTime: new Date().toISOString()
+            };
+        }
+    }
+
+    /**
+     * 作業完了時のバージョン情報検証
+     */
+    async validateCompletionVersionInfo(appId, reflectionPath, workLogPath) {
+        const validation = {
+            appId,
+            timestamp: new Date().toISOString(),
+            reflectionVersionInfo: null,
+            workLogVersionInfo: null,
+            sessionVersionInfo: null,
+            issues: [],
+            isCompliant: false
+        };
+
+        try {
+            console.log('📋 作業完了時バージョン情報検証中...');
+
+            // セッション開始時のバージョン情報取得
+            validation.sessionVersionInfo = this.getSystemVersionInfo();
+
+            // reflection.mdからバージョン情報抽出
+            if (fs.existsSync(reflectionPath)) {
+                const reflectionContent = fs.readFileSync(reflectionPath, 'utf8');
+                validation.reflectionVersionInfo = this.extractVersionFromReflection(reflectionContent);
+            } else {
+                validation.issues.push({
+                    type: 'reflection_missing',
+                    severity: 'critical',
+                    description: 'reflection.mdファイルが見つかりません'
+                });
+            }
+
+            // work_log.mdからバージョン情報抽出
+            if (fs.existsSync(workLogPath)) {
+                const workLogContent = fs.readFileSync(workLogPath, 'utf8');
+                validation.workLogVersionInfo = this.extractVersionFromWorkLog(workLogContent);
+            } else {
+                validation.issues.push({
+                    type: 'worklog_missing',
+                    severity: 'critical',
+                    description: 'work_log.mdファイルが見つかりません'
+                });
+            }
+
+            // バージョン情報の整合性チェック
+            this.validateVersionConsistency(validation);
+
+            validation.isCompliant = validation.issues.filter(i => 
+                i.severity === 'critical' || i.severity === 'high'
+            ).length === 0;
+
+            this.log('version_compliance_check', 'Version compliance validation completed', {
+                appId,
+                isCompliant: validation.isCompliant,
+                issueCount: validation.issues.length
+            });
+
+            return validation;
+
+        } catch (error) {
+            validation.issues.push({
+                type: 'validation_error',
+                severity: 'critical',
+                description: `バージョン情報検証でエラー: ${error.message}`
+            });
+
+            return validation;
+        }
+    }
+
+    /**
+     * reflection.mdからバージョン情報抽出
+     */
+    extractVersionFromReflection(content) {
+        const versionInfo = {
+            hasVersionSection: false,
+            version: null,
+            gitHash: null,
+            workingDirectory: null,
+            usedTools: []
+        };
+
+        // 作業環境情報セクションの存在確認
+        versionInfo.hasVersionSection = /##\s*🔧\s*作業環境情報/.test(content);
+
+        // バージョン抽出
+        const versionMatch = content.match(/AI Auto Generator.*?:\s*(v[\d\.]+)/);
+        if (versionMatch) versionInfo.version = versionMatch[1];
+
+        // Git Hash抽出
+        const gitMatch = content.match(/Git Commit Hash.*?:\s*([a-f0-9]{7,})/);
+        if (gitMatch) versionInfo.gitHash = gitMatch[1];
+
+        // 作業ディレクトリ抽出
+        const dirMatch = content.match(/作業ディレクトリ.*?:\s*(.+)/);
+        if (dirMatch) versionInfo.workingDirectory = dirMatch[1].trim();
+
+        return versionInfo;
+    }
+
+    /**
+     * work_log.mdからバージョン情報抽出
+     */
+    extractVersionFromWorkLog(content) {
+        const versionInfo = {
+            hasTechSection: false,
+            version: null,
+            gitInfo: null,
+            usedFeatures: []
+        };
+
+        // 技術環境セクションの存在確認
+        versionInfo.hasTechSection = /##\s*🔧\s*技術環境/.test(content);
+
+        // バージョン抽出
+        const versionMatch = content.match(/作業環境バージョン.*?:\s*AI Auto Generator\s*(v[\d\.]+)/);
+        if (versionMatch) versionInfo.version = versionMatch[1];
+
+        // Git情報抽出
+        const gitMatch = content.match(/Git状況.*?:\s*(.+)/);
+        if (gitMatch) versionInfo.gitInfo = gitMatch[1].trim();
+
+        return versionInfo;
+    }
+
+    /**
+     * バージョン情報整合性チェック
+     */
+    validateVersionConsistency(validation) {
+        const { sessionVersionInfo, reflectionVersionInfo, workLogVersionInfo } = validation;
+
+        // reflection.mdのバージョン情報チェック
+        if (!reflectionVersionInfo?.hasVersionSection) {
+            validation.issues.push({
+                type: 'missing_reflection_version_section',
+                severity: 'critical',
+                description: 'reflection.mdに🔧作業環境情報セクションがありません',
+                solution: 'WORKER_VERSION_REPORTING_REQUIREMENT.mdの必須フォーマットに従ってください'
+            });
+        }
+
+        if (!reflectionVersionInfo?.version) {
+            validation.issues.push({
+                type: 'missing_reflection_version',
+                severity: 'critical',
+                description: 'reflection.mdにAI Auto Generatorバージョンが記載されていません'
+            });
+        } else if (reflectionVersionInfo.version !== sessionVersionInfo.version) {
+            validation.issues.push({
+                type: 'version_mismatch_reflection',
+                severity: 'high',
+                description: `reflection.mdのバージョン(${reflectionVersionInfo.version})とセッション開始時のバージョン(${sessionVersionInfo.version})が一致しません`
+            });
+        }
+
+        // work_log.mdのバージョン情報チェック
+        if (!workLogVersionInfo?.hasTechSection) {
+            validation.issues.push({
+                type: 'missing_worklog_tech_section',
+                severity: 'critical',
+                description: 'work_log.mdに🔧技術環境セクションがありません',
+                solution: 'WORKER_VERSION_REPORTING_REQUIREMENT.mdの必須フォーマットに従ってください'
+            });
+        }
+
+        if (!workLogVersionInfo?.version) {
+            validation.issues.push({
+                type: 'missing_worklog_version',
+                severity: 'critical',
+                description: 'work_log.mdに作業環境バージョンが記載されていません'
+            });
+        } else if (workLogVersionInfo.version !== sessionVersionInfo.version) {
+            validation.issues.push({
+                type: 'version_mismatch_worklog',
+                severity: 'high',
+                description: `work_log.mdのバージョン(${workLogVersionInfo.version})とセッション開始時のバージョン(${sessionVersionInfo.version})が一致しません`
+            });
+        }
     }
 }
 
