@@ -30,8 +30,14 @@ class PublishedAppsInventory {
         console.log(`📄 対象リポジトリ: muumuu8181/published-apps`);
         
         return new Promise((resolve, reject) => {
-            // GitHub API contents エンドポイントから直接取得
-            const command = `curl -s "https://api.github.com/repos/muumuu8181/published-apps/contents" | grep '"name":"app-' | sed 's/.*"name":"//;s/".*//' | sort -u`;
+            // GitHub API contents エンドポイントから直接取得（Python使用）
+            const command = `curl -s "https://api.github.com/repos/muumuu8181/published-apps/contents" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+apps = [item['name'] for item in data if item['name'].startswith('app-')]
+for app in sorted(apps):
+    print(app)
+"`;
             
             exec(command, (error, stdout, stderr) => {
                 if (error) {
