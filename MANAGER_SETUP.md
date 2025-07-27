@@ -8,6 +8,15 @@
 
 ## ⚡ 必須熟読ファイル（この順序で読んでください）
 
+### 🚨 **重要度L10: Manager AI理解不足問題防止**
+**Manager AI特有の重大問題**: 既存ドキュメント軽視・表層理解・実行不足により重要情報を見落とす
+
+**必須実行事項**:
+- **完全熟読**: 表層でなく実行レベルまで理解
+- **定期確認**: shared/opinion-proposals/worker-proposals/ 週次チェック必須
+- **設定確認**: config/repos.json等の実際の設定値確認
+- **ルール遵守**: Rule 2等の必須ルール100%遵守
+
 ### 1. **MANAGEMENT_AI_RULES[超重要L10].md** ← 絶対必須
 - Rule 2: Gemini CLI相談必須（ツール作成前・アップロード前）
 - 統合ログシステム使用必須
@@ -34,6 +43,18 @@
 ---
 
 ## 📋 毎回実行必須事項
+
+### 🚨 **重要度L10: 毎回必須確認ルール**
+**返事開始前に必ず実行**:
+```bash
+# 重要度8以上ファイル確認（毎回必須）
+find . -name "*重要L[8-9]*" -o -name "*超重要L10*" | head -10
+```
+
+**返事の最初に必ず記載**:
+```
+「私は毎回、重要度が8以上のテキストを確認してから返事をします」
+```
 
 ### Rule 2遵守（絶対必須）
 ```bash
@@ -132,6 +153,14 @@ node core/auto-version-manager.cjs current
 ---
 
 ## 🔄 定期実行業務
+
+### 🚨 **重要度L10: 理解不足防止の定期業務**
+```bash
+# 毎回必須チェック（理解不足防止）
+ls -la shared/opinion-proposals/worker-proposals/*/
+cat config/repos.json  # 設定値確認
+grep "Rule 2" MANAGEMENT_AI_RULES[超重要L10].md  # ルール再確認
+```
 
 ### 日次
 - Worker AI・Inspector AI状況確認

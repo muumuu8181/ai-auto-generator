@@ -38,12 +38,13 @@
             font-size: 1.1em;
         }
         
+        /* 5つグラフ横並びレイアウト（User要求） */
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            display: flex;
             gap: 20px;
+            justify-content: space-between;
             padding: 30px;
-            max-width: 1400px;
+            overflow-x: auto;
             margin: 0 auto;
         }
         
@@ -56,6 +57,8 @@
             border: 1px solid rgba(255,255,255,0.2);
             position: relative;
             overflow: hidden;
+            min-width: 280px;
+            flex: 1;
         }
         
         .metric-card::before {
@@ -163,8 +166,12 @@
         
         @media (max-width: 768px) {
             .dashboard-grid {
-                grid-template-columns: 1fr;
+                flex-direction: column;
                 padding: 20px;
+            }
+            
+            .metric-card {
+                min-width: 100%;
             }
             
             .metric-value {
@@ -176,7 +183,7 @@
 <body>
     <div class="dashboard-header">
         <h1>🔍 Inspector AI Dashboard</h1>
-        <div class="timestamp">最終更新: 2025/7/27 11:33:26</div>
+        <div class="timestamp">最終更新: 2025/7/27 11:57:20</div>
     </div>
     
     <div class="dashboard-grid">
