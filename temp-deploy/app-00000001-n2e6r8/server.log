@@ -1,8 +1,9 @@
-127.0.0.1 - - [28/Jul/2025 17:41:39] "HEAD / HTTP/1.1" 200 -
-127.0.0.1 - - [28/Jul/2025 17:45:08] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [28/Jul/2025 17:45:08] code 404, message File not found
-127.0.0.1 - - [28/Jul/2025 17:45:08] "GET /favicon.ico HTTP/1.1" 404 -
-a/com.termux/files/usr/lib/python3.12/http/server.py", line 1257, in test
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/data/data/com.termux/files/usr/lib/python3.12/http/server.py", line 1310, in <module>
+    test(
+  File "/data/data/com.termux/files/usr/lib/python3.12/http/server.py", line 1257, in test
     with ServerClass(addr, HandlerClass) as httpd:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/data/data/com.termux/files/usr/lib/python3.12/socketserver.py", line 457, in __init__

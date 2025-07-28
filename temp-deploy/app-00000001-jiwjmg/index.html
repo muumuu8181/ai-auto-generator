@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乱数生成アルゴリズムベンチマークツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --background-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --background-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .controls-panel {
+            background: var(--surface-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--surface-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-export {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-panel,
+        .visualization-panel {
+            background: var(--surface-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-panel h3,
+        .visualization-panel h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .stat-value.good {
+            color: var(--success-color);
+        }
+
+        .stat-value.warning {
+            color: var(--warning-color);
+        }
+
+        .stat-value.error {
+            color: var(--error-color);
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--background-color);
+        }
+
+        .canvas-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .comparison-panel {
+            background: var(--surface-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: var(--background-color);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .algorithm-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-mersenne { background: #dbeafe; color: #1e40af; }
+        .badge-xorshift { background: #dcfce7; color: #166534; }
+        .badge-pcg { background: #fef3c7; color: #92400e; }
+        .badge-lfsr { background: #fce7f3; color: #be185d; }
+        .badge-well { background: #e0e7ff; color: #3730a3; }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #b91c1c;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+
+            .control-row {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">🌓 テーマ</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎲 乱数生成アルゴリズムベンチマークツール</h1>
+            <p>複数の乱数生成器を比較・分析して統計的品質を評価</p>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="algorithm">アルゴリズム選択</label>
+                    <select id="algorithm">
+                        <option value="mersenne">Mersenne Twister</option>
+                        <option value="xorshift">Xorshift128</option>
+                        <option value="pcg">PCG32</option>
+                        <option value="lfsr">LFSR</option>
+                        <option value="well">WELL512</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="seed">シード値</label>
+                    <input type="number" id="seed" value="12345" min="1" max="2147483647">
+                </div>
+                
+                <div class="control-group">
+                    <label for="count">生成数</label>
+                    <select id="count">
+                        <option value="1000">1,000</option>
+                        <option value="10000">10,000</option>
+                        <option value="100000" selected>100,000</option>
+                        <option value="1000000">1,000,000</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="runSingleTest()">
+                    🚀 シングルテスト実行
+                </button>
+                <button class="btn btn-secondary" onclick="runBatchTest()">
+                    📊 バッチ比較実行
+                </button>
+                <button class="btn btn-export" onclick="exportResults()">
+                    💾 結果エクスポート
+                </button>
+            </div>
+        </div>
+
+        <div class="progress-container" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+                <div class="progress-text">処理中...</div>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="results-container">
+            <div class="stats-panel">
+                <h3>📈 統計テスト結果</h3>
+                <div id="statsContent">
+                    <div class="stat-item">
+                        <span class="stat-label">P値 (均一性)</span>
+                        <span class="stat-value" id="uniformityP">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">P値 (独立性)</span>
+                        <span class="stat-value" id="independenceP">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">生成速度</span>
+                        <span class="stat-value" id="generationSpeed">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">平均値</span>
+                        <span class="stat-value" id="meanValue">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">標準偏差</span>
+                        <span class="stat-value" id="stdDev">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最小値</span>
+                        <span class="stat-value" id="minValue">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最大値</span>
+                        <span class="stat-value" id="maxValue">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization-panel">
+                <h3>🎨 ビジュアル化</h3>
+                <div class="canvas-container">
+                    <canvas id="visualCanvas" width="600" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-panel" style="display: none;" id="comparisonPanel">
+            <h3>🔄 バッチ比較結果</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>アルゴリズム</th>
+                        <th>P値(均一性)</th>
+                        <th>P値(独立性)</th>
+                        <th>生成速度</th>
+                        <th>品質スコア</th>
+                    </tr>
+                </thead>
+                <tbody id="comparisonBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // 乱数生成器の実装
+        class RandomGenerators {
+            static mersenneTwister(seed) {
+                const mt = new Array(624);
+                let mti = 0;
+                
+                mt[0] = seed;
+                for (let i = 1; i < 624; i++) {
+                    mt[i] = (1812433253 * (mt[i-1] ^ (mt[i-1] >>> 30)) + i) >>> 0;
+                }
+                mti = 624;
+                
+                return function() {
+                    let y;
+                    const mag01 = [0, 0x9908b0df];
+                    
+                    if (mti >= 624) {
+                        let kk;
+                        for (kk = 0; kk < 624 - 397; kk++) {
+                            y = (mt[kk] & 0x80000000) | (mt[kk + 1] & 0x7fffffff);
+                            mt[kk] = mt[kk + 397] ^ (y >>> 1) ^ mag01[y & 1];
+                        }
+                        for (; kk < 624 - 1; kk++) {
+                            y = (mt[kk] & 0x80000000) | (mt[kk + 1] & 0x7fffffff);
+                            mt[kk] = mt[kk + (397 - 624)] ^ (y >>> 1) ^ mag01[y & 1];
+                        }
+                        y = (mt[623] & 0x80000000) | (mt[0] & 0x7fffffff);
+                        mt[623] = mt[396] ^ (y >>> 1) ^ mag01[y & 1];
+                        mti = 0;
+                    }
+                    
+                    y = mt[mti++];
+                    y ^= y >>> 11;
+                    y ^= (y << 7) & 0x9d2c5680;
+                    y ^= (y << 15) & 0xefc60000;
+                    y ^= y >>> 18;
+                    
+                    return (y >>> 0) / 4294967296;
+                };
+            }
+            
+            static xorshift128(seed) {
+                let x = seed || 123456789;
+                let y = 362436069;
+                let z = 521288629;
+                let w = 88675123;
+                
+                return function() {
+                    const t = x ^ (x << 11);
+                    x = y; y = z; z = w;
+                    w = w ^ (w >>> 19) ^ (t ^ (t >>> 8));
+                    return (w >>> 0) / 4294967296;
+                };
+            }
+            
+            static pcg32(seed) {
+                let state = seed || 1;
+                let inc = 1;
+                
+                return function() {
+                    const oldstate = state;
+                    state = ((state * 1664525) + inc) >>> 0;
+                    const xorshifted = (((oldstate >>> 18) ^ oldstate) >>> 27) >>> 0;
+                    const rot = oldstate >>> 59;
+                    return ((xorshifted >>> rot) | (xorshifted << ((-rot) & 31))) / 4294967296;
+                };
+            }
+            
+            static lfsr(seed) {
+                let register = seed || 0xACE1;
+                
+                return function() {
+                    const bit = ((register >> 0) ^ (register >> 2) ^ (register >> 3) ^ (register >> 5)) & 1;
+                    register = (register >> 1) | (bit << 15);
+                    return register / 65536;
+                };
+            }
+            
+            static well512(seed) {
+                const state = new Array(16);
+                let index = 0;
+                
+                // 初期化
+                state[0] = seed || 12345;
+                for (let i = 1; i < 16; i++) {
+                    state[i] = (1812433253 * (state[i-1] ^ (state[i-1] >>> 30)) + i) >>> 0;
+                }
+                
+                return function() {
+                    const a = state[index];
+                    const c = state[(index + 13) & 15];
+                    const b = a ^ c ^ (a << 16) ^ (c << 15);
+                    const c1 = state[(index + 9) & 15];
+                    const c2 = c1 ^ (c1 >>> 11);
+                    const a1 = a ^ (a << 5) ^ (a << 2);
+                    const a2 = a1 ^ (a1 << 8) ^ b;
+                    const d = a2 ^ ((c2 << 5) & 0xDA442D24);
+                    
+                    state[index] = d;
+                    index = (index + 15) & 15;
+                    return (d >>> 0) / 4294967296;
+                };
+            }
+        }
+
+        // 統計テストクラス
+        class StatisticalTests {
+            static uniformityTest(values) {
+                const bins = 10;
+                const expected = values.length / bins;
+                const counts = new Array(bins).fill(0);
+                
+                values.forEach(val => {
+                    const bin = Math.floor(val * bins);
+                    counts[Math.min(bin, bins - 1)]++;
+                });
+                
+                const chiSquare = counts.reduce((sum, count) => {
+                    return sum + Math.pow(count - expected, 2) / expected;
+                }, 0);
+                
+                // カイ二乗分布のp値近似
+                const df = bins - 1;
+                const pValue = Math.exp(-chiSquare / 2);
+                
+                return Math.min(Math.max(pValue, 0), 1);
+            }
+            
+            static independenceTest(values) {
+                let runCount = 1;
+                for (let i = 1; i < values.length; i++) {
+                    if ((values[i] >= 0.5) !== (values[i-1] >= 0.5)) {
+                        runCount++;
+                    }
+                }
+                
+                const n = values.length;
+                const expectedRuns = (2 * n) / 3;
+                const variance = (16 * n - 29) / 90;
+                const z = Math.abs(runCount - expectedRuns) / Math.sqrt(variance);
+                
+                // 正規分布のp値近似
+                const pValue = Math.exp(-z * z / 2);
+                
+                return Math.min(Math.max(pValue, 0), 1);
+            }
+            
+            static calculateStats(values) {
+                const sum = values.reduce((a, b) => a + b, 0);
+                const mean = sum / values.length;
+                
+                const variance = values.reduce((sum, val) => {
+                    return sum + Math.pow(val - mean, 2);
+                }, 0) / values.length;
+                
+                const stdDev = Math.sqrt(variance);
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                
+                return { mean, stdDev, min, max };
+            }
+        }
+
+        // ビジュアル化クラス
+        class Visualizer {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.animationId = null;
+            }
+            
+            drawHistogram(values) {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                const bins = 50;
+                const counts = new Array(bins).fill(0);
+                
+                values.forEach(val => {
+                    const bin = Math.floor(val * bins);
+                    counts[Math.min(bin, bins - 1)]++;
+                });
+                
+                const maxCount = Math.max(...counts);
+                const barWidth = width / bins;
+                
+                // グラデーション作成
+                const gradient = ctx.createLinearGradient(0, height, 0, 0);
+                gradient.addColorStop(0, '#3b82f6');
+                gradient.addColorStop(0.5, '#60a5fa');
+                gradient.addColorStop(1, '#93c5fd');
+                
+                ctx.fillStyle = gradient;
+                
+                counts.forEach((count, i) => {
+                    const barHeight = (count / maxCount) * height * 0.8;
+                    const x = i * barWidth;
+                    const y = height - barHeight;
+                    
+                    ctx.fillRect(x, y, barWidth - 1, barHeight);
+                });
+                
+                // 軸の描画
+                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, height);
+                ctx.lineTo(width, height);
+                ctx.stroke();
+            }
+            
+            drawScatterPlot(values) {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                // 連続する値のペアでプロット
+                const pairs = [];
+                for (let i = 0; i < values.length - 1; i++) {
+                    pairs.push([values[i], values[i + 1]]);
+                }
+                
+                // グラデーション
+                const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/2);
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
+                
+                ctx.fillStyle = gradient;
+                
+                pairs.forEach(([x, y]) => {
+                    const pixelX = x * width;
+                    const pixelY = (1 - y) * height;
+                    
+                    ctx.beginPath();
+                    ctx.arc(pixelX, pixelY, 1, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+            }
+            
+            drawFractalPattern(values) {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                const imageData = ctx.createImageData(width, height);
+                const data = imageData.data;
+                
+                for (let i = 0; i < values.length && i < data.length / 4; i++) {
+                    const val = values[i];
+                    const x = (i * 4) % width;
+                    const y = Math.floor((i * 4) / width);
+                    const index = (y * width + x) * 4;
+                    
+                    if (index < data.length) {
+                        const hue = val * 360;
+                        const [r, g, b] = this.hslToRgb(hue / 360, 0.7, 0.5);
+                        
+                        data[index] = r;     // R
+                        data[index + 1] = g; // G
+                        data[index + 2] = b; // B
+                        data[index + 3] = Math.floor(val * 255); // A
+                    }
+                }
+                
+                ctx.putImageData(imageData, 0, 0);
+            }
+            
+            hslToRgb(h, s, l) {
+                let r, g, b;
+                
+                if (s === 0) {
+                    r = g = b = l;
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1/6) return p + (q - p) * 6 * t;
+                        if (t < 1/2) return q;
+                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                        return p;
+                    };
+                    
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1/3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1/3);
+                }
+                
+                return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+            }
+        }
+
+        // アプリケーションメインクラス
+        class BenchmarkApp {
+            constructor() {
+                this.visualizer = new Visualizer(document.getElementById('visualCanvas'));
+                this.currentResults = null;
+                this.batchResults = [];
+                this.worker = null;
+                this.setupWorker();
+            }
+            
+            setupWorker() {
+                // Web Workerのコードを文字列として定義
+                const workerCode = `
+                    // Worker内での乱数生成実装
+                    ${RandomGenerators.toString()}
+                    ${StatisticalTests.toString()}
+                    
+                    self.onmessage = function(e) {
+                        const { algorithm, seed, count, type } = e.data;
+                        
+                        try {
+                            const startTime = performance.now();
+                            const generator = getGenerator(algorithm, seed);
+                            const values = [];
+                            
+                            for (let i = 0; i < count; i++) {
+                                values.push(generator());
+                            }
+                            
+                            const endTime = performance.now();
+                            const generationTime = endTime - startTime;
+                            const speed = (count / generationTime) * 1000; // numbers per second
+                            
+                            const uniformityP = StatisticalTests.uniformityTest(values);
+                            const independenceP = StatisticalTests.independenceTest(values);
+                            const stats = StatisticalTests.calculateStats(values);
+                            
+                            self.postMessage({
+                                success: true,
+                                algorithm,
+                                seed,
+                                count,
+                                values: type === 'visual' ? values : null,
+                                uniformityP,
+                                independenceP,
+                                speed,
+                                stats,
+                                generationTime
+                            });
+                        } catch (error) {
+                            self.postMessage({
+                                success: false,
+                                error: error.message
+                            });
+                        }
+                    };
+                    
+                    function getGenerator(algorithm, seed) {
+                        switch (algorithm) {
+                            case 'mersenne': return RandomGenerators.mersenneTwister(seed);
+                            case 'xorshift': return RandomGenerators.xorshift128(seed);
+                            case 'pcg': return RandomGenerators.pcg32(seed);
+                            case 'lfsr': return RandomGenerators.lfsr(seed);
+                            case 'well': return RandomGenerators.well512(seed);
+                            default: throw new Error('Unknown algorithm: ' + algorithm);
+                        }
+                    }
+                `;
+                
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                this.worker = new Worker(URL.createObjectURL(blob));
+            }
+            
+            async runTest(algorithm, seed, count, includeVisual = true) {
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('タイムアウト: 処理に時間がかかりすぎています'));
+                    }, 30000);
+                    
+                    this.worker.onmessage = (e) => {
+                        clearTimeout(timeout);
+                        if (e.data.success) {
+                            resolve(e.data);
+                        } else {
+                            reject(new Error(e.data.error));
+                        }
+                    };
+                    
+                    this.worker.postMessage({
+                        algorithm,
+                        seed,
+                        count,
+                        type: includeVisual ? 'visual' : 'stats'
+                    });
+                });
+            }
+            
+            updateUI(result) {
+                document.getElementById('uniformityP').textContent = result.uniformityP.toFixed(6);
+                document.getElementById('uniformityP').className = 'stat-value ' + this.getScoreClass(result.uniformityP);
+                
+                document.getElementById('independenceP').textContent = result.independenceP.toFixed(6);
+                document.getElementById('independenceP').className = 'stat-value ' + this.getScoreClass(result.independenceP);
+                
+                document.getElementById('generationSpeed').textContent = this.formatSpeed(result.speed);
+                document.getElementById('generationSpeed').className = 'stat-value ' + this.getSpeedClass(result.speed);
+                
+                document.getElementById('meanValue').textContent = result.stats.mean.toFixed(6);
+                document.getElementById('stdDev').textContent = result.stats.stdDev.toFixed(6);
+                document.getElementById('minValue').textContent = result.stats.min.toFixed(6);
+                document.getElementById('maxValue').textContent = result.stats.max.toFixed(6);
+            }
+            
+            getScoreClass(pValue) {
+                if (pValue >= 0.95) return 'good';
+                if (pValue >= 0.8) return 'warning';
+                return 'error';
+            }
+            
+            getSpeedClass(speed) {
+                if (speed >= 1000000) return 'good';
+                if (speed >= 500000) return 'warning';
+                return 'error';
+            }
+            
+            formatSpeed(speed) {
+                if (speed >= 1000000) {
+                    return (speed / 1000000).toFixed(1) + 'M/秒';
+                } else if (speed >= 1000) {
+                    return (speed / 1000).toFixed(1) + 'K/秒';
+                } else {
+                    return speed.toFixed(0) + '/秒';
+                }
+            }
+            
+            showProgress(show, text = '処理中...', progress = 0) {
+                const container = document.querySelector('.progress-container');
+                const fill = document.querySelector('.progress-fill');
+                const textEl = document.querySelector('.progress-text');
+                
+                if (show) {
+                    container.style.display = 'block';
+                    textEl.textContent = text;
+                    fill.style.width = progress + '%';
+                } else {
+                    container.style.display = 'none';
+                }
+            }
+            
+            showError(message) {
+                const errorEl = document.getElementById('errorMessage');
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                setTimeout(() => {
+                    errorEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // グローバル変数
+        let app;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new BenchmarkApp();
+        });
+
+        // 関数定義
+        async function runSingleTest() {
+            const algorithm = document.getElementById('algorithm').value;
+            const seed = parseInt(document.getElementById('seed').value);
+            const count = parseInt(document.getElementById('count').value);
+            
+            if (!seed || seed < 1) {
+                app.showError('有効なシード値を入力してください (1以上の整数)');
+                return;
+            }
+            
+            try {
+                app.showProgress(true, 'テスト実行中...', 0);
+                
+                // プログレス更新
+                setTimeout(() => app.showProgress(true, '乱数生成中...', 30), 100);
+                setTimeout(() => app.showProgress(true, '統計テスト実行中...', 60), 500);
+                setTimeout(() => app.showProgress(true, 'ビジュアル化中...', 90), 1000);
+                
+                const result = await app.runTest(algorithm, seed, count, true);
+                app.currentResults = result;
+                
+                app.updateUI(result);
+                
+                // ビジュアル化の更新
+                if (result.values) {
+                    app.visualizer.drawHistogram(result.values);
+                }
+                
+                app.showProgress(false);
+                
+                // コンソールに詳細情報を出力
+                console.log('テスト結果:', result);
+                
+            } catch (error) {
+                app.showProgress(false);
+                app.showError('テスト実行エラー: ' + error.message);
+                console.error('Test error:', error);
+            }
+        }
+
+        async function runBatchTest() {
+            const algorithms = ['mersenne', 'xorshift', 'pcg', 'lfsr', 'well'];
+            const seed = parseInt(document.getElementById('seed').value);
+            const count = parseInt(document.getElementById('count').value);
+            
+            if (!seed || seed < 1) {
+                app.showError('有効なシード値を入力してください (1以上の整数)');
+                return;
+            }
+            
+            try {
+                app.showProgress(true, 'バッチテスト開始...', 0);
+                app.batchResults = [];
+                
+                for (let i = 0; i < algorithms.length; i++) {
+                    const algorithm = algorithms[i];
+                    const progress = ((i + 1) / algorithms.length) * 100;
+                    
+                    app.showProgress(true, `${algorithm} テスト中...`, progress);
+                    
+                    const result = await app.runTest(algorithm, seed, count, false);
+                    app.batchResults.push(result);
+                }
+                
+                updateBatchResults();
+                app.showProgress(false);
+                
+            } catch (error) {
+                app.showProgress(false);
+                app.showError('バッチテストエラー: ' + error.message);
+                console.error('Batch test error:', error);
+            }
+        }
+
+        function updateBatchResults() {
+            const panel = document.getElementById('comparisonPanel');
+            const tbody = document.getElementById('comparisonBody');
+            
+            tbody.innerHTML = '';
+            
+            app.batchResults.forEach(result => {
+                const row = document.createElement('tr');
+                const qualityScore = (result.uniformityP + result.independenceP) / 2;
+                
+                row.innerHTML = `
+                    <td>
+                        <span class="algorithm-badge badge-${result.algorithm}">
+                            ${getAlgorithmDisplayName(result.algorithm)}
+                        </span>
+                    </td>
+                    <td class="${app.getScoreClass(result.uniformityP)}">${result.uniformityP.toFixed(6)}</td>
+                    <td class="${app.getScoreClass(result.independenceP)}">${result.independenceP.toFixed(6)}</td>
+                    <td class="${app.getSpeedClass(result.speed)}">${app.formatSpeed(result.speed)}</td>
+                    <td class="${app.getScoreClass(qualityScore)}">${qualityScore.toFixed(3)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            panel.style.display = 'block';
+        }
+
+        function getAlgorithmDisplayName(algorithm) {
+            const names = {
+                'mersenne': 'Mersenne Twister',
+                'xorshift': 'Xorshift128',
+                'pcg': 'PCG32',
+                'lfsr': 'LFSR',
+                'well': 'WELL512'
+            };
+            return names[algorithm] || algorithm;
+        }
+
+        function exportResults() {
+            if (!app.currentResults && app.batchResults.length === 0) {
+                app.showError('エクスポートするデータがありません。まずテストを実行してください。');
+                return;
+            }
+            
+            let csvContent = 'data:text/csv;charset=utf-8,';
+            
+            if (app.batchResults.length > 0) {
+                // バッチ結果のエクスポート
+                csvContent += 'Algorithm,Uniformity_P,Independence_P,Speed_per_sec,Quality_Score,Mean,StdDev,Min,Max\n';
+                
+                app.batchResults.forEach(result => {
+                    const qualityScore = (result.uniformityP + result.independenceP) / 2;
+                    csvContent += `${result.algorithm},${result.uniformityP},${result.independenceP},${result.speed},${qualityScore},${result.stats.mean},${result.stats.stdDev},${result.stats.min},${result.stats.max}\n`;
+                });
+            } else if (app.currentResults) {
+                // 単一結果のエクスポート
+                const result = app.currentResults;
+                csvContent += 'Algorithm,Uniformity_P,Independence_P,Speed_per_sec,Mean,StdDev,Min,Max\n';
+                csvContent += `${result.algorithm},${result.uniformityP},${result.independenceP},${result.speed},${result.stats.mean},${result.stats.stdDev},${result.stats.min},${result.stats.max}\n`;
+            }
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `random_benchmark_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // テーマの初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        });
+    </script>
+</body>
+</html>

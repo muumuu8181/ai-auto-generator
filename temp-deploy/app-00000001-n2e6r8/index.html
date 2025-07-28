@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分子構造可視化・化学反応シミュレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(45deg, #1e3c72 0%, #2a5298 100%);
+        }
+
+        #moleculeCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        #moleculeCanvas:active {
+            cursor: grabbing;
+        }
+
+        .controls {
+            height: 120px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            overflow-x: auto;
+        }
+
+        .molecule-library {
+            margin-bottom: 30px;
+        }
+
+        .molecule-library h3 {
+            margin-bottom: 15px;
+            color: #2a5298;
+            font-size: 18px;
+        }
+
+        .molecule-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .molecule-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .molecule-btn.active {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            box-shadow: 0 0 20px rgba(118, 75, 162, 0.6);
+        }
+
+        .reaction-controls {
+            margin-bottom: 30px;
+        }
+
+        .reaction-controls h3 {
+            margin-bottom: 15px;
+            color: #2a5298;
+            font-size: 18px;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        .control-btn.active {
+            background: #FF4081;
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-panel h4 {
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+
+        .property-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .property-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .property-value {
+            color: #777;
+        }
+
+        .visualization-mode {
+            margin-bottom: 20px;
+        }
+
+        .visualization-mode h4 {
+            margin-bottom: 10px;
+            color: #2a5298;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            background: #E1F5FE;
+            border: 1px solid #B3E5FC;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover {
+            background: #B3E5FC;
+        }
+
+        .mode-btn.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+        }
+
+        .reaction-equation {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .atom-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+            display: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            color: #2a5298;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        @keyframes moleculeRotate {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        .rotating {
+            animation: moleculeRotate 4s linear infinite;
+        }
+
+        @keyframes bondVibrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .vibrating {
+            animation: bondVibrate 0.5s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 200px;
+                overflow-x: auto;
+                display: flex;
+                padding: 10px;
+            }
+
+            .sidebar > div {
+                min-width: 200px;
+                margin-right: 20px;
+            }
+
+            .controls {
+                height: 80px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <h1>分子シミュレーター</h1>
+                <p>3D化学構造可視化ツール</p>
+            </div>
+
+            <div class="molecule-library">
+                <h3>分子ライブラリ</h3>
+                <button class="molecule-btn active" data-molecule="water">H₂O - 水</button>
+                <button class="molecule-btn" data-molecule="methane">CH₄ - メタン</button>
+                <button class="molecule-btn" data-molecule="ethane">C₂H₆ - エタン</button>
+                <button class="molecule-btn" data-molecule="benzene">C₆H₆ - ベンゼン</button>
+                <button class="molecule-btn" data-molecule="ammonia">NH₃ - アンモニア</button>
+                <button class="molecule-btn" data-molecule="co2">CO₂ - 二酸化炭素</button>
+                <button class="molecule-btn" data-molecule="ethanol">C₂H₅OH - エタノール</button>
+                <button class="molecule-btn" data-molecule="glucose">C₆H₁₂O₆ - グルコース</button>
+            </div>
+
+            <div class="visualization-mode">
+                <h4>表示モード</h4>
+                <button class="mode-btn active" data-mode="ball-stick">球棒モデル</button>
+                <button class="mode-btn" data-mode="space-fill">空間充填</button>
+                <button class="mode-btn" data-mode="wireframe">線構造</button>
+            </div>
+
+            <div class="info-panel">
+                <h4>分子情報</h4>
+                <div class="property-item">
+                    <span class="property-label">分子式:</span>
+                    <span class="property-value" id="molecularFormula">H₂O</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">分子量:</span>
+                    <span class="property-value" id="molecularWeight">18.02 g/mol</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">原子数:</span>
+                    <span class="property-value" id="atomCount">3</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">結合数:</span>
+                    <span class="property-value" id="bondCount">2</span>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                <label class="slider-label">回転速度</label>
+                <input type="range" class="slider" id="rotationSpeed" min="0" max="5" value="1" step="0.1">
+            </div>
+
+            <div class="slider-container">
+                <label class="slider-label">分子サイズ</label>
+                <input type="range" class="slider" id="moleculeSize" min="0.5" max="3" value="1" step="0.1">
+            </div>
+        </div>
+
+        <div class="main-view">
+            <div class="canvas-container">
+                <canvas id="moleculeCanvas"></canvas>
+                <div class="atom-info" id="atomInfo">
+                    <h4>原子情報</h4>
+                    <p id="atomDetails"></p>
+                </div>
+            </div>
+
+            <div class="reaction-equation" id="reactionEquation">
+                H₂O ⇌ 水分子の3D構造を表示中
+            </div>
+
+            <div class="controls">
+                <div class="reaction-controls">
+                    <h3>反応制御</h3>
+                    <button class="control-btn" id="playReaction">反応開始</button>
+                    <button class="control-btn" id="pauseReaction">一時停止</button>
+                    <button class="control-btn" id="resetReaction">リセット</button>
+                    <button class="control-btn" id="stepReaction">ステップ実行</button>
+                </div>
+
+                <div class="reaction-controls">
+                    <h3>表示制御</h3>
+                    <button class="control-btn" id="toggleRotation">自動回転</button>
+                    <button class="control-btn" id="toggleLabels">ラベル表示</button>
+                    <button class="control-btn" id="toggleBonds">結合表示</button>
+                    <button class="control-btn" id="exportImage">画像保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MoleculeSimulator {
+            constructor() {
+                this.canvas = document.getElementById('moleculeCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.currentMolecule = 'water';
+                this.visualizationMode = 'ball-stick';
+                this.rotationX = 0;
+                this.rotationY = 0;
+                this.rotationSpeed = 1;
+                this.moleculeSize = 1;
+                this.isRotating = true;
+                this.showLabels = true;
+                this.showBonds = true;
+                this.reactionPlaying = false;
+                this.reactionStep = 0;
+                
+                this.mouseDown = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+
+                this.initCanvas();
+                this.initEventListeners();
+                this.initMoleculeData();
+                this.animate();
+            }
+
+            initCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+
+            resizeCanvas() {
+                const container = this.canvas.parentElement;
+                this.canvas.width = container.clientWidth;
+                this.canvas.height = container.clientHeight;
+            }
+
+            initEventListeners() {
+                // 分子選択
+                document.querySelectorAll('.molecule-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.molecule-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentMolecule = e.target.dataset.molecule;
+                        this.updateMoleculeInfo();
+                    });
+                });
+
+                // 表示モード選択
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.visualizationMode = e.target.dataset.mode;
+                    });
+                });
+
+                // スライダー
+                document.getElementById('rotationSpeed').addEventListener('input', (e) => {
+                    this.rotationSpeed = parseFloat(e.target.value);
+                });
+
+                document.getElementById('moleculeSize').addEventListener('input', (e) => {
+                    this.moleculeSize = parseFloat(e.target.value);
+                });
+
+                // 制御ボタン
+                document.getElementById('playReaction').addEventListener('click', () => {
+                    this.reactionPlaying = true;
+                    document.getElementById('playReaction').classList.add('active');
+                    document.getElementById('pauseReaction').classList.remove('active');
+                });
+
+                document.getElementById('pauseReaction').addEventListener('click', () => {
+                    this.reactionPlaying = false;
+                    document.getElementById('pauseReaction').classList.add('active');
+                    document.getElementById('playReaction').classList.remove('active');
+                });
+
+                document.getElementById('resetReaction').addEventListener('click', () => {
+                    this.reactionStep = 0;
+                    this.reactionPlaying = false;
+                    document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+                });
+
+                document.getElementById('stepReaction').addEventListener('click', () => {
+                    this.reactionStep = (this.reactionStep + 1) % 100;
+                });
+
+                document.getElementById('toggleRotation').addEventListener('click', (e) => {
+                    this.isRotating = !this.isRotating;
+                    e.target.classList.toggle('active', this.isRotating);
+                });
+
+                document.getElementById('toggleLabels').addEventListener('click', (e) => {
+                    this.showLabels = !this.showLabels;
+                    e.target.classList.toggle('active', this.showLabels);
+                });
+
+                document.getElementById('toggleBonds').addEventListener('click', (e) => {
+                    this.showBonds = !this.showBonds;
+                    e.target.classList.toggle('active', this.showBonds);
+                });
+
+                document.getElementById('exportImage').addEventListener('click', () => {
+                    this.exportImage();
+                });
+
+                // マウス操作
+                this.canvas.addEventListener('mousedown', (e) => {
+                    this.mouseDown = true;
+                    this.lastMouseX = e.clientX;
+                    this.lastMouseY = e.clientY;
+                });
+
+                this.canvas.addEventListener('mousemove', (e) => {
+                    if (this.mouseDown) {
+                        const deltaX = e.clientX - this.lastMouseX;
+                        const deltaY = e.clientY - this.lastMouseY;
+                        this.rotationY += deltaX * 0.01;
+                        this.rotationX += deltaY * 0.01;
+                        this.lastMouseX = e.clientX;
+                        this.lastMouseY = e.clientY;
+                    }
+                });
+
+                this.canvas.addEventListener('mouseup', () => {
+                    this.mouseDown = false;
+                });
+
+                this.canvas.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    this.moleculeSize += e.deltaY > 0 ? -0.1 : 0.1;
+                    this.moleculeSize = Math.max(0.1, Math.min(5, this.moleculeSize));
+                    document.getElementById('moleculeSize').value = this.moleculeSize;
+                });
+
+                // タッチ操作
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    this.mouseDown = true;
+                    this.lastMouseX = touch.clientX;
+                    this.lastMouseY = touch.clientY;
+                });
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (this.mouseDown && e.touches.length === 1) {
+                        const touch = e.touches[0];
+                        const deltaX = touch.clientX - this.lastMouseX;
+                        const deltaY = touch.clientY - this.lastMouseY;
+                        this.rotationY += deltaX * 0.01;
+                        this.rotationX += deltaY * 0.01;
+                        this.lastMouseX = touch.clientX;
+                        this.lastMouseY = touch.clientY;
+                    }
+                });
+
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    this.mouseDown = false;
+                });
+            }
+
+            initMoleculeData() {
+                this.molecules = {
+                    water: {
+                        name: '水',
+                        formula: 'H₂O',
+                        weight: 18.02,
+                        atoms: [
+                            { element: 'O', x: 0, y: 0, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'H', x: 0.75, y: 0.5, z: 0, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -0.75, y: 0.5, z: 0, color: '#FFFFFF', radius: 0.3 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'single' },
+                            { from: 0, to: 2, type: 'single' }
+                        ]
+                    },
+                    methane: {
+                        name: 'メタン',
+                        formula: 'CH₄',
+                        weight: 16.04,
+                        atoms: [
+                            { element: 'C', x: 0, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'H', x: 1, y: 1, z: 1, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -1, y: -1, z: 1, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -1, y: 1, z: -1, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 1, y: -1, z: -1, color: '#FFFFFF', radius: 0.3 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'single' },
+                            { from: 0, to: 2, type: 'single' },
+                            { from: 0, to: 3, type: 'single' },
+                            { from: 0, to: 4, type: 'single' }
+                        ]
+                    },
+                    ethane: {
+                        name: 'エタン',
+                        formula: 'C₂H₆',
+                        weight: 30.07,
+                        atoms: [
+                            { element: 'C', x: -0.75, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 0.75, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'H', x: -1.5, y: 0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -1.5, y: -0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -1.5, y: 0, z: -1.2, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 1.5, y: 0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 1.5, y: -0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 1.5, y: 0, z: -1.2, color: '#FFFFFF', radius: 0.3 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'single' },
+                            { from: 0, to: 2, type: 'single' },
+                            { from: 0, to: 3, type: 'single' },
+                            { from: 0, to: 4, type: 'single' },
+                            { from: 1, to: 5, type: 'single' },
+                            { from: 1, to: 6, type: 'single' },
+                            { from: 1, to: 7, type: 'single' }
+                        ]
+                    },
+                    benzene: {
+                        name: 'ベンゼン',
+                        formula: 'C₆H₆',
+                        weight: 78.11,
+                        atoms: [
+                            { element: 'C', x: 1, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 0.5, y: 0.866, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: -0.5, y: 0.866, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: -1, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: -0.5, y: -0.866, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 0.5, y: -0.866, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'H', x: 1.8, y: 0, z: 0, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 0.9, y: 1.558, z: 0, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -0.9, y: 1.558, z: 0, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -1.8, y: 0, z: 0, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -0.9, y: -1.558, z: 0, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 0.9, y: -1.558, z: 0, color: '#FFFFFF', radius: 0.3 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'aromatic' },
+                            { from: 1, to: 2, type: 'aromatic' },
+                            { from: 2, to: 3, type: 'aromatic' },
+                            { from: 3, to: 4, type: 'aromatic' },
+                            { from: 4, to: 5, type: 'aromatic' },
+                            { from: 5, to: 0, type: 'aromatic' },
+                            { from: 0, to: 6, type: 'single' },
+                            { from: 1, to: 7, type: 'single' },
+                            { from: 2, to: 8, type: 'single' },
+                            { from: 3, to: 9, type: 'single' },
+                            { from: 4, to: 10, type: 'single' },
+                            { from: 5, to: 11, type: 'single' }
+                        ]
+                    },
+                    ammonia: {
+                        name: 'アンモニア',
+                        formula: 'NH₃',
+                        weight: 17.03,
+                        atoms: [
+                            { element: 'N', x: 0, y: 0, z: 0, color: '#4444FF', radius: 0.65 },
+                            { element: 'H', x: 0.8, y: 0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -0.8, y: 0.8, z: -0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 0, y: -1.2, z: 0, color: '#FFFFFF', radius: 0.3 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'single' },
+                            { from: 0, to: 2, type: 'single' },
+                            { from: 0, to: 3, type: 'single' }
+                        ]
+                    },
+                    co2: {
+                        name: '二酸化炭素',
+                        formula: 'CO₂',
+                        weight: 44.01,
+                        atoms: [
+                            { element: 'C', x: 0, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'O', x: -1.2, y: 0, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'O', x: 1.2, y: 0, z: 0, color: '#FF4444', radius: 0.6 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'double' },
+                            { from: 0, to: 2, type: 'double' }
+                        ]
+                    },
+                    ethanol: {
+                        name: 'エタノール',
+                        formula: 'C₂H₅OH',
+                        weight: 46.07,
+                        atoms: [
+                            { element: 'C', x: -1, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 0.5, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'O', x: 1.5, y: 0.5, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'H', x: -1.5, y: 0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -1.5, y: -0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: -1.5, y: 0, z: -1.2, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 0.5, y: 0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 0.5, y: -0.8, z: 0.8, color: '#FFFFFF', radius: 0.3 },
+                            { element: 'H', x: 2.2, y: 0.2, z: 0, color: '#FFFFFF', radius: 0.3 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'single' },
+                            { from: 1, to: 2, type: 'single' },
+                            { from: 0, to: 3, type: 'single' },
+                            { from: 0, to: 4, type: 'single' },
+                            { from: 0, to: 5, type: 'single' },
+                            { from: 1, to: 6, type: 'single' },
+                            { from: 1, to: 7, type: 'single' },
+                            { from: 2, to: 8, type: 'single' }
+                        ]
+                    },
+                    glucose: {
+                        name: 'グルコース',
+                        formula: 'C₆H₁₂O₆',
+                        weight: 180.16,
+                        atoms: [
+                            { element: 'C', x: 0, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 1.5, y: 0, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 2.25, y: 1.3, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 1.5, y: 2.6, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'C', x: 0, y: 2.6, z: 0, color: '#333333', radius: 0.7 },
+                            { element: 'O', x: -0.75, y: 1.3, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'O', x: -0.75, y: -1, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'O', x: 2.25, y: -1, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'O', x: 3.75, y: 1.3, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'O', x: 2.25, y: 3.6, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'O', x: -0.75, y: 3.6, z: 0, color: '#FF4444', radius: 0.6 },
+                            { element: 'C', x: -0.75, y: 4.6, z: 0, color: '#333333', radius: 0.7 }
+                        ],
+                        bonds: [
+                            { from: 0, to: 1, type: 'single' },
+                            { from: 1, to: 2, type: 'single' },
+                            { from: 2, to: 3, type: 'single' },
+                            { from: 3, to: 4, type: 'single' },
+                            { from: 4, to: 5, type: 'single' },
+                            { from: 5, to: 0, type: 'single' },
+                            { from: 0, to: 6, type: 'single' },
+                            { from: 1, to: 7, type: 'single' },
+                            { from: 2, to: 8, type: 'single' },
+                            { from: 3, to: 9, type: 'single' },
+                            { from: 4, to: 10, type: 'single' },
+                            { from: 10, to: 11, type: 'single' }
+                        ]
+                    }
+                };
+
+                this.updateMoleculeInfo();
+            }
+
+            updateMoleculeInfo() {
+                const molecule = this.molecules[this.currentMolecule];
+                document.getElementById('molecularFormula').textContent = molecule.formula;
+                document.getElementById('molecularWeight').textContent = `${molecule.weight} g/mol`;
+                document.getElementById('atomCount').textContent = molecule.atoms.length;
+                document.getElementById('bondCount').textContent = molecule.bonds.length;
+                
+                const equation = document.getElementById('reactionEquation');
+                equation.textContent = `${molecule.formula} - ${molecule.name}の3D構造を表示中`;
+            }
+
+            project3D(x, y, z) {
+                // 回転変換
+                const cosX = Math.cos(this.rotationX);
+                const sinX = Math.sin(this.rotationX);
+                const cosY = Math.cos(this.rotationY);
+                const sinY = Math.sin(this.rotationY);
+
+                // Y軸回転
+                const x1 = x * cosY - z * sinY;
+                const z1 = x * sinY + z * cosY;
+
+                // X軸回転
+                const y2 = y * cosX - z1 * sinX;
+                const z2 = y * sinX + z1 * cosX;
+
+                // 投影
+                const scale = 200 * this.moleculeSize;
+                const fov = 500;
+                const projectedX = (x1 * fov) / (fov + z2) * scale + this.canvas.width / 2;
+                const projectedY = (y2 * fov) / (fov + z2) * scale + this.canvas.height / 2;
+                const projectedZ = z2;
+
+                return { x: projectedX, y: projectedY, z: projectedZ };
+            }
+
+            drawAtom(atom, index) {
+                const pos = this.project3D(atom.x, atom.y, atom.z);
+                const scale = 200 * this.moleculeSize / (200 + pos.z);
+                let radius = atom.radius * 30 * scale;
+
+                if (this.visualizationMode === 'space-fill') {
+                    radius *= 1.5;
+                } else if (this.visualizationMode === 'wireframe') {
+                    radius = 5;
+                }
+
+                // 反応アニメーション効果
+                if (this.reactionPlaying) {
+                    const pulse = Math.sin(Date.now() * 0.005 + index) * 0.2 + 1;
+                    radius *= pulse;
+                }
+
+                // グラデーション効果
+                const gradient = this.ctx.createRadialGradient(
+                    pos.x, pos.y, 0,
+                    pos.x, pos.y, radius
+                );
+                gradient.addColorStop(0, atom.color);
+                gradient.addColorStop(0.7, atom.color);
+
+                // 影効果のための暗い色
+                const darkColor = this.darkenColor(atom.color, 0.3);
+                gradient.addColorStop(1, darkColor);
+
+                this.ctx.save();
+                this.ctx.globalAlpha = pos.z > -100 ? 1 : 0.5;
+                this.ctx.fillStyle = gradient;
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // 原子のハイライト
+                if (this.visualizationMode !== 'wireframe') {
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(pos.x - radius * 0.3, pos.y - radius * 0.3, radius * 0.3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+
+                // ラベル表示
+                if (this.showLabels) {
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.font = `${Math.max(12, radius * 0.4)}px Arial`;
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillText(atom.element, pos.x, pos.y);
+                }
+
+                this.ctx.restore();
+            }
+
+            drawBond(bond) {
+                if (!this.showBonds) return;
+
+                const molecule = this.molecules[this.currentMolecule];
+                const atom1 = molecule.atoms[bond.from];
+                const atom2 = molecule.atoms[bond.to];
+                const pos1 = this.project3D(atom1.x, atom1.y, atom1.z);
+                const pos2 = this.project3D(atom2.x, atom2.y, atom2.z);
+
+                this.ctx.save();
+                this.ctx.strokeStyle = bond.type === 'aromatic' ? '#FF6B35' : 
+                                     bond.type === 'double' ? '#4ECDC4' : 
+                                     bond.type === 'triple' ? '#45B7D1' : '#888';
+                
+                let lineWidth = bond.type === 'double' ? 4 : 
+                               bond.type === 'triple' ? 6 : 
+                               bond.type === 'aromatic' ? 3 : 2;
+
+                // 反応アニメーション効果
+                if (this.reactionPlaying) {
+                    const pulse = Math.sin(Date.now() * 0.01) * 0.5 + 1;
+                    lineWidth *= pulse;
+                }
+
+                this.ctx.lineWidth = lineWidth;
+                this.ctx.lineCap = 'round';
+
+                if (bond.type === 'double') {
+                    // 二重結合の描画
+                    const dx = pos2.x - pos1.x;
+                    const dy = pos2.y - pos1.y;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const offsetX = (-dy / length) * 3;
+                    const offsetY = (dx / length) * 3;
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(pos1.x + offsetX, pos1.y + offsetY);
+                    this.ctx.lineTo(pos2.x + offsetX, pos2.y + offsetY);
+                    this.ctx.stroke();
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(pos1.x - offsetX, pos1.y - offsetY);
+                    this.ctx.lineTo(pos2.x - offsetX, pos2.y - offsetY);
+                    this.ctx.stroke();
+                } else if (bond.type === 'aromatic') {
+                    // 芳香族結合の描画（点線）
+                    this.ctx.setLineDash([5, 5]);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(pos1.x, pos1.y);
+                    this.ctx.lineTo(pos2.x, pos2.y);
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                } else {
+                    // 単結合の描画
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(pos1.x, pos1.y);
+                    this.ctx.lineTo(pos2.x, pos2.y);
+                    this.ctx.stroke();
+                }
+
+                this.ctx.restore();
+            }
+
+            darkenColor(color, factor) {
+                const rgb = this.hexToRgb(color);
+                if (!rgb) return color;
+                const r = Math.floor(rgb.r * (1 - factor));
+                const g = Math.floor(rgb.g * (1 - factor));
+                const b = Math.floor(rgb.b * (1 - factor));
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+
+            hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 背景グラデーション
+                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                gradient.addColorStop(0, 'rgba(30, 60, 114, 0.8)');
+                gradient.addColorStop(1, 'rgba(42, 82, 152, 0.8)');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const molecule = this.molecules[this.currentMolecule];
+                if (!molecule) return;
+
+                // Z-バッファリングのための原子ソート
+                const atomsWithDepth = molecule.atoms.map((atom, index) => {
+                    const pos = this.project3D(atom.x, atom.y, atom.z);
+                    return { atom, index, z: pos.z };
+                }).sort((a, b) => b.z - a.z);
+
+                // 結合を先に描画
+                molecule.bonds.forEach(bond => this.drawBond(bond));
+
+                // 原子を後に描画（遠いものから近いものへ）
+                atomsWithDepth.forEach(({ atom, index }) => {
+                    this.drawAtom(atom, index);
+                });
+
+                // 反応進行表示
+                if (this.reactionPlaying) {
+                    this.ctx.save();
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    this.ctx.font = '16px Arial';
+                    this.ctx.textAlign = 'left';
+                    this.ctx.fillText(`反応進行: ${Math.floor(this.reactionStep)}%`, 20, 30);
+                    this.ctx.restore();
+                }
+
+                // 分子名表示
+                this.ctx.save();
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                this.ctx.font = 'bold 24px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(molecule.name, this.canvas.width / 2, 40);
+                this.ctx.restore();
+            }
+
+            animate() {
+                if (this.isRotating) {
+                    this.rotationY += 0.005 * this.rotationSpeed;
+                }
+
+                if (this.reactionPlaying) {
+                    this.reactionStep = (this.reactionStep + 0.5) % 100;
+                }
+
+                this.draw();
+                requestAnimationFrame(() => this.animate());
+            }
+
+            exportImage() {
+                const link = document.createElement('a');
+                link.download = `molecule_${this.currentMolecule}_${Date.now()}.png`;
+                link.href = this.canvas.toDataURL();
+                link.click();
+            }
+        }
+
+        // アプリケーション起動
+        document.addEventListener('DOMContentLoaded', () => {
+            new MoleculeSimulator();
+        });
+    </script>
+</body>
+</html>
