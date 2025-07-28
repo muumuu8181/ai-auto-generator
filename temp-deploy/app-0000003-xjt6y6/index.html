@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ペイントシステム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 ペイントシステム</h1>
+            <div class="header-actions">
+                <button id="new-canvas" class="btn btn-primary">新規作成</button>
+                <button id="save-image" class="btn btn-success">保存</button>
+                <button id="download-image" class="btn btn-info">ダウンロード</button>
+                <label for="upload-image" class="btn btn-warning">
+                    アップロード
+                    <input type="file" id="upload-image" accept="image/*" style="display: none;">
+                </label>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="tools-panel">
+                <h2>ツール</h2>
+                
+                <div class="tool-section">
+                    <h3>ブラシ設定</h3>
+                    <div class="brush-types">
+                        <button class="brush-type active" data-brush="round">
+                            <div class="brush-icon round"></div>
+                            丸
+                        </button>
+                        <button class="brush-type" data-brush="square">
+                            <div class="brush-icon square"></div>
+                            四角
+                        </button>
+                        <button class="brush-type" data-brush="star">
+                            <div class="brush-icon star"></div>
+                            星
+                        </button>
+                        <button class="brush-type" data-brush="custom">
+                            <div class="brush-icon custom">✏️</div>
+                            カスタム
+                        </button>
+                    </div>
+                    
+                    <div class="tool-group">
+                        <label for="brush-size">サイズ: <span id="size-value">10</span>px</label>
+                        <input type="range" id="brush-size" min="1" max="100" value="10">
+                    </div>
+                    
+                    <div class="tool-group">
+                        <label for="opacity">透明度: <span id="opacity-value">100</span>%</label>
+                        <input type="range" id="opacity" min="0" max="100" value="100">
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3>色選択</h3>
+                    <div class="color-picker">
+                        <input type="color" id="color-picker" value="#000000">
+                        <div class="color-display" id="color-display"></div>
+                    </div>
+                    
+                    <div class="color-palette">
+                        <div class="palette-color" data-color="#000000"></div>
+                        <div class="palette-color" data-color="#FFFFFF"></div>
+                        <div class="palette-color" data-color="#FF0000"></div>
+                        <div class="palette-color" data-color="#00FF00"></div>
+                        <div class="palette-color" data-color="#0000FF"></div>
+                        <div class="palette-color" data-color="#FFFF00"></div>
+                        <div class="palette-color" data-color="#FF00FF"></div>
+                        <div class="palette-color" data-color="#00FFFF"></div>
+                        <div class="palette-color" data-color="#FFA500"></div>
+                        <div class="palette-color" data-color="#800080"></div>
+                        <div class="palette-color" data-color="#FFC0CB"></div>
+                        <div class="palette-color" data-color="#A52A2A"></div>
+                    </div>
+                    
+                    <div class="recent-colors">
+                        <h4>最近使った色</h4>
+                        <div id="recent-colors-list"></div>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3>描画モード</h3>
+                    <div class="drawing-modes">
+                        <button class="mode-btn active" data-mode="pen">ペン</button>
+                        <button class="mode-btn" data-mode="eraser">消しゴム</button>
+                        <button class="mode-btn" data-mode="fill">塗りつぶし</button>
+                        <button class="mode-btn" data-mode="line">直線</button>
+                        <button class="mode-btn" data-mode="rectangle">四角形</button>
+                        <button class="mode-btn" data-mode="circle">円</button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3>アクション</h3>
+                    <button id="undo" class="btn btn-secondary">元に戻す</button>
+                    <button id="redo" class="btn btn-secondary">やり直し</button>
+                    <button id="clear" class="btn btn-danger">クリア</button>
+                </div>
+            </aside>
+
+            <div class="canvas-container">
+                <canvas id="paint-canvas"></canvas>
+                <div class="canvas-info">
+                    <span id="canvas-size">800 x 600</span>
+                    <span id="mouse-position">X: 0, Y: 0</span>
+                </div>
+            </div>
+
+            <aside class="layers-panel">
+                <h2>レイヤー</h2>
+                <div class="layer-controls">
+                    <button id="add-layer" class="btn btn-sm">新規レイヤー</button>
+                </div>
+                <div id="layers-list" class="layers-list">
+                    <div class="layer-item active" data-layer-id="0">
+                        <span class="layer-visibility">👁️</span>
+                        <span class="layer-name">レイヤー 1</span>
+                        <span class="layer-opacity">100%</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- カスタムブラシ設定モーダル -->
+        <div id="custom-brush-modal" class="modal">
+            <div class="modal-content">
+                <h3>カスタムブラシ設定</h3>
+                <div class="custom-brush-grid">
+                    <canvas id="custom-brush-canvas" width="200" height="200"></canvas>
+                    <div class="custom-brush-controls">
+                        <button id="clear-custom-brush">クリア</button>
+                        <button id="apply-custom-brush">適用</button>
+                        <button id="cancel-custom-brush">キャンセル</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Explorer - ブロックチェーンエクスプローラー</title>
+    <meta name="description" content="リアルタイムブロックチェーン取引監視とネットワーク分析ツール">
+    <meta name="keywords" content="ブロックチェーン, 仮想通貨, 取引監視, ネットワーク分析, DeFi">
+    <meta name="author" content="AI Auto Generator">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="blockchain-explorer">
+        <!-- Header -->
+        <header class="explorer-header">
+            <div class="header-left">
+                <h1>⛓️ Blockchain Explorer</h1>
+                <div class="subtitle">分散台帳リアルタイム監視システム</div>
+            </div>
+            <div class="header-center">
+                <div class="network-selector">
+                    <select id="networkSelect">
+                        <option value="ethereum">Ethereum</option>
+                        <option value="bitcoin">Bitcoin</option>
+                        <option value="polygon">Polygon</option>
+                        <option value="bsc">BSC</option>
+                        <option value="avalanche">Avalanche</option>
+                    </select>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="ブロック・トランザクション・アドレスを検索...">
+                    <button class="search-btn" id="searchBtn">🔍</button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="network-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">ブロック高</span>
+                        <span class="stat-value" id="blockHeight">18,547,892</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">TPS</span>
+                        <span class="stat-value" id="tpsValue">14.2</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">ガス価格</span>
+                        <span class="stat-value" id="gasPrice">25 Gwei</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="explorer-main">
+            <!-- Live Transaction Feed -->
+            <section class="transaction-feed-section">
+                <div class="section-header">
+                    <h2>🔄 ライブトランザクションフィード</h2>
+                    <div class="feed-controls">
+                        <button class="feed-btn active" id="pauseFeed">⏸️ 停止</button>
+                        <button class="feed-btn" id="clearFeed">🗑️ クリア</button>
+                        <div class="speed-control">
+                            <label>更新速度:</label>
+                            <select id="feedSpeed">
+                                <option value="slow">低速</option>
+                                <option value="normal" selected>普通</option>
+                                <option value="fast">高速</option>
+                                <option value="realtime">リアルタイム</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="transaction-feed" id="transactionFeed">
+                    <!-- Live transactions will be populated here -->
+                </div>
+            </section>
+
+            <!-- Network Visualization -->
+            <section class="network-visualization">
+                <div class="section-header">
+                    <h2>🌐 ネットワーク可視化</h2>
+                    <div class="viz-controls">
+                        <button class="viz-btn" data-view="graph">グラフビュー</button>
+                        <button class="viz-btn active" data-view="flow">フロービュー</button>
+                        <button class="viz-btn" data-view="heat">ヒートマップ</button>
+                        <button class="viz-btn" data-view="3d">3Dビュー</button>
+                    </div>
+                </div>
+                <div class="visualization-container">
+                    <canvas id="networkCanvas" width="1200" height="600"></canvas>
+                    <div class="viz-overlay">
+                        <div class="node-info" id="nodeInfo">
+                            <div class="node-type">ノード情報</div>
+                            <div class="node-details">
+                                <div class="detail-row">
+                                    <span>アドレス:</span>
+                                    <span id="nodeAddress">--</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>残高:</span>
+                                    <span id="nodeBalance">--</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>取引数:</span>
+                                    <span id="nodeTransactions">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="legend-panel">
+                            <h4>凡例</h4>
+                            <div class="legend-item">
+                                <div class="legend-dot wallet"></div>
+                                <span>ウォレット</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot exchange"></div>
+                                <span>取引所</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot contract"></div>
+                                <span>スマートコントラクト</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot defi"></div>
+                                <span>DeFiプロトコル</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Block Information -->
+            <section class="block-info-section">
+                <div class="section-header">
+                    <h2>📦 最新ブロック情報</h2>
+                    <div class="block-controls">
+                        <button class="block-btn" id="prevBlock">⬅️ 前のブロック</button>
+                        <button class="block-btn" id="nextBlock">➡️ 次のブロック</button>
+                        <button class="block-btn" id="latestBlock">🔄 最新</button>
+                    </div>
+                </div>
+                <div class="block-container">
+                    <div class="block-header-info">
+                        <div class="block-number">
+                            <span class="label">ブロック番号:</span>
+                            <span class="value" id="currentBlockNumber">18,547,892</span>
+                        </div>
+                        <div class="block-timestamp">
+                            <span class="label">タイムスタンプ:</span>
+                            <span class="value" id="blockTimestamp">2025-07-27 13:30:45</span>
+                        </div>
+                        <div class="block-hash">
+                            <span class="label">ハッシュ:</span>
+                            <span class="value" id="blockHash">0x1a2b3c4d5e6f...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="block-details">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">マイナー:</span>
+                                <span class="detail-value" id="blockMiner">0xabc123...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">トランザクション数:</span>
+                                <span class="detail-value" id="txCount">347</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ガス使用量:</span>
+                                <span class="detail-value" id="gasUsed">12,456,789</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ガス制限:</span>
+                                <span class="detail-value" id="gasLimit">30,000,000</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">難易度:</span>
+                                <span class="detail-value" id="difficulty">58.4 TH</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">サイズ:</span>
+                                <span class="detail-value" id="blockSize">89.2 KB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="explorer-sidebar">
+            <!-- Market Data -->
+            <section class="market-data-section">
+                <h3>💰 マーケットデータ</h3>
+                <div class="price-display">
+                    <div class="price-item eth">
+                        <div class="crypto-icon">Ξ</div>
+                        <div class="crypto-info">
+                            <div class="crypto-name">Ethereum</div>
+                            <div class="crypto-price" id="ethPrice">$2,847.32</div>
+                            <div class="crypto-change positive" id="ethChange">+2.45%</div>
+                        </div>
+                    </div>
+                    <div class="price-item btc">
+                        <div class="crypto-icon">₿</div>
+                        <div class="crypto-info">
+                            <div class="crypto-name">Bitcoin</div>
+                            <div class="crypto-price" id="btcPrice">$67,892.18</div>
+                            <div class="crypto-change negative" id="btcChange">-0.82%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="market-chart">
+                    <canvas id="priceChart" width="300" height="150"></canvas>
+                </div>
+            </section>
+
+            <!-- Network Analytics -->
+            <section class="network-analytics">
+                <h3>📊 ネットワーク分析</h3>
+                <div class="analytics-metrics">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">24h 取引量</span>
+                            <span class="metric-icon">📈</span>
+                        </div>
+                        <div class="metric-value" id="dailyVolume">$2.4B</div>
+                        <div class="metric-change positive">+12.3%</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">アクティブアドレス</span>
+                            <span class="metric-icon">👥</span>
+                        </div>
+                        <div class="metric-value" id="activeAddresses">847K</div>
+                        <div class="metric-change positive">+5.7%</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">平均ガス料金</span>
+                            <span class="metric-icon">⛽</span>
+                        </div>
+                        <div class="metric-value" id="avgGasFee">25 Gwei</div>
+                        <div class="metric-change negative">-8.2%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DeFi Protocols -->
+            <section class="defi-protocols">
+                <h3>🏦 DeFiプロトコル</h3>
+                <div class="protocol-list">
+                    <div class="protocol-item">
+                        <div class="protocol-info">
+                            <div class="protocol-name">Uniswap V3</div>
+                            <div class="protocol-tvl">TVL: $4.2B</div>
+                        </div>
+                        <div class="protocol-change positive">+3.2%</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-info">
+                            <div class="protocol-name">Aave</div>
+                            <div class="protocol-tvl">TVL: $2.8B</div>
+                        </div>
+                        <div class="protocol-change positive">+1.8%</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-info">
+                            <div class="protocol-name">Compound</div>
+                            <div class="protocol-tvl">TVL: $1.9B</div>
+                        </div>
+                        <div class="protocol-change negative">-0.5%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Alerts -->
+            <section class="security-alerts">
+                <h3>🚨 セキュリティアラート</h3>
+                <div class="alert-list">
+                    <div class="alert-item high">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">高額取引検知</div>
+                            <div class="alert-desc">1,000 ETH以上の移動を検出</div>
+                            <div class="alert-time">2分前</div>
+                        </div>
+                    </div>
+                    <div class="alert-item medium">
+                        <div class="alert-icon">🔍</div>
+                        <div class="alert-content">
+                            <div class="alert-title">異常なガス料金</div>
+                            <div class="alert-desc">平均の10倍のガス料金を検出</div>
+                            <div class="alert-time">15分前</div>
+                        </div>
+                    </div>
+                    <div class="alert-item low">
+                        <div class="alert-icon">ℹ️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">新しいトークン</div>
+                            <div class="alert-desc">未確認のERC-20トークンを検出</div>
+                            <div class="alert-time">1時間前</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tools -->
+            <section class="blockchain-tools">
+                <h3>🛠️ ブロックチェーンツール</h3>
+                <div class="tools-grid">
+                    <button class="tool-btn" id="gasTracker">
+                        <span class="tool-icon">⛽</span>
+                        <span class="tool-name">ガストラッカー</span>
+                    </button>
+                    <button class="tool-btn" id="tokenAnalyzer">
+                        <span class="tool-icon">🪙</span>
+                        <span class="tool-name">トークン分析</span>
+                    </button>
+                    <button class="tool-btn" id="whaleTracker">
+                        <span class="tool-icon">🐋</span>
+                        <span class="tool-name">クジラ追跡</span>
+                    </button>
+                    <button class="tool-btn" id="defiTracker">
+                        <span class="tool-icon">🏦</span>
+                        <span class="tool-name">DeFi追跡</span>
+                    </button>
+                    <button class="tool-btn" id="nftExplorer">
+                        <span class="tool-icon">🎨</span>
+                        <span class="tool-name">NFT Explorer</span>
+                    </button>
+                    <button class="tool-btn" id="contractVerifier">
+                        <span class="tool-icon">✅</span>
+                        <span class="tool-name">コントラクト検証</span>
+                    </button>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Bottom Status Bar -->
+        <footer class="status-bar">
+            <div class="status-left">
+                <div class="connection-status">
+                    <div class="status-indicator connected"></div>
+                    <span>ネットワーク接続正常</span>
+                </div>
+                <div class="sync-status">
+                    <span>同期状態: </span>
+                    <span id="syncStatus">100%</span>
+                </div>
+            </div>
+            
+            <div class="status-center">
+                <div class="performance-stats">
+                    <span class="perf-label">処理速度:</span>
+                    <span class="perf-value" id="processingSpeed">2,847 tx/s</span>
+                    <span class="perf-label">遅延:</span>
+                    <span class="perf-value" id="networkLatency">45ms</span>
+                </div>
+            </div>
+            
+            <div class="status-right">
+                <div class="last-update">
+                    <span>最終更新: </span>
+                    <span id="lastUpdateTime">2秒前</span>
+                </div>
+                <button class="settings-btn" id="settingsBtn">⚙️</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Transaction Detail Modal -->
+    <div class="modal-overlay" id="transactionModal">
+        <div class="modal transaction-modal">
+            <div class="modal-header">
+                <h2>📄 トランザクション詳細</h2>
+                <button class="modal-close" id="closeTxModal">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="tx-overview">
+                    <div class="tx-status success" id="txStatus">成功</div>
+                    <div class="tx-hash" id="txHashDisplay">0x1a2b3c4d5e6f7890...</div>
+                </div>
+                
+                <div class="tx-details">
+                    <div class="detail-section">
+                        <h4>基本情報</h4>
+                        <div class="detail-grid">
+                            <div class="detail-row">
+                                <span>送信者:</span>
+                                <span id="txFrom">0xabc123...</span>
+                            </div>
+                            <div class="detail-row">
+                                <span>受信者:</span>
+                                <span id="txTo">0xdef456...</span>
+                            </div>
+                            <div class="detail-row">
+                                <span>送金額:</span>
+                                <span id="txValue">1.5 ETH</span>
+                            </div>
+                            <div class="detail-row">
+                                <span>ガス料金:</span>
+                                <span id="txGasFee">0.0025 ETH</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>技術詳細</h4>
+                        <div class="tech-details">
+                            <div class="tech-row">
+                                <span>ブロック番号:</span>
+                                <span id="txBlockNumber">18,547,892</span>
+                            </div>
+                            <div class="tech-row">
+                                <span>ガス使用量:</span>
+                                <span id="txGasUsed">21,000</span>
+                            </div>
+                            <div class="tech-row">
+                                <span>Nonce:</span>
+                                <span id="txNonce">47</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn view-block">ブロック表示</button>
+                <button class="modal-btn copy-hash">ハッシュコピー</button>
+                <button class="modal-btn close">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

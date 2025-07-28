@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Visualizer - ニューラルネット可視化ツール</title>
+    <meta name="description" content="AIニューラルネットワークの学習過程を美しく可視化するインタラクティブツール">
+    <meta name="keywords" content="AI, ニューラルネットワーク, 機械学習, 可視化, データサイエンス">
+    <meta name="author" content="AI Auto Generator">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="title-section">
+                <h1>🧠 Neural Network Visualizer</h1>
+                <div class="subtitle">ニューラルネット可視化ツール - Deep Learning Insights</div>
+            </div>
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-label">学習率</span>
+                    <span class="status-value" id="learningRate">0.01</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">エポック</span>
+                    <span class="status-value" id="epochCount">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">誤差</span>
+                    <span class="status-value" id="currentError">0.000</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">精度</span>
+                    <span class="status-value" id="accuracy">0%</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Network Visualization -->
+            <div class="network-container">
+                <canvas id="networkCanvas" width="1000" height="600"></canvas>
+                <div class="network-overlay">
+                    <div class="layer-labels" id="layerLabels">
+                        <div class="layer-label">入力層</div>
+                        <div class="layer-label">隠れ層1</div>
+                        <div class="layer-label">隠れ層2</div>
+                        <div class="layer-label">出力層</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="panel-section">
+                    <h3>🎮 ネットワーク制御</h3>
+                    <div class="control-row">
+                        <button class="control-btn primary" id="startTraining">
+                            <span class="btn-icon">▶️</span>
+                            <span>学習開始</span>
+                        </button>
+                        <button class="control-btn warning" id="pauseTraining">
+                            <span class="btn-icon">⏸️</span>
+                            <span>一時停止</span>
+                        </button>
+                        <button class="control-btn danger" id="resetNetwork">
+                            <span class="btn-icon">🔄</span>
+                            <span>リセット</span>
+                        </button>
+                        <button class="control-btn info" id="randomizeWeights">
+                            <span class="btn-icon">🎲</span>
+                            <span>重みランダム化</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>⚙️ ネットワーク設定</h3>
+                    <div class="setting-grid">
+                        <div class="setting-group">
+                            <label>学習率:</label>
+                            <input type="range" id="learningRateSlider" min="0.001" max="0.1" step="0.001" value="0.01">
+                            <span id="learningRateDisplay">0.01</span>
+                        </div>
+                        <div class="setting-group">
+                            <label>隠れ層1ニューロン数:</label>
+                            <input type="range" id="hidden1Neurons" min="2" max="10" value="6">
+                            <span id="hidden1Display">6</span>
+                        </div>
+                        <div class="setting-group">
+                            <label>隠れ層2ニューロン数:</label>
+                            <input type="range" id="hidden2Neurons" min="2" max="8" value="4">
+                            <span id="hidden2Display">4</span>
+                        </div>
+                        <div class="setting-group">
+                            <label>活性化関数:</label>
+                            <select id="activationFunction">
+                                <option value="sigmoid">Sigmoid</option>
+                                <option value="tanh">Tanh</option>
+                                <option value="relu" selected>ReLU</option>
+                                <option value="leakyRelu">Leaky ReLU</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>📊 データセット</h3>
+                    <div class="dataset-controls">
+                        <select id="datasetSelect">
+                            <option value="xor">XOR問題</option>
+                            <option value="circle">円形分類</option>
+                            <option value="spiral">スパイラル</option>
+                            <option value="linear">線形分離</option>
+                            <option value="custom">カスタム</option>
+                        </select>
+                        <button class="dataset-btn" id="generateData">
+                            <span>📈</span>
+                            <span>データ生成</span>
+                        </button>
+                        <button class="dataset-btn" id="addDataPoint">
+                            <span>➕</span>
+                            <span>点追加</span>
+                        </button>
+                        <button class="dataset-btn" id="clearData">
+                            <span>🗑️</span>
+                            <span>データクリア</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Side Panel -->
+        <aside class="side-panel">
+            <!-- Training Progress -->
+            <div class="progress-section">
+                <h3>📈 学習進捗</h3>
+                <div class="progress-chart">
+                    <canvas id="lossChart" width="300" height="200"></canvas>
+                </div>
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">総エポック数:</span>
+                        <span class="stat-value" id="totalEpochs">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最小誤差:</span>
+                        <span class="stat-value" id="minError">∞</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">収束状態:</span>
+                        <span class="stat-value" id="convergenceStatus">待機中</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weight Visualization -->
+            <div class="weights-section">
+                <h3>⚖️ 重み可視化</h3>
+                <div class="weight-heatmap" id="weightHeatmap">
+                    <!-- Weight matrices will be displayed here -->
+                </div>
+                <div class="weight-stats">
+                    <div class="stat-row">
+                        <span>最大重み:</span>
+                        <span id="maxWeight">0.000</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>最小重み:</span>
+                        <span id="minWeight">0.000</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>重み分散:</span>
+                        <span id="weightVariance">0.000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Neuron Activity -->
+            <div class="activity-section">
+                <h3>🔥 ニューロン活性度</h3>
+                <div class="activity-bars" id="activityBars">
+                    <!-- Activity bars for each layer -->
+                </div>
+                <div class="activity-legend">
+                    <div class="legend-item">
+                        <div class="legend-color high"></div>
+                        <span>高活性</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color medium"></div>
+                        <span>中活性</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color low"></div>
+                        <span>低活性</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Data Visualization -->
+        <div class="data-panel">
+            <h3>🎯 データ分布</h3>
+            <div class="data-container">
+                <canvas id="dataCanvas" width="400" height="300"></canvas>
+                <div class="data-info">
+                    <div class="data-stat">
+                        <span class="data-label">クラス1:</span>
+                        <span class="data-count" id="class1Count">0</span>
+                    </div>
+                    <div class="data-stat">
+                        <span class="data-label">クラス2:</span>
+                        <span class="data-count" id="class2Count">0</span>
+                    </div>
+                    <div class="data-stat">
+                        <span class="data-label">総データ数:</span>
+                        <span class="data-count" id="totalDataCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Monitor -->
+        <div class="performance-monitor">
+            <div class="perf-item">
+                <span class="perf-label">FPS:</span>
+                <span class="perf-value" id="fpsDisplay">60</span>
+            </div>
+            <div class="perf-item">
+                <span class="perf-label">計算時間:</span>
+                <span class="perf-value" id="computeTime">0ms</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>⚙️ 詳細設定</h2>
+                <button class="modal-close" id="closeSettings">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-section">
+                    <h4>学習パラメータ</h4>
+                    <div class="param-group">
+                        <label>バッチサイズ:</label>
+                        <input type="number" id="batchSize" value="32" min="1" max="128">
+                    </div>
+                    <div class="param-group">
+                        <label>運動量:</label>
+                        <input type="range" id="momentum" min="0" max="1" step="0.01" value="0.9">
+                        <span id="momentumDisplay">0.9</span>
+                    </div>
+                    <div class="param-group">
+                        <label>重み減衰:</label>
+                        <input type="range" id="weightDecay" min="0" max="0.1" step="0.001" value="0.01">
+                        <span id="weightDecayDisplay">0.01</span>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <h4>可視化設定</h4>
+                    <div class="visual-group">
+                        <label>
+                            <input type="checkbox" id="showWeights" checked>
+                            重み可視化
+                        </label>
+                    </div>
+                    <div class="visual-group">
+                        <label>
+                            <input type="checkbox" id="showBias" checked>
+                            バイアス表示
+                        </label>
+                    </div>
+                    <div class="visual-group">
+                        <label>
+                            <input type="checkbox" id="showActivation" checked>
+                            活性化値表示
+                        </label>
+                    </div>
+                    <div class="visual-group">
+                        <label>
+                            <input type="checkbox" id="animateTraining" checked>
+                            学習アニメーション
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn save" id="saveSettings">保存</button>
+                <button class="modal-btn cancel" id="cancelSettings">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

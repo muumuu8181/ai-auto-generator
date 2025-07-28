@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Molecular Visualizer - 分子3D可視化ツール</title>
+    <meta name="description" content="化学分子の3D構造を美しく可視化し、分子間相互作用をシミュレーションするツール">
+    <meta name="keywords" content="分子, 3D, 化学, 可視化, シミュレーション, 分子軌道">
+    <meta name="author" content="AI Auto Generator">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="molecular-app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1>🧪 3D Molecular Visualizer</h1>
+                <div class="subtitle">分子3D可視化・シミュレーションツール</div>
+            </div>
+            <div class="header-center">
+                <div class="molecule-info">
+                    <span class="mol-name" id="moleculeName">エタノール (C₂H₆O)</span>
+                    <span class="mol-formula" id="molecularFormula">C₂H₆O</span>
+                    <span class="mol-weight" id="molecularWeight">46.07 g/mol</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="simulation-status">
+                    <div class="status-indicator" id="simStatus"></div>
+                    <span id="statusText">停止中</span>
+                </div>
+                <div class="temperature-display">
+                    <span class="temp-label">温度:</span>
+                    <span class="temp-value" id="temperature">298K</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-container">
+            <!-- 3D Visualization Area -->
+            <section class="visualization-section">
+                <div class="canvas-container">
+                    <canvas id="moleculeCanvas" width="1000" height="700"></canvas>
+                    <div class="canvas-overlay">
+                        <!-- View Controls -->
+                        <div class="view-controls">
+                            <button class="view-btn" id="resetView" title="ビューリセット">
+                                <span>🏠</span>
+                            </button>
+                            <button class="view-btn" id="zoomIn" title="ズームイン">
+                                <span>🔍+</span>
+                            </button>
+                            <button class="view-btn" id="zoomOut" title="ズームアウト">
+                                <span>🔍-</span>
+                            </button>
+                            <button class="view-btn" id="fullscreen" title="フルスクリーン">
+                                <span>⛶</span>
+                            </button>
+                        </div>
+
+                        <!-- Rendering Mode Selector -->
+                        <div class="render-modes">
+                            <h4>表示モード</h4>
+                            <div class="mode-buttons">
+                                <button class="mode-btn active" data-mode="ball-stick">
+                                    <span class="mode-icon">⚫</span>
+                                    <span>球棒モデル</span>
+                                </button>
+                                <button class="mode-btn" data-mode="space-fill">
+                                    <span class="mode-icon">🔘</span>
+                                    <span>空間充填</span>
+                                </button>
+                                <button class="mode-btn" data-mode="wireframe">
+                                    <span class="mode-icon">🔳</span>
+                                    <span>ワイヤーフレーム</span>
+                                </button>
+                                <button class="mode-btn" data-mode="surface">
+                                    <span class="mode-icon">🌐</span>
+                                    <span>分子表面</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Animation Controls -->
+                        <div class="animation-controls">
+                            <h4>アニメーション</h4>
+                            <div class="control-group">
+                                <button class="anim-btn" id="playAnimation">
+                                    <span>▶️</span>
+                                    <span>再生</span>
+                                </button>
+                                <button class="anim-btn" id="pauseAnimation">
+                                    <span>⏸️</span>
+                                    <span>停止</span>
+                                </button>
+                                <button class="anim-btn" id="stepForward">
+                                    <span>⏭️</span>
+                                    <span>コマ送り</span>
+                                </button>
+                            </div>
+                            <div class="speed-control">
+                                <label>速度:</label>
+                                <input type="range" id="animationSpeed" min="0.1" max="3" step="0.1" value="1">
+                                <span id="speedValue">1.0x</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property Display -->
+                <div class="property-display">
+                    <div class="property-tabs">
+                        <button class="prop-tab active" data-tab="structure">構造</button>
+                        <button class="prop-tab" data-tab="energy">エネルギー</button>
+                        <button class="prop-tab" data-tab="orbitals">軌道</button>
+                        <button class="prop-tab" data-tab="spectrum">スペクトル</button>
+                    </div>
+                    
+                    <div class="property-content">
+                        <div class="prop-panel active" id="structurePanel">
+                            <div class="struct-info">
+                                <div class="info-row">
+                                    <span class="info-label">原子数:</span>
+                                    <span class="info-value" id="atomCount">9</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">結合数:</span>
+                                    <span class="info-value" id="bondCount">8</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">分子体積:</span>
+                                    <span class="info-value" id="molecularVolume">82.3 Ų</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">双極子モーメント:</span>
+                                    <span class="info-value" id="dipolemoment">1.69 D</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="prop-panel" id="energyPanel">
+                            <canvas id="energyChart" width="300" height="200"></canvas>
+                        </div>
+                        
+                        <div class="prop-panel" id="orbitalsPanel">
+                            <div class="orbital-selector">
+                                <select id="orbitalSelect">
+                                    <option value="homo">HOMO</option>
+                                    <option value="lumo">LUMO</option>
+                                    <option value="homo-1">HOMO-1</option>
+                                    <option value="lumo+1">LUMO+1</option>
+                                </select>
+                            </div>
+                            <canvas id="orbitalCanvas" width="300" height="200"></canvas>
+                        </div>
+                        
+                        <div class="prop-panel" id="spectrumPanel">
+                            <canvas id="spectrumChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Control Panel -->
+            <aside class="control-panel">
+                <!-- Molecule Library -->
+                <section class="molecule-library">
+                    <h3>📚 分子ライブラリ</h3>
+                    <div class="molecule-search">
+                        <input type="text" id="moleculeSearch" placeholder="分子名またはCAS番号で検索...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    <div class="molecule-categories">
+                        <button class="cat-btn active" data-category="organic">有機化合物</button>
+                        <button class="cat-btn" data-category="inorganic">無機化合物</button>
+                        <button class="cat-btn" data-category="biomolecules">生体分子</button>
+                        <button class="cat-btn" data-category="drugs">医薬品</button>
+                    </div>
+                    <div class="molecule-list" id="moleculeList">
+                        <div class="mol-item active" data-mol="ethanol">
+                            <div class="mol-thumbnail">🍷</div>
+                            <div class="mol-info">
+                                <div class="mol-name">エタノール</div>
+                                <div class="mol-formula">C₂H₆O</div>
+                            </div>
+                        </div>
+                        <div class="mol-item" data-mol="caffeine">
+                            <div class="mol-thumbnail">☕</div>
+                            <div class="mol-info">
+                                <div class="mol-name">カフェイン</div>
+                                <div class="mol-formula">C₈H₁₀N₄O₂</div>
+                            </div>
+                        </div>
+                        <div class="mol-item" data-mol="dna">
+                            <div class="mol-thumbnail">🧬</div>
+                            <div class="mol-info">
+                                <div class="mol-name">DNA二重らせん</div>
+                                <div class="mol-formula">複合体</div>
+                            </div>
+                        </div>
+                        <div class="mol-item" data-mol="aspirin">
+                            <div class="mol-thumbnail">💊</div>
+                            <div class="mol-info">
+                                <div class="mol-name">アスピリン</div>
+                                <div class="mol-formula">C₉H₈O₄</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Simulation Settings -->
+                <section class="simulation-settings">
+                    <h3>⚙️ シミュレーション設定</h3>
+                    <div class="setting-group">
+                        <label>分子動力学:</label>
+                        <select id="mdMethod">
+                            <option value="classical">古典力学</option>
+                            <option value="quantum">量子力学</option>
+                            <option value="hybrid">ハイブリッド</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>温度 (K):</label>
+                        <input type="range" id="temperatureSlider" min="0" max="1000" value="298">
+                        <span id="tempDisplay">298K</span>
+                    </div>
+                    <div class="setting-group">
+                        <label>圧力 (atm):</label>
+                        <input type="range" id="pressureSlider" min="0.1" max="10" step="0.1" value="1">
+                        <span id="pressureDisplay">1.0 atm</span>
+                    </div>
+                    <div class="setting-group">
+                        <label>溶媒:</label>
+                        <select id="solventSelect">
+                            <option value="vacuum">真空</option>
+                            <option value="water">水</option>
+                            <option value="ethanol">エタノール</option>
+                            <option value="dmso">DMSO</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Analysis Tools -->
+                <section class="analysis-tools">
+                    <h3>🔬 解析ツール</h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn" id="geometryOptimization">
+                            <span class="tool-icon">📐</span>
+                            <span>構造最適化</span>
+                        </button>
+                        <button class="tool-btn" id="vibrationalAnalysis">
+                            <span class="tool-icon">🎵</span>
+                            <span>振動解析</span>
+                        </button>
+                        <button class="tool-btn" id="electrostaticPotential">
+                            <span class="tool-icon">⚡</span>
+                            <span>静電ポテンシャル</span>
+                        </button>
+                        <button class="tool-btn" id="nboAnalysis">
+                            <span class="tool-icon">🔗</span>
+                            <span>NBO解析</span>
+                        </button>
+                        <button class="tool-btn" id="conformerSearch">
+                            <span class="tool-icon">🔄</span>
+                            <span>コンフォマー探索</span>
+                        </button>
+                        <button class="tool-btn" id="reactionPath">
+                            <span class="tool-icon">🛤️</span>
+                            <span>反応経路</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Export Options -->
+                <section class="export-options">
+                    <h3>💾 エクスポート</h3>
+                    <div class="export-buttons">
+                        <button class="export-btn" id="exportPDB">
+                            <span>📄</span>
+                            <span>PDB形式</span>
+                        </button>
+                        <button class="export-btn" id="exportXYZ">
+                            <span>📊</span>
+                            <span>XYZ座標</span>
+                        </button>
+                        <button class="export-btn" id="exportImage">
+                            <span>🖼️</span>
+                            <span>画像</span>
+                        </button>
+                        <button class="export-btn" id="exportAnimation">
+                            <span>🎬</span>
+                            <span>アニメーション</span>
+                        </button>
+                    </div>
+                </section>
+            </aside>
+        </main>
+
+        <!-- Bottom Information Panel -->
+        <footer class="info-panel">
+            <div class="calculation-status">
+                <div class="calc-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="calcProgress" style="width: 0%"></div>
+                    </div>
+                    <span class="progress-text" id="calcStatus">待機中</span>
+                </div>
+                <div class="calc-details">
+                    <span class="calc-method" id="calcMethod">DFT/B3LYP</span>
+                    <span class="calc-basis" id="calcBasis">6-31G*</span>
+                    <span class="calc-time" id="calcTime">--:--</span>
+                </div>
+            </div>
+            
+            <div class="performance-monitor">
+                <div class="perf-metric">
+                    <span class="metric-label">FPS:</span>
+                    <span class="metric-value" id="renderFPS">60</span>
+                </div>
+                <div class="perf-metric">
+                    <span class="metric-label">原子数:</span>
+                    <span class="metric-value" id="currentAtoms">9</span>
+                </div>
+                <div class="perf-metric">
+                    <span class="metric-label">描画時間:</span>
+                    <span class="metric-value" id="renderTime">16ms</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Calculation Results Modal -->
+    <div class="modal-overlay" id="resultsModal">
+        <div class="modal results-modal">
+            <div class="modal-header">
+                <h2>📊 計算結果</h2>
+                <button class="modal-close" id="closeResults">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="results-tabs">
+                    <button class="result-tab active" data-tab="energy">エネルギー</button>
+                    <button class="result-tab" data-tab="geometry">構造</button>
+                    <button class="result-tab" data-tab="properties">物性</button>
+                </div>
+                <div class="results-content">
+                    <div class="result-panel active" id="energyResults">
+                        <div class="energy-table">
+                            <div class="energy-row">
+                                <span>全エネルギー:</span>
+                                <span id="totalEnergy">-154.123456 Hartree</span>
+                            </div>
+                            <div class="energy-row">
+                                <span>HOMO エネルギー:</span>
+                                <span id="homoEnergy">-0.312 Hartree</span>
+                            </div>
+                            <div class="energy-row">
+                                <span>LUMO エネルギー:</span>
+                                <span id="lumoEnergy">0.087 Hartree</span>
+                            </div>
+                            <div class="energy-row">
+                                <span>バンドギャップ:</span>
+                                <span id="bandGap">0.399 Hartree</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-panel" id="geometryResults">
+                        <div class="coord-table" id="coordinateTable">
+                            <!-- Coordinate data will be populated here -->
+                        </div>
+                    </div>
+                    <div class="result-panel" id="propertiesResults">
+                        <div class="prop-table">
+                            <div class="prop-row">
+                                <span>双極子モーメント:</span>
+                                <span id="calcDipole">1.69 Debye</span>
+                            </div>
+                            <div class="prop-row">
+                                <span>分極率:</span>
+                                <span id="polarizability">5.2 Ų</span>
+                            </div>
+                            <div class="prop-row">
+                                <span>イオン化ポテンシャル:</span>
+                                <span id="ionizationPotential">10.5 eV</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn save">保存</button>
+                <button class="modal-btn export">エクスポート</button>
+                <button class="modal-btn close">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

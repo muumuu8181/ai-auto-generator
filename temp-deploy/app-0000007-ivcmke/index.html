@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repository Validator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔍 GitHub Repository Validator</h1>
+            <p>published-apps リポジトリの品質検証ツール</p>
+        </header>
+
+        <div class="input-section">
+            <div class="url-input">
+                <label for="repoUrl">GitHub Repository URL:</label>
+                <input type="url" id="repoUrl" placeholder="https://github.com/muumuu8181/published-apps" 
+                       value="https://github.com/muumuu8181/published-apps">
+                <button id="validateBtn" class="btn-primary">🚀 検証開始</button>
+            </div>
+            
+            <div class="options">
+                <label><input type="checkbox" id="checkReadme" checked> README.md検証</label>
+                <label><input type="checkbox" id="checkStructure" checked> ディレクトリ構造検証</label>
+                <label><input type="checkbox" id="checkFiles" checked> 必須ファイル検証</label>
+                <label><input type="checkbox" id="checkContent" checked> コンテンツ品質検証</label>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>リポジトリを検証中...</p>
+        </div>
+
+        <div class="results" id="results">
+            <div class="score-section">
+                <div class="score-circle" id="scoreCircle">
+                    <span class="score-number" id="scoreNumber">0</span>
+                    <span class="score-label">/ 100</span>
+                </div>
+                <div class="score-details">
+                    <h3>総合スコア</h3>
+                    <p id="scoreDescription">検証を開始してください</p>
+                </div>
+            </div>
+
+            <div class="validation-sections">
+                <div class="validation-card" id="readmeCard">
+                    <h3>📖 README.md 検証</h3>
+                    <div class="status-badge" id="readmeStatus">未検証</div>
+                    <ul class="check-list" id="readmeChecks"></ul>
+                </div>
+
+                <div class="validation-card" id="structureCard">
+                    <h3>📁 ディレクトリ構造</h3>
+                    <div class="status-badge" id="structureStatus">未検証</div>
+                    <ul class="check-list" id="structureChecks"></ul>
+                </div>
+
+                <div class="validation-card" id="filesCard">
+                    <h3>📄 必須ファイル</h3>
+                    <div class="status-badge" id="filesStatus">未検証</div>
+                    <ul class="check-list" id="filesChecks"></ul>
+                </div>
+
+                <div class="validation-card" id="contentCard">
+                    <h3>✨ コンテンツ品質</h3>
+                    <div class="status-badge" id="contentStatus">未検証</div>
+                    <ul class="check-list" id="contentChecks"></ul>
+                </div>
+            </div>
+
+            <div class="found-apps" id="foundApps">
+                <h3>🎯 発見されたアプリ</h3>
+                <div class="apps-grid" id="appsGrid"></div>
+            </div>
+
+            <div class="export-section">
+                <h3>📊 レポート出力</h3>
+                <div class="export-buttons">
+                    <button id="exportJson" class="btn-secondary">📄 JSON形式でダウンロード</button>
+                    <button id="exportCsv" class="btn-secondary">📊 CSV形式でダウンロード</button>
+                    <button id="exportText" class="btn-secondary">📝 テキスト形式でダウンロード</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="issues-section" id="issuesSection">
+            <h3>⚠️ 検出された問題</h3>
+            <div class="issues-list" id="issuesList"></div>
+        </div>
+
+        <div class="recommendations" id="recommendations">
+            <h3>💡 改善提案</h3>
+            <div class="recommendations-list" id="recommendationsList"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

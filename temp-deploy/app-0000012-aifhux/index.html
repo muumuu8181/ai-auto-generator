@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteor Impact Animation Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="space-container">
+        <header class="space-header">
+            <h1>☄️ Meteor Impact Generator</h1>
+            <div class="header-controls">
+                <button class="control-btn" id="fullscreenBtn">🔳 フルスクリーン</button>
+                <button class="control-btn" id="autoBtn">🔄 自動生成</button>
+            </div>
+        </header>
+
+        <div class="main-canvas-area">
+            <canvas id="meteorCanvas" width="1200" height="800"></canvas>
+            <div class="canvas-overlay">
+                <div class="impact-counter">
+                    <span>衝突回数: </span>
+                    <span id="impactCount">0</span>
+                </div>
+                <div class="fps-counter">
+                    <span>FPS: </span>
+                    <span id="fpsDisplay">60</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="meteor-controls">
+                <h3>🌌 隕石設定</h3>
+                <div class="control-grid">
+                    <div class="control-group">
+                        <label>隕石サイズ:</label>
+                        <input type="range" id="meteorSize" min="5" max="50" value="20">
+                        <span id="sizeValue">20px</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>落下速度:</label>
+                        <input type="range" id="meteorSpeed" min="1" max="20" value="8">
+                        <span id="speedValue">8</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>隕石数:</label>
+                        <input type="range" id="meteorCount" min="1" max="10" value="3">
+                        <span id="countValue">3個</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>軌道角度:</label>
+                        <input type="range" id="meteorAngle" min="-45" max="45" value="0">
+                        <span id="angleValue">0°</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="effect-controls">
+                <h3>💥 エフェクト設定</h3>
+                <div class="control-grid">
+                    <div class="control-group">
+                        <label>爆発規模:</label>
+                        <input type="range" id="explosionSize" min="50" max="300" value="150">
+                        <span id="explosionSizeValue">150px</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>パーティクル数:</label>
+                        <input type="range" id="particleCount" min="20" max="200" value="100">
+                        <span id="particleCountValue">100個</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>炎エフェクト:</label>
+                        <input type="checkbox" id="fireEffect" checked>
+                        <span>有効</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>震動エフェクト:</label>
+                        <input type="checkbox" id="shakeEffect" checked>
+                        <span>有効</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="meteor-types">
+                <h3>🪨 隕石タイプ</h3>
+                <div class="type-grid">
+                    <div class="meteor-type active" data-type="normal">
+                        <div class="type-icon">🪨</div>
+                        <div class="type-name">通常隕石</div>
+                    </div>
+                    <div class="meteor-type" data-type="fire">
+                        <div class="type-icon">🔥</div>
+                        <div class="type-name">炎隕石</div>
+                    </div>
+                    <div class="meteor-type" data-type="ice">
+                        <div class="type-icon">❄️</div>
+                        <div class="type-name">氷隕石</div>
+                    </div>
+                    <div class="meteor-type" data-type="energy">
+                        <div class="type-icon">⚡</div>
+                        <div class="type-name">エネルギー隕石</div>
+                    </div>
+                    <div class="meteor-type" data-type="rainbow">
+                        <div class="type-icon">🌈</div>
+                        <div class="type-name">虹隕石</div>
+                    </div>
+                    <div class="meteor-type" data-type="dark">
+                        <div class="type-icon">🌑</div>
+                        <div class="type-name">暗黒隕石</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn launch" id="launchBtn">🚀 隕石発射</button>
+                <button class="action-btn preset" id="presetBtn">🎲 ランダム設定</button>
+                <button class="action-btn clear" id="clearBtn">🧹 画面クリア</button>
+                <button class="action-btn record" id="recordBtn">📹 録画開始</button>
+            </div>
+
+            <div class="preset-patterns">
+                <h3>📋 プリセットパターン</h3>
+                <div class="preset-grid">
+                    <button class="preset-btn" data-preset="shower">🌟 流星群</button>
+                    <button class="preset-btn" data-preset="apocalypse">💀 終末</button>
+                    <button class="preset-btn" data-preset="festival">🎆 花火大会</button>
+                    <button class="preset-btn" data-preset="gentle">🌸 穏やか</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <h3>📊 統計情報</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">総隕石数:</span>
+                    <span class="stat-value" id="totalMeteors">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">最大速度:</span>
+                    <span class="stat-value" id="maxSpeed">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">平均サイズ:</span>
+                    <span class="stat-value" id="avgSize">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">実行時間:</span>
+                    <span class="stat-value" id="runtime">00:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sound-controls">
+        <button class="sound-btn" id="soundToggle">🔊</button>
+        <input type="range" id="volumeSlider" min="0" max="100" value="50">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
