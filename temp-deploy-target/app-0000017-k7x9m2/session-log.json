@@ -1,0 +1,30 @@
+{
+  "sessionId": "gen-1753535209000-ewtlU1",
+  "appId": "app-0000017-k7x9m2",
+  "appTitle": "Word Palette - 創造的物語作成ツール",
+  "appDescription": "ランダムに選ばれた単語をドラッグ&ドロップして創造的な物語を作成するアプリケーション",
+  "generatedAt": "2025-07-26T13:12:47Z",
+  "deviceId": "localhost-u0a193-mdj93xm2-0ea449",
+  "version": "v0.16",
+  "deployment": {
+    "status": "deploying",
+    "targetUrl": "https://muumuu8181.github.io/published-apps/app-0000017-k7x9m2/",
+    "startTime": "2025-07-26T13:12:47Z"
+  },
+  "files": [
+    "index.html",
+    "styles.css", 
+    "script.js"
+  ],
+  "features": [
+    "ドラッグ&ドロップ単語選択",
+    "6つのカテゴリ（ミックス、ファンタジー、科学、自然、感情、アクション）",
+    "物語作成エリア",
+    "ローカルストレージによる保存機能",
+    "物語エクスポート機能",
+    "レスポンシブデザイン",
+    "アクセシビリティ対応",
+    "キーボードショートカット",
+    "ダークモード対応"
+  ]
+}

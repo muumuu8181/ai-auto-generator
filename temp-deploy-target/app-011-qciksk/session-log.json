@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "sessionId": "gen-1753489843654-qjw5cn",
+    "appId": "./temp-deploy/app-011-qciksk/",
+    "workflowVersion": "v0.6",
+    "startTime": "2025-07-26T00:36:47.349Z",
+    "endTime": null,
+    "status": "active",
+    "environment": {
+      "hostname": "localhost",
+      "platform": "android",
+      "user": "u0_a191"
+    }
+  },
+  "summary": {
+    "trustScore": 100,
+    "liesDetected": 0,
+    "totalPhases": 5,
+    "completedPhases": 0,
+    "totalChecks": 0,
+    "criticalFailures": 0,
+    "filesCreated": 0,
+    "featuresImplemented": 0,
+    "totalDuration": null,
+    "errorsCount": 0,
+    "warningsCount": 0
+  },
+  "phases": {
+    "environment_setup": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "project_selection": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "ai_generation": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "deployment": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "completion": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    }
+  },
+  "workMonitoring": {
+    "activities": [],
+    "trustScore": 100,
+    "liesDetected": 0,
+    "summary": {
+      "filesCreated": 0,
+      "filesModified": 0,
+      "buttonsAdded": 0,
+      "buttonsTested": 0,
+      "featuresImplemented": 0,
+      "featuresTested": 0,
+      "deploymentsAttempted": 0,
+      "deploymentsVerified": 0
+    }
+  },
+  "phaseChecks": {
+    "validations": [],
+    "tasksRegistered": [],
+    "tasksCompleted": [],
+    "criticalFailures": 0,
+    "totalChecks": 0
+  },
+  "artifacts": {
+    "files": [],
+    "urls": [],
+    "documents": []
+  },
+  "errors": [],
+  "warnings": [],
+  "exportedAt": "2025-07-26T00:36:47.372Z"
+}

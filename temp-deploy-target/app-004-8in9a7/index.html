@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Management System - app-004-8in9a7</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Money Management System</h1>
+            <div class="balance-display">
+                <div class="balance-item">
+                    <span class="label">総収入</span>
+                    <span class="amount income" id="total-income">¥0</span>
+                </div>
+                <div class="balance-item">
+                    <span class="label">総支出</span>
+                    <span class="amount expense" id="total-expense">¥0</span>
+                </div>
+                <div class="balance-item main">
+                    <span class="label">残高</span>
+                    <span class="amount balance" id="balance">¥0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <div class="input-section">
+                <h2>新しい取引を追加</h2>
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label for="type">種類</label>
+                        <select id="type" required>
+                            <option value="income">💰 収入</option>
+                            <option value="expense">💸 支出</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">金額</label>
+                        <input type="number" id="amount" step="0.01" min="0" required placeholder="例: 1000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">説明</label>
+                        <input type="text" id="description" required placeholder="例: 給料、食費、etc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">カテゴリ</label>
+                        <select id="category">
+                            <option value="salary">給料</option>
+                            <option value="freelance">副業</option>
+                            <option value="investment">投資</option>
+                            <option value="food">食費</option>
+                            <option value="transport">交通費</option>
+                            <option value="utilities">光熱費</option>
+                            <option value="entertainment">娯楽</option>
+                            <option value="shopping">買い物</option>
+                            <option value="healthcare">医療費</option>
+                            <option value="other">その他</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">日付</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary">追加</button>
+                </form>
+            </div>
+
+            <div class="transactions-section">
+                <div class="section-header">
+                    <h2>取引履歴</h2>
+                    <div class="controls">
+                        <select id="filter-category">
+                            <option value="">全カテゴリ</option>
+                            <option value="salary">給料</option>
+                            <option value="freelance">副業</option>
+                            <option value="investment">投資</option>
+                            <option value="food">食費</option>
+                            <option value="transport">交通費</option>
+                            <option value="utilities">光熱費</option>
+                            <option value="entertainment">娯楽</option>
+                            <option value="shopping">買い物</option>
+                            <option value="healthcare">医療費</option>
+                            <option value="other">その他</option>
+                        </select>
+                        <button id="download-csv" class="btn-secondary">📥 CSV出力</button>
+                    </div>
+                </div>
+                
+                <div class="transactions-list" id="transactions-list">
+                    <!-- Transactions will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2>統計</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>今月の収入</h3>
+                    <span class="stat-value income" id="month-income">¥0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>今月の支出</h3>
+                    <span class="stat-value expense" id="month-expense">¥0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>今月の収支</h3>
+                    <span class="stat-value" id="month-balance">¥0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>平均日収支</h3>
+                    <span class="stat-value" id="daily-average">¥0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>取引を編集</h2>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                
+                <div class="form-group">
+                    <label for="edit-type">種類</label>
+                    <select id="edit-type" required>
+                        <option value="income">💰 収入</option>
+                        <option value="expense">💸 支出</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-amount">金額</label>
+                    <input type="number" id="edit-amount" step="0.01" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-description">説明</label>
+                    <input type="text" id="edit-description" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-category">カテゴリ</label>
+                    <select id="edit-category">
+                        <option value="salary">給料</option>
+                        <option value="freelance">副業</option>
+                        <option value="investment">投資</option>
+                        <option value="food">食費</option>
+                        <option value="transport">交通費</option>
+                        <option value="utilities">光熱費</option>
+                        <option value="entertainment">娯楽</option>
+                        <option value="shopping">買い物</option>
+                        <option value="healthcare">医療費</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-date">日付</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-primary">更新</button>
+                    <button type="button" class="btn-danger" id="delete-btn">削除</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

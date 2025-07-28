@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ペイントシステム - app-002-7k55w2</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PAINT SYSTEM</h1>
+            <div class="app-id">app-002-7k55w2</div>
+        </header>
+
+        <div class="paint-container">
+            <!-- ツールバー -->
+            <div class="toolbar">
+                <div class="tool-group">
+                    <label>ツール:</label>
+                    <button class="tool-btn active" data-tool="pen">✏️ ペン</button>
+                    <button class="tool-btn" data-tool="eraser">🧹 消しゴム</button>
+                    <button class="tool-btn" data-tool="shape">⭕ 図形</button>
+                </div>
+
+                <div class="tool-group">
+                    <label>太さ:</label>
+                    <input type="range" id="brush-size" min="1" max="50" value="5">
+                    <span id="size-display">5px</span>
+                </div>
+
+                <div class="tool-group">
+                    <label>色:</label>
+                    <input type="color" id="color-picker" value="#000000">
+                    <div class="preset-colors">
+                        <button class="color-preset" style="background: #000000"></button>
+                        <button class="color-preset" style="background: #FF0000"></button>
+                        <button class="color-preset" style="background: #00FF00"></button>
+                        <button class="color-preset" style="background: #0000FF"></button>
+                        <button class="color-preset" style="background: #FFFF00"></button>
+                        <button class="color-preset" style="background: #FF00FF"></button>
+                        <button class="color-preset" style="background: #00FFFF"></button>
+                        <button class="color-preset" style="background: #FFFFFF"></button>
+                    </div>
+                </div>
+
+                <div class="tool-group">
+                    <label>ペンの形:</label>
+                    <select id="brush-shape">
+                        <option value="round">丸</option>
+                        <option value="square">四角</option>
+                        <option value="spray">スプレー</option>
+                        <option value="pattern">パターン</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- キャンバスエリア -->
+            <div class="canvas-wrapper">
+                <canvas id="paint-canvas"></canvas>
+                <div class="canvas-info">
+                    <span id="canvas-size">800 x 600</span>
+                    <span id="mouse-position">X: 0, Y: 0</span>
+                </div>
+            </div>
+
+            <!-- コントロールパネル -->
+            <div class="controls">
+                <div class="control-group">
+                    <button id="clear-canvas">🗑️ クリア</button>
+                    <button id="undo">↩️ 元に戻す</button>
+                    <button id="redo">↪️ やり直し</button>
+                </div>
+
+                <div class="control-group">
+                    <button id="save-image">💾 保存</button>
+                    <button id="download-image">⬇️ ダウンロード</button>
+                    <label for="upload-image" class="file-label">
+                        ⬆️ アップロード
+                        <input type="file" id="upload-image" accept="image/*" style="display: none;">
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <button id="fill-bucket">🪣 塗りつぶし</button>
+                    <button id="grid-toggle">⚏ グリッド</button>
+                    <button id="fullscreen">⛶ 全画面</button>
+                </div>
+            </div>
+
+            <!-- 保存済み画像ギャラリー -->
+            <div class="gallery">
+                <h2>保存済み画像</h2>
+                <div id="saved-images" class="saved-images-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 SUPER TETRIS ULTIMATE 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="universe-bg">
+        <div class="stars"></div>
+        <div class="cosmic-dust"></div>
+    </div>
+
+    <div class="game-container">
+        <header class="game-header">
+            <h1 class="game-title">
+                <span class="letter">S</span>
+                <span class="letter">U</span>
+                <span class="letter">P</span>
+                <span class="letter">E</span>
+                <span class="letter">R</span>
+                <span class="space"></span>
+                <span class="letter">T</span>
+                <span class="letter">E</span>
+                <span class="letter">T</span>
+                <span class="letter">R</span>
+                <span class="letter">I</span>
+                <span class="letter">S</span>
+            </h1>
+            <div class="subtitle">🌟 ULTIMATE EDITION 🌟</div>
+        </header>
+
+        <div class="game-layout">
+            <div class="left-panel">
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <div class="stat-label">SCORE</div>
+                        <div class="stat-value" id="score">000000</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">LINES</div>
+                        <div class="stat-value" id="lines">000</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">LEVEL</div>
+                        <div class="stat-value" id="level">001</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">COMBO</div>
+                        <div class="stat-value" id="combo">x01</div>
+                    </div>
+                </div>
+
+                <div class="next-piece-panel">
+                    <div class="panel-title">NEXT</div>
+                    <div class="next-piece-container">
+                        <canvas id="nextPieceCanvas" width="120" height="120"></canvas>
+                    </div>
+                </div>
+
+                <div class="hold-piece-panel">
+                    <div class="panel-title">HOLD</div>
+                    <div class="hold-piece-container">
+                        <canvas id="holdPieceCanvas" width="120" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="center-panel">
+                <div class="game-board-container">
+                    <canvas id="gameCanvas" width="400" height="800"></canvas>
+                    <div class="game-overlay" id="gameOverlay"></div>
+                    <div class="particle-system" id="particleSystem"></div>
+                </div>
+
+                <div class="controls-hint">
+                    <div class="control-item">
+                        <span class="key">←→</span><span class="action">移動</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↓</span><span class="action">落下</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↑</span><span class="action">回転</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">SPACE</span><span class="action">ハードドロップ</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">C</span><span class="action">ホールド</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="game-controls">
+                    <button class="game-btn start-btn" id="startBtn">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">START</span>
+                    </button>
+                    <button class="game-btn pause-btn" id="pauseBtn">
+                        <span class="btn-icon">⏸️</span>
+                        <span class="btn-text">PAUSE</span>
+                    </button>
+                    <button class="game-btn reset-btn" id="resetBtn">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">RESET</span>
+                    </button>
+                </div>
+
+                <div class="effects-panel">
+                    <div class="panel-title">EFFECTS</div>
+                    <div class="effect-toggles">
+                        <label class="toggle-item">
+                            <input type="checkbox" id="particlesToggle" checked>
+                            <span class="toggle-label">パーティクル</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="soundToggle" checked>
+                            <span class="toggle-label">サウンド</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="shakeToggle" checked>
+                            <span class="toggle-label">画面揺れ</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="glowToggle" checked>
+                            <span class="toggle-label">光るエフェクト</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="high-score-panel">
+                    <div class="panel-title">HIGH SCORES</div>
+                    <div class="high-score-list" id="highScoreList">
+                        <div class="score-entry">
+                            <span class="rank">#1</span>
+                            <span class="score">999999</span>
+                        </div>
+                        <div class="score-entry">
+                            <span class="rank">#2</span>
+                            <span class="score">888888</span>
+                        </div>
+                        <div class="score-entry">
+                            <span class="rank">#3</span>
+                            <span class="score">777777</span>
+                        </div>
+                        <div class="score-entry">
+                            <span class="rank">#4</span>
+                            <span class="score">666666</span>
+                        </div>
+                        <div class="score-entry">
+                            <span class="rank">#5</span>
+                            <span class="score">555555</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-messages">
+            <div class="message-display" id="messageDisplay"></div>
+        </div>
+    </div>
+
+    <!-- 音響効果用の隠し要素 -->
+    <div class="audio-elements" style="display: none;">
+        <audio id="bgMusic" loop>
+            <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkFJYHO8N" type="audio/wav">
+        </audio>
+        <audio id="dropSound">
+            <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N" type="audio/wav">
+        </audio>
+        <audio id="clearSound">
+            <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N" type="audio/wav">
+        </audio>
+        <audio id="gameOverSound">
+            <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+DyvmQdBSqI0/LRgCkGJYLO89uKOAcZZrjt55xMEw1OqOPyttYjBjiSyfLNeSsFJXfH8N" type="audio/wav">
+        </audio>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

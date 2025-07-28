@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シンプルドローイングアプリ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 シンプルドローイングアプリ</h1>
+        
+        <div class="toolbar">
+            <div class="color-section">
+                <h3>カラー選択</h3>
+                <div class="color-palette">
+                    <button class="color-btn active" data-color="#FF5733" style="background-color: #FF5733;"></button>
+                    <button class="color-btn" data-color="#33FF57" style="background-color: #33FF57;"></button>
+                    <button class="color-btn" data-color="#3357FF" style="background-color: #3357FF;"></button>
+                </div>
+            </div>
+            
+            <div class="brush-section">
+                <h3>ブラシサイズ</h3>
+                <input type="range" id="brushSize" min="1" max="20" value="5">
+                <span id="brushDisplay">5px</span>
+            </div>
+            
+            <div class="action-section">
+                <button id="clearBtn" class="action-btn">🗑️ 全消去</button>
+                <button id="saveBtn" class="action-btn">💾 保存</button>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="drawingCanvas"></canvas>
+        </div>
+        
+        <div class="info">
+            <p>ドラッグして描画します。タッチデバイスでも対応しています。</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Meteor Storm Generator - app-012-hy9x2k</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="background-space" id="backgroundSpace">
+            <div class="stars-layer" id="starsLayer"></div>
+            <div class="nebula-layer" id="nebulaLayer"></div>
+        </div>
+        
+        <header class="app-header">
+            <h1 class="app-title">
+                <span class="title-ultra">ULTRA</span>
+                <span class="title-meteor">METEOR STORM</span>
+                <span class="title-generator">GENERATOR</span>
+            </h1>
+            <div class="impact-counter">
+                <span class="counter-label">IMPACTS</span>
+                <span class="counter-value" id="impactCounter">0</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>METEOR SETTINGS</h3>
+                    <div class="control-group">
+                        <label class="control-label">Spawn Rate</label>
+                        <input type="range" id="spawnRate" min="50" max="500" value="200" class="control-slider">
+                        <span class="value-display" id="spawnRateValue">200ms</span>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Size Variation</label>
+                        <input type="range" id="sizeVariation" min="1" max="10" value="5" class="control-slider">
+                        <span class="value-display" id="sizeVariationValue">5x</span>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Speed Factor</label>
+                        <input type="range" id="speedFactor" min="0.5" max="3" step="0.1" value="1.5" class="control-slider">
+                        <span class="value-display" id="speedFactorValue">1.5x</span>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>METEOR TYPES</h3>
+                    <div class="meteor-types">
+                        <button class="meteor-type-btn active" data-type="standard" id="standardBtn">
+                            <span class="btn-icon">🔥</span>
+                            <span class="btn-label">STANDARD</span>
+                        </button>
+                        <button class="meteor-type-btn" data-type="ice" id="iceBtn">
+                            <span class="btn-icon">❄️</span>
+                            <span class="btn-label">ICE</span>
+                        </button>
+                        <button class="meteor-type-btn" data-type="plasma" id="plasmaBtn">
+                            <span class="btn-icon">⚡</span>
+                            <span class="btn-label">PLASMA</span>
+                        </button>
+                        <button class="meteor-type-btn" data-type="toxic" id="toxicBtn">
+                            <span class="btn-icon">☢️</span>
+                            <span class="btn-label">TOXIC</span>
+                        </button>
+                        <button class="meteor-type-btn" data-type="crystal" id="crystalBtn">
+                            <span class="btn-icon">💎</span>
+                            <span class="btn-label">CRYSTAL</span>
+                        </button>
+                        <button class="meteor-type-btn" data-type="dark" id="darkBtn">
+                            <span class="btn-icon">🌑</span>
+                            <span class="btn-label">DARK</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>EFFECTS</h3>
+                    <div class="effect-toggles">
+                        <button class="effect-btn active" id="soundToggle">
+                            <span class="effect-icon">🔊</span>
+                            <span class="effect-label">SOUND</span>
+                        </button>
+                        <button class="effect-btn active" id="particlesToggle">
+                            <span class="effect-icon">✨</span>
+                            <span class="effect-label">PARTICLES</span>
+                        </button>
+                        <button class="effect-btn active" id="shakeToggle">
+                            <span class="effect-icon">📳</span>
+                            <span class="effect-label">SHAKE</span>
+                        </button>
+                        <button class="effect-btn active" id="trailsToggle">
+                            <span class="effect-icon">💫</span>
+                            <span class="effect-label">TRAILS</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation-area">
+                <canvas id="meteorCanvas" class="meteor-canvas"></canvas>
+                <div class="impact-effects" id="impactEffects"></div>
+                <div class="atmosphere-layer" id="atmosphereLayer"></div>
+                
+                <div class="status-display">
+                    <div class="status-item">
+                        <span class="status-label">ACTIVE METEORS</span>
+                        <span class="status-value" id="activeMeteors">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">TOTAL DAMAGE</span>
+                        <span class="status-value" id="totalDamage">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">ATMOSPHERE %</span>
+                        <span class="status-value" id="atmosphereHealth">100</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="action-controls">
+            <button class="action-btn primary" id="startBtn">
+                <span class="btn-icon">🚀</span>
+                <span class="btn-text">START STORM</span>
+            </button>
+            <button class="action-btn secondary" id="pauseBtn">
+                <span class="btn-icon">⏸️</span>
+                <span class="btn-text">PAUSE</span>
+            </button>
+            <button class="action-btn danger" id="resetBtn">
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">RESET</span>
+            </button>
+            <button class="action-btn special" id="megaStormBtn">
+                <span class="btn-icon">💥</span>
+                <span class="btn-text">MEGA STORM</span>
+            </button>
+        </div>
+
+        <div class="info-panel" id="infoPanel">
+            <div class="info-content">
+                <h3>METEOR STORM GENERATOR</h3>
+                <p>Experience realistic meteor shower simulations with stunning visual effects and immersive audio.</p>
+                <div class="info-stats">
+                    <div class="info-stat">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">Meteor Types</span>
+                    </div>
+                    <div class="info-stat">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">Variations</span>
+                    </div>
+                    <div class="info-stat">
+                        <span class="stat-number">60</span>
+                        <span class="stat-label">FPS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

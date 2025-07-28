@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylish Calculator - 格好良い電卓</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <div class="calculator-header">
+                <h1 class="title">Stylish Calculator</h1>
+                <div class="theme-switcher">
+                    <button class="theme-btn active" data-theme="dark">Dark</button>
+                    <button class="theme-btn" data-theme="light">Light</button>
+                    <button class="theme-btn" data-theme="neon">Neon</button>
+                </div>
+            </div>
+
+            <div class="display-container">
+                <div class="history-display" id="history"></div>
+                <div class="main-display">
+                    <div class="expression" id="expression"></div>
+                    <div class="result" id="result">0</div>
+                </div>
+            </div>
+
+            <div class="buttons-grid">
+                <!-- Row 1 -->
+                <button class="btn btn-function" id="clear-all">AC</button>
+                <button class="btn btn-function" id="clear">C</button>
+                <button class="btn btn-function" id="backspace">⌫</button>
+                <button class="btn btn-operator" data-operator="/">÷</button>
+
+                <!-- Row 2 -->
+                <button class="btn btn-number" data-number="7">7</button>
+                <button class="btn btn-number" data-number="8">8</button>
+                <button class="btn btn-number" data-number="9">9</button>
+                <button class="btn btn-operator" data-operator="*">×</button>
+
+                <!-- Row 3 -->
+                <button class="btn btn-number" data-number="4">4</button>
+                <button class="btn btn-number" data-number="5">5</button>
+                <button class="btn btn-number" data-number="6">6</button>
+                <button class="btn btn-operator" data-operator="-">−</button>
+
+                <!-- Row 4 -->
+                <button class="btn btn-number" data-number="1">1</button>
+                <button class="btn btn-number" data-number="2">2</button>
+                <button class="btn btn-number" data-number="3">3</button>
+                <button class="btn btn-operator" data-operator="+">+</button>
+
+                <!-- Row 5 -->
+                <button class="btn btn-number btn-zero" data-number="0">0</button>
+                <button class="btn btn-number" data-number=".">.</button>
+                <button class="btn btn-equals" id="equals">=</button>
+            </div>
+
+            <div class="history-section">
+                <div class="history-header">
+                    <h3>計算履歴</h3>
+                    <button class="clear-history-btn" id="clear-history">クリア</button>
+                </div>
+                <div class="history-list" id="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

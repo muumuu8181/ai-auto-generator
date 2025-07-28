@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "sessionId": "gen-1753566596887-vi4e3k",
+    "appId": null,
+    "workflowVersion": "v0.6",
+    "startTime": "2025-07-26T21:49:56.932Z",
+    "endTime": null,
+    "status": "active",
+    "environment": {
+      "hostname": "localhost",
+      "platform": "android",
+      "user": "u0_a191"
+    }
+  },
+  "phases": {
+    "environment_setup": {
+      "status": "active",
+      "logs": [
+        {
+          "timestamp": "2025-07-26T21:49:56.997532Z",
+          "source": "session-tracker",
+          "action": "session_start",
+          "description": "Session started for device 📱",
+          "level": "info",
+          "data": {
+            "sessionId": "gen-1753566596887-vi4e3k",
+            "deviceId": "📱",
+            "environment": {
+              "hostname": "localhost",
+              "platform": "android",
+              "user": "u0_a191"
+            }
+          },
+          "hash": "243ae756cc5f0461e8d2c8feadeb201e"
+        }
+      ],
+      "startTime": "2025-07-26T21:49:56.997532Z",
+      "endTime": null
+    },
+    "project_selection": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "ai_generation": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "deployment": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "completion": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    }
+  },
+  "workMonitoring": {
+    "activities": [],
+    "trustScore": 100,
+    "liesDetected": 0,
+    "summary": {
+      "filesCreated": 0,
+      "filesModified": 0,
+      "buttonsAdded": 0,
+      "buttonsTested": 0,
+      "featuresImplemented": 0,
+      "featuresTested": 0,
+      "deploymentsAttempted": 0,
+      "deploymentsVerified": 0
+    }
+  },
+  "phaseChecks": {
+    "validations": [],
+    "tasksRegistered": [],
+    "tasksCompleted": [],
+    "criticalFailures": 0,
+    "totalChecks": 0
+  },
+  "sessionTracking": {
+    "duration": null,
+    "statistics": null
+  },
+  "artifacts": {
+    "files": [],
+    "urls": [],
+    "documents": []
+  },
+  "errors": [],
+  "warnings": []
+}

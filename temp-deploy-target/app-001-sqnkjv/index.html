@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超格好良い時計 - app-001-sqnkjv</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>STYLISH CLOCK</h1>
+            <div class="theme-selector">
+                <button class="theme-btn" data-theme="dark">Dark</button>
+                <button class="theme-btn" data-theme="light">Light</button>
+                <button class="theme-btn" data-theme="neon">Neon</button>
+                <button class="theme-btn" data-theme="gradient">Gradient</button>
+            </div>
+        </header>
+
+        <div class="clock-tabs">
+            <button class="tab-btn active" data-tab="analog">アナログ</button>
+            <button class="tab-btn" data-tab="digital">デジタル</button>
+            <button class="tab-btn" data-tab="timer">タイマー</button>
+            <button class="tab-btn" data-tab="stopwatch">ストップウォッチ</button>
+        </div>
+
+        <!-- アナログ時計 -->
+        <div class="clock-panel active" id="analog">
+            <div class="analog-clock">
+                <div class="clock-face">
+                    <div class="hand hour-hand"></div>
+                    <div class="hand minute-hand"></div>
+                    <div class="hand second-hand"></div>
+                    <div class="center-dot"></div>
+                    <div class="hour-marker marker-12">12</div>
+                    <div class="hour-marker marker-3">3</div>
+                    <div class="hour-marker marker-6">6</div>
+                    <div class="hour-marker marker-9">9</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- デジタル時計 -->
+        <div class="clock-panel" id="digital">
+            <div class="digital-clock">
+                <div class="digital-time">
+                    <span class="hours">00</span>
+                    <span class="separator">:</span>
+                    <span class="minutes">00</span>
+                    <span class="separator">:</span>
+                    <span class="seconds">00</span>
+                </div>
+                <div class="digital-date"></div>
+            </div>
+        </div>
+
+        <!-- タイマー -->
+        <div class="clock-panel" id="timer">
+            <div class="timer-container">
+                <div class="timer-display">00:00:00</div>
+                <div class="timer-inputs">
+                    <input type="number" id="timer-hours" placeholder="時" min="0" max="23">
+                    <input type="number" id="timer-minutes" placeholder="分" min="0" max="59">
+                    <input type="number" id="timer-seconds" placeholder="秒" min="0" max="59">
+                </div>
+                <div class="timer-controls">
+                    <button id="timer-start">開始</button>
+                    <button id="timer-pause">一時停止</button>
+                    <button id="timer-reset">リセット</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ストップウォッチ -->
+        <div class="clock-panel" id="stopwatch">
+            <div class="stopwatch-container">
+                <div class="stopwatch-display">00:00:00</div>
+                <div class="stopwatch-controls">
+                    <button id="stopwatch-start">開始</button>
+                    <button id="stopwatch-pause">一時停止</button>
+                    <button id="stopwatch-reset">リセット</button>
+                    <button id="stopwatch-lap">ラップ</button>
+                </div>
+                <div class="lap-times"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

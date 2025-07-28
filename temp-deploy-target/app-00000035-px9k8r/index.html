@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粒子効果物理シミュレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at center, #0a0a0a, #1a1a1a, #2d2d2d);
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            padding: 10px;
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-right: 15px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            z-index: 10;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+            50% { filter: hue-rotate(120deg) brightness(1.2); }
+        }
+
+        .simulation-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #particleCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 13px;
+        }
+
+        .performance-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            z-index: 10;
+        }
+
+        .controls {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #4ecdc4;
+            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            margin: 3px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(78, 205, 196, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        button.danger:hover {
+            box-shadow: 0 6px 25px rgba(255, 107, 107, 0.5);
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #f9ca24, #f0932b);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(249, 202, 36, 0.3);
+        }
+
+        button.primary:hover {
+            box-shadow: 0 6px 25px rgba(249, 202, 36, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .button-group button {
+            flex: 1;
+            min-width: 70px;
+            font-size: 11px;
+            padding: 8px 10px;
+        }
+
+        .slider-container {
+            margin: 12px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #4ecdc4;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(78, 205, 196, 0.2);
+            outline: none;
+            border-radius: 3px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4ecdc4;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #4ecdc4;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .physics-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-top: 15px;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-left: 10px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4ecdc4;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .main-area {
+                margin-right: 0;
+                margin-bottom: 10px;
+                height: 60vh;
+            }
+
+            .controls {
+                width: 100%;
+                max-height: 40vh;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        .trail-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .trail-option {
+            padding: 5px 10px;
+            background: rgba(78, 205, 196, 0.2);
+            border: 1px solid rgba(78, 205, 196, 0.5);
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+
+        .trail-option.active {
+            background: rgba(78, 205, 196, 0.5);
+            border-color: #4ecdc4;
+        }
+
+        .force-field {
+            position: absolute;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-area">
+            <header>
+                <h1>⚛️ 粒子効果物理シミュレーター</h1>
+                <p>高精度物理演算による美しい粒子の世界</p>
+            </header>
+
+            <div class="simulation-container">
+                <canvas id="particleCanvas"></canvas>
+                
+                <div class="performance-info" id="performanceInfo">
+                    FPS: 60 | 粒子数: 0 | 衝突: 0
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <h3>粒子制御</h3>
+                
+                <div class="slider-container">
+                    <label>
+                        粒子数: 
+                        <span id="particleCountValue">50</span>
+                    </label>
+                    <input type="range" id="particleCountSlider" min="1" max="1000" value="50">
+                </div>
+
+                <div class="button-group">
+                    <button onclick="addParticles(10)" class="primary">+10</button>
+                    <button onclick="addParticles(50)" class="primary">+50</button>
+                    <button onclick="addParticles(100)" class="primary">+100</button>
+                    <button onclick="clearParticles()" class="danger">クリア</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>物理パラメータ</h3>
+                
+                <div class="slider-container">
+                    <label>
+                        重力: 
+                        <span id="gravityValue">0.1</span>
+                    </label>
+                    <input type="range" id="gravitySlider" min="0" max="2" value="0.1" step="0.01">
+                </div>
+
+                <div class="slider-container">
+                    <label>
+                        反発係数: 
+                        <span id="restitutionValue">0.8</span>
+                    </label>
+                    <input type="range" id="restitutionSlider" min="0" max="1" value="0.8" step="0.05">
+                </div>
+
+                <div class="slider-container">
+                    <label>
+                        摩擦係数: 
+                        <span id="frictionValue">0.99</span>
+                    </label>
+                    <input type="range" id="frictionSlider" min="0.9" max="1" value="0.99" step="0.005">
+                </div>
+
+                <div class="slider-container">
+                    <label>
+                        粒子サイズ: 
+                        <span id="particleSizeValue">3</span>
+                    </label>
+                    <input type="range" id="particleSizeSlider" min="1" max="20" value="3">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>視覚効果</h3>
+                
+                <div class="slider-container">
+                    <label>
+                        トレイル長: 
+                        <span id="trailLengthValue">20</span>
+                    </label>
+                    <input type="range" id="trailLengthSlider" min="0" max="100" value="20">
+                </div>
+
+                <div class="trail-options">
+                    <div class="trail-option active" onclick="setTrailMode('normal')">通常</div>
+                    <div class="trail-option" onclick="setTrailMode('glow')">発光</div>
+                    <div class="trail-option" onclick="setTrailMode('rainbow')">虹色</div>
+                    <div class="trail-option" onclick="setTrailMode('fire')">炎</div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label style="display: flex; align-items: center;">
+                        衝突エフェクト:
+                        <label class="switch">
+                            <input type="checkbox" id="collisionEffects" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </label>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <label style="display: flex; align-items: center;">
+                        背景フェード:
+                        <label class="switch">
+                            <input type="checkbox" id="backgroundFade" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>プリセット</h3>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="loadPreset('gravity')">重力落下</button>
+                    <button class="preset-btn" onclick="loadPreset('bounce')">弾性衝突</button>
+                    <button class="preset-btn" onclick="loadPreset('explosion')">爆発</button>
+                    <button class="preset-btn" onclick="loadPreset('orbit')">軌道運動</button>
+                    <button class="preset-btn" onclick="loadPreset('chaos')">カオス</button>
+                    <button class="preset-btn" onclick="loadPreset('galaxy')">銀河</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>制御</h3>
+                <div class="button-group">
+                    <button onclick="togglePause()" id="pauseBtn">⏸ 一時停止</button>
+                    <button onclick="resetSimulation()">🔄 リセット</button>
+                </div>
+                
+                <div class="slider-container">
+                    <label>
+                        シミュレーション速度: 
+                        <span id="timeScaleValue">1.0</span>
+                    </label>
+                    <input type="range" id="timeScaleSlider" min="0.1" max="3" value="1" step="0.1">
+                </div>
+            </div>
+
+            <div class="physics-info" id="physicsInfo">
+                物理情報がここに表示されます
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

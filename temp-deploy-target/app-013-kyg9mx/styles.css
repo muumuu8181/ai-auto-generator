@@ -1,0 +1,685 @@
+/* 🎮 SUPER TETRIS ULTIMATE - エフェクト全振りCSS 🎮 */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+    --neon-blue: #00ffff;
+    --neon-pink: #ff0080;
+    --neon-yellow: #ffff00;
+    --neon-green: #00ff00;
+    --neon-purple: #8000ff;
+    --neon-orange: #ff8000;
+    --dark-bg: #0a0a0a;
+    --darker-bg: #050505;
+    --board-bg: rgba(0, 20, 40, 0.9);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Orbitron', monospace;
+    background: var(--dark-bg);
+    color: var(--neon-blue);
+    overflow: hidden;
+    user-select: none;
+}
+
+/* 🌌 宇宙背景エフェクト */
+.universe-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(120, 0, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(0, 255, 255, 0.3) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 50%, #0a1a2a 100%);
+    animation: universeShift 20s infinite linear;
+}
+
+@keyframes universeShift {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+.stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, var(--neon-blue), transparent),
+        radial-gradient(2px 2px at 40px 70px, var(--neon-pink), transparent),
+        radial-gradient(1px 1px at 90px 40px, var(--neon-yellow), transparent),
+        radial-gradient(1px 1px at 130px 80px, var(--neon-green), transparent),
+        radial-gradient(2px 2px at 160px 30px, var(--neon-purple), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.cosmic-dust {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at top, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, rgba(255, 0, 128, 0.1) 0%, transparent 50%);
+    animation: dustFloat 15s infinite ease-in-out;
+}
+
+@keyframes dustFloat {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+/* 🎮 ゲームコンテナ */
+.game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(1px);
+}
+
+/* 🏆 ゲームヘッダー */
+.game-header {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+    border-bottom: 2px solid var(--neon-blue);
+    box-shadow: 0 0 30px var(--neon-blue);
+}
+
+.game-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.game-title .letter {
+    display: inline-block;
+    animation: neonPulse 2s infinite alternate;
+    text-shadow: 
+        0 0 10px currentColor,
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+}
+
+.game-title .letter:nth-child(1) { color: var(--neon-blue); animation-delay: 0s; }
+.game-title .letter:nth-child(2) { color: var(--neon-pink); animation-delay: 0.1s; }
+.game-title .letter:nth-child(3) { color: var(--neon-yellow); animation-delay: 0.2s; }
+.game-title .letter:nth-child(4) { color: var(--neon-green); animation-delay: 0.3s; }
+.game-title .letter:nth-child(5) { color: var(--neon-purple); animation-delay: 0.4s; }
+.game-title .letter:nth-child(7) { color: var(--neon-orange); animation-delay: 0.5s; }
+.game-title .letter:nth-child(8) { color: var(--neon-blue); animation-delay: 0.6s; }
+.game-title .letter:nth-child(9) { color: var(--neon-pink); animation-delay: 0.7s; }
+.game-title .letter:nth-child(10) { color: var(--neon-yellow); animation-delay: 0.8s; }
+.game-title .letter:nth-child(11) { color: var(--neon-green); animation-delay: 0.9s; }
+.game-title .letter:nth-child(12) { color: var(--neon-purple); animation-delay: 1.0s; }
+
+.space {
+    width: 20px;
+}
+
+@keyframes neonPulse {
+    0% { 
+        transform: scale(1) rotateY(0deg);
+        filter: brightness(1);
+    }
+    100% { 
+        transform: scale(1.1) rotateY(10deg);
+        filter: brightness(1.5);
+    }
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 10px var(--neon-yellow);
+    animation: glow 3s infinite ease-in-out;
+    margin-top: 10px;
+}
+
+@keyframes glow {
+    0%, 100% { text-shadow: 0 0 10px var(--neon-yellow); }
+    50% { text-shadow: 0 0 20px var(--neon-yellow), 0 0 30px var(--neon-yellow); }
+}
+
+/* 🎯 ゲームレイアウト */
+.game-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    gap: 20px;
+    padding: 20px;
+    min-height: 0;
+}
+
+/* 📊 左パネル */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stats-panel, .next-piece-panel, .hold-piece-panel {
+    background: var(--glass-bg);
+    border: 2px solid var(--neon-blue);
+    border-radius: 15px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.3),
+        inset 0 0 20px rgba(0, 255, 255, 0.1);
+    animation: panelGlow 4s infinite ease-in-out;
+}
+
+@keyframes panelGlow {
+    0%, 100% { 
+        border-color: var(--neon-blue);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.1);
+    }
+    50% { 
+        border-color: var(--neon-pink);
+        box-shadow: 0 0 30px rgba(255, 0, 128, 0.5), inset 0 0 30px rgba(255, 0, 128, 0.2);
+    }
+}
+
+.panel-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 10px var(--neon-yellow);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--neon-blue);
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 5px var(--neon-yellow);
+    min-width: 80px;
+    text-align: right;
+}
+
+.next-piece-container, .hold-piece-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    background: var(--darker-bg);
+    border-radius: 10px;
+    border: 1px solid var(--neon-purple);
+}
+
+canvas {
+    border-radius: 8px;
+}
+
+/* 🎮 中央パネル */
+.center-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-board-container {
+    position: relative;
+    background: var(--board-bg);
+    border: 3px solid var(--neon-blue);
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 
+        0 0 40px var(--neon-blue),
+        inset 0 0 40px rgba(0, 255, 255, 0.1);
+    animation: boardPulse 3s infinite ease-in-out;
+}
+
+@keyframes boardPulse {
+    0%, 100% { 
+        box-shadow: 0 0 40px var(--neon-blue), inset 0 0 40px rgba(0, 255, 255, 0.1);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 60px var(--neon-pink), inset 0 0 60px rgba(255, 0, 128, 0.2);
+        transform: scale(1.02);
+    }
+}
+
+#gameCanvas {
+    display: block;
+    background: linear-gradient(180deg, rgba(0, 20, 40, 0.8) 0%, rgba(0, 10, 30, 0.9) 100%);
+    border-radius: 10px;
+}
+
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    border-radius: 10px;
+    background: radial-gradient(circle, transparent 60%, rgba(0, 255, 255, 0.1) 100%);
+}
+
+.particle-system {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.controls-hint {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--glass-bg);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--neon-green);
+    backdrop-filter: blur(5px);
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+}
+
+.key {
+    background: var(--neon-yellow);
+    color: var(--dark-bg);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    box-shadow: 0 0 10px var(--neon-yellow);
+}
+
+.action {
+    color: var(--neon-green);
+}
+
+/* 🎛️ 右パネル */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.game-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: linear-gradient(45deg, var(--glass-bg), rgba(255, 255, 255, 0.05));
+    border: 2px solid var(--neon-blue);
+    border-radius: 10px;
+    color: var(--neon-blue);
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.game-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.game-btn:hover::before {
+    left: 100%;
+}
+
+.game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 255, 0.5);
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+}
+
+.game-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.3);
+}
+
+.start-btn:hover { border-color: var(--neon-green); color: var(--neon-green); }
+.pause-btn:hover { border-color: var(--neon-yellow); color: var(--neon-yellow); }
+.reset-btn:hover { border-color: var(--neon-orange); color: var(--neon-orange); }
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+.effects-panel, .high-score-panel {
+    background: var(--glass-bg);
+    border: 2px solid var(--neon-purple);
+    border-radius: 15px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(128, 0, 255, 0.3);
+}
+
+.effect-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.toggle-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-item input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--neon-blue);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+}
+
+.toggle-item input[type="checkbox"]:checked {
+    background: var(--neon-blue);
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.toggle-item input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    color: var(--dark-bg);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.toggle-label {
+    color: var(--neon-blue);
+    font-size: 0.9rem;
+}
+
+.high-score-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.score-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 5px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.rank {
+    color: var(--neon-yellow);
+    font-weight: 700;
+}
+
+.score {
+    color: var(--neon-green);
+    font-family: monospace;
+}
+
+/* 💬 ゲームメッセージ */
+.game-messages {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.message-display {
+    font-size: 3rem;
+    font-weight: 900;
+    text-align: center;
+    color: var(--neon-yellow);
+    text-shadow: 
+        0 0 20px var(--neon-yellow),
+        0 0 40px var(--neon-yellow),
+        0 0 60px var(--neon-yellow);
+    animation: messageAppear 2s ease-out;
+    opacity: 0;
+}
+
+.message-display.show {
+    opacity: 1;
+    animation: messagePulse 1s infinite alternate;
+}
+
+@keyframes messageAppear {
+    0% { 
+        opacity: 0; 
+        transform: scale(0.5) rotateY(-90deg);
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1) rotateY(0deg);
+    }
+}
+
+@keyframes messagePulse {
+    0% { 
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    100% { 
+        transform: scale(1.1);
+        filter: brightness(1.5);
+    }
+}
+
+/* 💥 エフェクトクラス */
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.flash {
+    animation: flash 0.3s ease-in-out;
+}
+
+@keyframes flash {
+    0%, 100% { background: transparent; }
+    50% { background: rgba(255, 255, 255, 0.3); }
+}
+
+.zoom-in {
+    animation: zoomIn 0.5s ease-out;
+}
+
+@keyframes zoomIn {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 🌈 テトリスピース色 */
+.piece-I { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+.piece-O { background: var(--neon-yellow); box-shadow: 0 0 10px var(--neon-yellow); }
+.piece-T { background: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }
+.piece-S { background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+.piece-Z { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+.piece-J { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+.piece-L { background: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange); }
+
+/* 📱 レスポンシブデザイン */
+@media (max-width: 1200px) {
+    .game-layout {
+        grid-template-columns: 250px 1fr 250px;
+    }
+    
+    .game-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .game-layout {
+        grid-template-columns: 200px 1fr 200px;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .game-title {
+        font-size: 2rem;
+    }
+    
+    .controls-hint {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+@media (max-width: 700px) {
+    .game-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+    
+    .left-panel, .right-panel {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        overflow-x: auto;
+    }
+    
+    .stats-panel, .next-piece-panel, .hold-piece-panel,
+    .game-controls, .effects-panel, .high-score-panel {
+        min-width: 200px;
+    }
+    
+    .game-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* 🎆 パーティクルエフェクト */
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--neon-blue);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleFloat 2s ease-out forwards;
+}
+
+@keyframes particleFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(0);
+    }
+}
+
+.line-clear-effect {
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--neon-yellow) 25%, 
+        var(--neon-pink) 50%, 
+        var(--neon-blue) 75%, 
+        transparent 100%);
+    animation: lineClearFlash 0.5s ease-in-out;
+}
+
+@keyframes lineClearFlash {
+    0%, 100% { opacity: 0; transform: scaleX(0.5); }
+    50% { opacity: 1; transform: scaleX(1.2); }
+}
+
+/* ✨ 追加のグロー効果 */
+.glow-effect {
+    filter: drop-shadow(0 0 10px currentColor);
+}
+
+.super-glow {
+    filter: 
+        drop-shadow(0 0 5px currentColor)
+        drop-shadow(0 0 10px currentColor)
+        drop-shadow(0 0 20px currentColor);
+}

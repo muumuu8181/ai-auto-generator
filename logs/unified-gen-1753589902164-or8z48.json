@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "sessionId": "gen-1753589902164-or8z48",
+    "appId": null,
+    "workflowVersion": "v0.6",
+    "startTime": "2025-07-27T04:18:22.207Z",
+    "endTime": null,
+    "status": "active",
+    "environment": {
+      "hostname": "localhost",
+      "platform": "android",
+      "user": "u0_a191"
+    }
+  },
+  "phases": {
+    "environment_setup": {
+      "status": "active",
+      "logs": [
+        {
+          "timestamp": "2025-07-27T04:18:22.270554Z",
+          "source": "session-tracker",
+          "action": "session_start",
+          "description": "Session started for device tablet-2024",
+          "level": "info",
+          "data": {
+            "sessionId": "gen-1753589902164-or8z48",
+            "deviceId": "tablet-2024",
+            "environment": {
+              "hostname": "localhost",
+              "platform": "android",
+              "user": "u0_a191"
+            }
+          },
+          "hash": "b1f5a0cc8c86dfd89708df274a4bc2ed"
+        }
+      ],
+      "startTime": "2025-07-27T04:18:22.270554Z",
+      "endTime": null
+    },
+    "project_selection": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "ai_generation": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "deployment": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "completion": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    }
+  },
+  "workMonitoring": {
+    "activities": [],
+    "trustScore": 100,
+    "liesDetected": 0,
+    "summary": {
+      "filesCreated": 0,
+      "filesModified": 0,
+      "buttonsAdded": 0,
+      "buttonsTested": 0,
+      "featuresImplemented": 0,
+      "featuresTested": 0,
+      "deploymentsAttempted": 0,
+      "deploymentsVerified": 0
+    }
+  },
+  "phaseChecks": {
+    "validations": [],
+    "tasksRegistered": [],
+    "tasksCompleted": [],
+    "criticalFailures": 0,
+    "totalChecks": 0
+  },
+  "sessionTracking": {
+    "duration": null,
+    "statistics": null
+  },
+  "artifacts": {
+    "files": [],
+    "urls": [],
+    "documents": []
+  },
+  "errors": [],
+  "warnings": []
+}

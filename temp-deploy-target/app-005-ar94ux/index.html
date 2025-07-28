@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>めちゃくちゃ格好良いテトリス - app-005-ar94ux</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- パーティクル背景 -->
+    <div id="particles-bg"></div>
+    
+    <!-- 音楽コントロール -->
+    <div class="music-control">
+        <button id="music-toggle" class="music-btn">
+            <i class="fas fa-volume-up"></i>
+        </button>
+    </div>
+
+    <div class="game-container">
+        <!-- ヘッダー -->
+        <header class="game-header">
+            <div class="title-section">
+                <h1 class="game-title">
+                    <span class="neon-text">CYBER</span>
+                    <span class="neon-text-alt">TETRIS</span>
+                </h1>
+                <div class="app-id">app-005-ar94ux</div>
+            </div>
+        </header>
+
+        <!-- ゲームエリア -->
+        <div class="game-area">
+            <!-- 左パネル - 統計 -->
+            <div class="left-panel">
+                <div class="stats-panel">
+                    <h3><i class="fas fa-chart-line"></i> STATS</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">SCORE</span>
+                        <span class="stat-value" id="score">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">LEVEL</span>
+                        <span class="stat-value" id="level">1</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">LINES</span>
+                        <span class="stat-value" id="lines">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">TIME</span>
+                        <span class="stat-value" id="time">00:00</span>
+                    </div>
+                </div>
+
+                <div class="next-panel">
+                    <h3><i class="fas fa-eye"></i> NEXT</h3>
+                    <canvas id="next-canvas" width="120" height="120"></canvas>
+                </div>
+
+                <div class="hold-panel">
+                    <h3><i class="fas fa-hand-paper"></i> HOLD</h3>
+                    <canvas id="hold-canvas" width="120" height="120"></canvas>
+                </div>
+            </div>
+
+            <!-- メインゲーム画面 -->
+            <div class="main-game">
+                <div class="game-board-container">
+                    <canvas id="game-canvas" width="400" height="800"></canvas>
+                    <div class="game-overlay" id="game-overlay">
+                        <div class="overlay-content">
+                            <h2 class="overlay-title">CYBER TETRIS</h2>
+                            <p class="overlay-subtitle">エフェクト全振りテトリス</p>
+                            <button class="start-btn" id="start-btn">
+                                <i class="fas fa-play"></i> START GAME
+                            </button>
+                            <div class="controls-info">
+                                <h4>CONTROLS</h4>
+                                <div class="control-item">
+                                    <span>← →</span> Move
+                                </div>
+                                <div class="control-item">
+                                    <span>↓</span> Soft Drop
+                                </div>
+                                <div class="control-item">
+                                    <span>↑</span> Rotate
+                                </div>
+                                <div class="control-item">
+                                    <span>SPACE</span> Hard Drop
+                                </div>
+                                <div class="control-item">
+                                    <span>C</span> Hold
+                                </div>
+                                <div class="control-item">
+                                    <span>P</span> Pause
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右パネル - コンボ・エフェクト -->
+            <div class="right-panel">
+                <div class="combo-panel">
+                    <h3><i class="fas fa-fire"></i> COMBO</h3>
+                    <div class="combo-display" id="combo-display">0</div>
+                    <div class="combo-multiplier" id="combo-multiplier">×1</div>
+                </div>
+
+                <div class="effects-panel">
+                    <h3><i class="fas fa-magic"></i> EFFECTS</h3>
+                    <div class="effect-item">
+                        <input type="checkbox" id="particles-toggle" checked>
+                        <label for="particles-toggle">Particles</label>
+                    </div>
+                    <div class="effect-item">
+                        <input type="checkbox" id="screen-shake" checked>
+                        <label for="screen-shake">Screen Shake</label>
+                    </div>
+                    <div class="effect-item">
+                        <input type="checkbox" id="line-effects" checked>
+                        <label for="line-effects">Line Effects</label>
+                    </div>
+                    <div class="effect-item">
+                        <input type="checkbox" id="glow-effects" checked>
+                        <label for="glow-effects">Glow Effects</label>
+                    </div>
+                </div>
+
+                <div class="theme-panel">
+                    <h3><i class="fas fa-palette"></i> THEME</h3>
+                    <select id="theme-selector">
+                        <option value="cyber">Cyber</option>
+                        <option value="neon">Neon</option>
+                        <option value="matrix">Matrix</option>
+                        <option value="synthwave">Synthwave</option>
+                        <option value="fire">Fire</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- コントロール -->
+        <div class="game-controls">
+            <button class="control-btn" id="pause-btn">
+                <i class="fas fa-pause"></i> PAUSE
+            </button>
+            <button class="control-btn" id="restart-btn">
+                <i class="fas fa-redo"></i> RESTART
+            </button>
+            <button class="control-btn" id="mute-btn">
+                <i class="fas fa-volume-up"></i> SOUND
+            </button>
+        </div>
+    </div>
+
+    <!-- エフェクト用要素 -->
+    <div id="effects-container"></div>
+    
+    <!-- パーティクルシステム -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- ゲームオーバーモーダル -->
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>GAME OVER</h2>
+                <div class="game-over-effects"></div>
+            </div>
+            <div class="modal-body">
+                <div class="final-stats">
+                    <div class="final-stat">
+                        <span class="final-stat-label">FINAL SCORE</span>
+                        <span class="final-stat-value" id="final-score">0</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="final-stat-label">LINES CLEARED</span>
+                        <span class="final-stat-value" id="final-lines">0</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="final-stat-label">LEVEL REACHED</span>
+                        <span class="final-stat-value" id="final-level">1</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="final-stat-label">TIME PLAYED</span>
+                        <span class="final-stat-value" id="final-time">00:00</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn primary" id="play-again-btn">
+                        <i class="fas fa-play"></i> PLAY AGAIN
+                    </button>
+                    <button class="modal-btn secondary" id="close-modal-btn">
+                        <i class="fas fa-times"></i> CLOSE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音声要素 -->
+    <audio id="bgm" loop>
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOAgUYLjr6p9NEQ1QqOPwtWMcBjiR1/LNeSsFJHfH8N+QQAoUXrTp76hVFApGn+DyxGIUBj2a1/LNfSwFLYPP8tiMOA=" type="audio/wav">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>

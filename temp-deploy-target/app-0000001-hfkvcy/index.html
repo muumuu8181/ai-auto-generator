@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム v2.0</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <h1>💰 お金管理システム</h1>
+                <p class="version">v2.0 - Enhanced Edition</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- 入力セクション -->
+            <section class="input-section card">
+                <h2>新規取引入力</h2>
+                <form id="transactionForm" class="transaction-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="transactionDate">日付</label>
+                            <input type="date" id="transactionDate" name="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transactionType">種別</label>
+                            <select id="transactionType" name="type" required>
+                                <option value="">選択してください</option>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="transactionCategory">カテゴリ</label>
+                            <input type="text" id="transactionCategory" name="category" 
+                                   placeholder="例: 給料、食費、交通費" required
+                                   list="categoryList">
+                            <datalist id="categoryList"></datalist>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transactionAmount">金額（円）</label>
+                            <input type="number" id="transactionAmount" name="amount" 
+                                   placeholder="0" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="transactionMemo">メモ（任意）</label>
+                        <textarea id="transactionMemo" name="memo" rows="2" 
+                                  placeholder="詳細なメモを入力"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">➕</span>
+                        取引を追加
+                    </button>
+                </form>
+            </section>
+
+            <!-- サマリーセクション -->
+            <section class="summary-section">
+                <div class="summary-grid">
+                    <div class="summary-card income-card">
+                        <div class="summary-icon">📈</div>
+                        <div class="summary-content">
+                            <h3>総収入</h3>
+                            <p class="summary-amount" id="totalIncome">¥0</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card expense-card">
+                        <div class="summary-icon">📉</div>
+                        <div class="summary-content">
+                            <h3>総支出</h3>
+                            <p class="summary-amount" id="totalExpense">¥0</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card balance-card">
+                        <div class="summary-icon">💴</div>
+                        <div class="summary-content">
+                            <h3>収支バランス</h3>
+                            <p class="summary-amount" id="totalBalance">¥0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- フィルター・ソートセクション -->
+            <section class="filter-section card">
+                <h3>フィルター・並び替え</h3>
+                <div class="filter-controls">
+                    <select id="filterType" class="filter-select">
+                        <option value="all">すべて表示</option>
+                        <option value="income">収入のみ</option>
+                        <option value="expense">支出のみ</option>
+                    </select>
+                    
+                    <select id="sortOrder" class="filter-select">
+                        <option value="date-desc">日付（新しい順）</option>
+                        <option value="date-asc">日付（古い順）</option>
+                        <option value="amount-desc">金額（大きい順）</option>
+                        <option value="amount-asc">金額（小さい順）</option>
+                    </select>
+                    
+                    <button id="exportCsv" class="btn btn-secondary">
+                        <span class="btn-icon">📥</span>
+                        CSVダウンロード
+                    </button>
+                </div>
+            </section>
+
+            <!-- 取引履歴セクション -->
+            <section class="history-section card">
+                <h2>取引履歴</h2>
+                <div id="transactionList" class="transaction-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <p>まだ取引データがありません</p>
+                        <p class="empty-hint">上のフォームから取引を追加してください</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 編集モーダル -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>取引を編集</h3>
+                    <button class="modal-close" id="closeModal">&times;</button>
+                </div>
+                
+                <form id="editForm" class="transaction-form">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDate">日付</label>
+                            <input type="date" id="editDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editType">種別</label>
+                            <select id="editType" required>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editCategory">カテゴリ</label>
+                            <input type="text" id="editCategory" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editAmount">金額（円）</label>
+                            <input type="number" id="editAmount" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="editMemo">メモ</label>
+                        <textarea id="editMemo" rows="2"></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEdit">キャンセル</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 通知エリア -->
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

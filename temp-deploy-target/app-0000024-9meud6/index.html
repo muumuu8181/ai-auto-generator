@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDoリストアプリ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📝 ToDoリストアプリ</h1>
+        
+        <div class="add-section">
+            <div class="input-container">
+                <input type="text" id="taskInput" placeholder="新しいタスクを入力してください" maxlength="100">
+                <button id="addBtn">追加</button>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <div class="stat-item">
+                <span class="stat-label">総タスク</span>
+                <span id="totalTasks" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">完了済み</span>
+                <span id="completedTasks" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">残り</span>
+                <span id="remainingTasks" class="stat-value">0</span>
+            </div>
+        </div>
+        
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">すべて</button>
+            <button class="filter-btn" data-filter="active">未完了</button>
+            <button class="filter-btn" data-filter="completed">完了済み</button>
+        </div>
+        
+        <div class="tasks-section">
+            <div id="tasksList" class="tasks-list"></div>
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p>タスクがありません</p>
+                <p class="empty-subtitle">新しいタスクを追加してみましょう</p>
+            </div>
+        </div>
+        
+        <div class="actions-section">
+            <button id="clearCompleted" class="action-btn">完了済みを削除</button>
+            <button id="clearAll" class="action-btn danger">全て削除</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

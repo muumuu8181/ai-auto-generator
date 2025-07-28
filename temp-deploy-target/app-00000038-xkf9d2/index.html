@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音波ビジュアライザーエディター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at center, #0a0a0a, #1a1a1a);
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 15px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            z-index: 10;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 20px #00ff88; }
+            50% { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 15px;
+            height: calc(100vh - 120px);
+        }
+
+        .visualizer-container {
+            flex: 1;
+            background: rgba(0, 255, 136, 0.05);
+            border-radius: 15px;
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #waveformCanvas, #spectrumCanvas, #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 13px;
+        }
+
+        #particleCanvas {
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .controls {
+            width: 320px;
+            background: rgba(0, 255, 136, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 255, 136, 0.5);
+            background: linear-gradient(135deg, #00cc66, #00ff88);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .button-group button {
+            flex: 1;
+            margin: 2px;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #00ff88;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 255, 136, 0.2);
+            outline: none;
+            border-radius: 3px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #00ff88;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #00ff88;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .status-indicator {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .status-recording {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            animation: recording-pulse 1s infinite;
+        }
+
+        .status-stopped {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccc;
+            border: 1px solid #555;
+        }
+
+        @keyframes recording-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .frequency-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .mode-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .mode-tab.active {
+            background: #00ff88;
+            color: #0a0a0a;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .controls {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 10px;
+            }
+        }
+
+        .permission-notice {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #00ff88;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="permission-notice" id="permissionNotice">
+        <h2>🎤 マイクアクセス許可が必要です</h2>
+        <p>リアルタイム音声分析のため、マイクへのアクセスを許可してください。</p>
+        <button onclick="requestMicPermission()">マイクを有効にする</button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🎵 音波ビジュアライザーエディター</h1>
+            <p>リアルタイム音声分析とビジュアライゼーション</p>
+        </header>
+
+        <div class="main-content">
+            <div class="visualizer-container">
+                <div class="canvas-container">
+                    <canvas id="waveformCanvas"></canvas>
+                    <canvas id="spectrumCanvas"></canvas>
+                    <canvas id="particleCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="status-indicator" id="statusIndicator">
+                    マイクアクセス待機中
+                </div>
+
+                <div class="control-section">
+                    <h3>表示モード</h3>
+                    <div class="mode-tabs">
+                        <div class="mode-tab active" onclick="setMode('waveform')">波形</div>
+                        <div class="mode-tab" onclick="setMode('spectrum')">スペクトラム</div>
+                        <div class="mode-tab" onclick="setMode('both')">両方</div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>制御</h3>
+                    <div class="button-group">
+                        <button id="startBtn" onclick="startRecording()">🎤 開始</button>
+                        <button id="stopBtn" onclick="stopRecording()" disabled>⏹ 停止</button>
+                    </div>
+                    <button onclick="exportImage()" style="width: 100%; margin-top: 10px;">
+                        📸 画像エクスポート
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <h3>ビジュアル設定</h3>
+                    
+                    <div class="slider-container">
+                        <label>感度: <span id="sensitivityValue">50</span></label>
+                        <input type="range" id="sensitivitySlider" min="1" max="100" value="50">
+                    </div>
+
+                    <div class="slider-container">
+                        <label>カラー混合度: <span id="colorMixValue">70</span>%</label>
+                        <input type="range" id="colorMixSlider" min="0" max="100" value="70">
+                    </div>
+
+                    <div class="slider-container">
+                        <label>パーティクル密度: <span id="particleDensityValue">30</span></label>
+                        <input type="range" id="particleDensitySlider" min="0" max="100" value="30">
+                    </div>
+
+                    <div class="slider-container">
+                        <label>周波数範囲: <span id="freqRangeValue">20000</span>Hz</label>
+                        <input type="range" id="freqRangeSlider" min="1000" max="22050" value="20000">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>フィルター</h3>
+                    <div class="button-group">
+                        <button onclick="applyFilter('lowpass')">ローパス</button>
+                        <button onclick="applyFilter('highpass')">ハイパス</button>
+                        <button onclick="applyFilter('bandpass')">バンドパス</button>
+                        <button onclick="applyFilter('none')">なし</button>
+                    </div>
+                </div>
+
+                <div class="frequency-display" id="frequencyDisplay">
+                    周波数解析データ表示エリア
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

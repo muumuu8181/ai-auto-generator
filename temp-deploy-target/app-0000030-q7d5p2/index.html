@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelf Life Tracker - 消費期限管理アプリ</title>
+    <meta name="description" content="食品や日用品の消費期限を視覚的に管理。期限切れを防いで無駄を減らしましょう。">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- ===== ヘッダー ===== -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="app-title-section">
+                <h1 class="app-title">
+                    <i class="fas fa-clock"></i>
+                    Shelf Life Tracker
+                </h1>
+                <p class="app-subtitle">消費期限管理アプリ</p>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="total-items">0</span>
+                        <span class="stat-label">アイテム</span>
+                    </div>
+                </div>
+                <div class="stat-card urgent">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="urgent-items">0</span>
+                        <span class="stat-label">期限間近</span>
+                    </div>
+                </div>
+                <div class="stat-card expired">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="expired-items">0</span>
+                        <span class="stat-label">期限切れ</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="icon-btn" id="stats-btn" title="統計を表示">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
+                <button class="icon-btn" id="settings-btn" title="設定">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== コントロールパネル ===== -->
+    <section class="control-panel">
+        <div class="control-content">
+            <div class="control-left">
+                <button class="add-item-btn" id="add-item-btn">
+                    <i class="fas fa-plus"></i>
+                    新しいアイテム
+                </button>
+                
+                <div class="quick-stats" id="quick-stats">
+                    <span class="quick-stat fresh">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="fresh-count">0</span> 新鮮
+                    </span>
+                    <span class="quick-stat warning">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="warning-count">0</span> 注意
+                    </span>
+                    <span class="quick-stat critical">
+                        <i class="fas fa-times-circle"></i>
+                        <span id="critical-count">0</span> 緊急
+                    </span>
+                </div>
+            </div>
+            
+            <div class="control-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="アイテムを検索...">
+                    <button class="clear-search" id="clear-search" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="filter-controls">
+                    <select id="category-filter" class="filter-select">
+                        <option value="">すべてのカテゴリ</option>
+                        <option value="食品">食品</option>
+                        <option value="冷凍食品">冷凍食品</option>
+                        <option value="調味料">調味料</option>
+                        <option value="化粧品">化粧品</option>
+                        <option value="医薬品">医薬品</option>
+                        <option value="日用品">日用品</option>
+                        <option value="その他">その他</option>
+                    </select>
+                    
+                    <select id="sort-order" class="filter-select">
+                        <option value="expiry-asc">期限が近い順</option>
+                        <option value="expiry-desc">期限が遠い順</option>
+                        <option value="name-asc">名前順（A-Z）</option>
+                        <option value="date-desc">追加日時順</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== メインコンテンツ ===== -->
+    <main class="main-content">
+        <!-- アイテム一覧 -->
+        <section class="items-grid" id="items-grid">
+            <!-- アイテムカードがここに動的に追加される -->
+        </section>
+        
+        <!-- 空の状態 -->
+        <div class="empty-state" id="empty-state">
+            <div class="empty-content">
+                <div class="empty-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h2>アイテムがありません</h2>
+                <p>最初のアイテムを追加して期限管理を始めましょう</p>
+                <button class="cta-btn" onclick="document.getElementById('add-item-btn').click()">
+                    <i class="fas fa-plus"></i>
+                    アイテムを追加
+                </button>
+            </div>
+        </div>
+        
+        <!-- 検索結果なし -->
+        <div class="no-results" id="no-results" style="display: none;">
+            <div class="empty-content">
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h2>検索結果が見つかりません</h2>
+                <p>検索条件を変更してもう一度お試しください</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== アイテム追加モーダル ===== -->
+    <div class="modal-overlay" id="add-item-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-plus-circle"></i>
+                    新しいアイテムを追加
+                </h2>
+                <button class="close-btn" id="close-add-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="item-form" id="item-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="item-name">アイテム名 *</label>
+                        <input type="text" id="item-name" name="name" required placeholder="例: 牛乳、シャンプー">
+                    </div>
+                    <div class="form-group">
+                        <label for="item-category">カテゴリ</label>
+                        <select id="item-category" name="category">
+                            <option value="食品">食品</option>
+                            <option value="冷凍食品">冷凍食品</option>
+                            <option value="調味料">調味料</option>
+                            <option value="化粧品">化粧品</option>
+                            <option value="医薬品">医薬品</option>
+                            <option value="日用品">日用品</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="purchase-date">購入日</label>
+                        <input type="date" id="purchase-date" name="purchaseDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="expiry-date">消費期限 *</label>
+                        <input type="date" id="expiry-date" name="expiryDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="item-notes">メモ（任意）</label>
+                    <textarea id="item-notes" name="notes" rows="3" placeholder="保存方法や注意事項など..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="item-quantity">数量</label>
+                    <div class="quantity-input">
+                        <button type="button" class="quantity-btn" id="quantity-minus">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" id="item-quantity" name="quantity" value="1" min="1" max="999">
+                        <button type="button" class="quantity-btn" id="quantity-plus">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-add">
+                        キャンセル
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        追加
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== アイテム詳細モーダル ===== -->
+    <div class="modal-overlay" id="item-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detail-title">
+                    <i class="fas fa-info-circle"></i>
+                    アイテム詳細
+                </h2>
+                <button class="close-btn" id="close-detail-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="detail-content" id="detail-content">
+                <!-- 詳細情報がここに動的に表示される -->
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="edit-item-btn">
+                    <i class="fas fa-edit"></i>
+                    編集
+                </button>
+                <button class="btn btn-warning" id="mark-used-btn">
+                    <i class="fas fa-check"></i>
+                    使用済み
+                </button>
+                <button class="btn btn-danger" id="delete-item-btn">
+                    <i class="fas fa-trash"></i>
+                    削除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 統計モーダル ===== -->
+    <div class="modal-overlay" id="stats-modal">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-chart-bar"></i>
+                    統計情報
+                </h2>
+                <button class="close-btn" id="close-stats-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="stats-content">
+                <div class="stats-overview">
+                    <div class="overview-card">
+                        <h3>今月の概要</h3>
+                        <div class="overview-stats">
+                            <div class="overview-item">
+                                <span class="overview-label">追加されたアイテム</span>
+                                <span class="overview-value" id="monthly-added">0</span>
+                            </div>
+                            <div class="overview-item">
+                                <span class="overview-label">使用されたアイテム</span>
+                                <span class="overview-value" id="monthly-used">0</span>
+                            </div>
+                            <div class="overview-item">
+                                <span class="overview-label">期限切れアイテム</span>
+                                <span class="overview-value expired" id="monthly-expired">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category-breakdown">
+                    <h3>カテゴリ別内訳</h3>
+                    <div class="category-chart" id="category-chart">
+                        <!-- カテゴリ別チャートがここに表示される -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 設定モーダル ===== -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-cog"></i>
+                    設定
+                </h2>
+                <button class="close-btn" id="close-settings-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h3>通知設定</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>期限切れ警告を表示</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="expiry-warnings" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label for="warning-days">警告日数</label>
+                        <select id="warning-days">
+                            <option value="1">1日前</option>
+                            <option value="3" selected>3日前</option>
+                            <option value="7">7日前</option>
+                            <option value="14">14日前</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>表示設定</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>ダークモード</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="dark-mode">
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>期限切れアイテムを非表示</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="hide-expired">
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>データ管理</h3>
+                    <div class="setting-actions">
+                        <button class="btn btn-secondary" id="export-data">
+                            <i class="fas fa-download"></i>
+                            データをエクスポート
+                        </button>
+                        <button class="btn btn-secondary" id="import-data">
+                            <i class="fas fa-upload"></i>
+                            データをインポート
+                        </button>
+                        <button class="btn btn-danger" id="clear-expired">
+                            <i class="fas fa-trash"></i>
+                            期限切れアイテムを削除
+                        </button>
+                        <button class="btn btn-danger" id="reset-data">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            すべてのデータを削除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 確認ダイアログ ===== -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h3 id="confirm-title">確認</h3>
+            </div>
+            <div class="confirm-content">
+                <p id="confirm-message">この操作を実行しますか？</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirm-cancel">キャンセル</button>
+                <button class="btn btn-primary" id="confirm-ok">実行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== アイテムカードテンプレート ===== -->
+    <template id="item-card-template">
+        <div class="item-card" data-item-id="">
+            <div class="card-header">
+                <div class="item-category-badge"></div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" title="編集">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn delete-btn" title="削除">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <h3 class="item-name"></h3>
+                <div class="item-meta">
+                    <div class="expiry-info">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="expiry-date"></span>
+                    </div>
+                    <div class="days-remaining">
+                        <span class="days-count"></span>
+                    </div>
+                </div>
+                <div class="item-quantity">
+                    <i class="fas fa-boxes"></i>
+                    <span class="quantity-text"></span>
+                </div>
+            </div>
+            
+            <div class="card-footer">
+                <div class="purchase-info">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="purchase-date"></span>
+                </div>
+                <button class="use-btn">
+                    <i class="fas fa-check"></i>
+                    使用済み
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <!-- ===== 通知トースト ===== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- 隠しファイル入力 -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+/* 格好良い電卓 - スタイリッシュモダンデザイン */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.calculator-container {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.calculator {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    flex: 1;
+    max-width: 400px;
+}
+
+.display-section {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.current-display {
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: 300;
+    text-align: right;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+.previous-display {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.2rem;
+    text-align: right;
+    min-height: 30px;
+    margin-bottom: 10px;
+}
+
+.history-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    flex: 1;
+    max-width: 300px;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-section h3 {
+    color: #ffffff;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.history-item {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+}
+
+.clear-history-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+}
+
+.clear-history-btn:hover {
+    background: linear-gradient(135deg, #ee5a52, #ff6b6b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(238, 90, 82, 0.4);
+}
+
+.buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.btn {
+    border: none;
+    border-radius: 15px;
+    font-size: 1.3rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-number {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    color: #ffffff;
+}
+
+.btn-number:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+}
+
+.btn-operator {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+.btn-operator:hover {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
+
+.btn-clear {
+    background: linear-gradient(135deg, #ff9a9e, #fecfef);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.3);
+}
+
+.btn-clear:hover {
+    background: linear-gradient(135deg, #fecfef, #ff9a9e);
+    box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
+}
+
+.btn-equals {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    color: #333;
+    font-weight: 600;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);
+}
+
+.btn-equals:hover {
+    background: linear-gradient(135deg, #fed6e3, #a8edea);
+    box-shadow: 0 6px 20px rgba(168, 237, 234, 0.4);
+}
+
+.btn-zero {
+    grid-column: span 2;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .calculator-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .calculator {
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .history-section {
+        max-width: 100%;
+        max-height: 200px;
+    }
+    
+    .current-display {
+        font-size: 2rem;
+        min-height: 50px;
+    }
+    
+    .btn {
+        padding: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .buttons-grid {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .calculator {
+        padding: 15px;
+    }
+    
+    .current-display {
+        font-size: 1.8rem;
+        min-height: 45px;
+    }
+    
+    .btn {
+        padding: 12px;
+        font-size: 1rem;
+    }
+    
+    .buttons-grid {
+        gap: 8px;
+    }
+}
+
+/* カスタムスクロールバー */
+.history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* アニメーション */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.calculator {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.history-section {
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* フォーカスアクセシビリティ */
+.btn:focus {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
+
+.clear-history-btn:focus {
+    outline: 2px solid #ff6b6b;
+    outline-offset: 2px;
+}

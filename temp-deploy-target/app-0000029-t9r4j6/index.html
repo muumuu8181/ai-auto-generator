@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StiqyBoard - デジタル付箋ボード</title>
+    <meta name="description" content="思考を視覚的に整理する直感的なデジタル付箋ボード。ドラッグ&ドロップで自由にアイデアを配置できます。">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- ツールバー -->
+    <header class="toolbar">
+        <div class="toolbar-container">
+            <div class="toolbar-left">
+                <h1 class="app-title">
+                    <i class="fas fa-sticky-note"></i>
+                    StiqyBoard
+                </h1>
+                <div class="search-container">
+                    <input type="search" id="search-box" placeholder="付箋を検索..." autocomplete="off">
+                    <i class="fas fa-search search-icon"></i>
+                    <button class="clear-search" id="clear-search" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="toolbar-center">
+                <button id="add-note-btn" class="tool-btn primary" aria-label="新しい付箋を追加">
+                    <i class="fas fa-plus"></i>
+                    <span>新規付箋</span>
+                </button>
+                
+                <div class="color-palette" id="color-palette">
+                    <span class="color-label">色：</span>
+                    <button class="color-swatch active" data-color="#fff59d" style="background-color: #fff59d;" aria-label="イエロー" title="イエロー"></button>
+                    <button class="color-swatch" data-color="#c8e6c9" style="background-color: #c8e6c9;" aria-label="グリーン" title="グリーン"></button>
+                    <button class="color-swatch" data-color="#b3e5fc" style="background-color: #b3e5fc;" aria-label="ブルー" title="ブルー"></button>
+                    <button class="color-swatch" data-color="#f8bbd9" style="background-color: #f8bbd9;" aria-label="ピンク" title="ピンク"></button>
+                    <button class="color-swatch" data-color="#ffe0b2" style="background-color: #ffe0b2;" aria-label="オレンジ" title="オレンジ"></button>
+                    <button class="color-swatch" data-color="#e1bee7" style="background-color: #e1bee7;" aria-label="パープル" title="パープル"></button>
+                    <button class="color-swatch" data-color="#ffffff" style="background-color: #ffffff; border: 2px solid #ddd;" aria-label="ホワイト" title="ホワイト"></button>
+                </div>
+            </div>
+            
+            <div class="toolbar-right">
+                <button id="view-mode-btn" class="tool-btn" aria-label="表示モード切り替え">
+                    <i class="fas fa-th"></i>
+                    <span>表示</span>
+                </button>
+                <button id="clear-board-btn" class="tool-btn danger" aria-label="すべての付箋を削除">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>全消去</span>
+                </button>
+                <button id="settings-toggle-btn" class="icon-btn" aria-label="設定パネルを開く">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button id="help-toggle-btn" class="icon-btn" aria-label="ヘルプガイドを開く">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインボードエリア -->
+    <main id="board" class="board">
+        <div class="board-grid" id="board-grid"></div>
+        
+        <!-- 空の状態の表示 -->
+        <div class="empty-state" id="empty-state">
+            <div class="empty-state-content">
+                <i class="fas fa-sticky-note empty-icon"></i>
+                <h2>ボードが空です</h2>
+                <p>「新規付箋」ボタンをクリックするか、<br>ボード上をダブルクリックして付箋を作成しましょう</p>
+                <button class="cta-button" onclick="document.getElementById('add-note-btn').click()">
+                    <i class="fas fa-plus"></i>
+                    最初の付箋を作成
+                </button>
+            </div>
+        </div>
+        
+        <!-- 検索結果表示 -->
+        <div class="search-results" id="search-results" style="display: none;">
+            <div class="search-results-header">
+                <span id="search-results-count">0</span> 件の結果が見つかりました
+                <button id="clear-search-results" class="clear-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 付箋テンプレート -->
+    <template id="sticky-note-template">
+        <div class="sticky-note" tabindex="0">
+            <div class="note-header">
+                <div class="drag-handle" aria-label="付箋をドラッグ">
+                    <i class="fas fa-grip-vertical"></i>
+                </div>
+                <div class="note-actions">
+                    <button class="note-action-btn color-btn" aria-label="色を変更" title="色を変更">
+                        <i class="fas fa-palette"></i>
+                    </button>
+                    <button class="note-action-btn delete-btn" aria-label="付箋を削除" title="削除">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="note-body">
+                <textarea class="note-content" placeholder="ここに入力..." rows="3"></textarea>
+            </div>
+            <div class="note-footer">
+                <span class="timestamp"></span>
+                <span class="word-count">0文字</span>
+            </div>
+        </div>
+    </template>
+
+    <!-- 色選択ポップアップ -->
+    <div class="color-popup" id="color-popup" style="display: none;">
+        <div class="color-popup-content">
+            <h4>色を選択</h4>
+            <div class="color-grid">
+                <button class="color-option" data-color="#fff59d" style="background-color: #fff59d;"></button>
+                <button class="color-option" data-color="#c8e6c9" style="background-color: #c8e6c9;"></button>
+                <button class="color-option" data-color="#b3e5fc" style="background-color: #b3e5fc;"></button>
+                <button class="color-option" data-color="#f8bbd9" style="background-color: #f8bbd9;"></button>
+                <button class="color-option" data-color="#ffe0b2" style="background-color: #ffe0b2;"></button>
+                <button class="color-option" data-color="#e1bee7" style="background-color: #e1bee7;"></button>
+                <button class="color-option" data-color="#ffffff" style="background-color: #ffffff; border: 2px solid #ddd;"></button>
+                <button class="color-option" data-color="#ffcdd2" style="background-color: #ffcdd2;"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定パネル -->
+    <aside id="settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <h2>
+                <i class="fas fa-cog"></i>
+                設定
+            </h2>
+            <button id="close-settings-btn" class="close-btn" aria-label="設定パネルを閉じる">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-group">
+                <h3>表示設定</h3>
+                <div class="setting-item">
+                    <label for="dark-mode-toggle" class="setting-label">
+                        <span>ダークモード</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="grid-visible-toggle" class="setting-label">
+                        <span>グリッドを表示</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="grid-visible-toggle" checked>
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="grid-snap-toggle" class="setting-label">
+                        <span>グリッドにスナップ</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="grid-snap-toggle">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>自動保存</h3>
+                <div class="setting-item">
+                    <label for="auto-save-toggle" class="setting-label">
+                        <span>自動保存</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="auto-save-toggle" checked>
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>データ管理</h3>
+                <div class="setting-actions">
+                    <button class="setting-btn" id="export-data-btn">
+                        <i class="fas fa-download"></i>
+                        データをエクスポート
+                    </button>
+                    <button class="setting-btn" id="import-data-btn">
+                        <i class="fas fa-upload"></i>
+                        データをインポート
+                    </button>
+                    <button class="setting-btn danger" id="reset-data-btn">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        すべてリセット
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ヘルプモーダル -->
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-question-circle"></i>
+                    StiqyBoardの使い方
+                </h2>
+                <button id="close-help-modal-btn" class="close-btn" aria-label="ヘルプを閉じる">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h3><i class="fas fa-mouse-pointer"></i> 基本操作</h3>
+                    <ul class="help-list">
+                        <li><strong>付箋の作成:</strong> 「新規付箋」ボタンをクリック、またはボード上をダブルクリック</li>
+                        <li><strong>テキスト編集:</strong> 付箋内をクリックして直接入力</li>
+                        <li><strong>付箋の移動:</strong> 付箋の上部をドラッグして好きな位置に移動</li>
+                        <li><strong>付箋の削除:</strong> 付箋右上のゴミ箱アイコンをクリック</li>
+                        <li><strong>色の変更:</strong> 付箋のパレットアイコンから色を選択</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-search"></i> 検索機能</h3>
+                    <p>検索ボックスにキーワードを入力すると、該当する付箋がハイライト表示されます。検索中は他の付箋は薄く表示されます。</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-palette"></i> 色分け</h3>
+                    <p>ツールバーで色を選択してから付箋を作成するか、既存の付箋の色を個別に変更できます。色分けでカテゴリーやプライオリティを管理しましょう。</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-save"></i> データ保存</h3>
+                    <p>すべての変更は自動的にブラウザに保存されます。設定からデータのエクスポート・インポートも可能です。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="confirm-help-btn">
+                    <i class="fas fa-check"></i>
+                    理解しました
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認ダイアログ -->
+    <div class="modal-overlay" id="confirm-modal" style="display: none;">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h3 id="confirm-title">確認</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">この操作を実行しますか？</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="confirm-cancel">キャンセル</button>
+                <button class="modal-btn danger" id="confirm-ok">実行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隠しファイル入力 -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <!-- 通知トースト -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

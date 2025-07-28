@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Cool Clock - 超格好良い時計</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Super Cool Clock</h1>
+        
+        <!-- Theme Selector -->
+        <div class="theme-selector">
+            <button class="theme-btn" data-theme="dark">Dark</button>
+            <button class="theme-btn" data-theme="light">Light</button>
+            <button class="theme-btn" data-theme="neon">Neon</button>
+            <button class="theme-btn" data-theme="gradient">Gradient</button>
+        </div>
+
+        <!-- Clock Type Selector -->
+        <div class="clock-selector">
+            <button class="clock-btn active" data-type="analog">アナログ</button>
+            <button class="clock-btn" data-type="digital">デジタル</button>
+            <button class="clock-btn" data-type="both">両方</button>
+        </div>
+
+        <!-- Clocks Container -->
+        <div class="clocks-container">
+            <!-- Analog Clock -->
+            <div class="clock-wrapper analog-wrapper">
+                <div class="analog-clock">
+                    <div class="clock-face">
+                        <div class="hand hour-hand"></div>
+                        <div class="hand minute-hand"></div>
+                        <div class="hand second-hand"></div>
+                        <div class="center-dot"></div>
+                        <!-- Hour markers -->
+                        <div class="hour-marker" style="transform: rotate(0deg)"><span>12</span></div>
+                        <div class="hour-marker" style="transform: rotate(30deg)"><span>1</span></div>
+                        <div class="hour-marker" style="transform: rotate(60deg)"><span>2</span></div>
+                        <div class="hour-marker" style="transform: rotate(90deg)"><span>3</span></div>
+                        <div class="hour-marker" style="transform: rotate(120deg)"><span>4</span></div>
+                        <div class="hour-marker" style="transform: rotate(150deg)"><span>5</span></div>
+                        <div class="hour-marker" style="transform: rotate(180deg)"><span>6</span></div>
+                        <div class="hour-marker" style="transform: rotate(210deg)"><span>7</span></div>
+                        <div class="hour-marker" style="transform: rotate(240deg)"><span>8</span></div>
+                        <div class="hour-marker" style="transform: rotate(270deg)"><span>9</span></div>
+                        <div class="hour-marker" style="transform: rotate(300deg)"><span>10</span></div>
+                        <div class="hour-marker" style="transform: rotate(330deg)"><span>11</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Digital Clock -->
+            <div class="clock-wrapper digital-wrapper">
+                <div class="digital-clock">
+                    <div class="time-display">
+                        <span class="hours">00</span>
+                        <span class="separator">:</span>
+                        <span class="minutes">00</span>
+                        <span class="separator">:</span>
+                        <span class="seconds">00</span>
+                    </div>
+                    <div class="date-display">
+                        <span class="date"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer & Stopwatch Section -->
+        <div class="tools-section">
+            <div class="tool-tabs">
+                <button class="tool-tab active" data-tool="timer">タイマー</button>
+                <button class="tool-tab" data-tool="stopwatch">ストップウォッチ</button>
+            </div>
+
+            <!-- Timer -->
+            <div class="tool-content timer-content active">
+                <div class="timer-inputs">
+                    <input type="number" class="timer-input" id="timer-hours" min="0" max="23" value="0" placeholder="時">
+                    <span>:</span>
+                    <input type="number" class="timer-input" id="timer-minutes" min="0" max="59" value="0" placeholder="分">
+                    <span>:</span>
+                    <input type="number" class="timer-input" id="timer-seconds" min="0" max="59" value="0" placeholder="秒">
+                </div>
+                <div class="timer-display">00:00:00</div>
+                <div class="tool-controls">
+                    <button class="control-btn" id="timer-start">スタート</button>
+                    <button class="control-btn" id="timer-pause">一時停止</button>
+                    <button class="control-btn" id="timer-reset">リセット</button>
+                </div>
+            </div>
+
+            <!-- Stopwatch -->
+            <div class="tool-content stopwatch-content">
+                <div class="stopwatch-display">00:00:00</div>
+                <div class="tool-controls">
+                    <button class="control-btn" id="stopwatch-start">スタート</button>
+                    <button class="control-btn" id="stopwatch-pause">一時停止</button>
+                    <button class="control-btn" id="stopwatch-reset">リセット</button>
+                    <button class="control-btn" id="stopwatch-lap">ラップ</button>
+                </div>
+                <ul class="lap-times"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

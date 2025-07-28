@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 お金管理システム</h1>
+            <p class="subtitle">収入と支出を簡単に管理</p>
+        </header>
+
+        <div class="main-content">
+            <!-- 入力フォーム -->
+            <div class="input-section">
+                <h2>新規入力</h2>
+                <form id="transactionForm">
+                    <div class="form-group">
+                        <label for="date">日付</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="type">種別</label>
+                        <select id="type" required>
+                            <option value="">選択してください</option>
+                            <option value="income">収入</option>
+                            <option value="expense">支出</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">カテゴリ</label>
+                        <input type="text" id="category" placeholder="例: 給料、食費、交通費" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="amount">金額</label>
+                        <input type="number" id="amount" placeholder="0" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memo">メモ</label>
+                        <textarea id="memo" rows="2" placeholder="任意のメモ"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">追加</button>
+                </form>
+            </div>
+
+            <!-- サマリー表示 -->
+            <div class="summary-section">
+                <h2>収支サマリー</h2>
+                <div class="summary-cards">
+                    <div class="summary-card income-card">
+                        <h3>総収入</h3>
+                        <p class="amount" id="totalIncome">¥0</p>
+                    </div>
+                    <div class="summary-card expense-card">
+                        <h3>総支出</h3>
+                        <p class="amount" id="totalExpense">¥0</p>
+                    </div>
+                    <div class="summary-card balance-card">
+                        <h3>収支バランス</h3>
+                        <p class="amount" id="balance">¥0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 取引履歴 -->
+            <div class="history-section">
+                <div class="history-header">
+                    <h2>取引履歴</h2>
+                    <button id="downloadCsv" class="btn btn-secondary">CSV ダウンロード</button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="transactionTable">
+                        <thead>
+                            <tr>
+                                <th>日付</th>
+                                <th>種別</th>
+                                <th>カテゴリ</th>
+                                <th>金額</th>
+                                <th>メモ</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionList">
+                            <!-- 動的に追加される -->
+                        </tbody>
+                    </table>
+                    <div id="noDataMessage" class="no-data">まだデータがありません</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>取引を編集</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label for="editDate">日付</label>
+                    <input type="date" id="editDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editType">種別</label>
+                    <select id="editType" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editCategory">カテゴリ</label>
+                    <input type="text" id="editCategory" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editAmount">金額</label>
+                    <input type="number" id="editAmount" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editMemo">メモ</label>
+                    <textarea id="editMemo" rows="2"></textarea>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEdit">キャンセル</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

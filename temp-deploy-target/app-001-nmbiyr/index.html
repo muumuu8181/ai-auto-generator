@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多機能時計</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+            --clock-bg: #fff;
+            --clock-border: #ddd;
+            --accent-color: #4a90e2;
+            --hand-hour-color: #333;
+            --hand-minute-color: #555;
+            --hand-second-color: #e74c3c;
+            --button-bg: #4a90e2;
+            --button-text-color: #fff;
+            --button-hover-bg: #3a7ac0;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --clock-bg: #34495e;
+            --clock-border: #2c3e50;
+            --accent-color: #3498db;
+            --hand-hour-color: #ecf0f1;
+            --hand-minute-color: #bdc3c7;
+            --hand-second-color: #e74c3c;
+            --button-bg: #3498db;
+            --button-hover-bg: #2980b9;
+        }
+
+        [data-theme="neon"] {
+            --bg-color: #1a1a1a;
+            --text-color: #fff;
+            --clock-bg: #222;
+            --clock-border: #0ff;
+            --accent-color: #0ff;
+            --hand-hour-color: #0ff;
+            --hand-minute-color: #f0f;
+            --hand-second-color: #ff0;
+            --button-bg: transparent;
+            --button-text-color: #0ff;
+            --button-border: 2px solid #0ff;
+            --button-hover-bg: #0ff;
+            --button-hover-text-color: #1a1a1a;
+        }
+
+        [data-theme="minimal"] {
+            --bg-color: #fff;
+            --text-color: #222;
+            --clock-bg: #fff;
+            --clock-border: #eee;
+            --accent-color: #333;
+            --hand-hour-color: #333;
+            --hand-minute-color: #555;
+            --hand-second-color: #999;
+            --button-bg: #eee;
+            --button-text-color: #333;
+            --button-hover-bg: #ddd;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: transparent;
+            color: var(--text-color);
+            border: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .tab-button.active {
+            border-bottom-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .clock-container {
+            width: 300px;
+            height: 300px;
+            border: 5px solid var(--clock-border);
+            border-radius: 50%;
+            margin: 20px auto;
+            position: relative;
+            background-color: var(--clock-bg);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            border-radius: 2px;
+        }
+
+        .hour-hand {
+            width: 6px;
+            height: 80px;
+            background-color: var(--hand-hour-color);
+        }
+
+        .minute-hand {
+            width: 4px;
+            height: 100px;
+            background-color: var(--hand-minute-color);
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 120px;
+            background-color: var(--hand-second-color);
+        }
+
+        .center-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .digital-clock {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .control-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: var(--button-border, none);
+            border-radius: 5px;
+            background-color: var(--button-bg);
+            color: var(--button-text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .control-button:hover {
+            background-color: var(--button-hover-bg, var(--button-bg));
+            color: var(--button-hover-text-color, var(--button-text-color));
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        .theme-button {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            margin: 0 5px;
+            display: inline-block;
+        }
+
+        .theme-button.light { background-color: #f0f2f5; }
+        .theme-button.dark { background-color: #2c3e50; }
+        .theme-button.neon { background-color: #1a1a1a; border: 1px solid #0ff; }
+        .theme-button.minimal { background-color: #fff; border: 1px solid #eee; }
+
+        .timer-inputs, .timer-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            margin: 20px 0;
+        }
+
+        .timer-inputs input {
+            width: 80px;
+            font-size: 2.5rem;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--text-color);
+            margin: 0 10px;
+        }
+
+        .timer-inputs input:focus {
+            outline: none;
+        }
+
+        .stopwatch-display {
+            font-size: 3rem;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-button active" data-tab="clock">時計</button>
+        <button class="tab-button" data-tab="stopwatch">ストップウォッチ</button>
+        <button class="tab-button" data-tab="timer">タイマー</button>
+    </div>
+
+    <div id="content-clock" class="content active">
+        <div class="clock-container">
+            <div class="analog-clock">
+                <div class="hand hour-hand"></div>
+                <div class="hand minute-hand"></div>
+                <div class="hand second-hand"></div>
+                <div class="center-dot"></div>
+            </div>
+            <div class="digital-clock" style="display: none;"></div>
+        </div>
+        <div class="controls">
+            <button id="toggleClock" class="control-button">デジタル時計に切り替え</button>
+        </div>
+    </div>
+
+    <div id="content-stopwatch" class="content">
+        <div class="stopwatch-display">00:00:00.000</div>
+        <div class="controls">
+            <button id="startStopwatch" class="control-button">スタート</button>
+            <button id="resetStopwatch" class="control-button">リセット</button>
+        </div>
+    </div>
+
+    <div id="content-timer" class="content">
+        <div class="timer-inputs">
+            <input type="number" id="timer-hours" placeholder="HH" min="0" max="23">
+            <span>:</span>
+            <input type="number" id="timer-minutes" placeholder="MM" min="0" max="59">
+            <span>:</span>
+            <input type="number" id="timer-seconds" placeholder="SS" min="0" max="59">
+        </div>
+        <div class="timer-display" style="display: none;"></div>
+        <div class="controls">
+            <button id="startTimer" class="control-button">スタート</button>
+            <button id="resetTimer" class="control-button">リセット</button>
+        </div>
+    </div>
+
+    <div class="theme-switcher">
+        <button class="theme-button light" data-theme="light"></button>
+        <button class="theme-button dark" data-theme="dark"></button>
+        <button class="theme-button neon" data-theme="neon"></button>
+        <button class="theme-button minimal" data-theme="minimal"></button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Theme switcher
+    const themeButtons = document.querySelectorAll('.theme-button');
+    themeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            document.documentElement.setAttribute('data-theme', button.dataset.theme);
+        });
+    });
+
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const contents = document.querySelectorAll('.content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            contents.forEach(content => content.classList.remove('active'));
+            const targetContent = document.getElementById(`content-${button.dataset.tab}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+
+    // Clock functionality
+    const hourHand = document.querySelector('.hour-hand');
+    const minuteHand = document.querySelector('.minute-hand');
+    const secondHand = document.querySelector('.second-hand');
+    const digitalClockDisplay = document.querySelector('.digital-clock');
+    const analogClockDisplay = document.querySelector('.analog-clock');
+    const toggleClockButton = document.getElementById('toggleClock');
+    let isAnalog = true;
+
+    function setDate() {
+        const now = new Date();
+
+        const seconds = now.getSeconds();
+        const secondsDegrees = ((seconds / 60) * 360) + 90;
+        if (secondHand) secondHand.style.transform = `rotate(${secondsDegrees}deg)`;
+
+        const minutes = now.getMinutes();
+        const minutesDegrees = ((minutes / 60) * 360) + ((seconds / 60) * 6) + 90;
+        if (minuteHand) minuteHand.style.transform = `rotate(${minutesDegrees}deg)`;
+
+        const hours = now.getHours();
+        const hoursDegrees = ((hours / 12) * 360) + ((minutes / 60) * 30) + 90;
+        if (hourHand) hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
+
+        if (digitalClockDisplay) {
+            const digitalHours = String(hours).padStart(2, '0');
+            const digitalMinutes = String(minutes).padStart(2, '0');
+            const digitalSeconds = String(seconds).padStart(2, '0');
+            digitalClockDisplay.textContent = `${digitalHours}:${digitalMinutes}:${digitalSeconds}`;
+        }
+    }
+
+    toggleClockButton.addEventListener('click', () => {
+        isAnalog = !isAnalog;
+        if (isAnalog) {
+            analogClockDisplay.style.display = 'block';
+            digitalClockDisplay.style.display = 'none';
+            toggleClockButton.textContent = 'デジタル時計に切り替え';
+        } else {
+            analogClockDisplay.style.display = 'none';
+            digitalClockDisplay.style.display = 'flex';
+            toggleClockButton.textContent = 'アナログ時計に切り替え';
+        }
+    });
+
+    setInterval(setDate, 1000);
+    setDate();
+
+    // Stopwatch functionality
+    const stopwatchDisplay = document.querySelector('.stopwatch-display');
+    const startStopwatchButton = document.getElementById('startStopwatch');
+    const resetStopwatchButton = document.getElementById('resetStopwatch');
+    let stopwatchInterval;
+    let stopwatchStartTime;
+    let stopwatchElapsedTime = 0;
+    let stopwatchRunning = false;
+
+    function formatTime(ms) {
+        const date = new Date(ms);
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+        const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
+        return `${minutes}:${seconds}.${milliseconds}`;
+    }
+
+    function updateStopwatch() {
+        const now = Date.now();
+        const elapsedTime = now - stopwatchStartTime + stopwatchElapsedTime;
+        stopwatchDisplay.textContent = formatTime(elapsedTime);
+    }
+
+    startStopwatchButton.addEventListener('click', () => {
+        if (stopwatchRunning) {
+            clearInterval(stopwatchInterval);
+            stopwatchElapsedTime += Date.now() - stopwatchStartTime;
+            startStopwatchButton.textContent = '再開';
+        } else {
+            stopwatchStartTime = Date.now();
+            stopwatchInterval = setInterval(updateStopwatch, 10);
+            startStopwatchButton.textContent = '一時停止';
+        }
+        stopwatchRunning = !stopwatchRunning;
+    });
+
+    resetStopwatchButton.addEventListener('click', () => {
+        clearInterval(stopwatchInterval);
+        stopwatchElapsedTime = 0;
+        stopwatchRunning = false;
+        startStopwatchButton.textContent = 'スタート';
+        stopwatchDisplay.textContent = '00:00:00.000';
+    });
+
+    // Timer functionality
+    const timerInputs = document.querySelector('.timer-inputs');
+    const timerDisplay = document.querySelector('.timer-display');
+    const startTimerButton = document.getElementById('startTimer');
+    const resetTimerButton = document.getElementById('resetTimer');
+    const hoursInput = document.getElementById('timer-hours');
+    const minutesInput = document.getElementById('timer-minutes');
+    const secondsInput = document.getElementById('timer-seconds');
+    let timerInterval;
+    let timerTotalSeconds = 0;
+    let timerRunning = false;
+
+    function updateTimerDisplay() {
+        const hours = Math.floor(timerTotalSeconds / 3600);
+        const minutes = Math.floor((timerTotalSeconds % 3600) / 60);
+        const seconds = timerTotalSeconds % 60;
+        timerDisplay.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+        if (timerRunning) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            startTimerButton.textContent = '再開';
+        } else {
+            timerInterval = setInterval(() => {
+                if (timerTotalSeconds > 0) {
+                    timerTotalSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    alert('タイマーが終了しました！');
+                    resetTimer();
+                }
+            }, 1000);
+            timerRunning = true;
+            startTimerButton.textContent = '一時停止';
+        }
+    }
+
+    startTimerButton.addEventListener('click', () => {
+        if (!timerRunning) {
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            timerTotalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+        }
+
+        if (timerTotalSeconds > 0) {
+            timerInputs.style.display = 'none';
+            timerDisplay.style.display = 'flex';
+            updateTimerDisplay();
+            startTimer();
+        }
+    });
+
+    resetTimerButton.addEventListener('click', resetTimer);
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        timerTotalSeconds = 0;
+        timerInputs.style.display = 'flex';
+        timerDisplay.style.display = 'none';
+        hoursInput.value = '';
+        minutesInput.value = '';
+        secondsInput.value = '';
+        startTimerButton.textContent = 'スタート';
+    }
+});
+</script>
+</body>
+</html>

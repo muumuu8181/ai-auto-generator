@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPGエフェクト生成システム</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cinzel', serif;
+            background: radial-gradient(ellipse at center, #2c1810 0%, #1a0e08 50%, #0d0704 100%);
+            color: #f0e6d2;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.3) 0%, rgba(160, 82, 45, 0.2) 100%);
+            border-bottom: 3px solid #cd853f;
+            box-shadow: 0 5px 20px rgba(205, 133, 63, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffd700;
+            text-shadow: 
+                0 0 10px #ffd700,
+                0 0 20px #ffa500,
+                0 0 30px #ff8c00;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #deb887;
+            font-style: italic;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 400px 1fr;
+            gap: 30px;
+            padding: 30px;
+            align-items: start;
+        }
+
+        .enemy-gallery {
+            background: rgba(139, 69, 19, 0.2);
+            border: 2px solid #cd853f;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(205, 133, 63, 0.2);
+        }
+
+        .gallery-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .enemy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .enemy-card {
+            position: relative;
+            background: rgba(160, 82, 45, 0.3);
+            border: 2px solid #deb887;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .enemy-card:hover {
+            transform: scale(1.05);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .enemy-card.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .enemy-sprite {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle, #8b4513, #654321);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 2px solid #deb887;
+        }
+
+        .enemy-name {
+            font-size: 0.9rem;
+            color: #f0e6d2;
+            font-weight: 600;
+        }
+
+        .battle-arena {
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(139, 0, 0, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(25, 25, 112, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(72, 61, 139, 0.2) 0%, rgba(75, 0, 130, 0.2) 100%);
+            border: 3px solid #4b0082;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            min-height: 500px;
+            box-shadow: 
+                inset 0 0 50px rgba(75, 0, 130, 0.3),
+                0 0 30px rgba(75, 0, 130, 0.5);
+        }
+
+        .arena-title {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #9370db;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px #9370db;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .effect-canvas {
+            width: 100%;
+            height: 350px;
+            border: 2px solid #9370db;
+            border-radius: 10px;
+            background: radial-gradient(ellipse at center, rgba(25, 25, 112, 0.5) 0%, rgba(0, 0, 0, 0.8) 100%);
+            cursor: crosshair;
+        }
+
+        .controls-panel {
+            background: rgba(139, 69, 19, 0.2);
+            border: 2px solid #cd853f;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(205, 133, 63, 0.2);
+        }
+
+        .controls-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            color: #deb887;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .control-select, .control-range {
+            width: 100%;
+            padding: 10px;
+            background: rgba(160, 82, 45, 0.3);
+            border: 2px solid #deb887;
+            border-radius: 8px;
+            color: #f0e6d2;
+            font-family: 'Cinzel', serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .control-select:focus, .control-range:focus {
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .effect-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #8b0000 0%, #dc143c 50%, #b22222 100%);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.4);
+        }
+
+        .effect-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.6);
+            background: linear-gradient(135deg, #a00000 0%, #ff1c1c 50%, #cc2222 100%);
+        }
+
+        .effect-button:active {
+            transform: translateY(0);
+        }
+
+        .effect-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .preset-button {
+            padding: 10px;
+            background: linear-gradient(135deg, #4b0082 0%, #9370db 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .preset-button:hover {
+            background: linear-gradient(135deg, #6a0dad 0%, #ba55d3 100%);
+            transform: scale(1.05);
+        }
+
+        .stats-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .stats-title {
+            color: #ffd700;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .stat-label {
+            color: #deb887;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-weight: 700;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+
+        .damage-number {
+            position: absolute;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 2rem;
+            color: #ff0000;
+            text-shadow: 
+                0 0 10px #ff0000,
+                0 0 20px #ff4500,
+                2px 2px 4px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 100;
+            animation: damageFloat 2s ease-out forwards;
+        }
+
+        @keyframes damageFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-50px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.8);
+            }
+        }
+
+        .screen-shake {
+            animation: screenShake 0.5s ease-in-out;
+        }
+
+        @keyframes screenShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .combo-counter {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+            z-index: 50;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .enemy-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .effect-presets {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚔️ RPG エフェクト生成システム ⚔️</h1>
+        <p>究極のバトルエフェクトを創造せよ</p>
+    </div>
+
+    <div class="main-container">
+        <div class="enemy-gallery">
+            <div class="gallery-title">🛡️ 敵キャラクター</div>
+            <div class="enemy-grid" id="enemyGrid">
+                <div class="enemy-card" data-enemy="dragon">
+                    <div class="enemy-sprite">🐉</div>
+                    <div class="enemy-name">古龍</div>
+                </div>
+                <div class="enemy-card" data-enemy="demon">
+                    <div class="enemy-sprite">👹</div>
+                    <div class="enemy-name">魔王</div>
+                </div>
+                <div class="enemy-card" data-enemy="skeleton">
+                    <div class="enemy-sprite">💀</div>
+                    <div class="enemy-name">骸骨兵</div>
+                </div>
+                <div class="enemy-card" data-enemy="orc">
+                    <div class="enemy-sprite">👺</div>
+                    <div class="enemy-name">オーク</div>
+                </div>
+                <div class="enemy-card" data-enemy="slime">
+                    <div class="enemy-sprite">🟢</div>
+                    <div class="enemy-name">スライム</div>
+                </div>
+                <div class="enemy-card" data-enemy="golem">
+                    <div class="enemy-sprite">🗿</div>
+                    <div class="enemy-name">ゴーレム</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="battle-arena">
+            <div class="arena-title">⚡ BATTLE ARENA ⚡</div>
+            <div class="combo-counter" id="comboCounter">COMBO: 0</div>
+            <canvas class="effect-canvas" id="effectCanvas"></canvas>
+        </div>
+
+        <div class="controls-panel">
+            <div class="controls-title">🎮 エフェクト制御</div>
+            
+            <div class="control-group">
+                <label class="control-label">攻撃タイプ</label>
+                <select class="control-select" id="attackType">
+                    <option value="slash">斬撃</option>
+                    <option value="magic">魔法</option>
+                    <option value="fire">炎</option>
+                    <option value="ice">氷</option>
+                    <option value="lightning">雷</option>
+                    <option value="holy">聖</option>
+                    <option value="dark">闇</option>
+                    <option value="earth">土</option>
+                    <option value="wind">風</option>
+                    <option value="ultimate">奥義</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">威力: <span id="powerValue">5</span></label>
+                <input type="range" class="control-range" id="attackPower" min="1" max="10" value="5">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">持続時間: <span id="durationValue">3</span>秒</label>
+                <input type="range" class="control-range" id="effectDuration" min="1" max="10" value="3">
+            </div>
+
+            <button class="effect-button" onclick="executeAttack()">🗡️ 攻撃実行</button>
+            <button class="effect-button" onclick="clearEffects()">🧹 クリア</button>
+
+            <div class="effect-presets">
+                <button class="preset-button" onclick="loadPreset('combo')">連続攻撃</button>
+                <button class="preset-button" onclick="loadPreset('boss')">ボス戦</button>
+                <button class="preset-button" onclick="loadPreset('magic')">魔法特化</button>
+                <button class="preset-button" onclick="loadPreset('chaos')">混沌</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-panel">
+        <div class="stats-title">📊 BATTLE STATS</div>
+        <div class="stat-item">
+            <span class="stat-label">攻撃回数:</span>
+            <span class="stat-value" id="attackCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">総ダメージ:</span>
+            <span class="stat-value" id="totalDamage">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">最大コンボ:</span>
+            <span class="stat-value" id="maxCombo">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">選択敵:</span>
+            <span class="stat-value" id="selectedEnemy">なし</span>
+        </div>
+    </div>
+
+    <script>
+        class RPGEffectSystem {
+            constructor() {
+                this.canvas = document.getElementById('effectCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.audioContext = null;
+                
+                this.selectedEnemy = null;
+                this.attackCount = 0;
+                this.totalDamage = 0;
+                this.comboCount = 0;
+                this.maxCombo = 0;
+                this.comboTimer = null;
+                
+                this.particles = [];
+                this.effects = [];
+                
+                this.initCanvas();
+                this.initAudio();
+                this.setupEventListeners();
+                this.startAnimationLoop();
+            }
+            
+            initCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+            
+            resizeCanvas() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+            
+            initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+            
+            setupEventListeners() {
+                // Enemy selection
+                const enemyCards = document.querySelectorAll('.enemy-card');
+                enemyCards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        enemyCards.forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        this.selectedEnemy = card.dataset.enemy;
+                        document.getElementById('selectedEnemy').textContent = card.querySelector('.enemy-name').textContent;
+                    });
+                });
+                
+                // Control updates
+                document.getElementById('attackPower').addEventListener('input', (e) => {
+                    document.getElementById('powerValue').textContent = e.target.value;
+                });
+                
+                document.getElementById('effectDuration').addEventListener('input', (e) => {
+                    document.getElementById('durationValue').textContent = e.target.value;
+                });
+                
+                // Canvas click for manual targeting
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.executeAttackAt(x, y);
+                });
+            }
+            
+            executeAttackAt(x, y) {
+                if (!this.selectedEnemy) {
+                    alert('まず敵キャラクターを選択してください！');
+                    return;
+                }
+                
+                const attackType = document.getElementById('attackType').value;
+                const power = parseInt(document.getElementById('attackPower').value);
+                const duration = parseInt(document.getElementById('effectDuration').value);
+                
+                this.createEffect(attackType, x, y, power, duration);
+                this.updateCombo();
+                this.updateStats();
+                this.playSound(attackType, power);
+            }
+            
+            createEffect(type, x, y, power, duration) {
+                switch (type) {
+                    case 'slash':
+                        this.createSlashEffect(x, y, power, duration);
+                        break;
+                    case 'magic':
+                        this.createMagicEffect(x, y, power, duration);
+                        break;
+                    case 'fire':
+                        this.createFireEffect(x, y, power, duration);
+                        break;
+                    case 'ice':
+                        this.createIceEffect(x, y, power, duration);
+                        break;
+                    case 'lightning':
+                        this.createLightningEffect(x, y, power, duration);
+                        break;
+                    case 'holy':
+                        this.createHolyEffect(x, y, power, duration);
+                        break;
+                    case 'dark':
+                        this.createDarkEffect(x, y, power, duration);
+                        break;
+                    case 'earth':
+                        this.createEarthEffect(x, y, power, duration);
+                        break;
+                    case 'wind':
+                        this.createWindEffect(x, y, power, duration);
+                        break;
+                    case 'ultimate':
+                        this.createUltimateEffect(x, y, power, duration);
+                        break;
+                }
+                
+                // Create damage number
+                this.createDamageNumber(x, y, power);
+                
+                // Screen shake for powerful attacks
+                if (power >= 7) {
+                    document.body.classList.add('screen-shake');
+                    setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+                }
+            }
+            
+            createSlashEffect(x, y, power, duration) {
+                const slashCount = Math.min(power, 5);
+                for (let i = 0; i < slashCount; i++) {
+                    setTimeout(() => {
+                        this.effects.push({
+                            type: 'slash',
+                            x: x + (Math.random() - 0.5) * 100,
+                            y: y + (Math.random() - 0.5) * 50,
+                            rotation: Math.random() * Math.PI * 2,
+                            length: 50 + power * 10,
+                            life: 1,
+                            decay: 0.05,
+                            color: `hsl(${200 + Math.random() * 60}, 100%, 70%)`
+                        });
+                    }, i * 100);
+                }
+                
+                // Slash particles
+                this.createParticles(x, y, power * 10, '#87ceeb', 'slash');
+            }
+            
+            createMagicEffect(x, y, power, duration) {
+                // Magic circle
+                this.effects.push({
+                    type: 'magic_circle',
+                    x: x,
+                    y: y,
+                    radius: power * 15,
+                    rotation: 0,
+                    rotationSpeed: 0.1,
+                    life: duration,
+                    decay: 0.01,
+                    color: '#9370db'
+                });
+                
+                // Magic sparkles
+                this.createParticles(x, y, power * 15, '#dda0dd', 'sparkle');
+            }
+            
+            createFireEffect(x, y, power, duration) {
+                // Fire explosion
+                this.effects.push({
+                    type: 'explosion',
+                    x: x,
+                    y: y,
+                    radius: 0,
+                    maxRadius: power * 20,
+                    life: duration,
+                    decay: 0.02,
+                    color: '#ff4500'
+                });
+                
+                // Fire particles
+                this.createParticles(x, y, power * 20, '#ff6347', 'fire');
+            }
+            
+            createIceEffect(x, y, power, duration) {
+                // Ice crystal formation
+                for (let i = 0; i < power * 2; i++) {
+                    const angle = (i / (power * 2)) * Math.PI * 2;
+                    this.effects.push({
+                        type: 'ice_crystal',
+                        x: x + Math.cos(angle) * 30,
+                        y: y + Math.sin(angle) * 30,
+                        angle: angle,
+                        size: 10 + power * 2,
+                        life: duration,
+                        decay: 0.01,
+                        color: '#00ffff'
+                    });
+                }
+                
+                // Ice particles
+                this.createParticles(x, y, power * 12, '#b0e0e6', 'ice');
+            }
+            
+            createLightningEffect(x, y, power, duration) {
+                // Lightning bolts
+                for (let i = 0; i < power; i++) {
+                    this.effects.push({
+                        type: 'lightning',
+                        startX: x + (Math.random() - 0.5) * 200,
+                        startY: 0,
+                        endX: x + (Math.random() - 0.5) * 100,
+                        endY: y,
+                        segments: [],
+                        life: 0.5,
+                        decay: 0.1,
+                        color: '#ffff00'
+                    });
+                }
+                
+                // Lightning particles
+                this.createParticles(x, y, power * 8, '#ffff00', 'lightning');
+            }
+            
+            createHolyEffect(x, y, power, duration) {
+                // Holy pillar
+                this.effects.push({
+                    type: 'holy_pillar',
+                    x: x,
+                    y: y,
+                    height: power * 30,
+                    width: 20 + power * 5,
+                    life: duration,
+                    decay: 0.015,
+                    color: '#fffacd'
+                });
+                
+                // Holy particles
+                this.createParticles(x, y, power * 18, '#fffacd', 'holy');
+            }
+            
+            createDarkEffect(x, y, power, duration) {
+                // Dark vortex
+                this.effects.push({
+                    type: 'vortex',
+                    x: x,
+                    y: y,
+                    radius: power * 12,
+                    rotation: 0,
+                    rotationSpeed: 0.2,
+                    life: duration,
+                    decay: 0.01,
+                    color: '#8b008b'
+                });
+                
+                // Dark particles
+                this.createParticles(x, y, power * 15, '#4b0082', 'dark');
+            }
+            
+            createEarthEffect(x, y, power, duration) {
+                // Earth spikes
+                for (let i = 0; i < power * 2; i++) {
+                    this.effects.push({
+                        type: 'earth_spike',
+                        x: x + (Math.random() - 0.5) * 150,
+                        y: y + 20,
+                        height: 0,
+                        maxHeight: 40 + power * 10,
+                        width: 8 + power * 2,
+                        life: duration,
+                        decay: 0.02,
+                        color: '#8b4513'
+                    });
+                }
+                
+                // Earth particles
+                this.createParticles(x, y, power * 12, '#daa520', 'earth');
+            }
+            
+            createWindEffect(x, y, power, duration) {
+                // Wind slashes
+                for (let i = 0; i < power * 3; i++) {
+                    this.effects.push({
+                        type: 'wind_slash',
+                        x: x - 100 + i * 20,
+                        y: y + (Math.random() - 0.5) * 100,
+                        vx: 5 + power,
+                        vy: (Math.random() - 0.5) * 2,
+                        width: 30 + power * 5,
+                        height: 5,
+                        life: 1.5,
+                        decay: 0.03,
+                        color: '#00fa9a'
+                    });
+                }
+                
+                // Wind particles
+                this.createParticles(x, y, power * 20, '#98fb98', 'wind');
+            }
+            
+            createUltimateEffect(x, y, power, duration) {
+                // Multi-element ultimate
+                this.createFireEffect(x, y, power, duration);
+                this.createLightningEffect(x, y, power, duration);
+                this.createMagicEffect(x, y, power, duration);
+                
+                // Ultimate blast
+                this.effects.push({
+                    type: 'ultimate_blast',
+                    x: x,
+                    y: y,
+                    radius: 0,
+                    maxRadius: power * 50,
+                    pulseCount: 0,
+                    maxPulses: 5,
+                    life: duration * 2,
+                    decay: 0.005,
+                    colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
+                });
+                
+                // Ultimate particles
+                this.createParticles(x, y, power * 30, '#ffffff', 'ultimate');
+            }
+            
+            createParticles(x, y, count, color, type) {
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 10 + 5;
+                    const size = Math.random() * 4 + 2;
+                    
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        size: size,
+                        life: 1,
+                        decay: 0.02 + Math.random() * 0.03,
+                        color: color,
+                        type: type
+                    });
+                }
+            }
+            
+            createDamageNumber(x, y, power) {
+                const damage = Math.floor(power * 100 + Math.random() * power * 50);
+                this.totalDamage += damage;
+                
+                const damageEl = document.createElement('div');
+                damageEl.className = 'damage-number';
+                damageEl.textContent = damage;
+                damageEl.style.left = x + 'px';
+                damageEl.style.top = y + 'px';
+                
+                this.canvas.parentElement.appendChild(damageEl);
+                
+                setTimeout(() => damageEl.remove(), 2000);
+            }
+            
+            updateCombo() {
+                this.comboCount++;
+                this.maxCombo = Math.max(this.maxCombo, this.comboCount);
+                document.getElementById('comboCounter').textContent = `COMBO: ${this.comboCount}`;
+                
+                clearTimeout(this.comboTimer);
+                this.comboTimer = setTimeout(() => {
+                    this.comboCount = 0;
+                    document.getElementById('comboCounter').textContent = 'COMBO: 0';
+                }, 3000);
+            }
+            
+            updateStats() {
+                this.attackCount++;
+                document.getElementById('attackCount').textContent = this.attackCount;
+                document.getElementById('totalDamage').textContent = this.totalDamage.toLocaleString();
+                document.getElementById('maxCombo').textContent = this.maxCombo;
+            }
+            
+            playSound(type, power) {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                const now = this.audioContext.currentTime;
+                const duration = 0.3 + power * 0.1;
+                
+                // Different sounds for different attack types
+                let frequency, waveType;
+                switch (type) {
+                    case 'slash':
+                        frequency = 300 + power * 50;
+                        waveType = 'sawtooth';
+                        break;
+                    case 'magic':
+                        frequency = 800 + power * 100;
+                        waveType = 'sine';
+                        break;
+                    case 'fire':
+                        frequency = 200 + power * 30;
+                        waveType = 'square';
+                        break;
+                    case 'ice':
+                        frequency = 1000 + power * 200;
+                        waveType = 'triangle';
+                        break;
+                    case 'lightning':
+                        frequency = 1500 + Math.random() * 1000;
+                        waveType = 'square';
+                        break;
+                    default:
+                        frequency = 400 + power * 80;
+                        waveType = 'sawtooth';
+                }
+                
+                oscillator.frequency.setValueAtTime(frequency, now);
+                oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.5, now + duration);
+                oscillator.type = waveType;
+                
+                gainNode.gain.setValueAtTime(0.1 * power / 10, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                
+                oscillator.start(now);
+                oscillator.stop(now + duration);
+            }
+            
+            animate() {
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Update and draw effects
+                this.effects = this.effects.filter(effect => {
+                    this.updateEffect(effect);
+                    this.drawEffect(effect);
+                    return effect.life > 0;
+                });
+                
+                // Update and draw particles
+                this.particles = this.particles.filter(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vy += 0.2; // gravity
+                    particle.life -= particle.decay;
+                    
+                    if (particle.life > 0) {
+                        this.ctx.save();
+                        this.ctx.globalAlpha = particle.life;
+                        this.ctx.fillStyle = particle.color;
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.restore();
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            
+            updateEffect(effect) {
+                effect.life -= effect.decay;
+                if (effect.rotation !== undefined) {
+                    effect.rotation += effect.rotationSpeed || 0.05;
+                }
+                if (effect.radius !== undefined && effect.maxRadius !== undefined) {
+                    effect.radius = Math.min(effect.radius + 5, effect.maxRadius);
+                }
+                if (effect.height !== undefined && effect.maxHeight !== undefined) {
+                    effect.height = Math.min(effect.height + 3, effect.maxHeight);
+                }
+            }
+            
+            drawEffect(effect) {
+                this.ctx.save();
+                this.ctx.globalAlpha = effect.life;
+                
+                switch (effect.type) {
+                    case 'slash':
+                        this.drawSlash(effect);
+                        break;
+                    case 'magic_circle':
+                        this.drawMagicCircle(effect);
+                        break;
+                    case 'explosion':
+                        this.drawExplosion(effect);
+                        break;
+                    case 'ice_crystal':
+                        this.drawIceCrystal(effect);
+                        break;
+                    case 'lightning':
+                        this.drawLightning(effect);
+                        break;
+                    case 'holy_pillar':
+                        this.drawHolyPillar(effect);
+                        break;
+                    case 'vortex':
+                        this.drawVortex(effect);
+                        break;
+                    case 'earth_spike':
+                        this.drawEarthSpike(effect);
+                        break;
+                    case 'wind_slash':
+                        this.drawWindSlash(effect);
+                        break;
+                    case 'ultimate_blast':
+                        this.drawUltimateBlast(effect);
+                        break;
+                }
+                
+                this.ctx.restore();
+            }
+            
+            drawSlash(effect) {
+                this.ctx.strokeStyle = effect.color;
+                this.ctx.lineWidth = 8;
+                this.ctx.lineCap = 'round';
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 10;
+                
+                this.ctx.translate(effect.x, effect.y);
+                this.ctx.rotate(effect.rotation);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(-effect.length / 2, 0);
+                this.ctx.lineTo(effect.length / 2, 0);
+                this.ctx.stroke();
+            }
+            
+            drawMagicCircle(effect) {
+                this.ctx.strokeStyle = effect.color;
+                this.ctx.lineWidth = 3;
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 15;
+                
+                this.ctx.translate(effect.x, effect.y);
+                this.ctx.rotate(effect.rotation);
+                
+                // Outer circle
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, effect.radius, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                // Inner patterns
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, 0);
+                    this.ctx.lineTo(Math.cos(angle) * effect.radius * 0.8, Math.sin(angle) * effect.radius * 0.8);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawExplosion(effect) {
+                const gradient = this.ctx.createRadialGradient(0, 0, 0, 0, 0, effect.radius);
+                gradient.addColorStop(0, effect.color);
+                gradient.addColorStop(0.7, effect.color + '80');
+                gradient.addColorStop(1, 'transparent');
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.translate(effect.x, effect.y);
+                
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, effect.radius, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawIceCrystal(effect) {
+                this.ctx.fillStyle = effect.color;
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 8;
+                
+                this.ctx.translate(effect.x, effect.y);
+                this.ctx.rotate(effect.angle);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, -effect.size);
+                this.ctx.lineTo(effect.size * 0.5, 0);
+                this.ctx.lineTo(0, effect.size);
+                this.ctx.lineTo(-effect.size * 0.5, 0);
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+            
+            drawLightning(effect) {
+                this.ctx.strokeStyle = effect.color;
+                this.ctx.lineWidth = 4;
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 15;
+                
+                // Generate jagged lightning path
+                this.ctx.beginPath();
+                this.ctx.moveTo(effect.startX, effect.startY);
+                
+                const segments = 8;
+                for (let i = 1; i <= segments; i++) {
+                    const progress = i / segments;
+                    const x = effect.startX + (effect.endX - effect.startX) * progress + (Math.random() - 0.5) * 30;
+                    const y = effect.startY + (effect.endY - effect.startY) * progress;
+                    this.ctx.lineTo(x, y);
+                }
+                
+                this.ctx.stroke();
+            }
+            
+            drawHolyPillar(effect) {
+                const gradient = this.ctx.createLinearGradient(0, effect.y, 0, effect.y - effect.height);
+                gradient.addColorStop(0, 'transparent');
+                gradient.addColorStop(0.3, effect.color + '80');
+                gradient.addColorStop(1, effect.color);
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 20;
+                
+                this.ctx.fillRect(effect.x - effect.width / 2, effect.y - effect.height, effect.width, effect.height);
+            }
+            
+            drawVortex(effect) {
+                this.ctx.strokeStyle = effect.color;
+                this.ctx.lineWidth = 3;
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 10;
+                
+                this.ctx.translate(effect.x, effect.y);
+                this.ctx.rotate(effect.rotation);
+                
+                // Draw spiral
+                this.ctx.beginPath();
+                for (let i = 0; i < 50; i++) {
+                    const angle = (i / 50) * Math.PI * 4 + effect.rotation;
+                    const radius = (i / 50) * effect.radius;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    
+                    if (i === 0) this.ctx.moveTo(x, y);
+                    else this.ctx.lineTo(x, y);
+                }
+                this.ctx.stroke();
+            }
+            
+            drawEarthSpike(effect) {
+                this.ctx.fillStyle = effect.color;
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 5;
+                
+                // Draw spike as triangle
+                this.ctx.beginPath();
+                this.ctx.moveTo(effect.x, effect.y);
+                this.ctx.lineTo(effect.x - effect.width / 2, effect.y - effect.height);
+                this.ctx.lineTo(effect.x + effect.width / 2, effect.y - effect.height);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                // Add rocky texture
+                this.ctx.strokeStyle = '#654321';
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+            }
+            
+            drawWindSlash(effect) {
+                this.ctx.strokeStyle = effect.color;
+                this.ctx.lineWidth = 6;
+                this.ctx.lineCap = 'round';
+                this.ctx.shadowColor = effect.color;
+                this.ctx.shadowBlur = 8;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(effect.x - effect.width / 2, effect.y - effect.height / 2);
+                this.ctx.lineTo(effect.x + effect.width / 2, effect.y + effect.height / 2);
+                this.ctx.stroke();
+                
+                effect.x += effect.vx;
+                effect.y += effect.vy;
+            }
+            
+            drawUltimateBlast(effect) {
+                if (effect.pulseCount < effect.maxPulses) {
+                    effect.pulseCount += 0.1;
+                    
+                    const colorIndex = Math.floor(effect.pulseCount) % effect.colors.length;
+                    const gradient = this.ctx.createRadialGradient(0, 0, 0, 0, 0, effect.radius);
+                    gradient.addColorStop(0, effect.colors[colorIndex]);
+                    gradient.addColorStop(0.5, effect.colors[colorIndex] + '80');
+                    gradient.addColorStop(1, 'transparent');
+                    
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.translate(effect.x, effect.y);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, effect.radius, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+            
+            startAnimationLoop() {
+                const animate = () => {
+                    this.animate();
+                    requestAnimationFrame(animate);
+                };
+                animate();
+            }
+        }
+
+        // Initialize system
+        let rpgSystem;
+        window.addEventListener('load', () => {
+            rpgSystem = new RPGEffectSystem();
+        });
+
+        function executeAttack() {
+            const centerX = rpgSystem.canvas.width / 2;
+            const centerY = rpgSystem.canvas.height / 2;
+            rpgSystem.executeAttackAt(centerX, centerY);
+        }
+
+        function clearEffects() {
+            rpgSystem.effects = [];
+            rpgSystem.particles = [];
+            rpgSystem.ctx.clearRect(0, 0, rpgSystem.canvas.width, rpgSystem.canvas.height);
+        }
+
+        function loadPreset(preset) {
+            const presets = {
+                combo: { type: 'slash', power: 8, duration: 1 },
+                boss: { type: 'ultimate', power: 10, duration: 5 },
+                magic: { type: 'magic', power: 7, duration: 4 },
+                chaos: { type: 'dark', power: 9, duration: 3 }
+            };
+
+            const config = presets[preset];
+            if (config) {
+                document.getElementById('attackType').value = config.type;
+                document.getElementById('attackPower').value = config.power;
+                document.getElementById('effectDuration').value = config.duration;
+                document.getElementById('powerValue').textContent = config.power;
+                document.getElementById('durationValue').textContent = config.duration;
+                
+                if (preset === 'combo') {
+                    // Execute multiple attacks for combo
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => executeAttack(), i * 300);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

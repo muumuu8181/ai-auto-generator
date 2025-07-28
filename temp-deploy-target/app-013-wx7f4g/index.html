@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Ultra Stylish Tetris 3D - app-013-wx7f4g</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="background-effects">
+            <div class="particle-system" id="particles"></div>
+            <div class="matrix-rain" id="matrix"></div>
+            <div class="hologram-grid" id="hologram"></div>
+            <div class="energy-waves" id="energyWaves"></div>
+        </div>
+        
+        <header class="game-header">
+            <h1 class="game-title">
+                <span class="title-3d">MEGA ULTRA</span>
+                <span class="title-glow">TETRIS 3D</span>
+            </h1>
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-label">SCORE</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">LEVEL</span>
+                    <span class="stat-value" id="level">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">LINES</span>
+                    <span class="stat-value" id="lines">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">COMBO</span>
+                    <span class="stat-value" id="combo">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-main">
+            <div class="side-panel left">
+                <div class="next-piece-container">
+                    <h3>NEXT</h3>
+                    <canvas id="next-canvas" width="120" height="80"></canvas>
+                </div>
+                
+                <div class="hold-piece-container">
+                    <h3>HOLD</h3>
+                    <canvas id="hold-canvas" width="120" height="80"></canvas>
+                </div>
+                
+                <div class="effects-panel">
+                    <h3>3D EFFECTS</h3>
+                    <button class="effect-btn active" id="particle-toggle">Particles</button>
+                    <button class="effect-btn active" id="matrix-toggle">Matrix</button>
+                    <button class="effect-btn active" id="hologram-toggle">Hologram</button>
+                    <button class="effect-btn active" id="energy-toggle">Energy Waves</button>
+                    <button class="effect-btn active" id="sound-toggle">Sound</button>
+                    <button class="effect-btn active" id="3d-toggle">3D Mode</button>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <div class="game-board-3d" id="gameBoard3D">
+                    <canvas id="game-canvas" width="300" height="600"></canvas>
+                    <div class="depth-layer layer-1"></div>
+                    <div class="depth-layer layer-2"></div>
+                    <div class="depth-layer layer-3"></div>
+                </div>
+                <div class="combo-display" id="comboDisplay"></div>
+                <div class="line-clear-effect" id="lineEffect"></div>
+                <div class="level-up-effect" id="levelUpEffect"></div>
+            </div>
+
+            <div class="side-panel right">
+                <div class="controls-info">
+                    <h3>CONTROLS</h3>
+                    <div class="control-item">
+                        <span class="key">←→</span>
+                        <span class="action">Move</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↓</span>
+                        <span class="action">Soft Drop</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↑/Z</span>
+                        <span class="action">Rotate R</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">X</span>
+                        <span class="action">Rotate L</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">Space</span>
+                        <span class="action">Hard Drop</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">C</span>
+                        <span class="action">Hold</span>
+                    </div>
+                </div>
+
+                <div class="power-meter">
+                    <h3>POWER</h3>
+                    <div class="power-bar">
+                        <div class="power-fill" id="powerFill"></div>
+                        <div class="power-sparks" id="powerSparks"></div>
+                    </div>
+                    <div class="power-level" id="powerLevel">LEVEL 1</div>
+                </div>
+
+                <div class="audio-visualizer">
+                    <h3>SPECTRUM</h3>
+                    <div class="visualizer-3d" id="visualizer3d">
+                        <div class="freq-bar" style="--delay: 0s"></div>
+                        <div class="freq-bar" style="--delay: 0.1s"></div>
+                        <div class="freq-bar" style="--delay: 0.2s"></div>
+                        <div class="freq-bar" style="--delay: 0.3s"></div>
+                        <div class="freq-bar" style="--delay: 0.4s"></div>
+                        <div class="freq-bar" style="--delay: 0.5s"></div>
+                        <div class="freq-bar" style="--delay: 0.6s"></div>
+                        <div class="freq-bar" style="--delay: 0.7s"></div>
+                        <div class="freq-bar" style="--delay: 0.8s"></div>
+                        <div class="freq-bar" style="--delay: 0.9s"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button class="control-btn primary" id="start-btn">START</button>
+            <button class="control-btn" id="pause-btn">PAUSE</button>
+            <button class="control-btn" id="reset-btn">RESET</button>
+            <button class="control-btn special" id="turbo-btn">TURBO MODE</button>
+        </div>
+
+        <div class="game-over-screen" id="gameOver">
+            <div class="game-over-content">
+                <h2 class="game-over-title">SYSTEM OVERLOAD</h2>
+                <div class="final-score">
+                    <span class="score-label">FINAL SCORE:</span>
+                    <span class="score-value" id="finalScore">0</span>
+                </div>
+                <div class="achievement-display" id="achievements"></div>
+                <button class="restart-btn" id="restartBtn">REBOOT SYSTEM</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

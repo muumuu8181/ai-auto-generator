@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Smart Money Manager | Personal Finance Tracker</title>
+    <meta name="description" content="収入と支出を管理し、CSVでデータをダウンロードできるお金管理システム">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIGZpbGw9IiMwMDcwNDAiLz48Y2lyY2xlIGN4PSI5MCIgY3k9IjkwIiByPSIzMCIgZmlsbD0iI0ZGRiIvPjx0ZXh0IHg9IjkwIiB5PSIxMDAiIGZpbGw9IiMwMDcwNDAiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC1zaXplPSIzMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+JDwvdGV4dD48L3N2Zz4=">
+    <style>
+        :root {
+            --primary-green: #007040;
+            --light-green: #e8f5e8;
+            --danger-red: #dc3545;
+            --light-red: #ffeef0;
+            --success-blue: #0056b3;
+            --background-gray: #f8f9fa;
+            --text-dark: #2c3e50;
+            --border-light: #e1e8ed;
+            --shadow-soft: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--background-gray) 0%, #ffffff 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-green), #005530);
+            color: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+            border-top: 4px solid var(--primary-green);
+        }
+
+        .stat-card.income {
+            border-top-color: var(--success-blue);
+        }
+
+        .stat-card.expense {
+            border-top-color: var(--danger-red);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-value.income {
+            color: var(--success-blue);
+        }
+
+        .stat-value.expense {
+            color: var(--danger-red);
+        }
+
+        .stat-value.balance {
+            color: var(--primary-green);
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 112, 64, 0.1);
+        }
+
+        .form-control[type="number"] {
+            font-weight: 600;
+        }
+
+        .btn {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: #005530;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .btn-danger {
+            background: var(--danger-red);
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: var(--success-blue);
+        }
+
+        .btn-success:hover {
+            background: #004085;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .transactions-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: var(--light-green);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px 120px 80px;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+
+        .transaction-item:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-date {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .transaction-description {
+            font-weight: 500;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .transaction-amount.income {
+            color: var(--success-blue);
+        }
+
+        .transaction-amount.expense {
+            color: var(--danger-red);
+        }
+
+        .transaction-type {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .transaction-type.income {
+            background: #e3f2fd;
+            color: var(--success-blue);
+        }
+
+        .transaction-type.expense {
+            background: #ffebee;
+            color: var(--danger-red);
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .edit-form {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+
+        .edit-form h4 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .transaction-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                text-align: left;
+            }
+            
+            .transaction-amount {
+                text-align: left !important;
+            }
+        }
+
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 20px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .total-summary {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Smart Money Manager</h1>
+            <p>収入・支出を効率的に管理し、財務状況を可視化するシステム</p>
+        </div>
+
+        <!-- ダッシュボード -->
+        <div class="dashboard">
+            <div class="stat-card income">
+                <div class="stat-value income" id="totalIncome">¥0</div>
+                <div class="stat-label">総収入</div>
+            </div>
+            <div class="stat-card expense">
+                <div class="stat-value expense" id="totalExpense">¥0</div>
+                <div class="stat-label">総支出</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value balance" id="totalBalance">¥0</div>
+                <div class="stat-label">残高</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="transactionCount">0</div>
+                <div class="stat-label">取引件数</div>
+            </div>
+        </div>
+
+        <!-- 取引入力フォーム -->
+        <div class="form-section">
+            <h2 class="form-title">💸 新規取引を追加</h2>
+            <form id="transactionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="type">取引種類</label>
+                        <select id="type" class="form-control" required>
+                            <option value="">選択してください</option>
+                            <option value="income">収入</option>
+                            <option value="expense">支出</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">金額 (¥)</label>
+                        <input type="number" id="amount" class="form-control" min="1" step="1" required placeholder="例: 50000">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">内容説明</label>
+                        <input type="text" id="description" class="form-control" required placeholder="例: 給与、食費、光熱費など">
+                    </div>
+                    <div class="form-group">
+                        <label for="date">日付</label>
+                        <input type="date" id="date" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn">💾 取引を追加</button>
+            </form>
+        </div>
+
+        <!-- 編集フォーム (非表示) -->
+        <div id="editForm" class="edit-form" style="display: none;">
+            <h4>📝 取引を編集</h4>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="editType">取引種類</label>
+                    <select id="editType" class="form-control" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editAmount">金額 (¥)</label>
+                    <input type="number" id="editAmount" class="form-control" min="1" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">内容説明</label>
+                    <input type="text" id="editDescription" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDate">日付</label>
+                    <input type="date" id="editDate" class="form-control" required>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button type="button" class="btn btn-success" onclick="saveEdit()">💾 変更を保存</button>
+                <button type="button" class="btn btn-danger" onclick="cancelEdit()">❌ キャンセル</button>
+            </div>
+        </div>
+
+        <!-- フィルター・アクション -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label for="filterType">取引種類フィルター</label>
+                    <select id="filterType" class="form-control" onchange="filterTransactions()">
+                        <option value="">すべて表示</option>
+                        <option value="income">収入のみ</option>
+                        <option value="expense">支出のみ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterMonth">月別フィルター</label>
+                    <input type="month" id="filterMonth" class="form-control" onchange="filterTransactions()">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn btn-danger" onclick="clearAllData()">🗑️ 全データ削除</button>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn btn-success" onclick="downloadCSV()">📊 CSV ダウンロード</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 取引履歴 -->
+        <div class="transactions-section">
+            <div class="section-header">
+                <h2 class="section-title">📋 取引履歴</h2>
+            </div>
+            <div class="transaction-list" id="transactionList">
+                <div class="empty-state">
+                    <p>📝 まだ取引が登録されていません</p>
+                    <p>上のフォームから収入や支出を追加してください</p>
+                </div>
+            </div>
+            <div class="total-summary" id="filterSummary" style="display: none;">
+                <strong>フィルター結果: 収入 <span id="filteredIncome">¥0</span> | 支出 <span id="filteredExpense">¥0</span> | 差額 <span id="filteredBalance">¥0</span></strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MoneyManager {
+            constructor() {
+                this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+                this.editingIndex = -1;
+                this.init();
+            }
+
+            init() {
+                // 今日の日付をデフォルト設定
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('date').value = today;
+                
+                // イベントリスナー設定
+                document.getElementById('transactionForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addTransaction();
+                });
+                
+                this.renderTransactions();
+                this.updateDashboard();
+            }
+
+            addTransaction() {
+                const type = document.getElementById('type').value;
+                const amount = parseFloat(document.getElementById('amount').value);
+                const description = document.getElementById('description').value.trim();
+                const date = document.getElementById('date').value;
+
+                if (!type || !amount || !description || !date) {
+                    alert('❌ すべての項目を入力してください');
+                    return;
+                }
+
+                const transaction = {
+                    id: Date.now(),
+                    type,
+                    amount,
+                    description,
+                    date,
+                    createdAt: new Date().toISOString()
+                };
+
+                this.transactions.push(transaction);
+                this.saveToStorage();
+                this.renderTransactions();
+                this.updateDashboard();
+                
+                // フォームリセット
+                document.getElementById('transactionForm').reset();
+                document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                
+                // 成功フィードバック
+                this.showSuccess('✅ 取引が正常に追加されました');
+            }
+
+            editTransaction(index) {
+                this.editingIndex = index;
+                const transaction = this.transactions[index];
+                
+                document.getElementById('editType').value = transaction.type;
+                document.getElementById('editAmount').value = transaction.amount;
+                document.getElementById('editDescription').value = transaction.description;
+                document.getElementById('editDate').value = transaction.date;
+                
+                document.getElementById('editForm').style.display = 'block';
+                document.getElementById('editForm').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            saveEdit() {
+                if (this.editingIndex === -1) return;
+
+                const type = document.getElementById('editType').value;
+                const amount = parseFloat(document.getElementById('editAmount').value);
+                const description = document.getElementById('editDescription').value.trim();
+                const date = document.getElementById('editDate').value;
+
+                if (!type || !amount || !description || !date) {
+                    alert('❌ すべての項目を入力してください');
+                    return;
+                }
+
+                this.transactions[this.editingIndex] = {
+                    ...this.transactions[this.editingIndex],
+                    type,
+                    amount,
+                    description,
+                    date,
+                    updatedAt: new Date().toISOString()
+                };
+
+                this.saveToStorage();
+                this.renderTransactions();
+                this.updateDashboard();
+                this.cancelEdit();
+                
+                this.showSuccess('✅ 取引が正常に更新されました');
+            }
+
+            cancelEdit() {
+                this.editingIndex = -1;
+                document.getElementById('editForm').style.display = 'none';
+            }
+
+            deleteTransaction(index) {
+                if (confirm('🗑️ この取引を削除してもよろしいですか？')) {
+                    this.transactions.splice(index, 1);
+                    this.saveToStorage();
+                    this.renderTransactions();
+                    this.updateDashboard();
+                    this.showSuccess('✅ 取引が削除されました');
+                }
+            }
+
+            renderTransactions() {
+                const filteredTransactions = this.getFilteredTransactions();
+                const listElement = document.getElementById('transactionList');
+                
+                if (filteredTransactions.length === 0) {
+                    listElement.innerHTML = `
+                        <div class="empty-state">
+                            <p>📝 表示する取引がありません</p>
+                            <p>フィルターを変更するか、新しい取引を追加してください</p>
+                        </div>
+                    `;
+                    document.getElementById('filterSummary').style.display = 'none';
+                    return;
+                }
+
+                listElement.innerHTML = filteredTransactions.map((transaction, index) => {
+                    const originalIndex = this.transactions.indexOf(transaction);
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-date">${this.formatDate(transaction.date)}</div>
+                            <div class="transaction-description">${transaction.description}</div>
+                            <div class="transaction-amount ${transaction.type}">
+                                ${transaction.type === 'income' ? '+' : '-'}¥${transaction.amount.toLocaleString()}
+                            </div>
+                            <div class="transaction-type ${transaction.type}">
+                                ${transaction.type === 'income' ? '収入' : '支出'}
+                            </div>
+                            <div class="transaction-actions">
+                                <button class="btn btn-success btn-small" onclick="moneyManager.editTransaction(${originalIndex})" title="編集">
+                                    📝
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="moneyManager.deleteTransaction(${originalIndex})" title="削除">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                this.updateFilterSummary(filteredTransactions);
+            }
+
+            getFilteredTransactions() {
+                const typeFilter = document.getElementById('filterType').value;
+                const monthFilter = document.getElementById('filterMonth').value;
+                
+                return this.transactions.filter(transaction => {
+                    const typeMatch = !typeFilter || transaction.type === typeFilter;
+                    const monthMatch = !monthFilter || transaction.date.startsWith(monthFilter);
+                    return typeMatch && monthMatch;
+                }).sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+
+            updateFilterSummary(filteredTransactions) {
+                const income = filteredTransactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                    
+                const expense = filteredTransactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                    
+                const balance = income - expense;
+
+                document.getElementById('filteredIncome').textContent = `¥${income.toLocaleString()}`;
+                document.getElementById('filteredExpense').textContent = `¥${expense.toLocaleString()}`;
+                document.getElementById('filteredBalance').textContent = `¥${balance.toLocaleString()}`;
+                document.getElementById('filteredBalance').style.color = balance >= 0 ? 'var(--success-blue)' : 'var(--danger-red)';
+                
+                document.getElementById('filterSummary').style.display = 'block';
+            }
+
+            updateDashboard() {
+                const income = this.transactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                    
+                const expense = this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                    
+                const balance = income - expense;
+                const count = this.transactions.length;
+
+                document.getElementById('totalIncome').textContent = `¥${income.toLocaleString()}`;
+                document.getElementById('totalExpense').textContent = `¥${expense.toLocaleString()}`;
+                document.getElementById('totalBalance').textContent = `¥${balance.toLocaleString()}`;
+                document.getElementById('transactionCount').textContent = count.toLocaleString();
+
+                // 残高の色変更
+                const balanceElement = document.getElementById('totalBalance');
+                if (balance > 0) {
+                    balanceElement.className = 'stat-value balance';
+                } else if (balance < 0) {
+                    balanceElement.className = 'stat-value expense';
+                } else {
+                    balanceElement.className = 'stat-value';
+                }
+            }
+
+            downloadCSV() {
+                if (this.transactions.length === 0) {
+                    alert('📝 ダウンロードする取引データがありません');
+                    return;
+                }
+
+                const headers = ['日付', '種類', '金額', '内容', '作成日時'];
+                const csvContent = [
+                    headers.join(','),
+                    ...this.transactions.map(t => [
+                        t.date,
+                        t.type === 'income' ? '収入' : '支出',
+                        t.amount,
+                        `"${t.description}"`,
+                        t.createdAt
+                    ].join(','))
+                ].join('\n');
+
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `money_manager_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+
+                this.showSuccess('📊 CSVファイルがダウンロードされました');
+            }
+
+            clearAllData() {
+                if (confirm('⚠️ 全てのデータを削除してもよろしいですか？\nこの操作は取り消せません。')) {
+                    if (confirm('🚨 本当に削除しますか？全ての取引履歴が失われます。')) {
+                        this.transactions = [];
+                        this.saveToStorage();
+                        this.renderTransactions();
+                        this.updateDashboard();
+                        this.showSuccess('🗑️ 全データが削除されました');
+                    }
+                }
+            }
+
+            filterTransactions() {
+                this.renderTransactions();
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+            }
+
+            saveToStorage() {
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+            }
+
+            showSuccess(message) {
+                // 簡易成功メッセージ表示
+                const originalTitle = document.title;
+                document.title = message;
+                setTimeout(() => {
+                    document.title = originalTitle;
+                }, 3000);
+            }
+        }
+
+        // グローバル関数（HTML onclick用）
+        function filterTransactions() {
+            moneyManager.filterTransactions();
+        }
+
+        function downloadCSV() {
+            moneyManager.downloadCSV();
+        }
+
+        function clearAllData() {
+            moneyManager.clearAllData();
+        }
+
+        function saveEdit() {
+            moneyManager.saveEdit();
+        }
+
+        function cancelEdit() {
+            moneyManager.cancelEdit();
+        }
+
+        // アプリケーション初期化
+        const moneyManager = new MoneyManager();
+
+        // PWA対応
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(registrationError => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>

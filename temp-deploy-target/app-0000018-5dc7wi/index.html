@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基本的なタイマーアプリ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>⏰ タイマーアプリ</h1>
+        
+        <div class="timer-display">
+            <div class="time-display" id="timeDisplay">05:00</div>
+            <div class="status-text" id="statusText">タイマーを設定してください</div>
+        </div>
+        
+        <div class="input-section">
+            <h3>時間設定</h3>
+            <div class="time-inputs">
+                <div class="time-input-group">
+                    <label>分</label>
+                    <input type="number" id="minuteInput" min="0" max="59" value="5">
+                </div>
+                <div class="time-input-separator">:</div>
+                <div class="time-input-group">
+                    <label>秒</label>
+                    <input type="number" id="secondInput" min="0" max="59" value="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="presets-section">
+            <h3>プリセット</h3>
+            <div class="preset-buttons">
+                <button class="preset-btn" data-minutes="1" data-seconds="0">1分</button>
+                <button class="preset-btn" data-minutes="3" data-seconds="0">3分</button>
+                <button class="preset-btn" data-minutes="5" data-seconds="0">5分</button>
+                <button class="preset-btn" data-minutes="10" data-seconds="0">10分</button>
+                <button class="preset-btn" data-minutes="15" data-seconds="0">15分</button>
+                <button class="preset-btn" data-minutes="25" data-seconds="0">25分</button>
+            </div>
+        </div>
+        
+        <div class="controls-section">
+            <button id="startBtn" class="control-btn start">スタート</button>
+            <button id="pauseBtn" class="control-btn pause" disabled>一時停止</button>
+            <button id="resetBtn" class="control-btn reset">リセット</button>
+        </div>
+        
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+        
+        <div class="sound-section">
+            <h3>通知設定</h3>
+            <div class="sound-controls">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="soundEnabled" checked>
+                    <span class="checkmark"></span>
+                    通知音を有効にする
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="vibrationEnabled" checked>
+                    <span class="checkmark"></span>
+                    バイブレーションを有効にする
+                </label>
+            </div>
+            <button id="testSoundBtn" class="test-btn">通知音テスト</button>
+        </div>
+    </div>
+    
+    <!-- 通知モーダル -->
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">🎉</div>
+            <h2>タイマー終了！</h2>
+            <p>設定した時間が経過しました</p>
+            <button id="closeModal" class="modal-btn">OK</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

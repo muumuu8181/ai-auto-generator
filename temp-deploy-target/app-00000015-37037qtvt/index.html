@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>竹斬道 TAKEKIRI-DO - ひたすら竹を斬るゲーム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="background-layer" id="backgroundLayer">
+            <div class="bamboo-forest"></div>
+            <div class="falling-leaves" id="fallingLeaves"></div>
+        </div>
+
+        <header class="game-header">
+            <h1 class="game-title">
+                <span class="title-jp">竹斬道</span>
+                <span class="title-en">TAKEKIRI-DO</span>
+            </h1>
+            <div class="version">v1.0</div>
+        </header>
+
+        <div class="game-stats">
+            <div class="stat-item">
+                <span class="stat-label">斬撃数</span>
+                <span class="stat-value" id="slashCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">連続斬り</span>
+                <span class="stat-value combo" id="comboCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">最高記録</span>
+                <span class="stat-value best" id="bestScore">0</span>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <canvas id="effectCanvas" class="effect-layer" width="800" height="600"></canvas>
+            <canvas id="particleCanvas" class="effect-layer" width="800" height="600"></canvas>
+            
+            <div class="slash-trail" id="slashTrail"></div>
+            
+            <div class="combo-display" id="comboDisplay">
+                <div class="combo-text">COMBO</div>
+                <div class="combo-number">×<span id="comboNumber">0</span></div>
+            </div>
+
+            <div class="perfect-slash" id="perfectSlash">
+                <span class="perfect-text">完璧な一撃！</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-hint">
+                <span class="gesture-icon">👆</span>
+                <span class="control-text">スワイプして竹を斬る</span>
+            </div>
+        </div>
+
+        <div class="sound-control">
+            <button class="sound-toggle" id="soundToggle">
+                <span class="sound-icon">🔊</span>
+            </button>
+        </div>
+
+        <div class="start-screen" id="startScreen">
+            <div class="start-content">
+                <h2 class="start-title">竹斬道</h2>
+                <p class="start-subtitle">ひたすら竹を斬るゲーム</p>
+                <button class="start-button" id="startButton">
+                    <span class="button-text">開始</span>
+                    <span class="button-subtext">スワイプで斬撃</span>
+                </button>
+                <div class="start-instructions">
+                    <p>画面をスワイプして竹を斬ろう！</p>
+                    <p>連続で斬ってコンボを繋げよう！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

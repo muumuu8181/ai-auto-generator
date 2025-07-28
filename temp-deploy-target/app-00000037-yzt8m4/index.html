@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フラクタル生成アートツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c, #1a1a2e, #16213e);
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            padding: 10px;
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-right: 15px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            z-index: 10;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(90deg); }
+        }
+
+        .canvas-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #fractalCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: crosshair;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            z-index: 100;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #4ecdc4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: #4ecdc4;
+            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            margin: 3px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(78, 205, 196, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .button-group button {
+            flex: 1;
+            min-width: 70px;
+            font-size: 11px;
+            padding: 8px 10px;
+        }
+
+        .slider-container {
+            margin: 12px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #4ecdc4;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(78, 205, 196, 0.2);
+            outline: none;
+            border-radius: 3px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4ecdc4;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #4ecdc4;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-option.active {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+        }
+
+        .info-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-top: 15px;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .main-area {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .controls {
+                width: 100%;
+                max-height: 40vh;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .zoom-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .coords-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-area">
+            <header>
+                <h1>🌀 フラクタル生成アートツール</h1>
+                <p>マンデルブロ集合とジュリア集合の美しい世界を探索</p>
+            </header>
+
+            <div class="canvas-container">
+                <canvas id="fractalCanvas"></canvas>
+                
+                <div class="loading-overlay hidden" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                    計算中...
+                </div>
+
+                <div class="zoom-info" id="zoomInfo">
+                    ズーム: 1.0x
+                </div>
+
+                <div class="coords-info" id="coordsInfo">
+                    座標: (0.0, 0.0)
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <h3>フラクタルタイプ</h3>
+                <div class="button-group">
+                    <button onclick="setFractalType('mandelbrot')" class="active" id="mandelbrotBtn">
+                        マンデルブロ
+                    </button>
+                    <button onclick="setFractalType('julia')" id="juliaBtn">
+                        ジュリア
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>プリセット</h3>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="loadPreset('classic')">クラシック</button>
+                    <button class="preset-btn" onclick="loadPreset('seahorse')">シーホース</button>
+                    <button class="preset-btn" onclick="loadPreset('spiral')">スパイラル</button>
+                    <button class="preset-btn" onclick="loadPreset('lightning')">稲妻</button>
+                    <button class="preset-btn" onclick="loadPreset('phoenix')">フェニックス</button>
+                    <button class="preset-btn" onclick="loadPreset('dragon')">ドラゴン</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>パラメータ調整</h3>
+                
+                <div class="slider-container">
+                    <label>最大反復回数: <span id="iterationsValue">100</span></label>
+                    <input type="range" id="iterationsSlider" min="50" max="500" value="100">
+                </div>
+
+                <div class="slider-container">
+                    <label>ズーム: <span id="zoomValue">1.0</span>x</label>
+                    <input type="range" id="zoomSlider" min="0.1" max="100" value="1" step="0.1">
+                </div>
+
+                <div class="slider-container" id="juliaControls" style="display: none;">
+                    <label>Julia C (実部): <span id="juliaCRealValue">-0.4</span></label>
+                    <input type="range" id="juliaCRealSlider" min="-2" max="2" value="-0.4" step="0.01">
+                </div>
+
+                <div class="slider-container" id="juliaControls2" style="display: none;">
+                    <label>Julia C (虚部): <span id="juliaCImagValue">0.6</span></label>
+                    <input type="range" id="juliaCImagSlider" min="-2" max="2" value="0.6" step="0.01">
+                </div>
+
+                <div class="slider-container">
+                    <label>カラーシフト: <span id="colorShiftValue">0</span></label>
+                    <input type="range" id="colorShiftSlider" min="0" max="360" value="0">
+                </div>
+
+                <div class="slider-container">
+                    <label>カラー強度: <span id="colorIntensityValue">1.0</span></label>
+                    <input type="range" id="colorIntensitySlider" min="0.1" max="3" value="1" step="0.1">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>カラーパレット</h3>
+                <div class="color-palette">
+                    <div class="color-option active" onclick="selectColorPalette('rainbow')" 
+                         style="background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);"></div>
+                    <div class="color-option" onclick="selectColorPalette('fire')" 
+                         style="background: linear-gradient(45deg, #000000, #ff0000, #ffff00, #ffffff);"></div>
+                    <div class="color-option" onclick="selectColorPalette('ocean')" 
+                         style="background: linear-gradient(45deg, #000033, #000066, #0066cc, #00ccff, #ffffff);"></div>
+                    <div class="color-option" onclick="selectColorPalette('sunset')" 
+                         style="background: linear-gradient(45deg, #2c1810, #8B4513, #ff4500, #ffa500, #ffff00);"></div>
+                    <div class="color-option" onclick="selectColorPalette('emerald')" 
+                         style="background: linear-gradient(45deg, #000000, #003300, #006600, #00cc00, #ffffff);"></div>
+                    <div class="color-option" onclick="selectColorPalette('purple')" 
+                         style="background: linear-gradient(45deg, #000000, #330066, #6600cc, #cc00ff, #ffffff);"></div>
+                    <div class="color-option" onclick="selectColorPalette('gold')" 
+                         style="background: linear-gradient(45deg, #000000, #663300, #cc6600, #ffcc00, #ffffff);"></div>
+                    <div class="color-option" onclick="selectColorPalette('grayscale')" 
+                         style="background: linear-gradient(45deg, #000000, #444444, #888888, #cccccc, #ffffff);"></div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>操作</h3>
+                <div class="button-group">
+                    <button onclick="resetView()">🔄 リセット</button>
+                    <button onclick="exportImage()">📸 保存</button>
+                </div>
+                
+                <button onclick="startAnimation()" style="width: 100%; margin-top: 10px;" id="animateBtn">
+                    🎬 アニメーション開始
+                </button>
+            </div>
+
+            <div class="info-display" id="infoDisplay">
+                フラクタル情報がここに表示されます
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

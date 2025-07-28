@@ -1,0 +1,850 @@
+/* Focus Forest - ポモドーロタイマー スタイル */
+
+/* CSS変数 */
+:root {
+    --forest-green: #2d5016;
+    --leaf-green: #4a7c28;
+    --light-green: #8bc34a;
+    --sky-blue: #87ceeb;
+    --sun-yellow: #ffd700;
+    --earth-brown: #8b4513;
+    --white: #ffffff;
+    --gray-100: #f5f5f5;
+    --gray-200: #e0e0e0;
+    --gray-300: #bdbdbd;
+    --gray-700: #616161;
+    --gray-900: #212121;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+/* リセット */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(to bottom, #e8f5e9 0%, #c8e6c9 100%);
+    color: var(--gray-900);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* アプリコンテナ */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ヘッダー */
+.app-header {
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 10;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    text-align: center;
+}
+
+.app-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--forest-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.app-title i {
+    color: var(--leaf-green);
+}
+
+.app-subtitle {
+    font-size: 1.1rem;
+    color: var(--gray-700);
+    font-weight: 300;
+}
+
+/* メインコンテンツ */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* 森のコンテナ */
+.forest-container {
+    width: 100%;
+    max-width: 800px;
+    height: 300px;
+    background: linear-gradient(to bottom, var(--sky-blue) 0%, #b8e3f5 100%);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 3rem;
+}
+
+.forest-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* 太陽 */
+.sun {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: var(--sun-yellow);
+    border-radius: 50%;
+    top: 30px;
+    right: 50px;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    animation: sunGlow 4s ease-in-out infinite;
+}
+
+@keyframes sunGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+    50% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+}
+
+/* 雲 */
+.clouds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.cloud {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 100px;
+}
+
+.cloud::before,
+.cloud::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 100px;
+}
+
+.cloud-1 {
+    width: 80px;
+    height: 35px;
+    top: 40px;
+    left: 20%;
+    animation: cloudFloat 20s linear infinite;
+}
+
+.cloud-1::before {
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: 10px;
+}
+
+.cloud-1::after {
+    width: 60px;
+    height: 40px;
+    top: -15px;
+    right: 10px;
+}
+
+.cloud-2 {
+    width: 60px;
+    height: 25px;
+    top: 80px;
+    left: 60%;
+    animation: cloudFloat 25s linear infinite 5s;
+}
+
+.cloud-3 {
+    width: 70px;
+    height: 30px;
+    top: 20px;
+    left: 40%;
+    animation: cloudFloat 30s linear infinite 10s;
+}
+
+@keyframes cloudFloat {
+    from { transform: translateX(-100px); }
+    to { transform: translateX(calc(100% + 100px)); }
+}
+
+/* 地面 */
+.forest-ground {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to bottom, #8bc34a 0%, #558b2f 100%);
+}
+
+.forest-trees {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+/* 木のスタイル */
+.tree {
+    position: relative;
+    animation: treeGrow 1s ease-out;
+}
+
+@keyframes treeGrow {
+    from {
+        transform: scale(0) translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.tree-trunk {
+    background: var(--earth-brown);
+    width: 15px;
+    height: 40px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.tree-leaves {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.tree-leaves .leaf {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.leaf-1 {
+    border-color: transparent transparent var(--forest-green) transparent;
+    border-width: 0 30px 50px 30px;
+    bottom: 0;
+}
+
+.leaf-2 {
+    border-color: transparent transparent var(--leaf-green) transparent;
+    border-width: 0 25px 40px 25px;
+    bottom: 20px;
+    left: 5px;
+}
+
+.leaf-3 {
+    border-color: transparent transparent var(--light-green) transparent;
+    border-width: 0 20px 30px 20px;
+    bottom: 35px;
+    left: 10px;
+}
+
+/* 統計情報 */
+.forest-stats {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    border-radius: 10px;
+    display: flex;
+    gap: 30px;
+    box-shadow: var(--shadow-md);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-item i {
+    color: var(--leaf-green);
+    font-size: 1.2rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--forest-green);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--gray-700);
+}
+
+/* タイマーセクション */
+.timer-section {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* タイマー表示 */
+.timer-display {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.timer-ring {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin: 0 auto;
+}
+
+.timer-svg {
+    transform: rotate(-90deg);
+}
+
+.timer-background {
+    fill: none;
+    stroke: var(--gray-200);
+    stroke-width: 10;
+}
+
+.timer-progress {
+    fill: none;
+    stroke: var(--leaf-green);
+    stroke-width: 10;
+    stroke-dasharray: 848.23;
+    stroke-dashoffset: 848.23;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+}
+
+.timer-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.timer-time {
+    font-size: 3rem;
+    font-weight: 600;
+    color: var(--forest-green);
+    margin-bottom: 0.5rem;
+}
+
+.timer-phase {
+    font-size: 1.2rem;
+    color: var(--gray-700);
+}
+
+/* コントロールボタン */
+.timer-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.control-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 50px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.control-btn:not(.secondary) {
+    background: var(--leaf-green);
+    color: var(--white);
+}
+
+.control-btn:not(.secondary):hover {
+    background: var(--forest-green);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.control-btn.secondary {
+    background: var(--gray-200);
+    color: var(--gray-700);
+}
+
+.control-btn.secondary:hover {
+    background: var(--gray-300);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.control-btn i {
+    font-size: 1.1rem;
+}
+
+/* セッション情報 */
+.session-info {
+    border-top: 1px solid var(--gray-200);
+    padding-top: 1.5rem;
+}
+
+.session-counter {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.session-label {
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.session-dots {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.session-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--gray-300);
+    transition: var(--transition);
+}
+
+.session-dot.completed {
+    background: var(--leaf-green);
+}
+
+.current-task {
+    text-align: center;
+}
+
+#task-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+#task-input:focus {
+    outline: none;
+    border-color: var(--leaf-green);
+}
+
+/* モーダル */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.modal-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--forest-green);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    color: var(--forest-green);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* 設定グループ */
+.setting-group {
+    margin-bottom: 1.5rem;
+}
+
+.setting-group:last-child {
+    margin-bottom: 0;
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.setting-group input[type="number"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.setting-group input[type="number"]:focus {
+    outline: none;
+    border-color: var(--leaf-green);
+}
+
+/* トグルスイッチ */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 26px;
+    background: var(--gray-300);
+    border-radius: 13px;
+    transition: var(--transition);
+}
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: var(--white);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+input[type="checkbox"]:checked + .toggle-switch {
+    background: var(--leaf-green);
+}
+
+input[type="checkbox"]:checked + .toggle-switch::after {
+    transform: translateX(24px);
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+/* アクションボタン */
+.setting-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.action-btn:not(.secondary) {
+    background: var(--leaf-green);
+    color: var(--white);
+}
+
+.action-btn:not(.secondary):hover {
+    background: var(--forest-green);
+}
+
+.action-btn.secondary {
+    background: var(--gray-200);
+    color: var(--gray-700);
+}
+
+.action-btn.secondary:hover {
+    background: var(--gray-300);
+}
+
+/* 完了モーダル */
+.modal-content.celebration {
+    text-align: center;
+}
+
+.celebration-icon {
+    font-size: 4rem;
+    color: var(--leaf-green);
+    margin-bottom: 1rem;
+    animation: celebrationBounce 0.6s ease;
+}
+
+@keyframes celebrationBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.modal-content.celebration h2 {
+    color: var(--forest-green);
+    margin-bottom: 1rem;
+}
+
+.completion-message {
+    color: var(--gray-700);
+    margin-bottom: 1.5rem;
+}
+
+.tree-preview {
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+/* 統計モーダル */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--gray-100);
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-card i {
+    font-size: 2rem;
+    color: var(--leaf-green);
+    margin-bottom: 0.5rem;
+}
+
+.stat-card h3 {
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--forest-green);
+}
+
+.stat-description {
+    font-size: 0.8rem;
+    color: var(--gray-700);
+}
+
+.chart-container {
+    height: 200px;
+    margin-top: 2rem;
+}
+
+/* フッター */
+.app-footer {
+    background: var(--white);
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.footer-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    color: var(--gray-700);
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    transition: var(--transition);
+}
+
+.footer-btn:hover {
+    background: var(--gray-100);
+    color: var(--leaf-green);
+}
+
+.footer-btn i {
+    font-size: 1.5rem;
+}
+
+.footer-btn span {
+    font-size: 0.8rem;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .app-title {
+        font-size: 2rem;
+    }
+    
+    .forest-container {
+        height: 250px;
+        margin-bottom: 2rem;
+    }
+    
+    .forest-stats {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px 15px;
+    }
+    
+    .timer-ring {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .timer-time {
+        font-size: 2.5rem;
+    }
+    
+    .timer-controls {
+        flex-wrap: wrap;
+    }
+    
+    .control-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: 1rem;
+    }
+    
+    .app-title {
+        font-size: 1.5rem;
+    }
+    
+    .app-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .main-content {
+        padding: 1rem;
+    }
+    
+    .timer-section {
+        padding: 1.5rem;
+    }
+    
+    .control-btn span {
+        display: none;
+    }
+    
+    .control-btn {
+        padding: 0.75rem;
+    }
+}

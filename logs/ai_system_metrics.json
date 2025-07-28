@@ -1,0 +1,50 @@
+{
+  "timestamp": "2025-07-28T01:12:37.742Z",
+  "session_id": "session_1753665157743",
+  "manager_ai": {
+    "performance_percentage": 71,
+    "tasks_completed": 3,
+    "tasks_failed": 0,
+    "decision_accuracy": 100,
+    "bottlenecks": [],
+    "last_activity": "2025-07-28T01:12:37.777Z"
+  },
+  "inspector_ai": {
+    "performance_percentage": 68,
+    "monitoring_accuracy": 100,
+    "data_integrity_score": 20,
+    "alert_effectiveness": 0,
+    "bottlenecks": [
+      "データ不整合: Dashboard=22, Actual=145"
+    ],
+    "last_activity": "2025-07-28T01:12:37.772Z"
+  },
+  "worker_ai": {
+    "performance_percentage": 92,
+    "code_generation_success": 100,
+    "tool_execution_success": 80,
+    "error_recovery_rate": 0,
+    "bottlenecks": [],
+    "last_activity": "2025-07-28T01:12:37.783Z"
+  },
+  "collaboration": {
+    "overall_sync_rate": 45,
+    "information_accuracy": 20,
+    "handoff_efficiency": 70,
+    "conflict_resolution": 0,
+    "bottlenecks": []
+  },
+  "system_wide": {
+    "overall_performance": 79,
+    "improvement_trend": 39,
+    "critical_issues": [
+      "データ整合性問題: ダッシュボードと実データの不一致",
+      "inspector_ai: データ不整合: Dashboard=22, Actual=145"
+    ],
+    "next_priorities": [
+      "最優先: inspector AI性能向上 (現在68%)",
+      "データ整合性修復: ダッシュボード同期問題解決",
+      "自動化レベル向上: 40% → 41%の確実な改善"
+    ]
+  }
+}

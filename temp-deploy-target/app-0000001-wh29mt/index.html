@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Finance Manager v5.0 - AI統合型家計管理</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+    <!-- AI Status Banner -->
+    <div class="ai-status-banner" id="aiStatusBanner">
+        <div class="banner-content">
+            <div class="banner-icon">🤖</div>
+            <div class="banner-text">
+                <strong>AI分析完了:</strong> <span id="aiAnalysisResult">最新の支出パターンを分析しました</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">💎</span>
+                <span class="logo-text">Smart Finance Manager v5.0</span>
+            </a>
+            
+            <div class="header-controls">
+                <button class="btn theme-toggle" id="themeToggle">
+                    🌙 <span>ライト</span>
+                </button>
+                
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">収入</span>
+                        <span class="stat-value income" id="totalIncome">¥0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">支出</span>
+                        <span class="stat-value expense" id="totalExpense">¥0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">残高</span>
+                        <span class="stat-value balance" id="currentBalance">¥0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- AI-Powered Dashboard Stats -->
+        <section class="stats-grid">
+            <div class="stat-card income">
+                <div class="stat-value income" id="totalIncomeCard">¥0</div>
+                <div class="stat-label">総収入</div>
+            </div>
+            
+            <div class="stat-card expense">
+                <div class="stat-value expense" id="totalExpenseCard">¥0</div>
+                <div class="stat-label">総支出</div>
+            </div>
+            
+            <div class="stat-card balance">
+                <div class="stat-value balance" id="currentBalanceCard">¥0</div>
+                <div class="stat-label">現在残高</div>
+            </div>
+            
+            <div class="stat-card ai-insights">
+                <div class="stat-value">85%</div>
+                <div class="stat-label">AI信頼度</div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <div class="content-area">
+                <!-- Transaction Form -->
+                <section class="card transaction-form">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">📝</span>
+                            取引入力
+                        </h2>
+                    </div>
+                    
+                    <form id="transactionForm" class="form-container">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="description" class="form-label">説明 *</label>
+                                <input type="text" id="description" class="form-input" 
+                                       placeholder="例: ランチ代、給料、映画チケット" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="amount" class="form-label">金額 *</label>
+                                <input type="number" id="amount" class="form-input" 
+                                       placeholder="1000" min="0" step="1" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="type" class="form-label">タイプ</label>
+                                <select id="type" class="form-select">
+                                    <option value="expense">支出</option>
+                                    <option value="income">収入</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="category" class="form-label">カテゴリ (AI自動選択)</label>
+                                <select id="category" class="form-select">
+                                    <option value="">AIが自動選択</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date" class="form-label">日付</label>
+                            <input type="date" id="date" class="form-input">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <span>💾</span> 追加する
+                            </button>
+                            <button type="button" class="btn btn-sm" id="clearForm">
+                                <span>🗑️</span> クリア
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Smart Filters -->
+                <section class="smart-filters" id="smartFilters">
+                    <div class="filter-header">
+                        <h3>🎯 スマートフィルター</h3>
+                        <div class="filter-search">
+                            <input type="text" id="searchInput" class="form-input" 
+                                   placeholder="取引を検索...">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Transaction List -->
+                <section class="card transaction-list">
+                    <div class="card-header transaction-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">📊</span>
+                            取引履歴
+                        </h2>
+                    </div>
+                    
+                    <div class="transaction-container" id="transactionsList">
+                        <!-- Dynamic transaction list will be inserted here -->
+                    </div>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">支出カテゴリ分析</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="expenseChart" class="chart-canvas"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">収入源分析</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="incomeChart" class="chart-canvas"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container chart-wide">
+                        <div class="chart-header">
+                            <h3 class="chart-title">収支トレンド（過去30日）</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="trendChart" class="chart-canvas"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Export Panel -->
+                <div class="card export-panel">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-icon">📤</span>
+                            データエクスポート
+                        </h3>
+                    </div>
+                    
+                    <div class="export-options">
+                        <button class="btn export-option" id="exportCSV">
+                            <span class="export-icon">📊</span>
+                            <div class="export-details">
+                                <div class="export-title">CSV形式</div>
+                                <div class="export-desc">Excel対応</div>
+                            </div>
+                        </button>
+                        
+                        <button class="btn export-option" id="exportJSON">
+                            <span class="export-icon">📋</span>
+                            <div class="export-details">
+                                <div class="export-title">JSON形式</div>
+                                <div class="export-desc">詳細データ</div>
+                            </div>
+                        </button>
+                        
+                        <button class="btn export-option" id="exportPDF">
+                            <span class="export-icon">📄</span>
+                            <div class="export-details">
+                                <div class="export-title">PDF形式</div>
+                                <div class="export-desc">レポート</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- AI Chat -->
+    <div class="ai-chat" id="aiChat">
+        <div class="ai-chat-header">
+            <div class="ai-avatar">🤖</div>
+            <div class="ai-info">
+                <div class="ai-name">AI財務アドバイザー</div>
+                <div class="ai-status">オンライン</div>
+            </div>
+            <button class="btn btn-sm btn-icon ai-chat-close" id="aiChatClose">✕</button>
+        </div>
+        
+        <div class="ai-chat-body" id="aiChatBody">
+            <!-- AI chat messages will be inserted here -->
+        </div>
+        
+        <div class="ai-chat-input">
+            <input type="text" id="aiChatInput" placeholder="メッセージを入力..." maxlength="200">
+            <button class="btn btn-ai btn-sm" id="aiChatSend">
+                <span>📤</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- AI Chat Toggle Button -->
+    <button class="ai-chat-toggle" id="aiChatToggle" title="AI財務アドバイザーと話す">
+        🤖
+    </button>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON TETRIS FX</title>
+    <style>
+        :root {
+            --glow-color: #00ffff;
+            --secondary-glow: #ff00ff;
+            --bg-color: #0a0a14;
+            --font-color: #f0f0f0;
+            --border-width: 4px;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--font-color);
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-shadow: 0 0 5px var(--glow-color);
+            flex-wrap: wrap;
+            gap: 2em;
+            padding: 1em;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            width: 100%;
+            margin-bottom: -0.5em;
+            color: #fff;
+            text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color), 0 0 30px var(--secondary-glow);
+        }
+
+        #game-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2em;
+            flex-wrap: wrap;
+        }
+
+        canvas#tetris {
+            background: rgba(0, 0, 0, 0.25);
+            border: var(--border-width) solid var(--glow-color);
+            box-shadow: 0 0 15px var(--glow-color), 
+                        inset 0 0 15px var(--glow-color);
+            border-radius: 10px;
+        }
+
+        #ui-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5em;
+            width: 200px;
+            text-align: center;
+        }
+
+        .ui-box {
+            background: rgba(10, 10, 20, 0.5);
+            border: 2px solid var(--secondary-glow);
+            box-shadow: 0 0 10px var(--secondary-glow), 
+                        inset 0 0 10px var(--secondary-glow);
+            padding: 1em;
+            border-radius: 8px;
+        }
+
+        .ui-box h2 {
+            margin: 0 0 0.5em 0;
+            font-size: 1.2em;
+            color: var(--secondary-glow);
+            text-shadow: 0 0 5px var(--secondary-glow);
+        }
+
+        #score, #level, #lines {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 8px var(--glow-color);
+        }
+
+        #next-canvas {
+            background: rgba(0, 0, 0, 0.25);
+            border: 2px solid var(--secondary-glow);
+            border-radius: 8px;
+            box-shadow: 0 0 10px var(--secondary-glow);
+        }
+        
+        #controls-info {
+            margin-top: 1em;
+            font-size: 0.9em;
+            line-height: 1.6;
+            text-align: left;
+            opacity: 0.8;
+        }
+        
+        #controls-info span {
+            font-weight: bold;
+            color: var(--glow-color);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                align-items: center;
+                padding-top: 1em;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            #game-container {
+                flex-direction: column-reverse;
+                align-items: center;
+                gap: 1em;
+            }
+            #ui-panel {
+                width: 80vw;
+                max-width: 300px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .ui-box {
+                flex-grow: 1;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>NEON TETRIS FX</h1>
+
+    <div id="game-container">
+        <canvas id="tetris" width="300" height="600"></canvas>
+        <div id="ui-panel">
+            <div class="ui-box">
+                <h2>SCORE</h2>
+                <div id="score">0</div>
+            </div>
+            <div class="ui-box">
+                <h2>NEXT</h2>
+                <canvas id="next-canvas" width="120" height="120"></canvas>
+            </div>
+            <div class="ui-box">
+                <h2>LEVEL</h2>
+                <div id="level">1</div>
+            </div>
+            <div class="ui-box">
+                <h2>LINES</h2>
+                <div id="lines">0</div>
+            </div>
+            <div class="ui-box" id="controls-info">
+                <span>&uarr;</span> : Rotate<br>
+                <span>&larr; &rarr;</span> : Move<br>
+                <span>&darr;</span> : Soft Drop<br>
+                <span>SPACE</span> : Hard Drop
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        const nextCanvas = document.getElementById('next-canvas');
+        const nextContext = nextCanvas.getContext('2d');
+
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const linesElement = document.getElementById('lines');
+
+        const ROWS = 20;
+        const COLS = 10;
+        const BLOCK_SIZE = canvas.width / COLS;
+
+        const TETROMINOES = {
+            'I': { shape: [[1, 1, 1, 1]], color: '#00ffff' },
+            'J': { shape: [[1, 0, 0], [1, 1, 1]], color: '#0000ff' },
+            'L': { shape: [[0, 0, 1], [1, 1, 1]], color: '#ff7f00' },
+            'O': { shape: [[1, 1], [1, 1]], color: '#ffff00' },
+            'S': { shape: [[0, 1, 1], [1, 1, 0]], color: '#00ff00' },
+            'T': { shape: [[0, 1, 0], [1, 1, 1]], color: '#800080' },
+            'Z': { shape: [[1, 1, 0], [0, 1, 1]], color: '#ff0000' }
+        };
+        const TETROMINO_KEYS = Object.keys(TETROMINOES);
+
+        let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+        let currentPiece;
+        let nextPiece;
+        let score = 0;
+        let level = 1;
+        let lines = 0;
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        let gameOver = false;
+        let particles = [];
+
+        // --- Audio Engine ---
+        let audioContext;
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.error('Web Audio API is not supported in this browser');
+        }
+
+        function playSound(type, freq, duration, vol = 0.3) {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        const sounds = {
+            move: () => playSound('square', 100, 0.05, 0.2),
+            rotate: () => playSound('sine', 300, 0.1, 0.2),
+            hardDrop: () => playSound('triangle', 50, 0.2, 0.4),
+            gameOver: () => {
+                playSound('sawtooth', 200, 0.5, 0.5);
+                setTimeout(() => playSound('sawtooth', 100, 0.8, 0.5), 200);
+            },
+            lineClear: (clearedLines) => {
+                const baseFreq = 440;
+                for (let i = 0; i < clearedLines; i++) {
+                    setTimeout(() => playSound('sine', baseFreq * Math.pow(1.2, i), 0.15, 0.4), i * 60);
+                }
+            }
+        };
+
+        // --- Particle Engine ---
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 20; i++) {
+                particles.push({
+                    x: x * BLOCK_SIZE + BLOCK_SIZE / 2,
+                    y: y * BLOCK_SIZE + BLOCK_SIZE / 2,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    size: Math.random() * 3 + 1,
+                    color: color,
+                    life: 60 // frames
+                });
+            }
+        }
+
+        function updateAndDrawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                p.vx *= 0.98;
+                p.vy *= 0.98;
+
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    context.globalAlpha = p.life / 60;
+                    context.fillStyle = p.color;
+                    context.shadowColor = p.color;
+                    context.shadowBlur = 10;
+                    context.beginPath();
+                    context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    context.fill();
+                    context.shadowBlur = 0;
+                    context.globalAlpha = 1.0;
+                }
+            }
+        }
+
+        // --- Drawing ---
+        function drawBlock(ctx, x, y, color, size = BLOCK_SIZE) {
+            const grad = ctx.createLinearGradient(x * size, y * size, (x + 1) * size, (y + 1) * size);
+            grad.addColorStop(0, color);
+            grad.addColorStop(1, '#000');
+
+            ctx.fillStyle = color;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15;
+            ctx.fillRect(x * size, y * size, size, size);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillRect(x * size + size * 0.1, y * size + size * 0.1, size * 0.8, size * 0.8);
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x * size, y * size, size, size);
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function drawGrid() {
+            context.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+            context.lineWidth = 1;
+            for (let i = 1; i < COLS; i++) {
+                context.beginPath();
+                context.moveTo(i * BLOCK_SIZE, 0);
+                context.lineTo(i * BLOCK_SIZE, canvas.height);
+                context.stroke();
+            }
+            for (let i = 1; i < ROWS; i++) {
+                context.beginPath();
+                context.moveTo(0, i * BLOCK_SIZE);
+                context.lineTo(canvas.width, i * BLOCK_SIZE);
+                context.stroke();
+            }
+        }
+
+        function draw() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = 'rgba(0,0,0,0.5)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawGrid();
+
+            // Draw placed blocks
+            grid.forEach((row, y) => {
+                row.forEach((color, x) => {
+                    if (color) {
+                        drawBlock(context, x, y, color);
+                    }
+                });
+            });
+
+            // Draw current piece
+            if (currentPiece) {
+                currentPiece.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            drawBlock(context, currentPiece.x + x, currentPiece.y + y, currentPiece.color);
+                        }
+                    });
+                });
+            }
+            
+            updateAndDrawParticles();
+
+            if (gameOver) {
+                context.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                context.fillRect(0, canvas.height / 2 - 50, canvas.width, 100);
+                context.font = 'bold 48px Orbitron';
+                context.textAlign = 'center';
+                context.fillStyle = '#ff0000';
+                context.shadowColor = '#ff0000';
+                context.shadowBlur = 20;
+                context.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 + 15);
+                context.shadowBlur = 0;
+            }
+        }
+        
+        function drawNextPiece() {
+            nextContext.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+            if (nextPiece) {
+                const shape = nextPiece.shape;
+                const color = nextPiece.color;
+                const blockSize = nextCanvas.width / 4;
+                const startX = (nextCanvas.width - shape[0].length * blockSize) / 2;
+                const startY = (nextCanvas.height - shape.length * blockSize) / 2;
+
+                shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            drawBlock(nextContext, startX / blockSize + x, startY / blockSize + y, color, blockSize);
+                        }
+                    });
+                });
+            }
+        }
+
+        // --- Game Logic ---
+        function newPiece() {
+            const type = TETROMINO_KEYS[Math.floor(Math.random() * TETROMINO_KEYS.length)];
+            return {
+                ...TETROMINOES[type],
+                x: Math.floor(COLS / 2) - Math.floor(TETROMINOES[type].shape[0].length / 2),
+                y: 0
+            };
+        }
+
+        function isValidMove(piece, newX, newY) {
+            for (let y = 0; y < piece.shape.length; y++) {
+                for (let x = 0; x < piece.shape[y].length; x++) {
+                    if (piece.shape[y][x]) {
+                        let gridX = newX + x;
+                        let gridY = newY + y;
+                        if (gridX < 0 || gridX >= COLS || gridY >= ROWS || (gridY >= 0 && grid[gridY][gridX])) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function rotate() {
+            const originalShape = currentPiece.shape;
+            const newShape = originalShape[0].map((_, colIndex) =>
+                originalShape.map(row => row[colIndex]).reverse()
+            );
+            
+            const originalX = currentPiece.x;
+            let newX = originalX;
+            let offset = 1;
+
+            const testPiece = { ...currentPiece, shape: newShape };
+
+            while (!isValidMove(testPiece, newX, currentPiece.y)) {
+                newX = originalX + offset;
+                if (isValidMove(testPiece, newX, currentPiece.y)) {
+                    break;
+                }
+                newX = originalX - offset;
+                if (isValidMove(testPiece, newX, currentPiece.y)) {
+                    break;
+                }
+                offset++;
+                if (offset > newShape[0].length) {
+                    return; // Cannot rotate
+                }
+            }
+            
+            currentPiece.shape = newShape;
+            currentPiece.x = newX;
+            sounds.rotate();
+        }
+
+        function lockPiece() {
+            currentPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        const gridX = currentPiece.x + x;
+                        const gridY = currentPiece.y + y;
+                        if (gridY >= 0) {
+                            grid[gridY][gridX] = currentPiece.color;
+                        }
+                    }
+                });
+            });
+            clearLines();
+            currentPiece = nextPiece;
+            nextPiece = newPiece();
+            drawNextPiece();
+            if (!isValidMove(currentPiece, currentPiece.x, currentPiece.y)) {
+                gameOver = true;
+                sounds.gameOver();
+            }
+        }
+
+        function clearLines() {
+            let clearedLines = 0;
+            for (let y = ROWS - 1; y >= 0; y--) {
+                if (grid[y].every(cell => cell !== null)) {
+                    clearedLines++;
+                    // Create explosion particles
+                    for (let x = 0; x < COLS; x++) {
+                        createParticles(x, y, grid[y][x]);
+                    }
+                    // Remove line
+                    grid.splice(y, 1);
+                    grid.unshift(Array(COLS).fill(null));
+                    y++; // Re-check the same row index
+                }
+            }
+            if (clearedLines > 0) {
+                sounds.lineClear(clearedLines);
+                lines += clearedLines;
+                score += [0, 100, 300, 500, 800][clearedLines] * level;
+                if (lines >= level * 10) {
+                    level++;
+                    dropInterval = Math.max(100, 1000 - (level - 1) * 50);
+                }
+                updateUI();
+            }
+        }
+
+        function pieceDrop() {
+            if (!isValidMove(currentPiece, currentPiece.x, currentPiece.y + 1)) {
+                lockPiece();
+            } else {
+                currentPiece.y++;
+            }
+            dropCounter = 0;
+        }
+
+        function updateUI() {
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            linesElement.textContent = lines;
+        }
+
+        function resetGame() {
+            grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+            score = 0;
+            level = 1;
+            lines = 0;
+            dropInterval = 1000;
+            gameOver = false;
+            currentPiece = newPiece();
+            nextPiece = newPiece();
+            updateUI();
+            drawNextPiece();
+            gameLoop();
+        }
+
+        // --- Controls ---
+        document.addEventListener('keydown', event => {
+            if (gameOver) {
+                if (event.code === 'Space') resetGame();
+                return;
+            }
+            switch (event.code) {
+                case 'ArrowLeft':
+                    if (isValidMove(currentPiece, currentPiece.x - 1, currentPiece.y)) {
+                        currentPiece.x--;
+                        sounds.move();
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (isValidMove(currentPiece, currentPiece.x + 1, currentPiece.y)) {
+                        currentPiece.x++;
+                        sounds.move();
+                    }
+                    break;
+                case 'ArrowDown':
+                    pieceDrop();
+                    score += 1; // Soft drop bonus
+                    updateUI();
+                    break;
+                case 'ArrowUp':
+                    rotate();
+                    break;
+                case 'Space':
+                    event.preventDefault();
+                    let hardDropY = currentPiece.y;
+                    while (isValidMove(currentPiece, currentPiece.x, hardDropY + 1)) {
+                        hardDropY++;
+                    }
+                    currentPiece.y = hardDropY;
+                    score += (hardDropY - currentPiece.y) * 2; // Hard drop bonus
+                    updateUI();
+                    lockPiece();
+                    sounds.hardDrop();
+                    break;
+            }
+        });
+
+        // --- Game Loop ---
+        function gameLoop(time = 0) {
+            if (gameOver) {
+                draw();
+                return;
+            }
+
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                pieceDrop();
+            }
+
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        resetGame();
+    });
+    </script>
+</body>
+</html>

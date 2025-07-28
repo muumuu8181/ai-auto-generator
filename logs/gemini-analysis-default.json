@@ -1,0 +1,132 @@
+{
+  "sessionId": "default",
+  "analysisHistory": [
+    {
+      "analysisId": "8477877f-5f24-4ed9-90c5-d3a135b7a3cd",
+      "phase": "initial",
+      "timestamp": "2025-07-27T02:45:18.979Z",
+      "context": {
+        "appPath": "./temp-deploy/app-0000001-34xzgi/",
+        "techStack": {
+          "frontend": [],
+          "backend": [],
+          "styling": [],
+          "testing": [],
+          "bundling": []
+        },
+        "fileStructure": {
+          "totalFiles": 0,
+          "totalSize": 0,
+          "fileTypes": {},
+          "directories": []
+        },
+        "dependencies": {
+          "runtime": {},
+          "development": {},
+          "total": 0
+        },
+        "codeComplexity": {
+          "totalFiles": 0,
+          "totalLines": 0,
+          "averageFileSize": 0,
+          "complexityScore": "low"
+        },
+        "timestamp": "2025-07-27T02:45:15.966Z"
+      },
+      "searchQueries": [
+        "web application accessibility WCAG guidelines 2025",
+        "modern web development code quality standards",
+        "progressive web app optimization techniques"
+      ],
+      "searchResults": [
+        {
+          "query": "web application accessibility WCAG guidelines 2025",
+          "timestamp": "2025-07-27T02:45:15.969Z",
+          "results": "Search results for: web application accessibility WCAG guidelines 2025",
+          "summary": "Summary of improvements found for: web application accessibility WCAG guidelines 2025"
+        },
+        {
+          "query": "modern web development code quality standards",
+          "timestamp": "2025-07-27T02:45:16.973Z",
+          "results": "Search results for: modern web development code quality standards",
+          "summary": "Summary of improvements found for: modern web development code quality standards"
+        },
+        {
+          "query": "progressive web app optimization techniques",
+          "timestamp": "2025-07-27T02:45:17.975Z",
+          "results": "Search results for: progressive web app optimization techniques",
+          "summary": "Summary of improvements found for: progressive web app optimization techniques"
+        }
+      ],
+      "improvements": {
+        "phase": "initial",
+        "timestamp": "2025-07-27T02:45:18.979Z",
+        "suggestions": [
+          {
+            "category": "Performance",
+            "priority": "high",
+            "suggestion": "Consider implementing code splitting for better load times",
+            "implementation": "Use dynamic imports for large components",
+            "searchBasis": "web application accessibility WCAG guidelines 2025"
+          },
+          {
+            "category": "Security",
+            "priority": "medium",
+            "suggestion": "Add Content Security Policy headers",
+            "implementation": "Implement CSP meta tags in HTML head",
+            "searchBasis": "modern web development code quality standards"
+          }
+        ],
+        "confidenceScore": 85,
+        "basedOnLogs": 0,
+        "techStackRelevance": {
+          "frontend": [],
+          "backend": [],
+          "styling": [],
+          "testing": [],
+          "bundling": []
+        }
+      },
+      "structuredLogs": {
+        "errors": [],
+        "warnings": [],
+        "activities": [],
+        "phaseResults": [
+          {
+            "phase": "environment_setup",
+            "status": "pending",
+            "duration": null,
+            "logs": 0
+          },
+          {
+            "phase": "project_selection",
+            "status": "pending",
+            "duration": null,
+            "logs": 0
+          },
+          {
+            "phase": "ai_generation",
+            "status": "pending",
+            "duration": null,
+            "logs": 0
+          },
+          {
+            "phase": "deployment",
+            "status": "pending",
+            "duration": null,
+            "logs": 0
+          },
+          {
+            "phase": "completion",
+            "status": "pending",
+            "duration": null,
+            "logs": 0
+          }
+        ],
+        "trustScore": 100,
+        "timestamp": "2025-07-27T02:45:15.967Z"
+      }
+    }
+  ],
+  "lastUpdated": "2025-07-27T02:45:18.979Z"
+}

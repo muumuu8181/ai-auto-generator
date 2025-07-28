@@ -1,0 +1,211 @@
+{
+  "timestamp": "2025-07-28T01:41:53.502Z",
+  "managerAI": {
+    "passed": 10,
+    "total": 10,
+    "score": 100,
+    "items": [
+      {
+        "id": "M001",
+        "name": "MANAGER_AI_PERSISTENT_TODO.md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M002",
+        "name": "VERSION.md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M003",
+        "name": "CONTINUOUS_IMPROVEMENT_SYSTEM[超重要L10].md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M004",
+        "name": "importance-checks.jsonにデータ存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M005",
+        "name": "ai-importance-checker.cjs実行可能",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M006",
+        "name": "ai-tool-execution-history.jsonにデータ存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M007",
+        "name": "ai-tool-execution-tracker.cjs存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M008",
+        "name": "COMMAND_TO_TOOL_CONVERSION_PLAN.md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M009",
+        "name": "AI_ROLE_SEPARATION_PRINCIPLES[重要L8].md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "M010",
+        "name": "SETUP[超重要L10].md存在",
+        "result": true,
+        "status": "✅"
+      }
+    ]
+  },
+  "workerAI": {
+    "passed": 8,
+    "total": 8,
+    "score": 100,
+    "items": [
+      {
+        "id": "W001",
+        "name": "temp-deployディレクトリ存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "W002",
+        "name": "temp-deploy内にアプリが1つ以上存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "W003",
+        "name": "temp-deploy内にアプリが5つ以上存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "W004",
+        "name": "temp-deploy内にアプリが10つ以上存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "W005",
+        "name": "WORKER_SETUP[超重要L10].md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "W006",
+        "name": "REFLECTION_MISTAKE_SAMPLES[超重要L10].md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "W007",
+        "name": "ai-work-history.jsonにデータ存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "W008",
+        "name": ".claude/commands/ディレクトリ存在",
+        "result": true,
+        "status": "✅"
+      }
+    ]
+  },
+  "inspectorAI": {
+    "passed": 6,
+    "total": 6,
+    "score": 100,
+    "items": [
+      {
+        "id": "I001",
+        "name": "inspector-visual-dashboard.html存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "I002",
+        "name": "inspector-auto-display.cjs存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "I003",
+        "name": "auto-browser-launcher.cjs存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "I004",
+        "name": "inspector-rule-sync.json存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "I005",
+        "name": "app-scan-results.json存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "I006",
+        "name": "INSPECTOR_SETUP[超重要L10].md存在",
+        "result": true,
+        "status": "✅"
+      }
+    ]
+  },
+  "overallSystem": {
+    "passed": 6,
+    "total": 6,
+    "score": 100,
+    "items": [
+      {
+        "id": "O001",
+        "name": "AI_MUTUAL_MONITORING_SYSTEM[超重要L10].md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "O002",
+        "name": "MANAGEMENT_AI_RULES[超重要L10].md存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "O003",
+        "name": "ai-performance-monitor.cjs存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "O004",
+        "name": "deterministic-ai-evaluator.cjs存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "O005",
+        "name": "logsディレクトリ存在",
+        "result": true,
+        "status": "✅"
+      },
+      {
+        "id": "O006",
+        "name": "coreディレクトリ存在",
+        "result": true,
+        "status": "✅"
+      }
+    ]
+  }
+}

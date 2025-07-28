@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .form-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group > * {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .records-section {
+            padding: 30px;
+        }
+
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .balance-summary {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .balance-item {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .income {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .expense {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .balance {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .records-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .amount-income {
+            color: #11998e;
+            font-weight: 600;
+        }
+
+        .amount-expense {
+            color: #ee5a52;
+            font-weight: 600;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .edit-btn {
+            background: #ffd93d;
+            color: #333;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .form-group > * {
+                min-width: auto;
+            }
+            
+            .balance-summary {
+                flex-direction: column;
+            }
+            
+            .records-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            table, th, td {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 お金管理システム</h1>
+            <p>収入・支出を管理して、家計を見える化しましょう</p>
+        </div>
+
+        <div class="form-section">
+            <form id="moneyForm">
+                <div class="form-group">
+                    <div>
+                        <label for="type">種別</label>
+                        <select id="type" required>
+                            <option value="">選択してください</option>
+                            <option value="income">収入</option>
+                            <option value="expense">支出</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="amount">金額</label>
+                        <input type="number" id="amount" min="0" step="1" placeholder="1000" required>
+                    </div>
+                    <div>
+                        <label for="category">カテゴリ</label>
+                        <input type="text" id="category" placeholder="食費、給与など" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="date">日付</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div>
+                        <label for="description">説明</label>
+                        <input type="text" id="description" placeholder="詳細説明（任意）">
+                    </div>
+                </div>
+                <button type="submit" class="btn" id="submitBtn" data-editing="false">
+                    💾 記録を追加
+                </button>
+                <button type="button" class="btn btn-info" id="cancelEdit" style="display: none;">
+                    ❌ 編集キャンセル
+                </button>
+            </form>
+        </div>
+
+        <div class="records-section">
+            <div class="records-header">
+                <h2>📊 収支状況</h2>
+                <div>
+                    <button class="btn btn-success" id="downloadBtn">
+                        📄 CSV ダウンロード
+                    </button>
+                </div>
+            </div>
+
+            <div class="balance-summary">
+                <div class="balance-item income">
+                    <div>総収入</div>
+                    <div id="totalIncome">¥0</div>
+                </div>
+                <div class="balance-item expense">
+                    <div>総支出</div>
+                    <div id="totalExpense">¥0</div>
+                </div>
+                <div class="balance-item balance">
+                    <div>残高</div>
+                    <div id="balance">¥0</div>
+                </div>
+            </div>
+
+            <div class="records-table">
+                <table id="recordsTable">
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>種別</th>
+                            <th>カテゴリ</th>
+                            <th>金額</th>
+                            <th>説明</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsBody">
+                        <tr class="empty-state">
+                            <td colspan="6">
+                                <div>
+                                    <div>📝</div>
+                                    <div>まだ記録がありません</div>
+                                    <div>上のフォームから収入・支出を追加してください</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MoneyManager {
+            constructor() {
+                this.records = JSON.parse(localStorage.getItem('moneyRecords')) || [];
+                this.editingId = null;
+                this.initializeForm();
+                this.bindEvents();
+                this.render();
+                this.setTodayDate();
+            }
+
+            initializeForm() {
+                this.form = document.getElementById('moneyForm');
+                this.typeSelect = document.getElementById('type');
+                this.amountInput = document.getElementById('amount');
+                this.categoryInput = document.getElementById('category');
+                this.dateInput = document.getElementById('date');
+                this.descriptionInput = document.getElementById('description');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.cancelBtn = document.getElementById('cancelEdit');
+                this.downloadBtn = document.getElementById('downloadBtn');
+            }
+
+            setTodayDate() {
+                const today = new Date().toISOString().split('T')[0];
+                this.dateInput.value = today;
+            }
+
+            bindEvents() {
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                this.cancelBtn.addEventListener('click', () => this.cancelEdit());
+                this.downloadBtn.addEventListener('click', () => this.downloadCSV());
+            }
+
+            handleSubmit(e) {
+                e.preventDefault();
+                
+                const record = {
+                    type: this.typeSelect.value,
+                    amount: parseInt(this.amountInput.value),
+                    category: this.categoryInput.value,
+                    date: this.dateInput.value,
+                    description: this.descriptionInput.value,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (this.editingId !== null) {
+                    // 編集モード
+                    const index = this.records.findIndex(r => r.id === this.editingId);
+                    if (index !== -1) {
+                        record.id = this.editingId;
+                        this.records[index] = record;
+                    }
+                    this.cancelEdit();
+                } else {
+                    // 新規追加モード
+                    record.id = Date.now();
+                    this.records.push(record);
+                }
+
+                this.saveToStorage();
+                this.render();
+                this.form.reset();
+                this.setTodayDate();
+            }
+
+            editRecord(id) {
+                const record = this.records.find(r => r.id === id);
+                if (!record) return;
+
+                this.editingId = id;
+                this.typeSelect.value = record.type;
+                this.amountInput.value = record.amount;
+                this.categoryInput.value = record.category;
+                this.dateInput.value = record.date;
+                this.descriptionInput.value = record.description;
+
+                this.submitBtn.textContent = '✏️ 記録を更新';
+                this.submitBtn.setAttribute('data-editing', 'true');
+                this.cancelBtn.style.display = 'inline-block';
+
+                // フォームまでスクロール
+                this.form.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            cancelEdit() {
+                this.editingId = null;
+                this.submitBtn.textContent = '💾 記録を追加';
+                this.submitBtn.setAttribute('data-editing', 'false');
+                this.cancelBtn.style.display = 'none';
+                this.form.reset();
+                this.setTodayDate();
+            }
+
+            deleteRecord(id) {
+                if (confirm('この記録を削除しますか？')) {
+                    this.records = this.records.filter(r => r.id !== id);
+                    this.saveToStorage();
+                    this.render();
+                }
+            }
+
+            saveToStorage() {
+                localStorage.setItem('moneyRecords', JSON.stringify(this.records));
+            }
+
+            render() {
+                this.renderSummary();
+                this.renderTable();
+            }
+
+            renderSummary() {
+                const totalIncome = this.records
+                    .filter(r => r.type === 'income')
+                    .reduce((sum, r) => sum + r.amount, 0);
+
+                const totalExpense = this.records
+                    .filter(r => r.type === 'expense')
+                    .reduce((sum, r) => sum + r.amount, 0);
+
+                const balance = totalIncome - totalExpense;
+
+                document.getElementById('totalIncome').textContent = this.formatCurrency(totalIncome);
+                document.getElementById('totalExpense').textContent = this.formatCurrency(totalExpense);
+                document.getElementById('balance').textContent = this.formatCurrency(balance);
+            }
+
+            renderTable() {
+                const tbody = document.getElementById('recordsBody');
+                
+                if (this.records.length === 0) {
+                    tbody.innerHTML = `
+                        <tr class="empty-state">
+                            <td colspan="6">
+                                <div>
+                                    <div>📝</div>
+                                    <div>まだ記録がありません</div>
+                                    <div>上のフォームから収入・支出を追加してください</div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // 日付の新しい順にソート
+                const sortedRecords = [...this.records].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                tbody.innerHTML = sortedRecords.map(record => `
+                    <tr>
+                        <td>${this.formatDate(record.date)}</td>
+                        <td><span class="badge ${record.type}">${record.type === 'income' ? '収入' : '支出'}</span></td>
+                        <td>${record.category}</td>
+                        <td class="amount-${record.type}">${this.formatCurrency(record.amount)}</td>
+                        <td>${record.description || '-'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="app.editRecord(${record.id})">編集</button>
+                            <button class="delete-btn" onclick="app.deleteRecord(${record.id})">削除</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('ja-JP', {
+                    style: 'currency',
+                    currency: 'JPY'
+                }).format(amount);
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ja-JP');
+            }
+
+            downloadCSV() {
+                if (this.records.length === 0) {
+                    alert('ダウンロードするデータがありません。');
+                    return;
+                }
+
+                const headers = ['日付', '種別', 'カテゴリ', '金額', '説明'];
+                const csvContent = [
+                    headers.join(','),
+                    ...this.records.map(record => [
+                        record.date,
+                        record.type === 'income' ? '収入' : '支出',
+                        `"${record.category}"`,
+                        record.amount,
+                        `"${record.description || ''}"`
+                    ].join(','))
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `money_records_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // アプリケーション初期化
+        const app = new MoneyManager();
+    </script>
+</body>
+</html>

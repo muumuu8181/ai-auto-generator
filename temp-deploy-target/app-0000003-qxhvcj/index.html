@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ペイントシステム</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="paint-app">
+        <header class="toolbar">
+            <div class="toolbar-section">
+                <h1>🎨 ペイントシステム</h1>
+            </div>
+            
+            <div class="toolbar-section">
+                <div class="tool-group">
+                    <label>ブラシサイズ:</label>
+                    <input type="range" id="brushSize" min="1" max="50" value="5">
+                    <span id="brushSizeValue">5</span>px
+                </div>
+                
+                <div class="tool-group">
+                    <label>不透明度:</label>
+                    <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="1">
+                    <span id="opacityValue">100</span>%
+                </div>
+            </div>
+            
+            <div class="toolbar-section">
+                <div class="color-picker-container">
+                    <input type="color" id="colorPicker" value="#000000">
+                    <div class="preset-colors">
+                        <div class="color-swatch" data-color="#ff0000" style="background: #ff0000;"></div>
+                        <div class="color-swatch" data-color="#00ff00" style="background: #00ff00;"></div>
+                        <div class="color-swatch" data-color="#0000ff" style="background: #0000ff;"></div>
+                        <div class="color-swatch" data-color="#ffff00" style="background: #ffff00;"></div>
+                        <div class="color-swatch" data-color="#ff00ff" style="background: #ff00ff;"></div>
+                        <div class="color-swatch" data-color="#00ffff" style="background: #00ffff;"></div>
+                        <div class="color-swatch" data-color="#ffffff" style="background: #ffffff; border: 1px solid #ccc;"></div>
+                        <div class="color-swatch" data-color="#000000" style="background: #000000;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="toolbar-section">
+                <div class="tool-group">
+                    <label>ブラシタイプ:</label>
+                    <select id="brushType">
+                        <option value="round">丸ブラシ</option>
+                        <option value="square">四角ブラシ</option>
+                        <option value="spray">スプレー</option>
+                        <option value="texture">テクスチャ</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="toolbar-section">
+                <button id="clearCanvas" class="btn danger">クリア</button>
+                <button id="undoBtn" class="btn">元に戻す</button>
+                <button id="redoBtn" class="btn">やり直し</button>
+            </div>
+            
+            <div class="toolbar-section">
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                <button id="uploadBtn" class="btn">画像アップロード</button>
+                <button id="saveBtn" class="btn success">保存</button>
+                <button id="downloadBtn" class="btn primary">ダウンロード</button>
+            </div>
+        </header>
+        
+        <main class="canvas-container">
+            <canvas id="paintCanvas" width="1200" height="800"></canvas>
+            <div class="canvas-info">
+                <span id="mousePosition">X: 0, Y: 0</span>
+                <span id="canvasSize">1200 x 800</span>
+            </div>
+        </main>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow Tiles - タップで光るパズル</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="background-animation"></div>
+        
+        <header class="game-header">
+            <h1 class="game-title">
+                <span class="title-main">Glow Tiles</span>
+                <span class="title-sub">タップで光るパズル</span>
+            </h1>
+            <div class="level-indicator">
+                <span class="level-text">Level</span>
+                <span class="level-number" id="currentLevel">1</span>
+            </div>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                <span class="info-label">Moves</span>
+                <span class="info-value" id="moveCount">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Target</span>
+                <span class="info-value" id="targetMoves">5</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Score</span>
+                <span class="info-value" id="score">0</span>
+            </div>
+        </div>
+
+        <div class="game-container">
+            <div class="game-board" id="gameBoard"></div>
+            
+            <div class="victory-effect" id="victoryEffect">
+                <div class="victory-content">
+                    <h2 class="victory-title">Perfect!</h2>
+                    <div class="victory-stars">
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                    </div>
+                    <button class="next-level-btn" id="nextLevelBtn">Next Level</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button class="control-btn" id="resetBtn">
+                <span class="btn-icon">↻</span>
+                <span class="btn-text">Reset</span>
+            </button>
+            <button class="control-btn" id="hintBtn">
+                <span class="btn-icon">💡</span>
+                <span class="btn-text">Hint</span>
+            </button>
+            <button class="control-btn sound-btn" id="soundBtn">
+                <span class="btn-icon">🔊</span>
+            </button>
+        </div>
+
+        <div class="start-screen" id="startScreen">
+            <div class="start-content">
+                <h1 class="start-title">Glow Tiles</h1>
+                <p class="start-description">
+                    タップして全てのタイルを光らせよう！<br>
+                    タップすると周囲のタイルの状態が変わります
+                </p>
+                <button class="start-btn" id="startBtn">
+                    <span>Start Game</span>
+                </button>
+                <div class="tutorial">
+                    <h3>遊び方</h3>
+                    <ol>
+                        <li>タイルをタップすると、そのタイルと隣接するタイルの状態が変わります</li>
+                        <li>全てのタイルを光らせるとクリア！</li>
+                        <li>なるべく少ない手数でクリアを目指そう</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="particleCanvas" class="particle-canvas"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

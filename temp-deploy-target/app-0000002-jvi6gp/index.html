@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧮 格好良い電卓</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .calculator-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .calculator-header h1 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .calculator-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            min-height: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: scanline 3s infinite;
+        }
+
+        @keyframes scanline {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .current-calculation {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            min-height: 20px;
+            text-align: right;
+        }
+
+        .result {
+            color: #00ff88;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: right;
+            min-height: 50px;
+            line-height: 1;
+            word-break: break-all;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            height: 70px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn.operator {
+            background: linear-gradient(145deg, #ff6b6b, #ff5252);
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn.operator:hover {
+            background: linear-gradient(145deg, #ff5252, #f44336);
+        }
+
+        .btn.equals {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            grid-column: span 2;
+        }
+
+        .btn.equals:hover {
+            background: linear-gradient(145deg, #45a049, #388e3c);
+        }
+
+        .btn.clear {
+            background: linear-gradient(145deg, #ff9800, #f57c00);
+        }
+
+        .btn.clear:hover {
+            background: linear-gradient(145deg, #f57c00, #ef6c00);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:active::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .history-panel {
+            margin-top: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-header {
+            color: white;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-history {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 10px;
+            padding: 5px 12px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #00ff88;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .history-calculation {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .history-result {
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .history-empty {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* スクロールバーのスタイル */
+        .history-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* レスポンシブデザイン */
+        @media (max-width: 480px) {
+            .calculator-container {
+                padding: 20px;
+                margin: 10px;
+                border-radius: 20px;
+            }
+
+            .calculator-header h1 {
+                font-size: 1.5em;
+            }
+
+            .result {
+                font-size: 2em;
+            }
+
+            .btn {
+                height: 60px;
+                font-size: 1.1em;
+            }
+
+            .button-grid {
+                gap: 10px;
+            }
+
+            .display {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .result {
+                font-size: 1.8em;
+            }
+
+            .btn {
+                height: 50px;
+                font-size: 1em;
+            }
+        }
+
+        /* アニメーション効果 */
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(0, 255, 136, 0.8), 0 0 30px rgba(0, 255, 136, 0.6); }
+        }
+
+        .result.calculating {
+            animation: glow 1s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator-header">
+            <h1>🧮 格好良い電卓</h1>
+            <p>スタイリッシュ & 高機能計算機</p>
+        </div>
+
+        <div class="display">
+            <div class="current-calculation" id="currentCalculation"></div>
+            <div class="result" id="result">0</div>
+        </div>
+
+        <div class="button-grid">
+            <button class="btn clear" onclick="clearAll()">AC</button>
+            <button class="btn clear" onclick="clearEntry()">CE</button>
+            <button class="btn operator" onclick="appendOperator('/')" data-value="/">÷</button>
+            <button class="btn operator" onclick="appendOperator('*')" data-value="*">×</button>
+
+            <button class="btn" onclick="appendNumber('7')">7</button>
+            <button class="btn" onclick="appendNumber('8')">8</button>
+            <button class="btn" onclick="appendNumber('9')">9</button>
+            <button class="btn operator" onclick="appendOperator('-')" data-value="-">−</button>
+
+            <button class="btn" onclick="appendNumber('4')">4</button>
+            <button class="btn" onclick="appendNumber('5')">5</button>
+            <button class="btn" onclick="appendNumber('6')">6</button>
+            <button class="btn operator" onclick="appendOperator('+')" data-value="+">+</button>
+
+            <button class="btn" onclick="appendNumber('1')">1</button>
+            <button class="btn" onclick="appendNumber('2')">2</button>
+            <button class="btn" onclick="appendNumber('3')">3</button>
+            <button class="btn equals" onclick="calculate()" style="grid-row: span 2;">=</button>
+
+            <button class="btn" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+            <button class="btn" onclick="appendDecimal()">.</button>
+        </div>
+
+        <div class="history-panel">
+            <div class="history-header">
+                <span>📊 計算履歴</span>
+                <button class="clear-history" onclick="clearHistory()">履歴削除</button>
+            </div>
+            <div id="historyList">
+                <div class="history-empty">まだ計算履歴がありません</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '';
+        let operator = '';
+        let previousInput = '';
+        let shouldResetScreen = false;
+        let history = JSON.parse(localStorage.getItem('calculatorHistory')) || [];
+
+        const resultDisplay = document.getElementById('result');
+        const currentCalculationDisplay = document.getElementById('currentCalculation');
+        const historyList = document.getElementById('historyList');
+
+        // 初期表示
+        updateHistoryDisplay();
+
+        function appendNumber(number) {
+            if (shouldResetScreen) {
+                currentInput = '';
+                shouldResetScreen = false;
+            }
+
+            if (currentInput === '0' && number !== '.') {
+                currentInput = number;
+            } else {
+                currentInput += number;
+            }
+
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (currentInput === '' && op === '-') {
+                currentInput = '-';
+                updateDisplay();
+                return;
+            }
+
+            if (currentInput === '') return;
+
+            if (previousInput !== '' && operator !== '' && !shouldResetScreen) {
+                calculate();
+            }
+
+            operator = op;
+            previousInput = currentInput;
+            currentInput = '';
+            shouldResetScreen = false;
+
+            updateCurrentCalculation();
+        }
+
+        function appendDecimal() {
+            if (shouldResetScreen) {
+                currentInput = '0';
+                shouldResetScreen = false;
+            }
+
+            if (currentInput === '') {
+                currentInput = '0';
+            }
+
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+
+            updateDisplay();
+        }
+
+        function calculate() {
+            if (previousInput === '' || currentInput === '' || operator === '') {
+                return;
+            }
+
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            let result;
+            let calculationString = `${previousInput} ${getOperatorSymbol(operator)} ${currentInput}`;
+
+            // 計算実行時のグロー効果
+            resultDisplay.classList.add('calculating');
+            setTimeout(() => {
+                resultDisplay.classList.remove('calculating');
+            }, 1000);
+
+            try {
+                switch (operator) {
+                    case '+':
+                        result = prev + current;
+                        break;
+                    case '-':
+                        result = prev - current;
+                        break;
+                    case '*':
+                        result = prev * current;
+                        break;
+                    case '/':
+                        if (current === 0) {
+                            throw new Error('0で割ることはできません');
+                        }
+                        result = prev / current;
+                        break;
+                    default:
+                        return;
+                }
+
+                // 結果を履歴に追加
+                const historyItem = {
+                    calculation: calculationString,
+                    result: formatNumber(result),
+                    timestamp: new Date().toLocaleString('ja-JP')
+                };
+
+                history.unshift(historyItem);
+                
+                // 履歴は最大20件まで
+                if (history.length > 20) {
+                    history = history.slice(0, 20);
+                }
+
+                localStorage.setItem('calculatorHistory', JSON.stringify(history));
+                updateHistoryDisplay();
+
+                // 結果を表示
+                currentInput = result.toString();
+                operator = '';
+                previousInput = '';
+                shouldResetScreen = true;
+
+                updateDisplay();
+                updateCurrentCalculation();
+
+            } catch (error) {
+                resultDisplay.textContent = 'エラー';
+                currentCalculationDisplay.textContent = error.message;
+                setTimeout(() => {
+                    clearAll();
+                }, 2000);
+            }
+        }
+
+        function clearAll() {
+            currentInput = '';
+            operator = '';
+            previousInput = '';
+            shouldResetScreen = false;
+            resultDisplay.textContent = '0';
+            currentCalculationDisplay.textContent = '';
+        }
+
+        function clearEntry() {
+            currentInput = '';
+            updateDisplay();
+        }
+
+        function clearHistory() {
+            if (confirm('計算履歴を削除しますか？')) {
+                history = [];
+                localStorage.removeItem('calculatorHistory');
+                updateHistoryDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            const display = currentInput === '' ? '0' : currentInput;
+            resultDisplay.textContent = formatNumber(parseFloat(display));
+        }
+
+        function updateCurrentCalculation() {
+            if (previousInput !== '' && operator !== '') {
+                currentCalculationDisplay.textContent = `${previousInput} ${getOperatorSymbol(operator)}`;
+            } else {
+                currentCalculationDisplay.textContent = '';
+            }
+        }
+
+        function updateHistoryDisplay() {
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="history-empty">まだ計算履歴がありません</div>';
+                return;
+            }
+
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item" onclick="useHistoryResult('${item.result}')">
+                    <div class="history-calculation">${item.calculation}</div>
+                    <div class="history-result">= ${item.result}</div>
+                </div>
+            `).join('');
+        }
+
+        function useHistoryResult(result) {
+            currentInput = result.replace(/,/g, '');
+            operator = '';
+            previousInput = '';
+            shouldResetScreen = true;
+            updateDisplay();
+            updateCurrentCalculation();
+        }
+
+        function formatNumber(num) {
+            if (isNaN(num)) return '0';
+            
+            // 整数の場合は小数点以下を表示しない
+            if (Number.isInteger(num)) {
+                return num.toLocaleString('ja-JP');
+            }
+            
+            // 小数の場合は最大10桁まで表示
+            const formatted = parseFloat(num.toFixed(10));
+            return formatted.toLocaleString('ja-JP');
+        }
+
+        function getOperatorSymbol(op) {
+            switch (op) {
+                case '+': return '+';
+                case '-': return '−';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return op;
+            }
+        }
+
+        // キーボードサポート
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9') {
+                appendNumber(key);
+            } else if (key === '.') {
+                appendDecimal();
+            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                appendOperator(key);
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                if (currentInput.length > 0) {
+                    currentInput = currentInput.slice(0, -1);
+                    updateDisplay();
+                }
+            }
+        });
+
+        // ボタンクリック時のサウンド効果（オプション）
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // サウンド効果をここに追加可能
+                // 例: new Audio('click.mp3').play();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --bg-display: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --btn-bg: #333333;
+    --btn-hover: #444444;
+    --btn-active: #555555;
+    --operator-bg: #ff9f0a;
+    --operator-hover: #ffb143;
+    --equals-bg: #4cd964;
+    --equals-hover: #5de574;
+    --function-bg: #505050;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --glow: #ff9f0a;
+}
+
+[data-theme="light"] {
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-display: #e8e8e8;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --btn-bg: #ffffff;
+    --btn-hover: #f0f0f0;
+    --btn-active: #e0e0e0;
+    --operator-bg: #007aff;
+    --operator-hover: #3395ff;
+    --equals-bg: #34c759;
+    --equals-hover: #4cd964;
+    --function-bg: #e0e0e0;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --glow: #007aff;
+}
+
+[data-theme="neon"] {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a0a2e;
+    --bg-display: #16213e;
+    --text-primary: #ffffff;
+    --text-secondary: #b8b8ff;
+    --btn-bg: #1a1a3e;
+    --btn-hover: #2a2a4e;
+    --btn-active: #3a3a5e;
+    --operator-bg: #e94560;
+    --operator-hover: #ff4666;
+    --equals-bg: #0f4c75;
+    --equals-hover: #1e5f8e;
+    --function-bg: #533483;
+    --shadow: rgba(233, 69, 96, 0.3);
+    --glow: #e94560;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.calculator-container {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.calculator {
+    background: var(--bg-secondary);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 20px 60px var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.display-container {
+    background: var(--bg-display);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.history {
+    font-size: 14px;
+    color: var(--text-secondary);
+    min-height: 20px;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.display {
+    font-size: 48px;
+    font-weight: 300;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: 2px;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.btn {
+    background: var(--btn-bg);
+    border: none;
+    border-radius: 20px;
+    font-size: 24px;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+}
+
+.btn:hover {
+    background: var(--btn-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn:hover::before {
+    width: 100px;
+    height: 100px;
+}
+
+.btn:active {
+    background: var(--btn-active);
+    transform: translateY(0);
+}
+
+.btn.operator {
+    background: var(--operator-bg);
+    color: white;
+    font-weight: 600;
+}
+
+.btn.operator:hover {
+    background: var(--operator-hover);
+}
+
+.btn.function {
+    background: var(--function-bg);
+    font-weight: 600;
+}
+
+.btn.equals {
+    background: var(--equals-bg);
+    color: white;
+    font-weight: 700;
+    grid-column: span 2;
+}
+
+.btn.equals:hover {
+    background: var(--equals-hover);
+}
+
+.btn.zero {
+    grid-column: span 2;
+}
+
+.btn.clear {
+    color: #ff3b30;
+}
+
+/* 計算履歴パネル */
+.history-panel {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 25px;
+    width: 300px;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px var(--shadow);
+}
+
+.history-panel h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.history-item {
+    background: var(--bg-display);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.history-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.history-expression {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.history-result {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 5px;
+}
+
+.empty-history {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.clear-history {
+    background: var(--function-bg);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clear-history:hover {
+    background: var(--btn-hover);
+}
+
+/* テーマスイッチャー */
+.theme-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.theme-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px var(--shadow);
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--shadow);
+}
+
+/* アニメーション */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.btn.animate {
+    animation: pulse 0.3s ease;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .calculator-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .calculator {
+        padding: 20px;
+    }
+    
+    .btn {
+        padding: 20px;
+        font-size: 20px;
+    }
+    
+    .display {
+        font-size: 36px;
+    }
+    
+    .history-panel {
+        width: 100%;
+        max-width: 400px;
+        max-height: 300px;
+    }
+    
+    .theme-switcher {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .theme-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
+
+/* スクロールバーカスタマイズ */
+.history-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: var(--bg-display);
+    border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: var(--function-bg);
+    border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+    background: var(--btn-hover);
+}
+
+/* Neonテーマ専用効果 */
+[data-theme="neon"] .btn {
+    text-shadow: 0 0 10px currentColor;
+}
+
+[data-theme="neon"] .btn:hover {
+    box-shadow: 0 0 20px var(--glow), inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="neon"] .display {
+    text-shadow: 0 0 20px var(--glow);
+}
+
+[data-theme="neon"] .calculator {
+    box-shadow: 0 0 40px var(--shadow), 0 20px 60px var(--shadow);
+}

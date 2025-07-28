@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム v1.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-section {
+            background: #f7f9fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .records-section {
+            margin-top: 30px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .summary-card p {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        th {
+            background: #f7f9fc;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e0e6ed;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        tr:hover {
+            background: #f7f9fc;
+        }
+
+        .income {
+            color: #48bb78;
+            font-weight: 600;
+        }
+
+        .expense {
+            color: #f56565;
+            font-weight: 600;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .edit-btn {
+            background: #4299e1;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f56565;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .summary-card p {
+                font-size: 24px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 お金管理システム</h1>
+        
+        <div class="input-section">
+            <h2>収支を記録</h2>
+            <form id="moneyForm">
+                <input type="hidden" id="editId" value="">
+                
+                <div class="form-group">
+                    <label for="type">種類</label>
+                    <select id="type" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">金額</label>
+                    <input type="number" id="amount" placeholder="1000" required min="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">カテゴリー</label>
+                    <input type="text" id="category" placeholder="食費、給料など" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">日付</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="memo">メモ（任意）</label>
+                    <input type="text" id="memo" placeholder="詳細など">
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">記録する</button>
+                    <button type="button" class="btn-secondary" onclick="exportCSV()">CSVダウンロード</button>
+                    <button type="button" class="btn-danger" onclick="clearForm()">クリア</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="records-section">
+            <h2>収支サマリー</h2>
+            <div class="summary">
+                <div class="summary-card">
+                    <h3>総収入</h3>
+                    <p id="totalIncome">¥0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>総支出</h3>
+                    <p id="totalExpense">¥0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>残高</h3>
+                    <p id="balance">¥0</p>
+                </div>
+            </div>
+            
+            <h2>記録一覧</h2>
+            <div id="recordsContainer">
+                <p class="empty-state">まだ記録がありません</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // データ管理
+        let records = JSON.parse(localStorage.getItem('moneyRecords') || '[]');
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            renderRecords();
+            updateSummary();
+        });
+
+        // フォーム送信
+        document.getElementById('moneyForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const editId = document.getElementById('editId').value;
+            const formData = {
+                id: editId || Date.now().toString(),
+                type: document.getElementById('type').value,
+                amount: parseInt(document.getElementById('amount').value),
+                category: document.getElementById('category').value,
+                date: document.getElementById('date').value,
+                memo: document.getElementById('memo').value,
+                createdAt: editId ? (records.find(r => r.id === editId)?.createdAt || new Date().toISOString()) : new Date().toISOString()
+            };
+
+            if (editId) {
+                // 編集モード
+                records = records.map(record => 
+                    record.id === editId ? formData : record
+                );
+            } else {
+                // 新規追加
+                records.push(formData);
+            }
+
+            saveRecords();
+            clearForm();
+            renderRecords();
+            updateSummary();
+        });
+
+        // レコード表示
+        function renderRecords() {
+            const container = document.getElementById('recordsContainer');
+            
+            if (records.length === 0) {
+                container.innerHTML = '<p class="empty-state">まだ記録がありません</p>';
+                return;
+            }
+
+            // 日付でソート（新しい順）
+            const sortedRecords = [...records].sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            );
+
+            const table = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>種類</th>
+                            <th>カテゴリー</th>
+                            <th>金額</th>
+                            <th>メモ</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedRecords.map(record => `
+                            <tr>
+                                <td>${formatDate(record.date)}</td>
+                                <td class="${record.type}">${record.type === 'income' ? '収入' : '支出'}</td>
+                                <td>${record.category}</td>
+                                <td class="${record.type}">¥${record.amount.toLocaleString()}</td>
+                                <td>${record.memo || '-'}</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRecord('${record.id}')">編集</button>
+                                    <button class="delete-btn" onclick="deleteRecord('${record.id}')">削除</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = table;
+        }
+
+        // サマリー更新
+        function updateSummary() {
+            const totalIncome = records
+                .filter(r => r.type === 'income')
+                .reduce((sum, r) => sum + r.amount, 0);
+            
+            const totalExpense = records
+                .filter(r => r.type === 'expense')
+                .reduce((sum, r) => sum + r.amount, 0);
+            
+            const balance = totalIncome - totalExpense;
+
+            document.getElementById('totalIncome').textContent = `¥${totalIncome.toLocaleString()}`;
+            document.getElementById('totalExpense').textContent = `¥${totalExpense.toLocaleString()}`;
+            document.getElementById('balance').textContent = `¥${balance.toLocaleString()}`;
+        }
+
+        // 編集
+        function editRecord(id) {
+            const record = records.find(r => r.id === id);
+            if (!record) return;
+
+            document.getElementById('editId').value = record.id;
+            document.getElementById('type').value = record.type;
+            document.getElementById('amount').value = record.amount;
+            document.getElementById('category').value = record.category;
+            document.getElementById('date').value = record.date;
+            document.getElementById('memo').value = record.memo;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 削除
+        function deleteRecord(id) {
+            if (confirm('この記録を削除しますか？')) {
+                records = records.filter(r => r.id !== id);
+                saveRecords();
+                renderRecords();
+                updateSummary();
+            }
+        }
+
+        // CSV出力
+        function exportCSV() {
+            if (records.length === 0) {
+                alert('エクスポートするデータがありません');
+                return;
+            }
+
+            const headers = ['日付', '種類', 'カテゴリー', '金額', 'メモ', '作成日時'];
+            const rows = records.map(r => [
+                r.date,
+                r.type === 'income' ? '収入' : '支出',
+                r.category,
+                r.amount,
+                r.memo || '',
+                r.createdAt
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `お金管理_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // フォームクリア
+        function clearForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('moneyForm').reset();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        }
+
+        // データ保存
+        function saveRecords() {
+            localStorage.setItem('moneyRecords', JSON.stringify(records));
+        }
+
+        // 日付フォーマット
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>

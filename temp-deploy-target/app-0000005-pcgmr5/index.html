@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Connect - タップパズル</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🫧 Bubble Connect</h1>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span class="stat-label">スコア</span>
+                    <span id="score" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">レベル</span>
+                    <span id="level" class="stat-value">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">残り手数</span>
+                    <span id="moves" class="stat-value">10</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-board" id="gameBoard">
+            <!-- ゲームボードはJavaScriptで動的生成 -->
+        </div>
+
+        <div class="game-controls">
+            <button id="newGameBtn" class="control-btn primary">新しいゲーム</button>
+            <button id="hintBtn" class="control-btn">ヒント</button>
+            <button id="pauseBtn" class="control-btn">ポーズ</button>
+        </div>
+
+        <div class="game-info">
+            <div class="objective">
+                <h3>🎯 目標</h3>
+                <p>同じ色のバブルを3つ以上繋げてタップして消そう！</p>
+                <p>より多くのバブルを同時に消すと高得点！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ゲームオーバーモーダル -->
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2>🎮 ゲーム終了</h2>
+            <div class="final-stats">
+                <div class="final-stat">
+                    <span class="final-label">最終スコア</span>
+                    <span id="finalScore" class="final-value">0</span>
+                </div>
+                <div class="final-stat">
+                    <span class="final-label">到達レベル</span>
+                    <span id="finalLevel" class="final-value">1</span>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="restartBtn" class="modal-btn primary">もう一度プレイ</button>
+                <button id="closeModalBtn" class="modal-btn">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- レベルアップモーダル -->
+    <div id="levelUpModal" class="modal">
+        <div class="modal-content level-up">
+            <h2>🎉 レベルアップ！</h2>
+            <div class="level-display">
+                <span class="new-level" id="newLevelDisplay">2</span>
+            </div>
+            <p class="level-message">おめでとうございます！</p>
+            <button id="continueLevelBtn" class="modal-btn primary">続ける</button>
+        </div>
+    </div>
+
+    <!-- ヒントモーダル -->
+    <div id="hintModal" class="modal">
+        <div class="modal-content hint">
+            <h2>💡 ヒント</h2>
+            <div class="hint-content">
+                <p>✨ <strong>基本操作:</strong> 同じ色のバブルが3つ以上繋がっている箇所をタップ</p>
+                <p>🎯 <strong>高得点のコツ:</strong> より多くのバブルを同時に消すと得点倍率UP</p>
+                <p>🔥 <strong>コンボ:</strong> 連続して消すとコンボボーナス</p>
+                <p>⭐ <strong>戦略:</strong> 手数を考えて、大きな塊を作ってから消そう</p>
+            </div>
+            <button id="closeHintBtn" class="modal-btn primary">OK</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

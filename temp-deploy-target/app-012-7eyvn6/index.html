@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超絶格好良い隕石落下アニメーション生成</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 30%, #0f0f23 70%, #000000 100%);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            color: #ffffff;
+        }
+
+        .stars-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .control-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: block;
+            color: #00ffff;
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .control-input {
+            width: 100%;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            outline: none;
+        }
+
+        .control-input:focus {
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .control-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #ff4500, #ff6600);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .control-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.8);
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-button {
+            padding: 8px;
+            background: linear-gradient(45deg, #4169e1, #6495ed);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(65, 105, 225, 0.8);
+        }
+
+        .stats-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff4500;
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.3);
+            min-width: 200px;
+        }
+
+        .stats-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff4500;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 0 0 10px #ff4500;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .stat-label {
+            color: #ffffff;
+        }
+
+        .stat-value {
+            color: #00ffff;
+            font-weight: 700;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .explosion-effect {
+            position: absolute;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .impact-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,165,0,0.4) 30%, transparent 70%);
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            animation: flashImpact 0.3s ease-out;
+        }
+
+        @keyframes flashImpact {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+
+        .shockwave {
+            position: absolute;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 60;
+            animation: shockwaveExpand 1s ease-out forwards;
+        }
+
+        @keyframes shockwaveExpand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                border-width: 5px;
+            }
+            100% {
+                width: 800px;
+                height: 800px;
+                opacity: 0;
+                border-width: 1px;
+                transform: translate(-400px, -400px);
+            }
+        }
+
+        .debris {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff4500;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 70;
+            box-shadow: 0 0 6px #ff4500;
+        }
+
+        .sound-visualizer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+
+        .sound-bar {
+            width: 8px;
+            height: 100%;
+            background: linear-gradient(to top, #ff4500, #00ffff);
+            border-radius: 2px;
+            transform-origin: bottom;
+            animation: soundBounce 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes soundBounce {
+            0% { transform: scaleY(0.2); }
+            100% { transform: scaleY(1); }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel, .stats-panel {
+                position: relative;
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+
+            .control-panel {
+                order: 1;
+            }
+
+            .stats-panel {
+                order: 2;
+            }
+
+            body {
+                flex-direction: column;
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            canvas {
+                position: relative;
+                order: 3;
+                width: 100% !important;
+                height: 400px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-layer" id="starsLayer"></div>
+    
+    <div class="control-panel">
+        <div class="control-title">🌠 METEOR CONTROL</div>
+        
+        <div class="control-group">
+            <label class="control-label">隕石数 (1-10)</label>
+            <input type="range" class="control-input" id="meteorCount" min="1" max="10" value="3">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">速度 (1-10)</label>
+            <input type="range" class="control-input" id="meteorSpeed" min="1" max="10" value="5">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">サイズ (1-10)</label>
+            <input type="range" class="control-input" id="meteorSize" min="1" max="10" value="5">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">エフェクト強度 (1-10)</label>
+            <input type="range" class="control-input" id="effectIntensity" min="1" max="10" value="7">
+        </div>
+        
+        <button class="control-button" onclick="launchMeteors()">🚀 隕石発射</button>
+        <button class="control-button" onclick="clearCanvas()">🧹 クリア</button>
+        
+        <div class="preset-buttons">
+            <button class="preset-button" onclick="loadPreset('gentle')">優雅</button>
+            <button class="preset-button" onclick="loadPreset('intense')">激烈</button>
+            <button class="preset-button" onclick="loadPreset('chaos')">混沌</button>
+            <button class="preset-button" onclick="loadPreset('apocalypse')">終末</button>
+        </div>
+    </div>
+
+    <div class="stats-panel">
+        <div class="stats-title">📊 STATS</div>
+        <div class="stat-item">
+            <span class="stat-label">落下中:</span>
+            <span class="stat-value" id="activeMeteors">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">着弾数:</span>
+            <span class="stat-value" id="impactCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">総ダメージ:</span>
+            <span class="stat-value" id="totalDamage">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">FPS:</span>
+            <span class="stat-value" id="fpsCounter">60</span>
+        </div>
+    </div>
+
+    <canvas id="meteorCanvas"></canvas>
+
+    <div class="sound-visualizer">
+        <div class="sound-bar" style="animation-delay: 0s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.1s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.2s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.3s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.4s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.5s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.6s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.7s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.8s;"></div>
+        <div class="sound-bar" style="animation-delay: 0.9s;"></div>
+    </div>
+
+    <script>
+        class MeteorSystem {
+            constructor() {
+                this.canvas = document.getElementById('meteorCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.meteors = [];
+                this.particles = [];
+                this.impactCount = 0;
+                this.totalDamage = 0;
+                this.lastTime = 0;
+                this.fps = 60;
+                
+                this.audioContext = null;
+                this.sounds = {
+                    whoosh: [],
+                    impact: [],
+                    ambient: null
+                };
+                
+                this.initCanvas();
+                this.initAudio();
+                this.generateStars();
+                this.startAnimation();
+                this.setupEventListeners();
+            }
+            
+            initCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+            
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.createAmbientSound();
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+            
+            createAmbientSound() {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(30, this.audioContext.currentTime);
+                oscillator.type = 'sawtooth';
+                
+                gainNode.gain.setValueAtTime(0.02, this.audioContext.currentTime);
+                
+                oscillator.start();
+                this.sounds.ambient = { oscillator, gainNode };
+            }
+            
+            playWhooshSound(intensity = 1) {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                const filterNode = this.audioContext.createBiquadFilter();
+                
+                oscillator.connect(filterNode);
+                filterNode.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                const now = this.audioContext.currentTime;
+                const duration = 2 * intensity;
+                
+                oscillator.frequency.setValueAtTime(800, now);
+                oscillator.frequency.exponentialRampToValueAtTime(200, now + duration);
+                oscillator.type = 'sawtooth';
+                
+                filterNode.frequency.setValueAtTime(2000, now);
+                filterNode.frequency.exponentialRampToValueAtTime(500, now + duration);
+                filterNode.Q.setValueAtTime(5, now);
+                
+                gainNode.gain.setValueAtTime(0.1 * intensity, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                
+                oscillator.start(now);
+                oscillator.stop(now + duration);
+            }
+            
+            playImpactSound(intensity = 1) {
+                if (!this.audioContext) return;
+                
+                // Low frequency rumble
+                const rumble = this.audioContext.createOscillator();
+                const rumbleGain = this.audioContext.createGain();
+                
+                rumble.connect(rumbleGain);
+                rumbleGain.connect(this.audioContext.destination);
+                
+                const now = this.audioContext.currentTime;
+                const duration = 1.5 * intensity;
+                
+                rumble.frequency.setValueAtTime(60, now);
+                rumble.frequency.exponentialRampToValueAtTime(20, now + duration);
+                rumble.type = 'sawtooth';
+                
+                rumbleGain.gain.setValueAtTime(0.15 * intensity, now);
+                rumbleGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                
+                rumble.start(now);
+                rumble.stop(now + duration);
+                
+                // High frequency crack
+                const crack = this.audioContext.createOscillator();
+                const crackGain = this.audioContext.createGain();
+                
+                crack.connect(crackGain);
+                crackGain.connect(this.audioContext.destination);
+                
+                crack.frequency.setValueAtTime(2000, now);
+                crack.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                crack.type = 'square';
+                
+                crackGain.gain.setValueAtTime(0.1 * intensity, now);
+                crackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                
+                crack.start(now);
+                crack.stop(now + 0.3);
+            }
+            
+            generateStars() {
+                const starsLayer = document.getElementById('starsLayer');
+                starsLayer.innerHTML = '';
+                
+                for (let i = 0; i < 200; i++) {
+                    const star = document.createElement('div');
+                    star.style.position = 'absolute';
+                    star.style.width = Math.random() * 3 + 1 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.backgroundColor = '#ffffff';
+                    star.style.borderRadius = '50%';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.opacity = Math.random() * 0.8 + 0.2;
+                    star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite ease-in-out`;
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    starsLayer.appendChild(star);
+                }
+                
+                // Add CSS for twinkling
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes twinkle {
+                        0%, 100% { opacity: 0.2; transform: scale(1); }
+                        50% { opacity: 1; transform: scale(1.2); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            createMeteor() {
+                const settings = this.getSettings();
+                const size = (Math.random() * 30 + 10) * (settings.size / 5);
+                const speed = (Math.random() * 8 + 3) * (settings.speed / 5);
+                const angle = Math.random() * Math.PI / 3 + Math.PI / 6; // 30-60 degrees
+                
+                const meteor = {
+                    x: Math.random() * this.canvas.width,
+                    y: -50,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: size,
+                    color: this.getRandomMeteorColor(),
+                    tail: [],
+                    rotationSpeed: (Math.random() - 0.5) * 0.3,
+                    rotation: 0,
+                    intensity: settings.effectIntensity / 10,
+                    type: this.getRandomMeteorType()
+                };
+                
+                this.meteors.push(meteor);
+                this.playWhooshSound(meteor.intensity);
+            }
+            
+            getRandomMeteorColor() {
+                const colors = [
+                    { core: '#ff4500', glow: '#ff6500' },  // Orange
+                    { core: '#ff0040', glow: '#ff4080' },  // Red
+                    { core: '#4080ff', glow: '#80a0ff' },  // Blue
+                    { core: '#40ff80', glow: '#80ffa0' },  // Green
+                    { core: '#ff8040', glow: '#ffa080' },  // Yellow-Orange
+                    { core: '#8040ff', glow: '#a080ff' },  // Purple
+                    { core: '#ffffff', glow: '#f0f0ff' }   // White
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            getRandomMeteorType() {
+                const types = ['rocky', 'icy', 'metallic', 'plasma', 'crystal'];
+                return types[Math.floor(Math.random() * types.length)];
+            }
+            
+            updateMeteor(meteor, deltaTime) {
+                meteor.x += meteor.vx * deltaTime * 60;
+                meteor.y += meteor.vy * deltaTime * 60;
+                meteor.rotation += meteor.rotationSpeed;
+                
+                // Add to tail
+                meteor.tail.push({ x: meteor.x, y: meteor.y, alpha: 1 });
+                if (meteor.tail.length > 20) {
+                    meteor.tail.shift();
+                }
+                
+                // Update tail alpha
+                meteor.tail.forEach((point, index) => {
+                    point.alpha = index / meteor.tail.length;
+                });
+                
+                // Check for ground impact
+                if (meteor.y > this.canvas.height - 50) {
+                    this.createImpact(meteor);
+                    return false; // Remove meteor
+                }
+                
+                // Check if meteor is off screen
+                if (meteor.x > this.canvas.width + 100 || meteor.y > this.canvas.height + 100) {
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            drawMeteor(meteor) {
+                const ctx = this.ctx;
+                
+                // Draw tail
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighten';
+                
+                for (let i = 1; i < meteor.tail.length; i++) {
+                    const point = meteor.tail[i];
+                    const prevPoint = meteor.tail[i - 1];
+                    
+                    const gradient = ctx.createLinearGradient(
+                        prevPoint.x, prevPoint.y,
+                        point.x, point.y
+                    );
+                    gradient.addColorStop(0, `rgba(255, 100, 0, ${point.alpha * 0.8})`);
+                    gradient.addColorStop(1, `rgba(255, 200, 0, ${point.alpha * 0.3})`);
+                    
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = meteor.size * 0.3 * point.alpha;
+                    ctx.lineCap = 'round';
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(prevPoint.x, prevPoint.y);
+                    ctx.lineTo(point.x, point.y);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+                
+                // Draw meteor body
+                ctx.save();
+                ctx.translate(meteor.x, meteor.y);
+                ctx.rotate(meteor.rotation);
+                
+                // Outer glow
+                const glowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, meteor.size * 2);
+                glowGradient.addColorStop(0, meteor.color.glow + '80');
+                glowGradient.addColorStop(0.5, meteor.color.glow + '40');
+                glowGradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(-meteor.size * 2, -meteor.size * 2, meteor.size * 4, meteor.size * 4);
+                
+                // Core
+                const coreGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, meteor.size);
+                coreGradient.addColorStop(0, '#ffffff');
+                coreGradient.addColorStop(0.3, meteor.color.core);
+                coreGradient.addColorStop(1, meteor.color.core + '80');
+                
+                ctx.fillStyle = coreGradient;
+                ctx.beginPath();
+                
+                // Different shapes for different types
+                switch (meteor.type) {
+                    case 'rocky':
+                        this.drawRockyShape(ctx, meteor.size);
+                        break;
+                    case 'icy':
+                        this.drawIcyShape(ctx, meteor.size);
+                        break;
+                    case 'metallic':
+                        this.drawMetallicShape(ctx, meteor.size);
+                        break;
+                    case 'plasma':
+                        this.drawPlasmaShape(ctx, meteor.size);
+                        break;
+                    case 'crystal':
+                        this.drawCrystalShape(ctx, meteor.size);
+                        break;
+                }
+                
+                ctx.fill();
+                ctx.restore();
+            }
+            
+            drawRockyShape(ctx, size) {
+                ctx.beginPath();
+                const points = 8;
+                for (let i = 0; i < points; i++) {
+                    const angle = (i / points) * Math.PI * 2;
+                    const radius = size * (0.8 + Math.random() * 0.4);
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+            }
+            
+            drawIcyShape(ctx, size) {
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+                // Add ice crystals
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2;
+                    const x = Math.cos(angle) * size * 1.2;
+                    const y = Math.sin(angle) * size * 1.2;
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            drawMetallicShape(ctx, size) {
+                ctx.beginPath();
+                const sides = 6;
+                for (let i = 0; i < sides; i++) {
+                    const angle = (i / sides) * Math.PI * 2;
+                    const x = Math.cos(angle) * size;
+                    const y = Math.sin(angle) * size;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+            }
+            
+            drawPlasmaShape(ctx, size) {
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+                // Add plasma tendrils
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2 + performance.now() * 0.01;
+                    const radius = size + Math.sin(performance.now() * 0.02 + i) * size * 0.3;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            drawCrystalShape(ctx, size) {
+                ctx.beginPath();
+                const points = 12;
+                for (let i = 0; i < points; i++) {
+                    const angle = (i / points) * Math.PI * 2;
+                    const radius = size * (i % 2 === 0 ? 1 : 0.6);
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+            }
+            
+            createImpact(meteor) {
+                this.impactCount++;
+                const damage = Math.floor(meteor.size * meteor.intensity * 10);
+                this.totalDamage += damage;
+                
+                this.playImpactSound(meteor.intensity);
+                
+                // Screen flash
+                const flash = document.createElement('div');
+                flash.className = 'impact-flash';
+                document.body.appendChild(flash);
+                setTimeout(() => flash.remove(), 300);
+                
+                // Shockwave
+                const shockwave = document.createElement('div');
+                shockwave.className = 'shockwave';
+                shockwave.style.left = meteor.x + 'px';
+                shockwave.style.top = meteor.y + 'px';
+                document.body.appendChild(shockwave);
+                setTimeout(() => shockwave.remove(), 1000);
+                
+                // Debris particles
+                this.createDebris(meteor.x, meteor.y, meteor.size, meteor.color);
+                
+                // Ground crater particles
+                for (let i = 0; i < 50 * meteor.intensity; i++) {
+                    this.particles.push({
+                        x: meteor.x + (Math.random() - 0.5) * 100,
+                        y: meteor.y + (Math.random() - 0.5) * 50,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: Math.random() * -15 - 5,
+                        life: 1,
+                        decay: 0.02,
+                        size: Math.random() * 4 + 2,
+                        color: meteor.color.core
+                    });
+                }
+                
+                this.updateStats();
+            }
+            
+            createDebris(x, y, size, color) {
+                const debrisCount = Math.floor(size * 2);
+                for (let i = 0; i < debrisCount; i++) {
+                    const debris = document.createElement('div');
+                    debris.className = 'debris';
+                    debris.style.left = x + 'px';
+                    debris.style.top = y + 'px';
+                    debris.style.background = color.core;
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 200 + 100;
+                    const duration = Math.random() * 2 + 1;
+                    
+                    debris.style.animation = `
+                        debrisFly${i} ${duration}s ease-out forwards
+                    `;
+                    
+                    const keyframes = `
+                        @keyframes debrisFly${i} {
+                            0% {
+                                transform: translate(0, 0) scale(1);
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translate(${Math.cos(angle) * speed}px, ${Math.sin(angle) * speed}px) scale(0.1);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    
+                    const style = document.createElement('style');
+                    style.textContent = keyframes;
+                    document.head.appendChild(style);
+                    
+                    document.body.appendChild(debris);
+                    setTimeout(() => {
+                        debris.remove();
+                        style.remove();
+                    }, duration * 1000);
+                }
+            }
+            
+            updateParticles(deltaTime) {
+                this.particles = this.particles.filter(particle => {
+                    particle.x += particle.vx * deltaTime * 60;
+                    particle.y += particle.vy * deltaTime * 60;
+                    particle.vy += 500 * deltaTime; // gravity
+                    particle.life -= particle.decay;
+                    
+                    return particle.life > 0;
+                });
+            }
+            
+            drawParticles() {
+                this.ctx.save();
+                this.particles.forEach(particle => {
+                    this.ctx.globalAlpha = particle.life;
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                this.ctx.restore();
+            }
+            
+            getSettings() {
+                return {
+                    count: parseInt(document.getElementById('meteorCount').value),
+                    speed: parseInt(document.getElementById('meteorSpeed').value),
+                    size: parseInt(document.getElementById('meteorSize').value),
+                    effectIntensity: parseInt(document.getElementById('effectIntensity').value)
+                };
+            }
+            
+            updateStats() {
+                document.getElementById('activeMeteors').textContent = this.meteors.length;
+                document.getElementById('impactCount').textContent = this.impactCount;
+                document.getElementById('totalDamage').textContent = this.totalDamage.toLocaleString();
+                document.getElementById('fpsCounter').textContent = Math.round(this.fps);
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        launchMeteors();
+                    }
+                });
+            }
+            
+            animate(currentTime) {
+                const deltaTime = (currentTime - this.lastTime) / 1000;
+                this.lastTime = currentTime;
+                
+                // Calculate FPS
+                this.fps = 1 / Math.max(deltaTime, 0.016);
+                
+                // Clear canvas
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Update and draw meteors
+                this.meteors = this.meteors.filter(meteor => {
+                    const shouldKeep = this.updateMeteor(meteor, deltaTime);
+                    if (shouldKeep) {
+                        this.drawMeteor(meteor);
+                    }
+                    return shouldKeep;
+                });
+                
+                // Update and draw particles
+                this.updateParticles(deltaTime);
+                this.drawParticles();
+                
+                this.updateStats();
+                requestAnimationFrame((time) => this.animate(time));
+            }
+            
+            startAnimation() {
+                requestAnimationFrame((time) => this.animate(time));
+            }
+        }
+
+        // Initialize meteor system
+        let meteorSystem;
+        window.addEventListener('load', () => {
+            meteorSystem = new MeteorSystem();
+        });
+
+        function launchMeteors() {
+            const settings = meteorSystem.getSettings();
+            for (let i = 0; i < settings.count; i++) {
+                setTimeout(() => {
+                    meteorSystem.createMeteor();
+                }, i * 200);
+            }
+        }
+
+        function clearCanvas() {
+            meteorSystem.meteors = [];
+            meteorSystem.particles = [];
+            meteorSystem.impactCount = 0;
+            meteorSystem.totalDamage = 0;
+            meteorSystem.ctx.clearRect(0, 0, meteorSystem.canvas.width, meteorSystem.canvas.height);
+        }
+
+        function loadPreset(preset) {
+            const presets = {
+                gentle: { count: 2, speed: 3, size: 3, effect: 4 },
+                intense: { count: 5, speed: 7, size: 6, effect: 8 },
+                chaos: { count: 8, speed: 9, size: 8, effect: 9 },
+                apocalypse: { count: 10, speed: 10, size: 10, effect: 10 }
+            };
+
+            const config = presets[preset];
+            if (config) {
+                document.getElementById('meteorCount').value = config.count;
+                document.getElementById('meteorSpeed').value = config.speed;
+                document.getElementById('meteorSize').value = config.size;
+                document.getElementById('effectIntensity').value = config.effect;
+            }
+        }
+    </script>
+</body>
+</html>

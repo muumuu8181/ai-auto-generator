@@ -1,0 +1,17 @@
+{
+  "name": "お金管理システム",
+  "short_name": "お金管理",
+  "description": "収入と支出を簡単に管理できるアプリケーション",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#2c3e50",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%232c3e50'/%3E%3Ctext x='96' y='96' font-family='Arial' font-size='96' text-anchor='middle' dominant-baseline='middle' fill='white'%3E💰%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Finance Manager v4.0 - 高度なお金管理システム</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="AIと分析機能を統合した次世代お金管理システム">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel=\"stylesheet\">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- アプリヘッダー -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-icon">💰</div>
+                    <div class="logo-text">
+                        <h1>Smart Finance</h1>
+                        <span class="version">v4.0</span>
+                    </div>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="メニューを開く">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <div class="header-right">
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">今月収支</span>
+                        <span class="stat-value" id="headerBalance">¥0</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="quickAddBtn">
+                    <span class="btn-icon">➕</span>
+                    <span>収支追加</span>
+                </button>
+                <div class="user-menu">
+                    <button class="user-avatar" id="userMenuBtn">
+                        <span class="avatar-icon">👤</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#settings" class="dropdown-item">
+                            <span class="dropdown-icon">⚙️</span>
+                            設定
+                        </a>
+                        <a href="#export" class="dropdown-item" id="exportData">
+                            <span class="dropdown-icon">📥</span>
+                            データエクスポート
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="#help" class="dropdown-item">
+                            <span class="dropdown-icon">❓</span>
+                            ヘルプ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- サイドナビゲーション -->
+            <nav class="sidebar" id="sidebar">
+                <div class="nav-section">
+                    <div class="nav-title">メイン</div>
+                    <ul class="nav-list">
+                        <li>
+                            <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                                <span class="nav-icon">📊</span>
+                                <span class="nav-text">ダッシュボード</span>
+                                <span class="nav-badge" id="dashboardBadge"></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#transactions" class="nav-item" data-section="transactions">
+                                <span class="nav-icon">💳</span>
+                                <span class="nav-text">取引履歴</span>
+                                <span class="nav-badge" id="transactionsBadge"></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#analytics" class="nav-item" data-section="analytics">
+                                <span class="nav-icon">📈</span>
+                                <span class="nav-text">分析・レポート</span>
+                                <span class="nav-badge new">NEW</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-title">管理</div>
+                    <ul class="nav-list">
+                        <li>
+                            <a href="#budget" class="nav-item" data-section="budget">
+                                <span class="nav-icon">🎯</span>
+                                <span class="nav-text">予算管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#goals" class="nav-item" data-section="goals">
+                                <span class="nav-icon">🏆</span>
+                                <span class="nav-text">目標設定</span>
+                                <span class="nav-badge new">NEW</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#categories" class="nav-item" data-section="categories">
+                                <span class="nav-icon">🏷️</span>
+                                <span class="nav-text">カテゴリ管理</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-title">設定</div>
+                    <ul class="nav-list">
+                        <li>
+                            <a href="#settings" class="nav-item" data-section="settings">
+                                <span class="nav-icon">⚙️</span>
+                                <span class="nav-text">設定</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- コンテンツエリア -->
+            <div class="content-area">
+                <!-- ダッシュボードセクション -->
+                <section class="content-section active" id="dashboard-section">
+                    <div class="section-header">
+                        <h2>ダッシュボード</h2>
+                        <div class="section-actions">
+                            <select class="period-selector" id="dashboardPeriod">
+                                <option value="this-month">今月</option>
+                                <option value="last-month">先月</option>
+                                <option value="this-year">今年</option>
+                            </select>
+                            <button class="btn btn-secondary" id="refreshDashboard">
+                                <span class="btn-icon">🔄</span>
+                                更新
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- サマリーカード -->
+                    <div class="summary-grid">
+                        <div class="summary-card income-card">
+                            <div class="card-header">
+                                <h3>収入</h3>
+                                <span class="card-icon">💹</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-value" id="totalIncome">¥0</div>
+                                <div class="card-change" id="incomeChange">
+                                    <span class="change-icon">↗️</span>
+                                    <span class="change-text">0%</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-period" id="incomePeriod">今月</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-card expense-card">
+                            <div class="card-header">
+                                <h3>支出</h3>
+                                <span class="card-icon">💸</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-value" id="totalExpense">¥0</div>
+                                <div class="card-change" id="expenseChange">
+                                    <span class="change-icon">↘️</span>
+                                    <span class="change-text">0%</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-period" id="expensePeriod">今月</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-card balance-card">
+                            <div class="card-header">
+                                <h3>収支</h3>
+                                <span class="card-icon">⚖️</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-value" id="totalBalance">¥0</div>
+                                <div class="card-change" id="balanceChange">
+                                    <span class="change-icon">➡️</span>
+                                    <span class="change-text">0%</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-period" id="balancePeriod">今月</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-card savings-card">
+                            <div class="card-header">
+                                <h3>貯蓄率</h3>
+                                <span class="card-icon">🏦</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-value" id="savingsRate">0%</div>
+                                <div class="card-change" id="savingsChange">
+                                    <span class="change-icon">📈</span>
+                                    <span class="change-text">目標: 20%</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-period" id="savingsPeriod">今月</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- チャートエリア -->
+                    <div class="dashboard-grid">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>収支推移</h3>
+                                <div class="chart-controls">
+                                    <select id="trendChartPeriod">
+                                        <option value="6">6ヶ月</option>
+                                        <option value="12" selected>12ヶ月</option>
+                                        <option value="24">24ヶ月</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="trendChart" width="800" height="400"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>カテゴリ別支出</h3>
+                                <div class="chart-controls">
+                                    <select id="categoryChartPeriod">
+                                        <option value="this-month" selected>今月</option>
+                                        <option value="last-month">先月</option>
+                                        <option value="this-year">今年</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="categoryChart" width="400" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近の取引とクイック分析 -->
+                    <div class="dashboard-widgets">
+                        <div class="widget recent-transactions">
+                            <div class="widget-header">
+                                <h3>最近の取引</h3>
+                                <a href="#transactions" class="widget-link">すべて見る</a>
+                            </div>
+                            <div class="widget-body">
+                                <div class="transactions-list" id="recentTransactionsList">
+                                    <!-- 動的に生成 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="widget quick-insights">
+                            <div class="widget-header">
+                                <h3>インサイト</h3>
+                                <button class="widget-refresh" id="refreshInsights">🔄</button>
+                            </div>
+                            <div class="widget-body">
+                                <div class="insights-list" id="insightsList">
+                                    <!-- 動的に生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 取引履歴セクション -->
+                <section class="content-section" id="transactions-section">
+                    <div class="section-header">
+                        <h2>取引履歴</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" id="addTransactionBtn">
+                                <span class="btn-icon">➕</span>
+                                新規追加
+                            </button>
+                            <button class="btn btn-secondary" id="importTransactionsBtn">
+                                <span class="btn-icon">📤</span>
+                                インポート
+                            </button>
+                            <button class="btn btn-secondary" id="exportTransactionsBtn">
+                                <span class="btn-icon">📥</span>
+                                エクスポート
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 検索・フィルター -->
+                    <div class="search-filter-bar">
+                        <div class="search-group">
+                            <div class="search-input-wrapper">
+                                <input type="text" id="searchTransactions" placeholder="取引を検索..." class="search-input">
+                                <span class="search-icon">🔍</span>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <select id="typeFilter" class="filter-select">
+                                <option value="">すべての種別</option>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                            <select id="categoryFilter" class="filter-select">
+                                <option value="">すべてのカテゴリ</option>
+                            </select>
+                            <select id="periodFilter" class="filter-select">
+                                <option value="all">全期間</option>
+                                <option value="this-month">今月</option>
+                                <option value="last-month">先月</option>
+                                <option value="this-year">今年</option>
+                                <option value="custom">カスタム期間</option>
+                            </select>
+                            <button class="btn btn-secondary" id="clearFilters">
+                                <span class="btn-icon">🗑️</span>
+                                クリア
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 取引テーブル -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-actions">
+                                <select id="bulkActions" class="bulk-actions">
+                                    <option value="">一括操作</option>
+                                    <option value="delete">削除</option>
+                                    <option value="export">エクスポート</option>
+                                    <option value="categorize">カテゴリ変更</option>
+                                </select>
+                                <button class="btn btn-small" id="executeBulkAction">実行</button>
+                            </div>
+                            <div class="table-pagination-info">
+                                <span id="paginationInfo">0件中0-0件を表示</span>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="transactions-table" id="transactionsTable">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" id="selectAllTransactions">
+                                        </th>
+                                        <th class="sortable" data-sort="date">
+                                            日付 <span class="sort-icon">↕️</span>
+                                        </th>
+                                        <th class="sortable" data-sort="type">
+                                            種別 <span class="sort-icon">↕️</span>
+                                        </th>
+                                        <th class="sortable" data-sort="category">
+                                            カテゴリ <span class="sort-icon">↕️</span>
+                                        </th>
+                                        <th class="sortable" data-sort="amount">
+                                            金額 <span class="sort-icon">↕️</span>
+                                        </th>
+                                        <th>メモ</th>
+                                        <th class="actions-cell">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <!-- 動的に生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-footer">
+                            <div class="pagination" id="transactionsPagination">
+                                <!-- 動的に生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 分析・レポートセクション -->
+                <section class="content-section" id="analytics-section">
+                    <div class="section-header">
+                        <h2>分析・レポート</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" id="generateReportBtn">
+                                <span class="btn-icon">📊</span>
+                                レポート生成
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <h3>月別推移分析</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="monthlyAnalysisChart" width="600" height="300"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <h3>支出パターン分析</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="spendingPatterns"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- その他のセクション（予算管理、目標設定など）は省略 -->
+                <section class="content-section" id="settings-section">
+                    <div class="section-header">
+                        <h2>設定</h2>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <h3>表示設定</h3>
+                            <div class="setting-item">
+                                <label>テーマ</label>
+                                <select id="themeSelect">
+                                    <option value="dark">ダーク</option>
+                                    <option value="light">ライト</option>
+                                    <option value="auto">自動</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>通貨</label>
+                                <select id="currencySelect">
+                                    <option value="JPY">日本円 (¥)</option>
+                                    <option value="USD">米ドル ($)</option>
+                                    <option value="EUR">ユーロ (€)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="settings-card">
+                            <h3>データ管理</h3>
+                            <div class="setting-actions">
+                                <button class="btn btn-secondary" id="exportAllDataBtn">全データエクスポート</button>
+                                <button class="btn btn-secondary" id="importDataBtn">データインポート</button>
+                                <button class="btn btn-danger" id="clearDataBtn">データクリア</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- モーダル -->
+        <div class="modal-overlay" id="transactionModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="modalTitle">取引を追加</h3>
+                    <button class="modal-close" id="closeTransactionModal">&times;</button>
+                </div>
+                <form id="transactionForm" class="modal-body">
+                    <input type="hidden" id="editingTransactionId">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="transactionDate">日付 *</label>
+                            <input type="date" id="transactionDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transactionType">種別 *</label>
+                            <select id="transactionType" required>
+                                <option value="">選択してください</option>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transactionCategory">カテゴリ *</label>
+                            <input type="text" id="transactionCategory" list="categoryDatalist" required>
+                            <datalist id="categoryDatalist"></datalist>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transactionAmount">金額 *</label>
+                            <input type="number" id="transactionAmount" min="0" step="1" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="transactionMemo">メモ</label>
+                            <textarea id="transactionMemo" rows="3" placeholder="詳細なメモ（任意）"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelTransactionModal">キャンセル</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 通知システム -->
+        <div class="notification-container" id="notificationContainer"></div>
+
+        <!-- ローディングオーバーレイ -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>処理中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

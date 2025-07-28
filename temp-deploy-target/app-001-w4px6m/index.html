@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超格好良い時計システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn.active {
+            background: linear-gradient(45deg, #45b7d1, #96ceb4);
+        }
+
+        .clock-display {
+            margin: 30px 0;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Digital Clock Styles */
+        .digital-clock {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        /* Analog Clock Styles */
+        .analog-clock {
+            width: 250px;
+            height: 250px;
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 70%);
+        }
+
+        .clock-face {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .hand {
+            position: absolute;
+            background: white;
+            transform-origin: bottom center;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .hour-hand {
+            width: 6px;
+            height: 60px;
+            left: 50%;
+            bottom: 50%;
+            margin-left: -3px;
+            background: #ff6b6b;
+        }
+
+        .minute-hand {
+            width: 4px;
+            height: 80px;
+            left: 50%;
+            bottom: 50%;
+            margin-left: -2px;
+            background: #4ecdc4;
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 90px;
+            left: 50%;
+            bottom: 50%;
+            margin-left: -1px;
+            background: #ffd93d;
+        }
+
+        .center-dot {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -6px 0 0 -6px;
+            z-index: 10;
+        }
+
+        .number {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Timer/Stopwatch Styles */
+        .timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .time-input {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 16px;
+            width: 80px;
+            text-align: center;
+        }
+
+        .time-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Theme Styles */
+        .theme-dark {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .theme-neon {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        }
+
+        .theme-sunset {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+        }
+
+        .theme-ocean {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .theme-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-btn.active {
+            border-color: #ffd93d;
+            transform: scale(1.2);
+        }
+
+        .theme-ocean-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .theme-dark-btn { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); }
+        .theme-neon-btn { background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%); }
+        .theme-sunset-btn { background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .digital-clock {
+                font-size: 2rem;
+            }
+            
+            .analog-clock {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .timer-display {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+            
+            .timer-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">⏰ 超格好良い時計システム</h1>
+        
+        <!-- Mode Controls -->
+        <div class="controls">
+            <button class="btn active" id="clockBtn">🕐 時計</button>
+            <button class="btn" id="timerBtn">⏲️ タイマー</button>
+            <button class="btn" id="stopwatchBtn">⏱️ ストップウォッチ</button>
+        </div>
+
+        <!-- Theme Selector -->
+        <div class="theme-selector">
+            <div class="theme-btn theme-ocean-btn active" data-theme="ocean" title="オーシャン"></div>
+            <div class="theme-btn theme-dark-btn" data-theme="dark" title="ダーク"></div>
+            <div class="theme-btn theme-neon-btn" data-theme="neon" title="ネオン"></div>
+            <div class="theme-btn theme-sunset-btn" data-theme="sunset" title="サンセット"></div>
+        </div>
+
+        <!-- Clock Display -->
+        <div class="clock-display" id="clockDisplay">
+            <div id="digitalClock" class="digital-clock">
+                <div id="timeDisplay">00:00:00</div>
+                <div class="date-display" id="dateDisplay"></div>
+            </div>
+            <div id="analogClock" class="analog-clock hidden">
+                <div class="clock-face">
+                    <div class="hand hour-hand" id="hourHand"></div>
+                    <div class="hand minute-hand" id="minuteHand"></div>
+                    <div class="hand second-hand" id="secondHand"></div>
+                    <div class="center-dot"></div>
+                    <div class="number" style="top: 10px; left: 50%; transform: translateX(-50%);">12</div>
+                    <div class="number" style="right: 10px; top: 50%; transform: translateY(-50%);">3</div>
+                    <div class="number" style="bottom: 10px; left: 50%; transform: translateX(-50%);">6</div>
+                    <div class="number" style="left: 10px; top: 50%; transform: translateY(-50%);">9</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clock Type Toggle -->
+        <div class="controls" id="clockControls">
+            <button class="btn active" id="digitalBtn">📱 デジタル</button>
+            <button class="btn" id="analogBtn">🕐 アナログ</button>
+        </div>
+
+        <!-- Timer Section -->
+        <div id="timerSection" class="hidden">
+            <div class="input-group">
+                <input type="number" class="time-input" id="timerHours" placeholder="時" min="0" max="23" value="0">
+                <span>:</span>
+                <input type="number" class="time-input" id="timerMinutes" placeholder="分" min="0" max="59" value="5">
+                <span>:</span>
+                <input type="number" class="time-input" id="timerSeconds" placeholder="秒" min="0" max="59" value="0">
+            </div>
+            <div class="timer-display" id="timerDisplay">05:00</div>
+            <div class="timer-controls">
+                <button class="btn" id="timerStart">▶️ スタート</button>
+                <button class="btn" id="timerPause">⏸️ 一時停止</button>
+                <button class="btn" id="timerReset">🔄 リセット</button>
+            </div>
+        </div>
+
+        <!-- Stopwatch Section -->
+        <div id="stopwatchSection" class="hidden">
+            <div class="timer-display" id="stopwatchDisplay">00:00:00</div>
+            <div class="timer-controls">
+                <button class="btn" id="stopwatchStart">▶️ スタート</button>
+                <button class="btn" id="stopwatchPause">⏸️ 一時停止</button>
+                <button class="btn" id="stopwatchReset">🔄 リセット</button>
+                <button class="btn" id="stopwatchLap">📌 ラップ</button>
+            </div>
+            <div id="lapTimes"></div>
+        </div>
+    </div>
+
+    <script>
+        class SuperCoolClock {
+            constructor() {
+                this.currentMode = 'clock';
+                this.currentClockType = 'digital';
+                this.currentTheme = 'ocean';
+                this.timerInterval = null;
+                this.stopwatchInterval = null;
+                this.timerTime = 0;
+                this.stopwatchTime = 0;
+                this.lapCounter = 1;
+
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.startClock();
+                this.updateTheme();
+            }
+
+            bindEvents() {
+                // Mode buttons
+                document.getElementById('clockBtn').addEventListener('click', () => this.setMode('clock'));
+                document.getElementById('timerBtn').addEventListener('click', () => this.setMode('timer'));
+                document.getElementById('stopwatchBtn').addEventListener('click', () => this.setMode('stopwatch'));
+
+                // Clock type buttons
+                document.getElementById('digitalBtn').addEventListener('click', () => this.setClockType('digital'));
+                document.getElementById('analogBtn').addEventListener('click', () => this.setClockType('analog'));
+
+                // Theme buttons
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.setTheme(e.target.dataset.theme);
+                    });
+                });
+
+                // Timer controls
+                document.getElementById('timerStart').addEventListener('click', () => this.startTimer());
+                document.getElementById('timerPause').addEventListener('click', () => this.pauseTimer());
+                document.getElementById('timerReset').addEventListener('click', () => this.resetTimer());
+
+                // Stopwatch controls
+                document.getElementById('stopwatchStart').addEventListener('click', () => this.startStopwatch());
+                document.getElementById('stopwatchPause').addEventListener('click', () => this.pauseStopwatch());
+                document.getElementById('stopwatchReset').addEventListener('click', () => this.resetStopwatch());
+                document.getElementById('stopwatchLap').addEventListener('click', () => this.recordLap());
+            }
+
+            setMode(mode) {
+                this.currentMode = mode;
+                
+                // Update button states
+                document.querySelectorAll('.controls .btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(mode + 'Btn').classList.add('active');
+
+                // Show/hide sections
+                document.getElementById('clockDisplay').classList.toggle('hidden', mode !== 'clock');
+                document.getElementById('clockControls').classList.toggle('hidden', mode !== 'clock');
+                document.getElementById('timerSection').classList.toggle('hidden', mode !== 'timer');
+                document.getElementById('stopwatchSection').classList.toggle('hidden', mode !== 'stopwatch');
+            }
+
+            setClockType(type) {
+                this.currentClockType = type;
+                
+                document.getElementById('digitalBtn').classList.toggle('active', type === 'digital');
+                document.getElementById('analogBtn').classList.toggle('active', type === 'analog');
+                document.getElementById('digitalClock').classList.toggle('hidden', type !== 'digital');
+                document.getElementById('analogClock').classList.toggle('hidden', type !== 'analog');
+            }
+
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.body.className = `theme-${theme}`;
+                
+                document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`.theme-${theme}-btn`).classList.add('active');
+            }
+
+            startClock() {
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
+            }
+
+            updateClock() {
+                const now = new Date();
+                
+                // Digital clock
+                const timeString = now.toLocaleTimeString('ja-JP');
+                const dateString = now.toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
+                
+                document.getElementById('timeDisplay').textContent = timeString;
+                document.getElementById('dateDisplay').textContent = dateString;
+
+                // Analog clock
+                const hours = now.getHours() % 12;
+                const minutes = now.getMinutes();
+                const seconds = now.getSeconds();
+
+                const hourAngle = (hours * 30) + (minutes * 0.5);
+                const minuteAngle = minutes * 6;
+                const secondAngle = seconds * 6;
+
+                document.getElementById('hourHand').style.transform = `rotate(${hourAngle}deg)`;
+                document.getElementById('minuteHand').style.transform = `rotate(${minuteAngle}deg)`;
+                document.getElementById('secondHand').style.transform = `rotate(${secondAngle}deg)`;
+            }
+
+            startTimer() {
+                if (this.timerInterval) return;
+
+                if (this.timerTime === 0) {
+                    const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                    const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+                    const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+                    this.timerTime = (hours * 3600) + (minutes * 60) + seconds;
+                }
+
+                this.timerInterval = setInterval(() => {
+                    if (this.timerTime <= 0) {
+                        this.pauseTimer();
+                        alert('⏰ タイマー終了！');
+                        return;
+                    }
+                    this.timerTime--;
+                    this.updateTimerDisplay();
+                }, 1000);
+            }
+
+            pauseTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            resetTimer() {
+                this.pauseTimer();
+                this.timerTime = 0;
+                this.updateTimerDisplay();
+            }
+
+            updateTimerDisplay() {
+                const minutes = Math.floor(this.timerTime / 60);
+                const seconds = this.timerTime % 60;
+                document.getElementById('timerDisplay').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            startStopwatch() {
+                if (this.stopwatchInterval) return;
+
+                this.stopwatchInterval = setInterval(() => {
+                    this.stopwatchTime++;
+                    this.updateStopwatchDisplay();
+                }, 10); // 10ms intervals for more precision
+            }
+
+            pauseStopwatch() {
+                if (this.stopwatchInterval) {
+                    clearInterval(this.stopwatchInterval);
+                    this.stopwatchInterval = null;
+                }
+            }
+
+            resetStopwatch() {
+                this.pauseStopwatch();
+                this.stopwatchTime = 0;
+                this.lapCounter = 1;
+                this.updateStopwatchDisplay();
+                document.getElementById('lapTimes').innerHTML = '';
+            }
+
+            updateStopwatchDisplay() {
+                const totalMs = this.stopwatchTime * 10;
+                const hours = Math.floor(totalMs / 3600000);
+                const minutes = Math.floor((totalMs % 3600000) / 60000);
+                const seconds = Math.floor((totalMs % 60000) / 1000);
+                const ms = Math.floor((totalMs % 1000) / 10);
+
+                document.getElementById('stopwatchDisplay').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+            }
+
+            recordLap() {
+                if (this.stopwatchTime === 0) return;
+
+                const lapTime = document.getElementById('stopwatchDisplay').textContent;
+                const lapElement = document.createElement('div');
+                lapElement.style.cssText = 'margin: 5px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 10px;';
+                lapElement.textContent = `ラップ ${this.lapCounter}: ${lapTime}`;
+                
+                document.getElementById('lapTimes').appendChild(lapElement);
+                this.lapCounter++;
+            }
+        }
+
+        // Initialize the clock when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SuperCoolClock();
+        });
+    </script>
+</body>
+</html>

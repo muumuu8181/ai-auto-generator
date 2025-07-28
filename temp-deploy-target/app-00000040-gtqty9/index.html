@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ニューラルネットワーク簡易シミュレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .drawing-area {
+            text-align: center;
+        }
+        
+        #drawCanvas {
+            background: #000;
+            border: 2px solid #00d2ff;
+            border-radius: 10px;
+            cursor: crosshair;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .network-visualization {
+            position: relative;
+            height: 500px;
+        }
+        
+        #networkCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+        
+        .results {
+            text-align: center;
+        }
+        
+        .prediction-bars {
+            margin-top: 20px;
+        }
+        
+        .prediction-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .prediction-label {
+            width: 30px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .prediction-bar-container {
+            flex: 1;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 10px;
+            position: relative;
+        }
+        
+        .prediction-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .prediction-percentage {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .predicted-digit {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .confidence {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .info-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .info-section h3 {
+            margin-bottom: 10px;
+            color: #00d2ff;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .stat-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00d2ff;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 210, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00d2ff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .network-visualization {
+                height: 300px;
+            }
+        }
+        
+        .layer-info {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .neuron {
+            fill: #00d2ff;
+            stroke: #fff;
+            stroke-width: 2;
+        }
+        
+        .neuron.active {
+            fill: #ffcc00;
+            filter: drop-shadow(0 0 10px #ffcc00);
+        }
+        
+        .connection {
+            stroke: rgba(255, 255, 255, 0.2);
+            stroke-width: 1;
+        }
+        
+        .connection.active {
+            stroke: #00d2ff;
+            stroke-width: 2;
+            filter: drop-shadow(0 0 5px #00d2ff);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 ニューラルネットワーク簡易シミュレーター</h1>
+        
+        <div class="main-grid">
+            <!-- 入力パネル -->
+            <div class="panel drawing-area">
+                <h2>手書き数字を描く</h2>
+                <canvas id="drawCanvas" width="280" height="280"></canvas>
+                <div class="controls">
+                    <button id="clearBtn">クリア</button>
+                    <button id="predictBtn">予測</button>
+                </div>
+                <div class="info-section">
+                    <h3>使い方</h3>
+                    <p>キャンバスに数字（0-9）を描いて「予測」ボタンを押してください。</p>
+                </div>
+            </div>
+            
+            <!-- ネットワーク可視化 -->
+            <div class="panel network-visualization">
+                <h2>ニューラルネットワーク構造</h2>
+                <canvas id="networkCanvas"></canvas>
+                <div class="layer-info">
+                    入力層 (784) → 隠れ層1 (128) → 隠れ層2 (64) → 出力層 (10)
+                </div>
+            </div>
+            
+            <!-- 結果パネル -->
+            <div class="panel results">
+                <h2>予測結果</h2>
+                <div class="predicted-digit" id="predictedDigit">-</div>
+                <div class="confidence" id="confidence">準備完了</div>
+                
+                <div class="prediction-bars" id="predictionBars">
+                    <!-- 動的に生成される -->
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">推論時間</div>
+                        <div class="stat-value" id="inferenceTime">- ms</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">精度</div>
+                        <div class="stat-value" id="accuracy">- %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>モデルを読み込み中...</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

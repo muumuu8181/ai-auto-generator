@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ RPG EFFECTS GENERATOR</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        :root {
+            --primary-glow: #ff6b35;
+            --secondary-glow: #00ffff;
+            --tertiary-glow: #7b68ee;
+            --danger-glow: #ff1744;
+            --success-glow: #4caf50;
+            --bg-dark: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --text-light: #ffffff;
+            --text-secondary: #cccccc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(ellipse at center, var(--bg-secondary) 0%, var(--bg-dark) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(45deg, rgba(255, 107, 53, 0.1), rgba(0, 255, 255, 0.1));
+            border-bottom: 2px solid var(--primary-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .control-panel {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid var(--secondary-glow);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .control-section {
+            margin-bottom: 30px;
+        }
+
+        .control-section h3 {
+            color: var(--primary-glow);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .effect-btn, .enemy-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, rgba(255, 107, 53, 0.2), rgba(0, 255, 255, 0.2));
+            border: 2px solid var(--primary-glow);
+            color: var(--text-light);
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .effect-btn:hover, .enemy-btn:hover {
+            background: linear-gradient(45deg, rgba(255, 107, 53, 0.4), rgba(0, 255, 255, 0.4));
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+            transform: translateX(5px);
+        }
+
+        .enemy-btn {
+            border-color: var(--secondary-glow);
+        }
+
+        .enemy-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .main-area {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--tertiary-glow);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .battlefield {
+            flex: 1;
+            position: relative;
+            min-height: 600px;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, rgba(123, 104, 238, 0.05) 0%, rgba(26, 26, 46, 0.05) 100%);
+        }
+
+        .enemy-sprite {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: var(--primary-glow);
+            border-radius: 50%;
+            top: 50%;
+            left: 70%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 0 30px var(--primary-glow);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .player-area {
+            position: absolute;
+            bottom: 100px;
+            left: 20%;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, var(--secondary-glow), var(--success-glow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 0 25px var(--secondary-glow);
+            z-index: 2;
+        }
+
+        .effect-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .info-panel {
+            background: rgba(10, 10, 15, 0.9);
+            padding: 20px;
+            border-top: 2px solid var(--tertiary-glow);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: rgba(123, 104, 238, 0.1);
+            border: 1px solid var(--tertiary-glow);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .info-title {
+            color: var(--tertiary-glow);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-light);
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .damage-text {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--danger-glow);
+            text-shadow: 0 0 10px var(--danger-glow);
+            animation: damageRise 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        @keyframes damageRise {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+
+        .screen-flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        @keyframes screenFlash {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .control-panel {
+                position: relative;
+                top: 0;
+                order: 2;
+            }
+            
+            .enemy-sprite {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+            
+            .player-area {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">⚔️ RPG EFFECTS GENERATOR ⚔️</h1>
+        <p class="subtitle">Ultimate Battle Effects & Animation System</p>
+    </div>
+
+    <div class="container">
+        <div class="control-panel">
+            <div class="control-section">
+                <h3>🗡️ Attack Types</h3>
+                <button class="effect-btn" data-effect="slash">⚔️ Sword Slash</button>
+                <button class="effect-btn" data-effect="stab">🗡️ Piercing Stab</button>
+                <button class="effect-btn" data-effect="punch">👊 Power Punch</button>
+                <button class="effect-btn" data-effect="kick">🦵 Spinning Kick</button>
+                <button class="effect-btn" data-effect="magic">✨ Magic Bolt</button>
+                <button class="effect-btn" data-effect="fireball">🔥 Fireball</button>
+                <button class="effect-btn" data-effect="lightning">⚡ Lightning Strike</button>
+                <button class="effect-btn" data-effect="heal">💚 Healing Light</button>
+            </div>
+
+            <div class="control-section">
+                <h3>👹 Enemy Types</h3>
+                <button class="enemy-btn" data-enemy="orc">👹 Orc Warrior</button>
+                <button class="enemy-btn" data-enemy="skeleton">💀 Skeleton</button>
+                <button class="enemy-btn" data-enemy="dragon">🐉 Dragon</button>
+                <button class="enemy-btn" data-enemy="wizard">🧙‍♂️ Dark Wizard</button>
+                <button class="enemy-btn" data-enemy="golem">🗿 Stone Golem</button>
+            </div>
+
+            <div class="control-section">
+                <h3>⚙️ Effect Settings</h3>
+                <label style="color: var(--text-secondary); display: block; margin-bottom: 10px;">
+                    Effect Intensity
+                    <input type="range" id="intensity" min="1" max="5" value="3" 
+                           style="width: 100%; margin-top: 5px;">
+                </label>
+                <label style="color: var(--text-secondary); display: block; margin-bottom: 10px;">
+                    Effect Duration
+                    <input type="range" id="duration" min="1" max="10" value="3" 
+                           style="width: 100%; margin-top: 5px;">
+                </label>
+                <button class="effect-btn" id="comboAttack" style="background: linear-gradient(45deg, rgba(255, 23, 68, 0.3), rgba(255, 107, 53, 0.3)); border-color: var(--danger-glow);">
+                    💥 COMBO ATTACK
+                </button>
+            </div>
+        </div>
+
+        <div class="main-area">
+            <div class="battlefield">
+                <div class="enemy-sprite" id="enemy">👹</div>
+                <div class="player-area">🛡️</div>
+                <canvas class="effect-canvas" id="effectCanvas"></canvas>
+                <div class="screen-flash" id="screenFlash"></div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-card">
+                    <div class="info-title">Total Attacks</div>
+                    <div class="info-value" id="totalAttacks">0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-title">Damage Dealt</div>
+                    <div class="info-value" id="totalDamage">0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-title">Current Enemy</div>
+                    <div class="info-value" id="currentEnemy">Orc</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-title">Effect Count</div>
+                    <div class="info-value" id="effectCount">0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-title">Critical Hits</div>
+                    <div class="info-value" id="criticalHits">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('effectCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Audio context
+        let audioContext;
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.warn('Web Audio API not supported');
+        }
+
+        // Game state
+        let totalAttacks = 0;
+        let totalDamage = 0;
+        let criticalHits = 0;
+        let effectCount = 0;
+        let currentEnemy = 'Orc';
+
+        const enemies = {
+            orc: { emoji: '👹', name: 'Orc', color: '#8B4513', hp: 100 },
+            skeleton: { emoji: '💀', name: 'Skeleton', color: '#F5F5DC', hp: 80 },
+            dragon: { emoji: '🐉', name: 'Dragon', color: '#DC143C', hp: 200 },
+            wizard: { emoji: '🧙‍♂️', name: 'Wizard', color: '#4B0082', hp: 120 },
+            golem: { emoji: '🗿', name: 'Golem', color: '#696969', hp: 150 }
+        };
+
+        // Particle system
+        class Particle {
+            constructor(x, y, vx, vy, color, size, life) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.size = size;
+                this.life = life;
+                this.maxLife = life;
+                this.gravity = 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.life--;
+                this.vx *= 0.99;
+                return this.life > 0;
+            }
+
+            draw() {
+                const alpha = this.life / this.maxLife;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = this.size * 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * alpha, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        let particles = [];
+
+        // Sound effects
+        function playSound(type, duration = 0.3) {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'slash':
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + duration);
+                    break;
+                case 'punch':
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(80, audioContext.currentTime);
+                    break;
+                case 'magic':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + duration);
+                    break;
+                case 'fireball':
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + duration);
+                    break;
+                case 'lightning':
+                    oscillator.type = 'white-noise';
+                    oscillator.frequency.setValueAtTime(2000, audioContext.currentTime);
+                    break;
+                case 'heal':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + duration);
+                    break;
+            }
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Effect functions
+        function createSlashEffect() {
+            const enemy = document.getElementById('enemy');
+            const rect = enemy.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const x = rect.left - canvasRect.left + rect.width / 2;
+            const y = rect.top - canvasRect.top + rect.height / 2;
+            
+            // Slash line effect
+            ctx.save();
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 8;
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.moveTo(x - 60, y - 40);
+            ctx.lineTo(x + 60, y + 40);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Sparks
+            for (let i = 0; i < 15; i++) {
+                particles.push(new Particle(
+                    x + (Math.random() - 0.5) * 80,
+                    y + (Math.random() - 0.5) * 80,
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10,
+                    '#FFD700',
+                    Math.random() * 4 + 2,
+                    30 + Math.random() * 20
+                ));
+            }
+            
+            playSound('slash');
+            shakeEnemy();
+            createDamageText(x, y, 120 + Math.random() * 80);
+        }
+
+        function createFireballEffect() {
+            const enemy = document.getElementById('enemy');
+            const rect = enemy.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const x = rect.left - canvasRect.left + rect.width / 2;
+            const y = rect.top - canvasRect.top + rect.height / 2;
+            
+            // Fireball explosion
+            ctx.save();
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, 80);
+            gradient.addColorStop(0, '#FF4500');
+            gradient.addColorStop(0.5, '#FF6B35');
+            gradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x, y, 80, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Fire particles
+            for (let i = 0; i < 25; i++) {
+                const angle = (i / 25) * Math.PI * 2;
+                particles.push(new Particle(
+                    x,
+                    y,
+                    Math.cos(angle) * (Math.random() * 8 + 4),
+                    Math.sin(angle) * (Math.random() * 8 + 4),
+                    i % 2 ? '#FF4500' : '#FF6B35',
+                    Math.random() * 6 + 3,
+                    40 + Math.random() * 30
+                ));
+            }
+            
+            playSound('fireball', 0.8);
+            flashScreen('#FF4500');
+            shakeEnemy();
+            createDamageText(x, y, 200 + Math.random() * 100);
+        }
+
+        function createLightningEffect() {
+            const enemy = document.getElementById('enemy');
+            const rect = enemy.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const x = rect.left - canvasRect.left + rect.width / 2;
+            const y = rect.top - canvasRect.top + rect.height / 2;
+            
+            // Lightning bolt
+            ctx.save();
+            ctx.strokeStyle = '#00FFFF';
+            ctx.lineWidth = 6;
+            ctx.shadowColor = '#00FFFF';
+            ctx.shadowBlur = 30;
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            
+            for (let i = 0; i < 10; i++) {
+                const segmentY = (i / 10) * y;
+                const zigzag = (Math.random() - 0.5) * 40;
+                ctx.lineTo(x + zigzag, segmentY);
+            }
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Electric particles
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(
+                    x + (Math.random() - 0.5) * 60,
+                    y + (Math.random() - 0.5) * 60,
+                    (Math.random() - 0.5) * 6,
+                    (Math.random() - 0.5) * 6,
+                    '#00FFFF',
+                    Math.random() * 3 + 2,
+                    25 + Math.random() * 15
+                ));
+            }
+            
+            playSound('lightning', 0.2);
+            flashScreen('#00FFFF');
+            shakeEnemy();
+            createDamageText(x, y, 180 + Math.random() * 120);
+        }
+
+        function createMagicEffect() {
+            const enemy = document.getElementById('enemy');
+            const rect = enemy.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const x = rect.left - canvasRect.left + rect.width / 2;
+            const y = rect.top - canvasRect.top + rect.height / 2;
+            
+            // Magic circle
+            ctx.save();
+            ctx.strokeStyle = '#7B68EE';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#7B68EE';
+            ctx.shadowBlur = 15;
+            
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(x, y, 30 + i * 20, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Magic runes
+            ctx.fillStyle = '#7B68EE';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            const runes = ['✦', '✧', '✩', '✪', '✫', '✬'];
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                const runeX = x + Math.cos(angle) * 60;
+                const runeY = y + Math.sin(angle) * 60;
+                ctx.fillText(runes[i], runeX, runeY);
+            }
+            
+            ctx.restore();
+            
+            // Magic particles
+            for (let i = 0; i < 30; i++) {
+                particles.push(new Particle(
+                    x + (Math.random() - 0.5) * 100,
+                    y + (Math.random() - 0.5) * 100,
+                    (Math.random() - 0.5) * 4,
+                    (Math.random() - 0.5) * 4,
+                    '#7B68EE',
+                    Math.random() * 4 + 2,
+                    50 + Math.random() * 30
+                ));
+            }
+            
+            playSound('magic', 1.0);
+            shakeEnemy();
+            createDamageText(x, y, 150 + Math.random() * 80);
+        }
+
+        function createPunchEffect() {
+            const enemy = document.getElementById('enemy');
+            const rect = enemy.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const x = rect.left - canvasRect.left + rect.width / 2;
+            const y = rect.top - canvasRect.top + rect.height / 2;
+            
+            // Impact circle
+            ctx.save();
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 10;
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 25;
+            ctx.beginPath();
+            ctx.arc(x, y, 50, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Impact lines
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                ctx.save();
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 4;
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + Math.cos(angle) * 80, y + Math.sin(angle) * 80);
+                ctx.stroke();
+                ctx.restore();
+            }
+            
+            playSound('punch');
+            shakeEnemy();
+            createDamageText(x, y, 100 + Math.random() * 60);
+        }
+
+        function createHealEffect() {
+            const player = document.querySelector('.player-area');
+            const rect = player.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const x = rect.left - canvasRect.left + rect.width / 2;
+            const y = rect.top - canvasRect.top + rect.height / 2;
+            
+            // Healing light
+            ctx.save();
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, 100);
+            gradient.addColorStop(0, 'rgba(76, 175, 80, 0.8)');
+            gradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x, y, 100, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Healing particles
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(
+                    x + (Math.random() - 0.5) * 80,
+                    y + 100,
+                    (Math.random() - 0.5) * 2,
+                    -Math.random() * 6 - 2,
+                    '#4CAF50',
+                    Math.random() * 4 + 2,
+                    60 + Math.random() * 40
+                ));
+            }
+            
+            playSound('heal', 1.5);
+            createDamageText(x, y, '+' + (50 + Math.random() * 30), '#4CAF50');
+        }
+
+        function createComboEffect() {
+            // Execute multiple effects in sequence
+            createSlashEffect();
+            setTimeout(() => createPunchEffect(), 300);
+            setTimeout(() => createFireballEffect(), 600);
+            setTimeout(() => createLightningEffect(), 900);
+            
+            totalAttacks += 4;
+            criticalHits++;
+            updateStats();
+        }
+
+        // Utility functions
+        function shakeEnemy() {
+            const enemy = document.getElementById('enemy');
+            enemy.style.animation = 'none';
+            enemy.offsetHeight; // Trigger reflow
+            enemy.style.animation = 'shake 0.5s ease-in-out';
+            
+            setTimeout(() => {
+                enemy.style.animation = '';
+            }, 500);
+        }
+
+        function flashScreen(color = '#FFFFFF') {
+            const flash = document.getElementById('screenFlash');
+            flash.style.background = color;
+            flash.style.animation = 'screenFlash 0.3s ease-out';
+            
+            setTimeout(() => {
+                flash.style.animation = '';
+            }, 300);
+        }
+
+        function createDamageText(x, y, damage, color = '#FF1744') {
+            const damageEl = document.createElement('div');
+            damageEl.className = 'damage-text';
+            damageEl.textContent = typeof damage === 'string' ? damage : Math.floor(damage);
+            damageEl.style.left = x + 'px';
+            damageEl.style.top = y + 'px';
+            damageEl.style.color = color;
+            
+            document.querySelector('.battlefield').appendChild(damageEl);
+            
+            setTimeout(() => {
+                damageEl.remove();
+            }, 2000);
+            
+            if (typeof damage === 'number') {
+                totalDamage += Math.floor(damage);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalAttacks').textContent = totalAttacks;
+            document.getElementById('totalDamage').textContent = totalDamage;
+            document.getElementById('criticalHits').textContent = criticalHits;
+            document.getElementById('effectCount').textContent = effectCount;
+            document.getElementById('currentEnemy').textContent = currentEnemy;
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            particles = particles.filter(particle => {
+                const alive = particle.update();
+                if (alive) {
+                    particle.draw();
+                }
+                return alive;
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        document.querySelectorAll('.effect-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const effect = e.target.dataset.effect;
+                totalAttacks++;
+                effectCount++;
+                
+                const isCritical = Math.random() < 0.2;
+                if (isCritical) criticalHits++;
+                
+                switch(effect) {
+                    case 'slash':
+                    case 'stab':
+                        createSlashEffect();
+                        break;
+                    case 'punch':
+                    case 'kick':
+                        createPunchEffect();
+                        break;
+                    case 'magic':
+                        createMagicEffect();
+                        break;
+                    case 'fireball':
+                        createFireballEffect();
+                        break;
+                    case 'lightning':
+                        createLightningEffect();
+                        break;
+                    case 'heal':
+                        createHealEffect();
+                        break;
+                }
+                
+                updateStats();
+            });
+        });
+
+        document.querySelectorAll('.enemy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const enemyType = e.target.dataset.enemy;
+                const enemy = enemies[enemyType];
+                
+                document.getElementById('enemy').textContent = enemy.emoji;
+                document.getElementById('enemy').style.background = enemy.color;
+                currentEnemy = enemy.name;
+                updateStats();
+            });
+        });
+
+        document.getElementById('comboAttack').addEventListener('click', createComboEffect);
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+                10% { transform: translate(-50%, -50%) rotate(-5deg) translate(-5px, 0); }
+                20% { transform: translate(-50%, -50%) rotate(5deg) translate(5px, 0); }
+                30% { transform: translate(-50%, -50%) rotate(-5deg) translate(-5px, 0); }
+                40% { transform: translate(-50%, -50%) rotate(5deg) translate(5px, 0); }
+                50% { transform: translate(-50%, -50%) rotate(-5deg) translate(-5px, 0); }
+                60% { transform: translate(-50%, -50%) rotate(5deg) translate(5px, 0); }
+                70% { transform: translate(-50%, -50%) rotate(-5deg) translate(-5px, 0); }
+                80% { transform: translate(-50%, -50%) rotate(5deg) translate(5px, 0); }
+                90% { transform: translate(-50%, -50%) rotate(-5deg) translate(-5px, 0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Start animation
+        animate();
+        
+        // Initial effect demonstration
+        setTimeout(() => {
+            createMagicEffect();
+            totalAttacks++;
+            effectCount++;
+            updateStats();
+        }, 1000);
+    </script>
+</body>
+</html>

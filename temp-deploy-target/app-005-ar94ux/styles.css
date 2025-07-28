@@ -1,0 +1,613 @@
+/* リセットCSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CSS変数 - サイバーテーマ */
+:root {
+    --primary-neon: #00ffff;
+    --secondary-neon: #ff00ff;
+    --accent-neon: #ffff00;
+    --bg-dark: #0a0a0a;
+    --bg-darker: #050505;
+    --bg-panel: rgba(0, 20, 40, 0.8);
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --border-glow: 0 0 20px;
+    --animation-speed: 0.3s;
+    --block-size: 40px;
+}
+
+/* 基本スタイル */
+body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(45deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+    color: var(--text-primary);
+    overflow: hidden;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* パーティクル背景 */
+#particles-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+    animation: bgPulse 4s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+/* パーティクルキャンバス */
+#particles-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 音楽コントロール */
+.music-control {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.music-btn {
+    background: rgba(0, 255, 255, 0.2);
+    border: 2px solid var(--primary-neon);
+    color: var(--primary-neon);
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--animation-speed);
+    box-shadow: var(--border-glow) rgba(0, 255, 255, 0.5);
+}
+
+.music-btn:hover {
+    background: rgba(0, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+/* ゲームコンテナ */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ヘッダー */
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game-title {
+    font-size: 3em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.neon-text {
+    color: var(--primary-neon);
+    text-shadow: 
+        0 0 5px var(--primary-neon),
+        0 0 10px var(--primary-neon),
+        0 0 20px var(--primary-neon),
+        0 0 40px var(--primary-neon);
+    animation: neonFlicker 2s ease-in-out infinite alternate;
+}
+
+.neon-text-alt {
+    color: var(--secondary-neon);
+    text-shadow: 
+        0 0 5px var(--secondary-neon),
+        0 0 10px var(--secondary-neon),
+        0 0 20px var(--secondary-neon),
+        0 0 40px var(--secondary-neon);
+    animation: neonFlicker 2s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes neonFlicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.app-id {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* ゲームエリア */
+.game-area {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* パネル共通スタイル */
+.left-panel, .right-panel {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stats-panel, .next-panel, .hold-panel, .combo-panel, .effects-panel, .theme-panel {
+    background: var(--bg-panel);
+    border: 2px solid var(--primary-neon);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: var(--border-glow) rgba(0, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.stats-panel h3, .next-panel h3, .hold-panel h3, .combo-panel h3, .effects-panel h3, .theme-panel h3 {
+    color: var(--primary-neon);
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    text-align: center;
+    text-shadow: 0 0 10px var(--primary-neon);
+}
+
+/* 統計パネル */
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    font-weight: bold;
+    color: var(--primary-neon);
+    text-shadow: 0 0 5px var(--primary-neon);
+}
+
+/* NextとHoldキャンバス */
+#next-canvas, #hold-canvas {
+    border: 1px solid var(--primary-neon);
+    border-radius: 5px;
+    display: block;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* メインゲーム */
+.main-game {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-board-container {
+    position: relative;
+    background: rgba(0, 0, 0, 0.8);
+    border: 3px solid var(--primary-neon);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 
+        var(--border-glow) rgba(0, 255, 255, 0.5),
+        inset 0 0 50px rgba(0, 255, 255, 0.1);
+}
+
+#game-canvas {
+    display: block;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 5px;
+}
+
+/* ゲームオーバーレイ */
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+.overlay-content {
+    text-align: center;
+    padding: 40px;
+}
+
+.overlay-title {
+    font-size: 2.5em;
+    color: var(--primary-neon);
+    text-shadow: 0 0 20px var(--primary-neon);
+    margin-bottom: 10px;
+    animation: titlePulse 2s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.overlay-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+.start-btn {
+    background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
+    border: none;
+    color: var(--bg-dark);
+    padding: 15px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all var(--animation-speed);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+}
+
+.start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 255, 0.5);
+}
+
+.controls-info {
+    text-align: left;
+    background: rgba(0, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--primary-neon);
+}
+
+.controls-info h4 {
+    color: var(--primary-neon);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.control-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.control-item span:first-child {
+    color: var(--secondary-neon);
+    font-weight: bold;
+}
+
+/* 右パネル */
+.combo-display {
+    font-size: 3em;
+    font-weight: bold;
+    text-align: center;
+    color: var(--accent-neon);
+    text-shadow: 0 0 20px var(--accent-neon);
+    margin-bottom: 10px;
+    animation: comboPulse 1s ease-in-out infinite;
+}
+
+@keyframes comboPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.combo-multiplier {
+    text-align: center;
+    color: var(--secondary-neon);
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* エフェクトパネル */
+.effect-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.effect-item input {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.effect-item label {
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: color var(--animation-speed);
+}
+
+.effect-item label:hover {
+    color: var(--primary-neon);
+}
+
+/* テーマセレクタ */
+#theme-selector {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid var(--primary-neon);
+    color: var(--primary-neon);
+    padding: 10px;
+    border-radius: 5px;
+    font-family: inherit;
+}
+
+#theme-selector option {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* ゲームコントロール */
+.game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.control-btn {
+    background: rgba(0, 255, 255, 0.2);
+    border: 2px solid var(--primary-neon);
+    color: var(--primary-neon);
+    padding: 12px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all var(--animation-speed);
+    font-family: inherit;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.control-btn:hover {
+    background: rgba(0, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+}
+
+/* エフェクトコンテナ */
+#effects-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* モーダル */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, var(--bg-panel), rgba(0, 50, 100, 0.9));
+    margin: 10% auto;
+    padding: 0;
+    border: 3px solid var(--primary-neon);
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 
+        var(--border-glow) rgba(0, 255, 255, 0.5),
+        0 0 50px rgba(0, 255, 255, 0.3);
+    animation: modalSlideIn 0.5s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    text-align: center;
+    padding: 30px 20px 20px;
+    border-bottom: 2px solid var(--primary-neon);
+    position: relative;
+}
+
+.modal-header h2 {
+    font-size: 2.5em;
+    color: var(--primary-neon);
+    text-shadow: 0 0 20px var(--primary-neon);
+    margin-bottom: 10px;
+    animation: gameOverGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes gameOverGlow {
+    0% { text-shadow: 0 0 20px var(--primary-neon); }
+    100% { text-shadow: 0 0 30px var(--primary-neon), 0 0 40px var(--secondary-neon); }
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.final-stats {
+    margin-bottom: 30px;
+}
+
+.final-stat {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.final-stat-label {
+    color: var(--text-secondary);
+}
+
+.final-stat-value {
+    color: var(--primary-neon);
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--primary-neon);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all var(--animation-speed);
+}
+
+.modal-btn.primary {
+    background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
+    color: var(--bg-dark);
+}
+
+.modal-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 2px solid var(--text-secondary);
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+}
+
+/* テーマバリエーション */
+.theme-neon {
+    --primary-neon: #ff0080;
+    --secondary-neon: #8000ff;
+    --accent-neon: #00ff80;
+}
+
+.theme-matrix {
+    --primary-neon: #00ff00;
+    --secondary-neon: #80ff00;
+    --accent-neon: #40ff40;
+}
+
+.theme-synthwave {
+    --primary-neon: #ff006b;
+    --secondary-neon: #8000ff;
+    --accent-neon: #ffb700;
+}
+
+.theme-fire {
+    --primary-neon: #ff4500;
+    --secondary-neon: #ff0000;
+    --accent-neon: #ffff00;
+}
+
+/* アニメーション */
+@keyframes screenShake {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-2px, -2px); }
+    20% { transform: translate(2px, -2px); }
+    30% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, 2px); }
+    50% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, -2px); }
+    70% { transform: translate(-2px, 2px); }
+    80% { transform: translate(2px, 2px); }
+    90% { transform: translate(-2px, -2px); }
+}
+
+.screen-shake {
+    animation: screenShake 0.5s ease-in-out;
+}
+
+/* レスポンシブ */
+@media (max-width: 1200px) {
+    .game-area {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .left-panel, .right-panel {
+        width: 100%;
+        max-width: 400px;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .stats-panel, .next-panel, .hold-panel, .combo-panel, .effects-panel, .theme-panel {
+        flex: 1;
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 2em;
+    }
+    
+    #game-canvas {
+        width: 320px;
+        height: 640px;
+    }
+    
+    .game-controls {
+        flex-wrap: wrap;
+    }
+    
+    .control-btn {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}

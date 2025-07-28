@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Paint System - app-001-cw7bpy</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Advanced Paint System</h1>
+        </header>
+
+        <div class="toolbar">
+            <div class="tool-group">
+                <label>ツール</label>
+                <button class="tool-btn active" data-tool="brush">🖌️ ブラシ</button>
+                <button class="tool-btn" data-tool="eraser">🧹 消しゴム</button>
+                <button class="tool-btn" data-tool="line">📏 直線</button>
+                <button class="tool-btn" data-tool="rectangle">▭ 四角</button>
+                <button class="tool-btn" data-tool="circle">○ 円</button>
+                <button class="tool-btn" data-tool="fill">🪣 塗りつぶし</button>
+            </div>
+
+            <div class="tool-group">
+                <label>ブラシ設定</label>
+                <div class="brush-settings">
+                    <input type="range" id="brush-size" min="1" max="100" value="5">
+                    <span id="size-display">5px</span>
+                </div>
+                <div class="brush-shapes">
+                    <button class="shape-btn active" data-shape="round">●</button>
+                    <button class="shape-btn" data-shape="square">■</button>
+                    <button class="shape-btn" data-shape="star">★</button>
+                    <button class="shape-btn" data-shape="heart">♥</button>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <label>カラー</label>
+                <div class="color-controls">
+                    <input type="color" id="color-picker" value="#000000">
+                    <div class="preset-colors">
+                        <button class="color-preset" style="background: #000000"></button>
+                        <button class="color-preset" style="background: #FF0000"></button>
+                        <button class="color-preset" style="background: #00FF00"></button>
+                        <button class="color-preset" style="background: #0000FF"></button>
+                        <button class="color-preset" style="background: #FFFF00"></button>
+                        <button class="color-preset" style="background: #FF00FF"></button>
+                        <button class="color-preset" style="background: #00FFFF"></button>
+                        <button class="color-preset" style="background: #FFFFFF"></button>
+                    </div>
+                </div>
+                <div class="opacity-control">
+                    <label>透明度</label>
+                    <input type="range" id="opacity" min="0" max="100" value="100">
+                    <span id="opacity-display">100%</span>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <label>レイヤー</label>
+                <div class="layer-controls">
+                    <button id="add-layer">+ レイヤー追加</button>
+                    <div id="layers-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+            <canvas id="preview-canvas"></canvas>
+        </div>
+
+        <div class="controls">
+            <button id="clear-btn">🗑️ クリア</button>
+            <button id="undo-btn">↶ 元に戻す</button>
+            <button id="redo-btn">↷ やり直す</button>
+            <button id="save-btn">💾 保存</button>
+            <button id="download-btn">⬇️ ダウンロード</button>
+            <label for="upload-btn" class="upload-label">⬆️ アップロード</label>
+            <input type="file" id="upload-btn" accept="image/*" style="display: none;">
+        </div>
+
+        <div class="history-panel">
+            <h3>履歴</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

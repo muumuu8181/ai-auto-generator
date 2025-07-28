@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>格好良い電卓 - Modern Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            display: flex;
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .history-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            flex: 0 0 250px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .display-current {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-align: right;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+
+        .display-previous {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            text-align: right;
+            margin-bottom: 5px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 500;
+            height: 70px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn.operator {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border: none;
+        }
+
+        .btn.operator:hover {
+            background: linear-gradient(135deg, #ff5252, #d63031);
+        }
+
+        .btn.equals {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            border: none;
+        }
+
+        .btn.equals:hover {
+            background: linear-gradient(135deg, #00cec9, #00b894);
+        }
+
+        .btn.clear {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            border: none;
+        }
+
+        .btn.clear:hover {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .btn.zero {
+            grid-column: span 2;
+        }
+
+        .history-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+
+        .history-expression {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+        }
+
+        .history-result {
+            color: #74b9ff;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .clear-history {
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 10px;
+            color: #ff3b30;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .clear-history:hover {
+            background: rgba(255, 59, 48, 0.3);
+        }
+
+        .title {
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* レスポンシブデザイン */
+        @media (max-width: 768px) {
+            .calculator-container {
+                flex-direction: column;
+            }
+            
+            .history-panel {
+                flex: none;
+                max-height: 200px;
+                order: -1;
+            }
+            
+            .display-current {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                height: 60px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 20px;
+            }
+            
+            .history-panel {
+                padding: 20px;
+            }
+            
+            .display-current {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                height: 50px;
+                font-size: 1.1rem;
+            }
+            
+            .buttons {
+                gap: 10px;
+            }
+        }
+
+        /* アニメーション効果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn.animate {
+            animation: pulse 0.2s ease-in-out;
+        }
+
+        /* スクロールバーのスタイリング */
+        .history-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator">
+            <h1 class="title">✨ 格好良い電卓 ✨</h1>
+            
+            <div class="display">
+                <div class="display-previous" id="previousDisplay"></div>
+                <div class="display-current" id="currentDisplay">0</div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn clear" onclick="clearAll()">AC</button>
+                <button class="btn clear" onclick="clearEntry()">CE</button>
+                <button class="btn operator" onclick="inputOperator('/')" data-operation="/">÷</button>
+                <button class="btn operator" onclick="inputOperator('*')" data-operation="*">×</button>
+                
+                <button class="btn" onclick="inputNumber('7')">7</button>
+                <button class="btn" onclick="inputNumber('8')">8</button>
+                <button class="btn" onclick="inputNumber('9')">9</button>
+                <button class="btn operator" onclick="inputOperator('-')" data-operation="-">-</button>
+                
+                <button class="btn" onclick="inputNumber('4')">4</button>
+                <button class="btn" onclick="inputNumber('5')">5</button>
+                <button class="btn" onclick="inputNumber('6')">6</button>
+                <button class="btn operator" onclick="inputOperator('+')" data-operation="+">+</button>
+                
+                <button class="btn" onclick="inputNumber('1')">1</button>
+                <button class="btn" onclick="inputNumber('2')">2</button>
+                <button class="btn" onclick="inputNumber('3')">3</button>
+                <button class="btn equals" onclick="calculate()" rowspan="2">=</button>
+                
+                <button class="btn zero" onclick="inputNumber('0')">0</button>
+                <button class="btn" onclick="inputDecimal()">.</button>
+            </div>
+        </div>
+        
+        <div class="history-panel">
+            <h2 class="history-title">📊 計算履歴</h2>
+            <div id="historyList"></div>
+            <button class="clear-history" onclick="clearHistory()">履歴をクリア</button>
+        </div>
+    </div>
+
+    <script>
+        class StylishCalculator {
+            constructor() {
+                this.currentDisplay = document.getElementById('currentDisplay');
+                this.previousDisplay = document.getElementById('previousDisplay');
+                this.historyList = document.getElementById('historyList');
+                
+                this.currentValue = '0';
+                this.previousValue = '';
+                this.operator = null;
+                this.waitingForNewValue = false;
+                this.history = JSON.parse(localStorage.getItem('calculator-history')) || [];
+                
+                this.initializeEventListeners();
+                this.loadHistory();
+            }
+
+            initializeEventListeners() {
+                // キーボードサポート
+                document.addEventListener('keydown', (e) => {
+                    e.preventDefault();
+                    
+                    if (e.key >= '0' && e.key <= '9') {
+                        this.inputNumber(e.key);
+                    } else if (e.key === '.') {
+                        this.inputDecimal();
+                    } else if (['+', '-', '*', '/'].includes(e.key)) {
+                        this.inputOperator(e.key);
+                    } else if (e.key === 'Enter' || e.key === '=') {
+                        this.calculate();
+                    } else if (e.key === 'Escape') {
+                        this.clearAll();
+                    } else if (e.key === 'Backspace') {
+                        this.clearEntry();
+                    }
+                });
+            }
+
+            inputNumber(num) {
+                this.animateButton(event?.target);
+                
+                if (this.waitingForNewValue) {
+                    this.currentValue = num;
+                    this.waitingForNewValue = false;
+                } else {
+                    this.currentValue = this.currentValue === '0' ? num : this.currentValue + num;
+                }
+                
+                this.updateDisplay();
+            }
+
+            inputDecimal() {
+                this.animateButton(event?.target);
+                
+                if (this.waitingForNewValue) {
+                    this.currentValue = '0.';
+                    this.waitingForNewValue = false;
+                } else if (this.currentValue.indexOf('.') === -1) {
+                    this.currentValue += '.';
+                }
+                
+                this.updateDisplay();
+            }
+
+            inputOperator(nextOperator) {
+                this.animateButton(event?.target);
+                
+                const inputValue = parseFloat(this.currentValue);
+
+                if (this.previousValue === '') {
+                    this.previousValue = inputValue;
+                } else if (this.operator) {
+                    const currentPrev = parseFloat(this.previousValue);
+                    const result = this.performCalculation();
+                    
+                    this.currentValue = String(result);
+                    this.previousValue = result;
+                }
+
+                this.waitingForNewValue = true;
+                this.operator = nextOperator;
+                this.updatePreviousDisplay();
+            }
+
+            calculate() {
+                this.animateButton(event?.target);
+                
+                if (this.operator && this.previousValue !== '' && !this.waitingForNewValue) {
+                    const result = this.performCalculation();
+                    const expression = `${this.previousValue} ${this.getOperatorSymbol(this.operator)} ${this.currentValue}`;
+                    
+                    this.addToHistory(expression, result);
+                    
+                    this.currentValue = String(result);
+                    this.previousValue = '';
+                    this.operator = null;
+                    this.waitingForNewValue = true;
+                    
+                    this.updateDisplay();
+                    this.updatePreviousDisplay();
+                }
+            }
+
+            performCalculation() {
+                const prev = parseFloat(this.previousValue);
+                const current = parseFloat(this.currentValue);
+                let result;
+
+                switch (this.operator) {
+                    case '+':
+                        result = prev + current;
+                        break;
+                    case '-':
+                        result = prev - current;
+                        break;
+                    case '*':
+                        result = prev * current;
+                        break;
+                    case '/':
+                        if (current === 0) {
+                            alert('ゼロで割ることはできません！');
+                            return prev;
+                        }
+                        result = prev / current;
+                        break;
+                    default:
+                        return current;
+                }
+
+                // 結果を適切にフォーマット
+                return Math.round((result + Number.EPSILON) * 100000000) / 100000000;
+            }
+
+            clearAll() {
+                this.animateButton(event?.target);
+                this.currentValue = '0';
+                this.previousValue = '';
+                this.operator = null;
+                this.waitingForNewValue = false;
+                this.updateDisplay();
+                this.updatePreviousDisplay();
+            }
+
+            clearEntry() {
+                this.animateButton(event?.target);
+                this.currentValue = '0';
+                this.updateDisplay();
+            }
+
+            getOperatorSymbol(operator) {
+                switch (operator) {
+                    case '+': return '+';
+                    case '-': return '-';
+                    case '*': return '×';
+                    case '/': return '÷';
+                    default: return operator;
+                }
+            }
+
+            updateDisplay() {
+                this.currentDisplay.textContent = this.formatNumber(this.currentValue);
+            }
+
+            updatePreviousDisplay() {
+                if (this.operator && this.previousValue !== '') {
+                    this.previousDisplay.textContent = `${this.formatNumber(this.previousValue)} ${this.getOperatorSymbol(this.operator)}`;
+                } else {
+                    this.previousDisplay.textContent = '';
+                }
+            }
+
+            formatNumber(num) {
+                const number = parseFloat(num);
+                if (isNaN(number)) return num;
+                
+                // 非常に大きい数や小さい数の場合は指数表記
+                if (Math.abs(number) >= 1e10 || (Math.abs(number) < 1e-6 && number !== 0)) {
+                    return number.toExponential(6);
+                }
+                
+                // 通常の数の場合は適切にフォーマット
+                return number.toLocaleString('ja-JP', {
+                    maximumFractionDigits: 8,
+                    minimumFractionDigits: 0
+                });
+            }
+
+            addToHistory(expression, result) {
+                const historyItem = {
+                    expression,
+                    result,
+                    timestamp: new Date().toLocaleString('ja-JP')
+                };
+                
+                this.history.unshift(historyItem);
+                
+                // 履歴は最大50件まで保持
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                
+                this.saveHistory();
+                this.loadHistory();
+            }
+
+            loadHistory() {
+                this.historyList.innerHTML = '';
+                
+                if (this.history.length === 0) {
+                    this.historyList.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">履歴はまだありません</div>';
+                    return;
+                }
+                
+                this.history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-expression">${item.expression}</div>
+                        <div class="history-result">= ${this.formatNumber(item.result)}</div>
+                        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 5px;">${item.timestamp}</div>
+                    `;
+                    
+                    // 履歴項目をクリックで結果を再利用
+                    historyItem.addEventListener('click', () => {
+                        this.currentValue = String(item.result);
+                        this.previousValue = '';
+                        this.operator = null;
+                        this.waitingForNewValue = false;
+                        this.updateDisplay();
+                        this.updatePreviousDisplay();
+                    });
+                    
+                    this.historyList.appendChild(historyItem);
+                });
+            }
+
+            saveHistory() {
+                localStorage.setItem('calculator-history', JSON.stringify(this.history));
+            }
+
+            clearHistory() {
+                if (confirm('計算履歴をすべて削除しますか？')) {
+                    this.history = [];
+                    this.saveHistory();
+                    this.loadHistory();
+                }
+            }
+
+            animateButton(button) {
+                if (button) {
+                    button.classList.add('animate');
+                    setTimeout(() => {
+                        button.classList.remove('animate');
+                    }, 200);
+                }
+            }
+        }
+
+        // グローバル関数（HTMLのonclick用）
+        let calculator;
+
+        function inputNumber(num) {
+            calculator.inputNumber(num);
+        }
+
+        function inputDecimal() {
+            calculator.inputDecimal();
+        }
+
+        function inputOperator(op) {
+            calculator.inputOperator(op);
+        }
+
+        function calculate() {
+            calculator.calculate();
+        }
+
+        function clearAll() {
+            calculator.clearAll();
+        }
+
+        function clearEntry() {
+            calculator.clearEntry();
+        }
+
+        function clearHistory() {
+            calculator.clearHistory();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            calculator = new StylishCalculator();
+        });
+    </script>
+</body>
+</html>

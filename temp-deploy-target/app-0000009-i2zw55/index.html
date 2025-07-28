@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 3Dビジュアライザー・パーティクルシステム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f0f 100%);
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #particleCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            pointer-events: auto;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f39c12, #e74c3c);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 50% 100%; }
+            75% { background-position: 0% 100%; }
+        }
+
+        .controls-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 280px;
+            pointer-events: auto;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .control-section h3 {
+            color: #4ecdc4;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .control-row label {
+            font-size: 0.9em;
+            color: #ccc;
+            min-width: 100px;
+        }
+
+        .slider {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 0 8px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .value-display {
+            font-weight: bold;
+            color: #4ecdc4;
+            min-width: 40px;
+            text-align: right;
+            font-size: 0.9em;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85em;
+            text-align: center;
+        }
+
+        .preset-btn:hover {
+            background: rgba(78, 205, 196, 0.3);
+            border-color: #4ecdc4;
+            transform: translateY(-1px);
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .stats-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: auto;
+            min-width: 200px;
+        }
+
+        .stats-panel h3 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .stat-value {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 15px 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: auto;
+            text-align: center;
+        }
+
+        .info-panel p {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .performance-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: auto;
+        }
+
+        .fps-display {
+            color: #4ecdc4;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .toggle-btn {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(78, 205, 196, 0.3);
+            border-color: #4ecdc4;
+        }
+
+        .toggle-btn.active {
+            background: rgba(78, 205, 196, 0.5);
+            border-color: #4ecdc4;
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls-panel {
+                left: 10px;
+                top: 80px;
+                min-width: 250px;
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+
+            .stats-panel {
+                right: 10px;
+                top: 80px;
+                min-width: 180px;
+            }
+
+            .info-panel {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+            }
+
+            .performance-indicator {
+                bottom: 80px;
+                right: 10px;
+            }
+        }
+
+        /* パーティクル効果 */
+        .particle-trail {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #4ecdc4, transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fadeOut 1s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+
+        .explosion {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.8), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 0.5s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { opacity: 1; transform: scale(0); }
+            50% { opacity: 0.8; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <canvas id="particleCanvas"></canvas>
+    </div>
+
+    <div class="ui-overlay">
+        <div class="header">
+            <h1>✨ 3Dビジュアライザー・パーティクルシステム</h1>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-section">
+                <h3>🎛️ パーティクル設定</h3>
+                <div class="control-row">
+                    <label>パーティクル数:</label>
+                    <input type="range" class="slider" id="particleCount" min="50" max="1000" value="200">
+                    <span class="value-display" id="particleCountValue">200</span>
+                </div>
+                <div class="control-row">
+                    <label>速度:</label>
+                    <input type="range" class="slider" id="particleSpeed" min="0.1" max="5" step="0.1" value="1">
+                    <span class="value-display" id="particleSpeedValue">1.0</span>
+                </div>
+                <div class="control-row">
+                    <label>サイズ:</label>
+                    <input type="range" class="slider" id="particleSize" min="1" max="10" step="0.5" value="3">
+                    <span class="value-display" id="particleSizeValue">3.0</span>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>🌈 ビジュアル効果</h3>
+                <div class="control-row">
+                    <label>重力:</label>
+                    <input type="range" class="slider" id="gravity" min="-0.5" max="0.5" step="0.01" value="0">
+                    <span class="value-display" id="gravityValue">0.00</span>
+                </div>
+                <div class="control-row">
+                    <label>パーティクル色:</label>
+                    <input type="color" class="color-picker" id="particleColor" value="#4ecdc4">
+                </div>
+                <button class="toggle-btn" id="trailsBtn">✨ トレイル効果</button>
+                <button class="toggle-btn" id="connectionsBtn">🔗 接続線</button>
+                <button class="toggle-btn" id="explosionsBtn">💥 爆発効果</button>
+            </div>
+
+            <div class="control-section">
+                <h3>🎨 プリセット</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="loadPreset('galaxy')">🌌 ギャラクシー</button>
+                    <button class="preset-btn" onclick="loadPreset('fireflies')">🪲 ホタル</button>
+                    <button class="preset-btn" onclick="loadPreset('snow')">❄️ 雪</button>
+                    <button class="preset-btn" onclick="loadPreset('fire')">🔥 炎</button>
+                    <button class="preset-btn" onclick="loadPreset('matrix')">💻 マトリックス</button>
+                    <button class="preset-btn" onclick="loadPreset('ocean')">🌊 海</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <h3>📊 統計情報</h3>
+            <div class="stat-item">
+                <span>アクティブ:</span>
+                <span class="stat-value" id="activeParticles">200</span>
+            </div>
+            <div class="stat-item">
+                <span>マウス速度:</span>
+                <span class="stat-value" id="mouseSpeed">0</span>
+            </div>
+            <div class="stat-item">
+                <span>爆発回数:</span>
+                <span class="stat-value" id="explosionCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span>描画時間:</span>
+                <span class="stat-value" id="renderTime">0ms</span>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <p>🖱️ マウスを動かしてパーティクルと相互作用</p>
+            <p>🖱️ クリックで爆発効果</p>
+            <p>📱 タッチデバイス対応</p>
+        </div>
+
+        <div class="performance-indicator">
+            <div class="fps-display" id="fpsDisplay">60 FPS</div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let canvas, ctx;
+        let particles = [];
+        let mouse = { x: 0, y: 0, lastX: 0, lastY: 0 };
+        let animationId;
+        let settings = {
+            particleCount: 200,
+            particleSpeed: 1,
+            particleSize: 3,
+            gravity: 0,
+            color: '#4ecdc4',
+            trails: false,
+            connections: false,
+            explosions: false
+        };
+        let stats = {
+            explosionCount: 0,
+            frameCount: 0,
+            lastTime: 0,
+            fps: 60
+        };
+
+        // パーティクルクラス
+        class Particle {
+            constructor(x, y) {
+                this.x = x || Math.random() * canvas.width;
+                this.y = y || Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 2 * settings.particleSpeed;
+                this.vy = (Math.random() - 0.5) * 2 * settings.particleSpeed;
+                this.life = 1;
+                this.decay = Math.random() * 0.01 + 0.001;
+                this.size = Math.random() * settings.particleSize + 1;
+                this.color = settings.color;
+                this.originalSize = this.size;
+            }
+
+            update() {
+                // 重力適用
+                this.vy += settings.gravity;
+
+                // マウスとの相互作用
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 100) {
+                    const force = (100 - distance) / 100;
+                    this.vx += dx * force * 0.001;
+                    this.vy += dy * force * 0.001;
+                }
+
+                // 位置更新
+                this.x += this.vx * settings.particleSpeed;
+                this.y += this.vy * settings.particleSpeed;
+
+                // 境界処理
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -0.8;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -0.8;
+                
+                this.x = Math.max(0, Math.min(canvas.width, this.x));
+                this.y = Math.max(0, Math.min(canvas.height, this.y));
+
+                // ライフサイクル
+                this.life -= this.decay;
+                this.size = this.originalSize * this.life;
+
+                // パーティクルの復活
+                if (this.life <= 0) {
+                    this.life = 1;
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 2 * settings.particleSpeed;
+                    this.vy = (Math.random() - 0.5) * 2 * settings.particleSpeed;
+                    this.size = Math.random() * settings.particleSize + 1;
+                    this.originalSize = this.size;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        // 初期化
+        function init() {
+            canvas = document.getElementById('particleCanvas');
+            ctx = canvas.getContext('2d');
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // マウスイベント
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('click', handleClick);
+            
+            // タッチイベント
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+
+            // UI初期化
+            initializeControls();
+            
+            // パーティクル生成
+            generateParticles();
+            
+            // アニメーション開始
+            animate();
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function generateParticles() {
+            particles = [];
+            for (let i = 0; i < settings.particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function handleMouseMove(e) {
+            mouse.lastX = mouse.x;
+            mouse.lastY = mouse.y;
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            
+            // マウス速度計算
+            const speed = Math.sqrt(
+                Math.pow(mouse.x - mouse.lastX, 2) + 
+                Math.pow(mouse.y - mouse.lastY, 2)
+            );
+            document.getElementById('mouseSpeed').textContent = Math.round(speed);
+
+            if (settings.trails) {
+                createTrail(mouse.x, mouse.y);
+            }
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            mouse.lastX = mouse.x;
+            mouse.lastY = mouse.y;
+            mouse.x = touch.clientX;
+            mouse.y = touch.clientY;
+            
+            if (settings.trails) {
+                createTrail(mouse.x, mouse.y);
+            }
+        }
+
+        function handleClick(e) {
+            if (settings.explosions) {
+                createExplosion(e.clientX, e.clientY);
+                stats.explosionCount++;
+                document.getElementById('explosionCount').textContent = stats.explosionCount;
+            }
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            if (settings.explosions) {
+                createExplosion(touch.clientX, touch.clientY);
+                stats.explosionCount++;
+                document.getElementById('explosionCount').textContent = stats.explosionCount;
+            }
+        }
+
+        function createTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'particle-trail';
+            trail.style.left = x + 'px';
+            trail.style.top = y + 'px';
+            trail.style.background = `radial-gradient(circle, ${settings.color}, transparent)`;
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 1000);
+        }
+
+        function createExplosion(x, y) {
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.style.left = (x - 50) + 'px';
+            explosion.style.top = (y - 50) + 'px';
+            document.body.appendChild(explosion);
+            
+            // 周囲のパーティクルに影響
+            particles.forEach(particle => {
+                const dx = particle.x - x;
+                const dy = particle.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    const force = (150 - distance) / 150;
+                    particle.vx += (dx / distance) * force * 5;
+                    particle.vy += (dy / distance) * force * 5;
+                }
+            });
+            
+            setTimeout(() => {
+                if (explosion.parentNode) {
+                    explosion.parentNode.removeChild(explosion);
+                }
+            }, 500);
+        }
+
+        function drawConnections() {
+            if (!settings.connections) return;
+            
+            ctx.strokeStyle = settings.color;
+            ctx.globalAlpha = 0.1;
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function animate() {
+            const currentTime = performance.now();
+            const deltaTime = currentTime - stats.lastTime;
+            
+            // FPS計算
+            stats.frameCount++;
+            if (stats.frameCount % 60 === 0) {
+                stats.fps = Math.round(1000 / (deltaTime || 16));
+                document.getElementById('fpsDisplay').textContent = stats.fps + ' FPS';
+            }
+
+            // 背景クリア
+            ctx.fillStyle = 'rgba(10, 10, 20, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 描画開始時間
+            const renderStart = performance.now();
+
+            // パーティクル更新・描画
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // 接続線描画
+            drawConnections();
+
+            // 描画時間計算
+            const renderEnd = performance.now();
+            const renderTime = Math.round(renderEnd - renderStart);
+            document.getElementById('renderTime').textContent = renderTime + 'ms';
+
+            // 統計更新
+            document.getElementById('activeParticles').textContent = particles.length;
+
+            stats.lastTime = currentTime;
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function initializeControls() {
+            // スライダーイベント
+            document.getElementById('particleCount').addEventListener('input', (e) => {
+                settings.particleCount = parseInt(e.target.value);
+                document.getElementById('particleCountValue').textContent = settings.particleCount;
+                generateParticles();
+            });
+
+            document.getElementById('particleSpeed').addEventListener('input', (e) => {
+                settings.particleSpeed = parseFloat(e.target.value);
+                document.getElementById('particleSpeedValue').textContent = settings.particleSpeed.toFixed(1);
+            });
+
+            document.getElementById('particleSize').addEventListener('input', (e) => {
+                settings.particleSize = parseFloat(e.target.value);
+                document.getElementById('particleSizeValue').textContent = settings.particleSize.toFixed(1);
+            });
+
+            document.getElementById('gravity').addEventListener('input', (e) => {
+                settings.gravity = parseFloat(e.target.value);
+                document.getElementById('gravityValue').textContent = settings.gravity.toFixed(2);
+            });
+
+            document.getElementById('particleColor').addEventListener('input', (e) => {
+                settings.color = e.target.value;
+                particles.forEach(particle => particle.color = settings.color);
+            });
+
+            // トグルボタン
+            document.getElementById('trailsBtn').addEventListener('click', (e) => {
+                settings.trails = !settings.trails;
+                e.target.classList.toggle('active', settings.trails);
+            });
+
+            document.getElementById('connectionsBtn').addEventListener('click', (e) => {
+                settings.connections = !settings.connections;
+                e.target.classList.toggle('active', settings.connections);
+            });
+
+            document.getElementById('explosionsBtn').addEventListener('click', (e) => {
+                settings.explosions = !settings.explosions;
+                e.target.classList.toggle('active', settings.explosions);
+            });
+        }
+
+        function loadPreset(presetName) {
+            const presets = {
+                galaxy: {
+                    particleCount: 300,
+                    particleSpeed: 0.5,
+                    particleSize: 2,
+                    gravity: 0,
+                    color: '#4ecdc4',
+                    trails: true,
+                    connections: true,
+                    explosions: false
+                },
+                fireflies: {
+                    particleCount: 150,
+                    particleSpeed: 0.3,
+                    particleSize: 4,
+                    gravity: -0.01,
+                    color: '#ffff00',
+                    trails: true,
+                    connections: false,
+                    explosions: false
+                },
+                snow: {
+                    particleCount: 400,
+                    particleSpeed: 0.2,
+                    particleSize: 3,
+                    gravity: 0.02,
+                    color: '#ffffff',
+                    trails: false,
+                    connections: false,
+                    explosions: false
+                },
+                fire: {
+                    particleCount: 250,
+                    particleSpeed: 1.5,
+                    particleSize: 5,
+                    gravity: -0.03,
+                    color: '#ff6b6b',
+                    trails: true,
+                    connections: false,
+                    explosions: true
+                },
+                matrix: {
+                    particleCount: 100,
+                    particleSpeed: 2,
+                    particleSize: 2,
+                    gravity: 0.1,
+                    color: '#00ff00',
+                    trails: false,
+                    connections: true,
+                    explosions: false
+                },
+                ocean: {
+                    particleCount: 350,
+                    particleSpeed: 0.8,
+                    particleSize: 3,
+                    gravity: 0.005,
+                    color: '#45b7d1',
+                    trails: false,
+                    connections: true,
+                    explosions: false
+                }
+            };
+
+            const preset = presets[presetName];
+            if (preset) {
+                Object.assign(settings, preset);
+                updateUI();
+                generateParticles();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('particleCount').value = settings.particleCount;
+            document.getElementById('particleCountValue').textContent = settings.particleCount;
+            
+            document.getElementById('particleSpeed').value = settings.particleSpeed;
+            document.getElementById('particleSpeedValue').textContent = settings.particleSpeed.toFixed(1);
+            
+            document.getElementById('particleSize').value = settings.particleSize;
+            document.getElementById('particleSizeValue').textContent = settings.particleSize.toFixed(1);
+            
+            document.getElementById('gravity').value = settings.gravity;
+            document.getElementById('gravityValue').textContent = settings.gravity.toFixed(2);
+            
+            document.getElementById('particleColor').value = settings.color;
+
+            document.getElementById('trailsBtn').classList.toggle('active', settings.trails);
+            document.getElementById('connectionsBtn').classList.toggle('active', settings.connections);
+            document.getElementById('explosionsBtn').classList.toggle('active', settings.explosions);
+        }
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    settings.trails = !settings.trails;
+                    document.getElementById('trailsBtn').classList.toggle('active', settings.trails);
+                    break;
+                case 'c':
+                    settings.connections = !settings.connections;
+                    document.getElementById('connectionsBtn').classList.toggle('active', settings.connections);
+                    break;
+                case 'e':
+                    settings.explosions = !settings.explosions;
+                    document.getElementById('explosionsBtn').classList.toggle('active', settings.explosions);
+                    break;
+                case 'r':
+                    generateParticles();
+                    break;
+            }
+        });
+
+        // 初期化実行
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "managerAI": {
+    "target": 70,
+    "minimum": 60
+  },
+  "workerAI": {
+    "target": 60,
+    "minimum": 50
+  },
+  "inspectorAI": {
+    "target": 50,
+    "minimum": 35
+  },
+  "overallCollaboration": {
+    "target": 70,
+    "minimum": 60
+  }
+}

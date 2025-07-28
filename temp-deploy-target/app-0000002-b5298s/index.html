@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>格好良い電卓</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator">
+            <div class="display-section">
+                <div class="current-display" id="currentDisplay">0</div>
+                <div class="previous-display" id="previousDisplay"></div>
+            </div>
+            
+            <div class="history-section">
+                <h3>計算履歴</h3>
+                <div class="history-list" id="historyList">
+                    <div class="history-item">履歴がここに表示されます</div>
+                </div>
+                <button class="clear-history-btn" id="clearHistoryBtn">履歴をクリア</button>
+            </div>
+            
+            <div class="buttons-grid">
+                <button class="btn btn-clear" data-action="clear">C</button>
+                <button class="btn btn-clear" data-action="clear-entry">CE</button>
+                <button class="btn btn-operator" data-action="backspace">⌫</button>
+                <button class="btn btn-operator" data-operator="/">÷</button>
+                
+                <button class="btn btn-number" data-number="7">7</button>
+                <button class="btn btn-number" data-number="8">8</button>
+                <button class="btn btn-number" data-number="9">9</button>
+                <button class="btn btn-operator" data-operator="*">×</button>
+                
+                <button class="btn btn-number" data-number="4">4</button>
+                <button class="btn btn-number" data-number="5">5</button>
+                <button class="btn btn-number" data-number="6">6</button>
+                <button class="btn btn-operator" data-operator="-">-</button>
+                
+                <button class="btn btn-number" data-number="1">1</button>
+                <button class="btn btn-number" data-number="2">2</button>
+                <button class="btn btn-number" data-number="3">3</button>
+                <button class="btn btn-operator" data-operator="+">+</button>
+                
+                <button class="btn btn-number btn-zero" data-number="0">0</button>
+                <button class="btn btn-number" data-action="decimal">.</button>
+                <button class="btn btn-equals" data-action="calculate">=</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Stylish Clock System - 時の芸術</title>
+    <style>
+        :root {
+            /* Classic Theme */
+            --classic-primary: #d4af37;
+            --classic-secondary: #8b4513;
+            --classic-bg: #2f1b14;
+            --classic-text: #f4e4bc;
+            
+            /* Modern Theme */
+            --modern-primary: #2196f3;
+            --modern-secondary: #90caf9;
+            --modern-bg: #fafafa;
+            --modern-text: #212121;
+            
+            /* Neon Theme */
+            --neon-primary: #00ffff;
+            --neon-secondary: #ff00ff;
+            --neon-bg: #000012;
+            --neon-text: #ffffff;
+            
+            /* Military Theme */
+            --military-primary: #8fbc8f;
+            --military-secondary: #daa520;
+            --military-bg: #2f4f2f;
+            --military-text: #f0f8ff;
+            
+            /* Elegant Theme */
+            --elegant-primary: #ffd700;
+            --elegant-secondary: #e6e6fa;
+            --elegant-bg: #191970;
+            --elegant-text: #f8f8ff;
+            
+            /* Cyberpunk Theme */
+            --cyber-primary: #00ff41;
+            --cyber-secondary: #ff073a;
+            --cyber-bg: #0d1117;
+            --cyber-text: #c9d1d9;
+            
+            /* Current theme variables */
+            --primary-color: var(--neon-primary);
+            --secondary-color: var(--neon-secondary);
+            --bg-color: var(--neon-bg);
+            --text-color: var(--neon-text);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Courier New', monospace;
+            background: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .background-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+            opacity: 0.7;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            to {
+                transform: translateY(-10vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .theme-button {
+            width: 40px;
+            height: 40px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-button:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+        }
+
+        .theme-button.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .theme-classic { background: linear-gradient(45deg, #d4af37, #8b4513); }
+        .theme-modern { background: linear-gradient(45deg, #2196f3, #90caf9); }
+        .theme-neon { background: linear-gradient(45deg, #00ffff, #ff00ff); }
+        .theme-military { background: linear-gradient(45deg, #8fbc8f, #daa520); }
+        .theme-elegant { background: linear-gradient(45deg, #ffd700, #e6e6fa); }
+        .theme-cyber { background: linear-gradient(45deg, #00ff41, #ff073a); }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .clock-container {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .analog-clock {
+            width: 300px;
+            height: 300px;
+            border: 8px solid var(--primary-color);
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+            box-shadow: 
+                0 0 30px var(--primary-color),
+                inset 0 0 30px rgba(0,0,0,0.5);
+            animation: clockGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes clockGlow {
+            from { box-shadow: 0 0 30px var(--primary-color), inset 0 0 30px rgba(0,0,0,0.5); }
+            to { box-shadow: 0 0 50px var(--primary-color), inset 0 0 30px rgba(0,0,0,0.5); }
+        }
+
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        .clock-hand {
+            position: absolute;
+            background: var(--primary-color);
+            transform-origin: bottom center;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .hour-hand {
+            width: 6px;
+            height: 80px;
+            top: 70px;
+            left: 147px;
+            z-index: 4;
+        }
+
+        .minute-hand {
+            width: 4px;
+            height: 100px;
+            top: 50px;
+            left: 148px;
+            z-index: 3;
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 120px;
+            top: 30px;
+            left: 149px;
+            z-index: 2;
+            background: var(--secondary-color);
+            box-shadow: 0 0 15px var(--secondary-color);
+        }
+
+        .clock-numbers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .clock-number {
+            position: absolute;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .digital-clock {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 30px var(--primary-color);
+            margin: 20px 0;
+            font-family: 'Orbitron', monospace;
+            animation: digitalPulse 1s infinite;
+        }
+
+        @keyframes digitalPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .date-display {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            text-shadow: 0 0 10px var(--secondary-color);
+            margin-bottom: 30px;
+        }
+
+        .function-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tab-button {
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-button:hover, .tab-button.active {
+            background: var(--primary-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .function-content {
+            width: 100%;
+            max-width: 600px;
+            min-height: 200px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .function-content.active {
+            display: block;
+        }
+
+        .timer-controls, .stopwatch-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .time-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-input input {
+            width: 60px;
+            padding: 10px;
+            font-size: 1.2em;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--primary-color);
+            color: var(--text-color);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .big-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 30px var(--primary-color);
+            margin: 20px 0;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            color: white;
+        }
+
+        .stop-button {
+            background: linear-gradient(45deg, #f44336, #ff5722);
+            color: white;
+        }
+
+        .reset-button {
+            background: linear-gradient(45deg, #ff9800, #ffc107);
+            color: white;
+        }
+
+        .control-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-ring {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 8;
+            filter: drop-shadow(0 0 10px var(--primary-color));
+        }
+
+        .progress-ring-background {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+
+        .lap-times {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .lap-item {
+            padding: 5px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .world-clocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .world-clock-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .world-clock-city {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .world-clock-time {
+            font-size: 1.5em;
+            font-family: 'Orbitron', monospace;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            .analog-clock {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .digital-clock {
+                font-size: 2em;
+            }
+            
+            .function-tabs {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            
+            .big-display {
+                font-size: 2.5em;
+            }
+        }
+
+        .sound-wave {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 50%;
+            opacity: 0;
+            animation: soundWave 1s ease-out;
+        }
+
+        @keyframes soundWave {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+            }
+        }
+
+        .glitch {
+            animation: glitch 0.3s ease-in-out;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+    </style>
+</head>
+<body data-theme="neon">
+    <div class="background-particles" id="particles"></div>
+    
+    <div class="app-container">
+        <header class="header">
+            <div class="logo">⚡ ULTRA CLOCK ⚡</div>
+            <div class="theme-selector">
+                <div class="theme-button theme-classic" data-theme="classic" title="クラシック"></div>
+                <div class="theme-button theme-modern" data-theme="modern" title="モダン"></div>
+                <div class="theme-button theme-neon active" data-theme="neon" title="ネオン"></div>
+                <div class="theme-button theme-military" data-theme="military" title="ミリタリー"></div>
+                <div class="theme-button theme-elegant" data-theme="elegant" title="エレガント"></div>
+                <div class="theme-button theme-cyber" data-theme="cyber" title="サイバーパンク"></div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="clock-container">
+                <div class="analog-clock" id="analogClock">
+                    <div class="clock-numbers" id="clockNumbers"></div>
+                    <div class="clock-hand hour-hand" id="hourHand"></div>
+                    <div class="clock-hand minute-hand" id="minuteHand"></div>
+                    <div class="clock-hand second-hand" id="secondHand"></div>
+                    <div class="clock-center"></div>
+                </div>
+            </div>
+
+            <div class="digital-clock" id="digitalClock">00:00:00</div>
+            <div class="date-display" id="dateDisplay">2025年7月28日 日曜日</div>
+
+            <div class="function-tabs">
+                <div class="tab-button active" data-tab="clock">🕐 時計</div>
+                <div class="tab-button" data-tab="timer">⏲️ タイマー</div>
+                <div class="tab-button" data-tab="stopwatch">⏱️ ストップウォッチ</div>
+                <div class="tab-button" data-tab="world">🌍 世界時計</div>
+            </div>
+
+            <div class="function-content active" id="clockContent">
+                <div style="text-align: center;">
+                    <h2 style="color: var(--primary-color); margin-bottom: 20px;">時計設定</h2>
+                    <label style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px;">
+                        <input type="checkbox" id="showAnalog" checked> アナログ時計表示
+                    </label>
+                    <label style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px;">
+                        <input type="checkbox" id="showDigital" checked> デジタル時計表示
+                    </label>
+                    <label style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <input type="checkbox" id="format24h" checked> 24時間表示
+                    </label>
+                </div>
+            </div>
+
+            <div class="function-content" id="timerContent">
+                <div class="timer-controls">
+                    <h2 style="color: var(--primary-color); text-align: center; margin-bottom: 20px;">タイマー</h2>
+                    <div class="time-input">
+                        <input type="number" id="timerHours" min="0" max="23" value="0" placeholder="時">
+                        <span>:</span>
+                        <input type="number" id="timerMinutes" min="0" max="59" value="5" placeholder="分">
+                        <span>:</span>
+                        <input type="number" id="timerSeconds" min="0" max="59" value="0" placeholder="秒">
+                    </div>
+                    <svg class="progress-ring" id="timerProgress">
+                        <circle class="progress-ring-background" cx="100" cy="100" r="90"/>
+                        <circle class="progress-ring-circle" cx="100" cy="100" r="90" 
+                                stroke-dasharray="565.48" stroke-dashoffset="565.48" id="timerCircle"/>
+                    </svg>
+                    <div class="big-display" id="timerDisplay">05:00</div>
+                    <div class="control-buttons">
+                        <button class="control-button start-button" id="timerStart">開始</button>
+                        <button class="control-button stop-button" id="timerStop">停止</button>
+                        <button class="control-button reset-button" id="timerReset">リセット</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="function-content" id="stopwatchContent">
+                <div class="stopwatch-controls">
+                    <h2 style="color: var(--primary-color); text-align: center; margin-bottom: 20px;">ストップウォッチ</h2>
+                    <div class="big-display" id="stopwatchDisplay">00:00:00</div>
+                    <div class="control-buttons">
+                        <button class="control-button start-button" id="stopwatchStart">開始</button>
+                        <button class="control-button stop-button" id="stopwatchStop">停止</button>
+                        <button class="control-button reset-button" id="stopwatchReset">リセット</button>
+                        <button class="control-button" id="stopwatchLap" style="background: linear-gradient(45deg, #9c27b0, #673ab7); color: white;">ラップ</button>
+                    </div>
+                    <div class="lap-times" id="lapTimes"></div>
+                </div>
+            </div>
+
+            <div class="function-content" id="worldContent">
+                <h2 style="color: var(--primary-color); text-align: center; margin-bottom: 20px;">世界時計</h2>
+                <div class="world-clocks" id="worldClocks"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 時計システム
+        class UltraClockSystem {
+            constructor() {
+                this.currentTheme = 'neon';
+                this.currentTab = 'clock';
+                this.timerInterval = null;
+                this.stopwatchInterval = null;
+                this.timerTime = 0;
+                this.stopwatchTime = 0;
+                this.lapTimes = [];
+                this.isTimerRunning = false;
+                this.isStopwatchRunning = false;
+                
+                this.worldCities = [
+                    { name: 'Tokyo', timezone: 'Asia/Tokyo' },
+                    { name: 'New York', timezone: 'America/New_York' },
+                    { name: 'London', timezone: 'Europe/London' },
+                    { name: 'Paris', timezone: 'Europe/Paris' },
+                    { name: 'Sydney', timezone: 'Australia/Sydney' },
+                    { name: 'Moscow', timezone: 'Europe/Moscow' }
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.createParticles();
+                this.createClockNumbers();
+                this.setupEventListeners();
+                this.startMainClock();
+                this.updateWorldClocks();
+                this.setTheme('neon');
+                
+                setInterval(() => this.updateWorldClocks(), 1000);
+            }
+
+            createParticles() {
+                const container = document.getElementById('particles');
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    container.appendChild(particle);
+                }
+            }
+
+            createClockNumbers() {
+                const numbers = document.getElementById('clockNumbers');
+                for (let i = 1; i <= 12; i++) {
+                    const numberDiv = document.createElement('div');
+                    numberDiv.className = 'clock-number';
+                    numberDiv.textContent = i;
+                    
+                    const angle = (i * 30 - 90) * Math.PI / 180;
+                    const radius = 120;
+                    const x = Math.cos(angle) * radius + 150;
+                    const y = Math.sin(angle) * radius + 150;
+                    
+                    numberDiv.style.left = x - 10 + 'px';
+                    numberDiv.style.top = y - 10 + 'px';
+                    numbers.appendChild(numberDiv);
+                }
+            }
+
+            setupEventListeners() {
+                // テーマ切り替え
+                document.querySelectorAll('.theme-button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const theme = btn.dataset.theme;
+                        this.setTheme(theme);
+                    });
+                });
+
+                // タブ切り替え
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.switchTab(btn.dataset.tab);
+                    });
+                });
+
+                // 時計設定
+                document.getElementById('showAnalog').addEventListener('change', (e) => {
+                    document.getElementById('analogClock').style.display = e.target.checked ? 'block' : 'none';
+                });
+
+                document.getElementById('showDigital').addEventListener('change', (e) => {
+                    document.getElementById('digitalClock').style.display = e.target.checked ? 'block' : 'none';
+                });
+
+                // タイマー制御
+                document.getElementById('timerStart').addEventListener('click', () => this.startTimer());
+                document.getElementById('timerStop').addEventListener('click', () => this.stopTimer());
+                document.getElementById('timerReset').addEventListener('click', () => this.resetTimer());
+
+                // ストップウォッチ制御
+                document.getElementById('stopwatchStart').addEventListener('click', () => this.startStopwatch());
+                document.getElementById('stopwatchStop').addEventListener('click', () => this.stopStopwatch());
+                document.getElementById('stopwatchReset').addEventListener('click', () => this.resetStopwatch());
+                document.getElementById('stopwatchLap').addEventListener('click', () => this.addLap());
+
+                // タイマー入力
+                ['timerHours', 'timerMinutes', 'timerSeconds'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => this.updateTimerFromInputs());
+                });
+            }
+
+            setTheme(theme) {
+                document.querySelectorAll('.theme-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+                
+                const root = document.documentElement;
+                root.style.setProperty('--primary-color', `var(--${theme}-primary)`);
+                root.style.setProperty('--secondary-color', `var(--${theme}-secondary)`);
+                root.style.setProperty('--bg-color', `var(--${theme}-bg)`);
+                root.style.setProperty('--text-color', `var(--${theme}-text)`);
+                
+                document.body.dataset.theme = theme;
+                this.currentTheme = theme;
+                
+                // テーマ切り替えエフェクト
+                document.body.classList.add('glitch');
+                setTimeout(() => document.body.classList.remove('glitch'), 300);
+            }
+
+            switchTab(tab) {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+                
+                document.querySelectorAll('.function-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(tab + 'Content').classList.add('active');
+                
+                this.currentTab = tab;
+            }
+
+            startMainClock() {
+                const updateClock = () => {
+                    const now = new Date();
+                    
+                    // アナログ時計更新
+                    const hours = now.getHours() % 12;
+                    const minutes = now.getMinutes();
+                    const seconds = now.getSeconds();
+                    
+                    const hourAngle = (hours * 30) + (minutes * 0.5);
+                    const minuteAngle = minutes * 6;
+                    const secondAngle = seconds * 6;
+                    
+                    document.getElementById('hourHand').style.transform = `rotate(${hourAngle}deg)`;
+                    document.getElementById('minuteHand').style.transform = `rotate(${minuteAngle}deg)`;
+                    document.getElementById('secondHand').style.transform = `rotate(${secondAngle}deg)`;
+                    
+                    // デジタル時計更新
+                    const format24h = document.getElementById('format24h').checked;
+                    const timeString = now.toLocaleTimeString('ja-JP', { 
+                        hour12: !format24h,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    document.getElementById('digitalClock').textContent = timeString;
+                    
+                    // 日付更新
+                    const dateString = now.toLocaleDateString('ja-JP', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                    document.getElementById('dateDisplay').textContent = dateString;
+                };
+                
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+
+            updateTimerFromInputs() {
+                const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+                const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+                this.timerTime = hours * 3600 + minutes * 60 + seconds;
+                this.updateTimerDisplay();
+            }
+
+            startTimer() {
+                if (!this.isTimerRunning && this.timerTime > 0) {
+                    this.isTimerRunning = true;
+                    this.timerInterval = setInterval(() => {
+                        this.timerTime--;
+                        this.updateTimerDisplay();
+                        this.updateTimerProgress();
+                        
+                        if (this.timerTime <= 0) {
+                            this.stopTimer();
+                            this.playAlarm();
+                        }
+                    }, 1000);
+                }
+            }
+
+            stopTimer() {
+                this.isTimerRunning = false;
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            resetTimer() {
+                this.stopTimer();
+                this.updateTimerFromInputs();
+                this.updateTimerProgress();
+            }
+
+            updateTimerDisplay() {
+                const hours = Math.floor(this.timerTime / 3600);
+                const minutes = Math.floor((this.timerTime % 3600) / 60);
+                const seconds = this.timerTime % 60;
+                
+                let display = '';
+                if (hours > 0) {
+                    display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+                
+                document.getElementById('timerDisplay').textContent = display;
+            }
+
+            updateTimerProgress() {
+                const totalTime = parseInt(document.getElementById('timerHours').value) * 3600 +
+                                parseInt(document.getElementById('timerMinutes').value) * 60 +
+                                parseInt(document.getElementById('timerSeconds').value);
+                const progress = totalTime > 0 ? (totalTime - this.timerTime) / totalTime : 0;
+                const circumference = 2 * Math.PI * 90;
+                const offset = circumference - (progress * circumference);
+                document.getElementById('timerCircle').style.strokeDashoffset = offset;
+            }
+
+            startStopwatch() {
+                if (!this.isStopwatchRunning) {
+                    this.isStopwatchRunning = true;
+                    this.stopwatchInterval = setInterval(() => {
+                        this.stopwatchTime++;
+                        this.updateStopwatchDisplay();
+                    }, 10);
+                }
+            }
+
+            stopStopwatch() {
+                this.isStopwatchRunning = false;
+                if (this.stopwatchInterval) {
+                    clearInterval(this.stopwatchInterval);
+                    this.stopwatchInterval = null;
+                }
+            }
+
+            resetStopwatch() {
+                this.stopStopwatch();
+                this.stopwatchTime = 0;
+                this.lapTimes = [];
+                this.updateStopwatchDisplay();
+                document.getElementById('lapTimes').innerHTML = '';
+            }
+
+            addLap() {
+                if (this.isStopwatchRunning) {
+                    this.lapTimes.push(this.stopwatchTime);
+                    this.updateLapDisplay();
+                }
+            }
+
+            updateStopwatchDisplay() {
+                const totalMs = this.stopwatchTime * 10;
+                const hours = Math.floor(totalMs / 3600000);
+                const minutes = Math.floor((totalMs % 3600000) / 60000);
+                const seconds = Math.floor((totalMs % 60000) / 1000);
+                const ms = Math.floor((totalMs % 1000) / 10);
+                
+                const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+                document.getElementById('stopwatchDisplay').textContent = display;
+            }
+
+            updateLapDisplay() {
+                const lapContainer = document.getElementById('lapTimes');
+                lapContainer.innerHTML = '';
+                
+                this.lapTimes.forEach((lapTime, index) => {
+                    const lapDiv = document.createElement('div');
+                    lapDiv.className = 'lap-item';
+                    
+                    const totalMs = lapTime * 10;
+                    const hours = Math.floor(totalMs / 3600000);
+                    const minutes = Math.floor((totalMs % 3600000) / 60000);
+                    const seconds = Math.floor((totalMs % 60000) / 1000);
+                    const ms = Math.floor((totalMs % 1000) / 10);
+                    
+                    const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+                    lapDiv.textContent = `Lap ${index + 1}: ${timeStr}`;
+                    lapContainer.appendChild(lapDiv);
+                });
+            }
+
+            updateWorldClocks() {
+                const container = document.getElementById('worldClocks');
+                container.innerHTML = '';
+                
+                this.worldCities.forEach(city => {
+                    const cityDiv = document.createElement('div');
+                    cityDiv.className = 'world-clock-item';
+                    
+                    const now = new Date();
+                    const cityTime = new Intl.DateTimeFormat('ja-JP', {
+                        timeZone: city.timezone,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    }).format(now);
+                    
+                    cityDiv.innerHTML = `
+                        <div class="world-clock-city">${city.name}</div>
+                        <div class="world-clock-time">${cityTime}</div>
+                    `;
+                    
+                    container.appendChild(cityDiv);
+                });
+            }
+
+            playAlarm() {
+                // サウンドウェーブエフェクト
+                const soundWave = document.createElement('div');
+                soundWave.className = 'sound-wave';
+                document.body.appendChild(soundWave);
+                setTimeout(() => soundWave.remove(), 1000);
+                
+                // 簡易的なアラーム音（Web Audio APIでビープ音生成）
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 1);
+                } catch (e) {
+                    console.log('Web Audio API not supported');
+                }
+            }
+        }
+
+        // アプリケーション開始
+        document.addEventListener('DOMContentLoaded', () => {
+            new UltraClockSystem();
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // ESCでリセット
+                if (confirm('全ての機能をリセットしますか？')) {
+                    location.reload();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>竹切りゲーム - 爽快斬撃体験</title>
+    <meta name="description" content="リアルな物理演算で竹をスパッと切る爽快ゲーム">
+    
+    <!-- PWA設定 -->
+    <meta name="theme-color" content="#2E7D32">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="竹切りゲーム">
+    
+    <link rel="manifest" id="manifest-placeholder">
+    <link rel="icon" type="image/png" sizes="192x192" id="icon-placeholder">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #gameCanvas {
+            display: block;
+            cursor: none;
+            background: linear-gradient(180deg, #87CEEB 0%, #98FB98 50%, #228B22 100%);
+            touch-action: none;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        .combo-display {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            color: #FFD700;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 100;
+        }
+
+        .start-button {
+            padding: 15px 30px;
+            font-size: 24px;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: all;
+        }
+
+        .start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .instructions {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .slice-effect {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes sliceFlash {
+            0% { opacity: 1; width: 2px; }
+            100% { opacity: 0; width: 8px; }
+        }
+
+        .slice-line {
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,1) 50%, 
+                rgba(255,255,255,0) 100%);
+            animation: sliceFlash 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .score-display, .combo-display {
+                font-size: 20px;
+            }
+            
+            .start-button {
+                font-size: 20px;
+                padding: 12px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="ui-overlay">
+        <div class="score-display">
+            スコア: <span id="score">0</span>
+        </div>
+        <div class="combo-display">
+            コンボ: <span id="combo">0</span>
+        </div>
+    </div>
+
+    <div class="start-screen" id="startScreen">
+        <div class="instructions">
+            <h1>🎋 竹切りゲーム 🎋</h1>
+            <p>スワイプして竹をスパッと切ろう！</p>
+            <p>連続で切ってコンボを決めよう！</p>
+        </div>
+        <button class="start-button" onclick="startGame()">ゲーム開始</button>
+    </div>
+
+    <script>
+        // ゲーム状態管理
+        let gameState = {
+            isPlaying: false,
+            score: 0,
+            combo: 0,
+            comboTimer: 0,
+            lastCutTime: 0
+        };
+
+        // Canvas設定
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 物理演算用の定数
+        const GRAVITY = 0.5;
+        const FRICTION = 0.98;
+        const BOUNCE_DAMPING = 0.7;
+
+        // 竹のオブジェクト配列
+        let bamboos = [];
+        let particles = [];
+        let sliceEffects = [];
+
+        // 音響エフェクト（Web Audio API使用）
+        let audioContext;
+        let masterGainNode;
+
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                masterGainNode = audioContext.createGain();
+                masterGainNode.connect(audioContext.destination);
+                masterGainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            } catch (e) {
+                console.log('Web Audio API not supported');
+            }
+        }
+
+        // 切断音の生成
+        function playSliceSound() {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filterNode = audioContext.createBiquadFilter();
+            
+            oscillator.connect(filterNode);
+            filterNode.connect(gainNode);
+            gainNode.connect(masterGainNode);
+            
+            // 鋭い切断音
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+            
+            filterNode.type = 'lowpass';
+            filterNode.frequency.setValueAtTime(2000, audioContext.currentTime);
+            filterNode.frequency.exponentialRampToValueAtTime(500, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+
+        // コンボ音の生成
+        function playComboSound(comboCount) {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(masterGainNode);
+            
+            // コンボ数に応じて音程を上げる
+            const frequency = 440 + (comboCount * 50);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        // 竹オブジェクトクラス
+        class Bamboo {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 20 + Math.random() * 10;
+                this.height = 100 + Math.random() * 50;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = Math.random() * -5 - 2;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.angularVelocity = (Math.random() - 0.5) * 0.2;
+                this.color = `hsl(${80 + Math.random() * 40}, 60%, 40%)`;
+                this.segments = Math.floor(this.height / 15);
+                this.isSliced = false;
+                this.sliceY = 0;
+                this.upperPart = null;
+                this.lowerPart = null;
+            }
+
+            update() {
+                if (!this.isSliced) {
+                    this.vy += GRAVITY;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.rotation += this.angularVelocity;
+                    
+                    this.vx *= FRICTION;
+                    this.vy *= FRICTION;
+
+                    // 画面外判定
+                    if (this.y > canvas.height + 100) {
+                        return false;
+                    }
+                } else {
+                    // スライスされた後の物理演算
+                    if (this.upperPart) {
+                        this.upperPart.vy += GRAVITY;
+                        this.upperPart.x += this.upperPart.vx;
+                        this.upperPart.y += this.upperPart.vy;
+                        this.upperPart.rotation += this.upperPart.angularVelocity;
+                        this.upperPart.vx *= FRICTION;
+                        this.upperPart.vy *= FRICTION;
+                    }
+                    
+                    if (this.lowerPart) {
+                        this.lowerPart.vy += GRAVITY;
+                        this.lowerPart.x += this.lowerPart.vx;
+                        this.lowerPart.y += this.lowerPart.vy;
+                        this.lowerPart.rotation += this.lowerPart.angularVelocity;
+                        this.lowerPart.vx *= FRICTION;
+                        this.lowerPart.vy *= FRICTION;
+                    }
+
+                    // 画面外判定
+                    if (this.upperPart && this.upperPart.y > canvas.height + 100) {
+                        this.upperPart = null;
+                    }
+                    if (this.lowerPart && this.lowerPart.y > canvas.height + 100) {
+                        this.lowerPart = null;
+                    }
+                    
+                    if (!this.upperPart && !this.lowerPart) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+
+            slice(sliceY) {
+                if (this.isSliced) return false;
+                
+                // 竹の境界内でのスライス判定
+                const localSliceY = sliceY - this.y;
+                if (localSliceY < 0 || localSliceY > this.height) return false;
+                
+                this.isSliced = true;
+                this.sliceY = localSliceY;
+                
+                // 上部と下部のパーツを作成
+                this.upperPart = {
+                    x: this.x,
+                    y: this.y,
+                    width: this.width,
+                    height: this.sliceY,
+                    vx: this.vx + (Math.random() - 0.5) * 5,
+                    vy: this.vy - Math.random() * 3,
+                    rotation: this.rotation,
+                    angularVelocity: (Math.random() - 0.5) * 0.3,
+                    color: this.color
+                };
+                
+                this.lowerPart = {
+                    x: this.x,
+                    y: this.y + this.sliceY,
+                    width: this.width,
+                    height: this.height - this.sliceY,
+                    vx: this.vx + (Math.random() - 0.5) * 5,
+                    vy: this.vy - Math.random() * 3,
+                    rotation: this.rotation,
+                    angularVelocity: (Math.random() - 0.5) * 0.3,
+                    color: this.color
+                };
+                
+                // パーティクル効果
+                this.createSliceParticles(this.x, sliceY);
+                
+                return true;
+            }
+
+            createSliceParticles(x, y) {
+                for (let i = 0; i < 15; i++) {
+                    particles.push({
+                        x: x + (Math.random() - 0.5) * this.width,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: (Math.random() - 0.5) * 10,
+                        size: Math.random() * 4 + 2,
+                        color: this.color,
+                        life: 1.0,
+                        decay: 0.02 + Math.random() * 0.02
+                    });
+                }
+            }
+
+            draw() {
+                ctx.save();
+                
+                if (!this.isSliced) {
+                    // 通常の竹描画
+                    ctx.translate(this.x + this.width/2, this.y + this.height/2);
+                    ctx.rotate(this.rotation);
+                    
+                    // 竹の本体
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                    
+                    // 竹の節
+                    ctx.strokeStyle = '#228B22';
+                    ctx.lineWidth = 2;
+                    for (let i = 1; i < this.segments; i++) {
+                        const segmentY = -this.height/2 + (this.height / this.segments) * i;
+                        ctx.beginPath();
+                        ctx.moveTo(-this.width/2, segmentY);
+                        ctx.lineTo(this.width/2, segmentY);
+                        ctx.stroke();
+                    }
+                    
+                    // ハイライト
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    ctx.fillRect(-this.width/2, -this.height/2, this.width/3, this.height);
+                    
+                } else {
+                    // スライスされた竹の描画
+                    if (this.upperPart) {
+                        this.drawBambooPart(this.upperPart);
+                    }
+                    if (this.lowerPart) {
+                        this.drawBambooPart(this.lowerPart);
+                    }
+                }
+                
+                ctx.restore();
+            }
+
+            drawBambooPart(part) {
+                ctx.save();
+                ctx.translate(part.x + part.width/2, part.y + part.height/2);
+                ctx.rotate(part.rotation);
+                
+                // 竹の本体
+                ctx.fillStyle = part.color;
+                ctx.fillRect(-part.width/2, -part.height/2, part.width, part.height);
+                
+                // 竹の節
+                ctx.strokeStyle = '#228B22';
+                ctx.lineWidth = 2;
+                const segments = Math.floor(part.height / 15);
+                for (let i = 1; i < segments; i++) {
+                    const segmentY = -part.height/2 + (part.height / segments) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(-part.width/2, segmentY);
+                    ctx.lineTo(part.width/2, segmentY);
+                    ctx.stroke();
+                }
+                
+                // ハイライト
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.fillRect(-part.width/2, -part.height/2, part.width/3, part.height);
+                
+                ctx.restore();
+            }
+
+            checkSlice(startX, startY, endX, endY) {
+                if (this.isSliced) return false;
+                
+                // 線分と矩形の交差判定
+                const bambooLeft = this.x;
+                const bambooRight = this.x + this.width;
+                const bambooTop = this.y;
+                const bambooBottom = this.y + this.height;
+                
+                // スライス線と竹の境界ボックスの交差チェック
+                if (this.lineIntersectsRect(startX, startY, endX, endY, 
+                    bambooLeft, bambooTop, bambooRight, bambooBottom)) {
+                    
+                    // 交差点のY座標を計算
+                    const sliceY = this.getIntersectionY(startX, startY, endX, endY);
+                    return this.slice(sliceY);
+                }
+                
+                return false;
+            }
+
+            lineIntersectsRect(x1, y1, x2, y2, left, top, right, bottom) {
+                // 線分の両端が矩形内にある場合
+                if ((x1 >= left && x1 <= right && y1 >= top && y1 <= bottom) ||
+                    (x2 >= left && x2 <= right && y2 >= top && y2 <= bottom)) {
+                    return true;
+                }
+                
+                // 線分と矩形の辺の交差判定
+                return this.lineIntersectsLine(x1, y1, x2, y2, left, top, right, top) ||    // 上辺
+                       this.lineIntersectsLine(x1, y1, x2, y2, right, top, right, bottom) || // 右辺
+                       this.lineIntersectsLine(x1, y1, x2, y2, right, bottom, left, bottom) || // 下辺
+                       this.lineIntersectsLine(x1, y1, x2, y2, left, bottom, left, top);     // 左辺
+            }
+
+            lineIntersectsLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+                const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+                if (denom === 0) return false;
+                
+                const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+                const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+                
+                return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+            }
+
+            getIntersectionY(startX, startY, endX, endY) {
+                // 竹の中央でのスライスY座標を返す
+                return this.y + this.height / 2;
+            }
+        }
+
+        // パーティクル更新と描画
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += GRAVITY * 0.3;
+                particle.vx *= 0.99;
+                particle.vy *= 0.99;
+                particle.life -= particle.decay;
+                
+                if (particle.life <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                
+                ctx.save();
+                ctx.globalAlpha = particle.life;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // スライスエフェクト
+        function createSliceEffect(startX, startY, endX, endY) {
+            const sliceDiv = document.createElement('div');
+            sliceDiv.className = 'slice-effect slice-line';
+            
+            const length = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+            const angle = Math.atan2(endY - startY, endX - startX);
+            
+            sliceDiv.style.left = startX + 'px';
+            sliceDiv.style.top = startY + 'px';
+            sliceDiv.style.width = length + 'px';
+            sliceDiv.style.height = '2px';
+            sliceDiv.style.transform = `rotate(${angle}rad)`;
+            sliceDiv.style.transformOrigin = '0 50%';
+            
+            document.body.appendChild(sliceDiv);
+            
+            setTimeout(() => {
+                document.body.removeChild(sliceDiv);
+            }, 300);
+        }
+
+        // 竹の生成
+        function spawnBamboo() {
+            if (!gameState.isPlaying) return;
+            
+            const x = Math.random() * (canvas.width - 50);
+            const y = -100 - Math.random() * 50; // 画面上部から生成
+            bamboos.push(new Bamboo(x, y));
+        }
+        
+        // 初期竹の生成（ゲーム開始時）
+        function spawnInitialBamboos() {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    spawnBamboo();
+                }, i * 300); // 0.3秒間隔で3本生成
+            }
+        }
+
+        // タッチ・マウス入力処理
+        let isSlicing = false;
+        let sliceStart = { x: 0, y: 0 };
+        let sliceEnd = { x: 0, y: 0 };
+        let slicePath = [];
+
+        function startSlice(x, y) {
+            isSlicing = true;
+            sliceStart = { x, y };
+            sliceEnd = { x, y };
+            slicePath = [{ x, y }];
+        }
+
+        function updateSlice(x, y) {
+            if (!isSlicing) return;
+            
+            sliceEnd = { x, y };
+            slicePath.push({ x, y });
+            
+            // スライス軌跡の制限（パフォーマンス向上）
+            if (slicePath.length > 10) {
+                slicePath.shift();
+            }
+        }
+
+        function endSlice() {
+            if (!isSlicing) return;
+            
+            isSlicing = false;
+            
+            // スライスの実行
+            let slicedCount = 0;
+            const currentTime = Date.now();
+            
+            for (let i = bamboos.length - 1; i >= 0; i--) {
+                const bamboo = bamboos[i];
+                
+                // スライス軌跡の各セグメントで判定
+                for (let j = 0; j < slicePath.length - 1; j++) {
+                    const start = slicePath[j];
+                    const end = slicePath[j + 1];
+                    
+                    if (bamboo.checkSlice(start.x, start.y, end.x, end.y)) {
+                        slicedCount++;
+                        break;
+                    }
+                }
+            }
+            
+            if (slicedCount > 0) {
+                // スコア更新
+                gameState.score += slicedCount * 10;
+                
+                // コンボ処理
+                if (currentTime - gameState.lastCutTime < 1000) {
+                    gameState.combo += slicedCount;
+                    gameState.score += gameState.combo * 5; // コンボボーナス
+                    playComboSound(gameState.combo);
+                } else {
+                    gameState.combo = slicedCount;
+                }
+                
+                gameState.lastCutTime = currentTime;
+                gameState.comboTimer = currentTime + 3000; // 3秒でコンボリセット
+                
+                // スライスエフェクト
+                if (slicePath.length >= 2) {
+                    createSliceEffect(slicePath[0].x, slicePath[0].y, 
+                                    slicePath[slicePath.length-1].x, slicePath[slicePath.length-1].y);
+                }
+                
+                // 音響エフェクト
+                playSliceSound();
+                
+                // UI更新
+                updateUI();
+            }
+            
+            slicePath = [];
+        }
+
+        // マウスイベント
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            startSlice(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            updateSlice(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        canvas.addEventListener('mouseup', endSlice);
+
+        // タッチイベント
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            startSlice(touch.clientX - rect.left, touch.clientY - rect.top);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            updateSlice(touch.clientX - rect.left, touch.clientY - rect.top);
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            endSlice();
+        });
+
+        // UI更新
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('combo').textContent = gameState.combo;
+        }
+
+        // スライス軌跡の描画
+        function drawSlicePath() {
+            if (slicePath.length < 2) return;
+            
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+            ctx.shadowBlur = 5;
+            
+            ctx.beginPath();
+            ctx.moveTo(slicePath[0].x, slicePath[0].y);
+            
+            for (let i = 1; i < slicePath.length; i++) {
+                ctx.lineTo(slicePath[i].x, slicePath[i].y);
+            }
+            
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // メインゲームループ
+        function gameLoop() {
+            // 背景クリア
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!gameState.isPlaying) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+            
+            // コンボタイマー管理
+            if (Date.now() > gameState.comboTimer) {
+                gameState.combo = 0;
+                updateUI();
+            }
+            
+            // 竹の更新と描画
+            for (let i = bamboos.length - 1; i >= 0; i--) {
+                if (!bamboos[i].update()) {
+                    bamboos.splice(i, 1);
+                }
+            }
+            
+            for (const bamboo of bamboos) {
+                bamboo.draw();
+            }
+            
+            // パーティクル更新
+            updateParticles();
+            
+            // スライス軌跡描画
+            drawSlicePath();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 竹生成関数
+        function spawnBamboo() {
+            const x = Math.random() * (canvas.width - 60) + 30;
+            const y = -100 - Math.random() * 50; // 画面上部から生成
+            const bamboo = new Bamboo(x, y);
+            bamboos.push(bamboo);
+            console.log('竹生成:', x, y); // デバッグ用
+        }
+
+        // 初期竹生成関数
+        function spawnInitialBamboos() {
+            // 即座に3本の竹を生成
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    spawnBamboo();
+                }, i * 300); // 0.3秒間隔で生成
+            }
+        }
+
+        // ゲーム開始
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameState.isPlaying = true;
+            gameState.score = 0;
+            gameState.combo = 0;
+            gameState.lastCutTime = 0;
+            
+            // 配列をクリア
+            bamboos = [];
+            particles = [];
+            
+            initAudio();
+            updateUI();
+            
+            // 即座に初期竹を生成
+            spawnInitialBamboos();
+            
+            // 竹の定期生成（より頻繁に）
+            const bambooSpawner = setInterval(() => {
+                if (gameState.isPlaying && Math.random() < 0.8) {
+                    spawnBamboo();
+                } else if (!gameState.isPlaying) {
+                    clearInterval(bambooSpawner);
+                }
+            }, 1000); // 1秒間隔に短縮
+        }
+
+        // PWA マニフェスト動的生成
+        function generateManifest() {
+            const manifest = {
+                name: "竹切りゲーム - 爽快斬撃体験",
+                short_name: "竹切り",
+                description: "リアルな物理演算で竹をスパッと切る爽快ゲーム",
+                start_url: "./index.html",
+                display: "standalone",
+                background_color: "#2E7D32",
+                theme_color: "#2E7D32",
+                orientation: "any",
+                icons: [
+                    {
+                        src: "data:image/svg+xml;base64," + btoa(`
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+                                <rect fill="#2E7D32" width="192" height="192"/>
+                                <rect fill="#4CAF50" x="60" y="20" width="20" height="152" rx="10"/>
+                                <rect fill="#66BB6A" x="80" y="30" width="20" height="132" rx="10"/>
+                                <rect fill="#4CAF50" x="100" y="25" width="20" height="142" rx="10"/>
+                                <path fill="#FFEB3B" d="M50 80 L140 60 L145 65 L55 85 Z"/>
+                                <text x="96" y="185" font-family="sans-serif" font-size="20" text-anchor="middle" fill="white">🎋</text>
+                            </svg>
+                        `),
+                        sizes: "192x192",
+                        type: "image/svg+xml"
+                    }
+                ]
+            };
+            
+            const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blob);
+            document.getElementById('manifest-placeholder').href = manifestURL;
+        }
+
+        // 初期化
+        generateManifest();
+        gameLoop();
+    </script>
+</body>
+</html>
