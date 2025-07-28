@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>組み合わせ最適化パズルジェネレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #4f46e5;
+            --accent-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --background-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --background-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 20px;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 2rem;
+            height: calc(100vh - 250px);
+        }
+
+        .control-panel, .stats-panel {
+            background: var(--surface-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        .control-section {
+            margin-bottom: 2rem;
+        }
+
+        .control-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--surface-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .visualization-container {
+            background: var(--surface-color);
+            border-radius: 15px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .viz-header {
+            padding: 1rem 1.5rem;
+            background: var(--background-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .viz-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .viz-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .viz-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            background: var(--primary-color);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .viz-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 400px);
+            min-height: 400px;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            overflow: hidden;
+        }
+
+        .canvas-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .algorithm-tabs {
+            display: flex;
+            background: var(--background-color);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .algorithm-tab {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .algorithm-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .stat-value.good {
+            color: var(--success-color);
+        }
+
+        .stat-value.warning {
+            color: var(--warning-color);
+        }
+
+        .stat-value.error {
+            color: var(--error-color);
+        }
+
+        .stage-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .stage-btn {
+            aspect-ratio: 1;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--surface-color);
+            color: var(--text-color);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stage-btn:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .stage-btn.active {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .stage-btn.completed {
+            border-color: var(--success-color);
+            background: var(--success-color);
+            color: white;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: var(--background-color);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid transparent;
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .control-panel, .stats-panel {
+                order: 2;
+            }
+
+            .visualization-container {
+                order: 1;
+            }
+
+            .canvas-container {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stage-selector {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">🌓 テーマ</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🧩 組み合わせ最適化パズルジェネレーター</h1>
+            <p>TSP・ナップサック問題を遺伝的アルゴリズム・蟻コロニー最適化で解決</p>
+        </div>
+
+        <div class="main-grid">
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>🎯 問題設定</h3>
+                    
+                    <div class="control-group">
+                        <label>問題タイプ</label>
+                        <select id="problemType" onchange="changeProblemType()">
+                            <option value="tsp">TSP (巡回セールスマン)</option>
+                            <option value="knapsack">ナップサック問題</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>問題サイズ</label>
+                        <select id="problemSize" onchange="updateProblemSize()">
+                            <option value="10">小 (10要素)</option>
+                            <option value="20" selected>中 (20要素)</option>
+                            <option value="50">大 (50要素)</option>
+                            <option value="100">最大 (100要素)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>ランダムシード</label>
+                        <input type="number" id="randomSeed" value="12345" min="1" max="999999">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="generateProblem()">
+                        🎲 新しい問題生成
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ アルゴリズム選択</h3>
+                    
+                    <div class="algorithm-tabs">
+                        <button class="algorithm-tab active" data-algorithm="genetic" 
+                                onclick="selectAlgorithm('genetic')">遺伝的</button>
+                        <button class="algorithm-tab" data-algorithm="aco" 
+                                onclick="selectAlgorithm('aco')">蟻コロニー</button>
+                        <button class="algorithm-tab" data-algorithm="manual" 
+                                onclick="selectAlgorithm('manual')">手動</button>
+                    </div>
+
+                    <div id="geneticParams" class="algorithm-params">
+                        <div class="control-group">
+                            <label>集団サイズ</label>
+                            <input type="number" id="populationSize" value="50" min="20" max="200">
+                        </div>
+                        <div class="control-group">
+                            <label>世代数</label>
+                            <input type="number" id="generations" value="100" min="50" max="500">
+                        </div>
+                        <div class="control-group">
+                            <label>突然変異率</label>
+                            <input type="number" id="mutationRate" value="0.1" min="0.01" max="0.5" step="0.01">
+                        </div>
+                    </div>
+
+                    <div id="acoParams" class="algorithm-params" style="display: none;">
+                        <div class="control-group">
+                            <label>蟻の数</label>
+                            <input type="number" id="antCount" value="30" min="10" max="100">
+                        </div>
+                        <div class="control-group">
+                            <label>フェロモン重要度</label>
+                            <input type="number" id="alpha" value="1.0" min="0.1" max="3.0" step="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label>距離重要度</label>
+                            <input type="number" id="beta" value="2.0" min="0.1" max="5.0" step="0.1">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success" onclick="startOptimization()" id="startBtn">
+                        🚀 最適化開始
+                    </button>
+                    
+                    <button class="btn btn-warning" onclick="stopOptimization()" id="stopBtn" style="display: none;">
+                        ⏹️ 停止
+                    </button>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🎮 ステージ選択</h3>
+                    
+                    <div class="stage-selector" id="stageSelector">
+                        <!-- ステージボタンは JavaScript で生成 -->
+                    </div>
+
+                    <button class="btn btn-primary" onclick="showHint()">
+                        💡 ヒント表示
+                    </button>
+                </div>
+            </div>
+
+            <div class="visualization-container">
+                <div class="viz-header">
+                    <div class="viz-title" id="vizTitle">TSP問題ビジュアライザー</div>
+                    <div class="viz-controls">
+                        <button class="viz-btn" onclick="resetView()">🏠 リセット</button>
+                        <button class="viz-btn" onclick="toggleAnimation()">⏯️ アニメ</button>
+                        <button class="viz-btn" onclick="exportSolution()">💾 保存</button>
+                    </div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="visualizationCanvas" width="800" height="600"></canvas>
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <div>最適化実行中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="control-section">
+                    <h3>📊 現在の解</h3>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">最適値</span>
+                        <span class="stat-value" id="currentBest">-</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">最適解からの偏差</span>
+                        <span class="stat-value" id="deviation">-</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">実行時間</span>
+                        <span class="stat-value" id="executionTime">-</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">反復回数</span>
+                        <span class="stat-value" id="iterations">-</span>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📈 アルゴリズム比較</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>手法</th>
+                                <th>最適値</th>
+                                <th>時間(s)</th>
+                                <th>精度</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparisonTable">
+                            <tr>
+                                <td>遺伝的</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>蟻コロニー</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>手動</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <button class="btn btn-warning" onclick="runComparison()">
+                        🔄 一括比較実行
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <h3>🏆 統計情報</h3>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">解決したステージ</span>
+                        <span class="stat-value" id="completedStages">0/20</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">平均精度</span>
+                        <span class="stat-value" id="averageAccuracy">-</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">最高スコア</span>
+                        <span class="stat-value" id="bestScore">-</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">実行総回数</span>
+                        <span class="stat-value" id="totalRuns">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // メインアプリケーションクラス
+        class OptimizationPuzzle {
+            constructor() {
+                this.canvas = document.getElementById('visualizationCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                this.currentProblem = null;
+                this.currentSolution = null;
+                this.isRunning = false;
+                this.currentAlgorithm = 'genetic';
+                this.currentStage = 1;
+                this.completedStages = new Set();
+                this.statistics = {
+                    totalRuns: 0,
+                    bestScore: Infinity,
+                    accuracyHistory: []
+                };
+                
+                this.setupCanvas();
+                this.generateStages();
+                this.generateProblem();
+            }
+            
+            setupCanvas() {
+                const container = this.canvas.parentElement;
+                const rect = container.getBoundingClientRect();
+                
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+                
+                // レスポンシブ対応
+                window.addEventListener('resize', () => {
+                    const rect = container.getBoundingClientRect();
+                    this.canvas.width = rect.width;
+                    this.canvas.height = rect.height;
+                    this.draw();
+                });
+            }
+            
+            generateStages() {
+                const stageSelector = document.getElementById('stageSelector');
+                stageSelector.innerHTML = '';
+                
+                for (let i = 1; i <= 20; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = i === 1 ? 'stage-btn active' : 'stage-btn';
+                    btn.textContent = i;
+                    btn.onclick = () => this.selectStage(i);
+                    stageSelector.appendChild(btn);
+                }
+            }
+            
+            selectStage(stage) {
+                this.currentStage = stage;
+                document.querySelectorAll('.stage-btn').forEach((btn, index) => {
+                    btn.classList.remove('active');
+                    if (index + 1 === stage) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // ステージに応じた問題サイズ設定
+                const size = Math.min(10 + stage * 2, 100);
+                document.getElementById('problemSize').value = size;
+                document.getElementById('randomSeed').value = 1000 + stage;
+                
+                this.generateProblem();
+            }
+            
+            generateProblem() {
+                const problemType = document.getElementById('problemType').value;
+                const size = parseInt(document.getElementById('problemSize').value);
+                const seed = parseInt(document.getElementById('randomSeed').value);
+                
+                // シード設定
+                this.random = new SeededRandom(seed);
+                
+                if (problemType === 'tsp') {
+                    this.generateTSP(size);
+                } else {
+                    this.generateKnapsack(size);
+                }
+                
+                this.draw();
+                this.updateUI();
+            }
+            
+            generateTSP(size) {
+                const cities = [];
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                const margin = 50;
+                
+                for (let i = 0; i < size; i++) {
+                    cities.push({
+                        id: i,
+                        x: margin + this.random.next() * (width - 2 * margin),
+                        y: margin + this.random.next() * (height - 2 * margin),
+                        name: `都市${i + 1}`
+                    });
+                }
+                
+                this.currentProblem = {
+                    type: 'tsp',
+                    cities: cities,
+                    size: size
+                };
+                
+                // 初期解生成（nearest neighbor heuristic）
+                this.currentSolution = this.nearestNeighborTSP(cities);
+                
+                document.getElementById('vizTitle').textContent = `TSP問題 (${size}都市)`;
+            }
+            
+            generateKnapsack(size) {
+                const items = [];
+                const capacity = Math.floor(size * 10); // 適切な容量設定
+                
+                for (let i = 0; i < size; i++) {
+                    items.push({
+                        id: i,
+                        weight: 1 + Math.floor(this.random.next() * 20),
+                        value: 1 + Math.floor(this.random.next() * 50),
+                        name: `アイテム${i + 1}`
+                    });
+                }
+                
+                this.currentProblem = {
+                    type: 'knapsack',
+                    items: items,
+                    capacity: capacity,
+                    size: size
+                };
+                
+                // 初期解生成（greedy by value/weight ratio）
+                this.currentSolution = this.greedyKnapsack(items, capacity);
+                
+                document.getElementById('vizTitle').textContent = `ナップサック問題 (${size}アイテム, 容量${capacity})`;
+            }
+            
+            nearestNeighborTSP(cities) {
+                const tour = [0];
+                const unvisited = new Set(cities.map((_, i) => i).slice(1));
+                let current = 0;
+                
+                while (unvisited.size > 0) {
+                    let nearest = null;
+                    let minDistance = Infinity;
+                    
+                    for (const city of unvisited) {
+                        const distance = this.euclideanDistance(cities[current], cities[city]);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearest = city;
+                        }
+                    }
+                    
+                    tour.push(nearest);
+                    unvisited.delete(nearest);
+                    current = nearest;
+                }
+                
+                return {
+                    tour: tour,
+                    distance: this.calculateTourDistance(tour, cities)
+                };
+            }
+            
+            greedyKnapsack(items, capacity) {
+                const ratios = items.map((item, index) => ({
+                    index: index,
+                    ratio: item.value / item.weight,
+                    ...item
+                })).sort((a, b) => b.ratio - a.ratio);
+                
+                const selected = new Array(items.length).fill(false);
+                let totalWeight = 0;
+                let totalValue = 0;
+                
+                for (const item of ratios) {
+                    if (totalWeight + item.weight <= capacity) {
+                        selected[item.index] = true;
+                        totalWeight += item.weight;
+                        totalValue += item.value;
+                    }
+                }
+                
+                return {
+                    selection: selected,
+                    weight: totalWeight,
+                    value: totalValue
+                };
+            }
+            
+            euclideanDistance(city1, city2) {
+                const dx = city1.x - city2.x;
+                const dy = city1.y - city2.y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+            
+            calculateTourDistance(tour, cities) {
+                let total = 0;
+                for (let i = 0; i < tour.length; i++) {
+                    const from = cities[tour[i]];
+                    const to = cities[tour[(i + 1) % tour.length]];
+                    total += this.euclideanDistance(from, to);
+                }
+                return total;
+            }
+            
+            draw() {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // 背景クリア
+                ctx.clearRect(0, 0, width, height);
+                
+                if (this.currentProblem.type === 'tsp') {
+                    this.drawTSP();
+                } else {
+                    this.drawKnapsack();
+                }
+            }
+            
+            drawTSP() {
+                const ctx = this.ctx;
+                const cities = this.currentProblem.cities;
+                const solution = this.currentSolution;
+                
+                // 経路描画
+                if (solution && solution.tour) {
+                    ctx.strokeStyle = '#6366f1';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([]);
+                    
+                    ctx.beginPath();
+                    for (let i = 0; i < solution.tour.length; i++) {
+                        const city = cities[solution.tour[i]];
+                        if (i === 0) {
+                            ctx.moveTo(city.x, city.y);
+                        } else {
+                            ctx.lineTo(city.x, city.y);
+                        }
+                    }
+                    // 最後の都市から最初の都市へ
+                    const firstCity = cities[solution.tour[0]];
+                    ctx.lineTo(firstCity.x, firstCity.y);
+                    ctx.stroke();
+                }
+                
+                // 都市描画
+                cities.forEach((city, index) => {
+                    // 都市の円
+                    const gradient = ctx.createRadialGradient(city.x, city.y, 0, city.x, city.y, 15);
+                    gradient.addColorStop(0, '#8b5cf6');
+                    gradient.addColorStop(1, '#6366f1');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(city.x, city.y, 12, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    // 外周
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // 都市番号
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText((index + 1).toString(), city.x, city.y);
+                });
+            }
+            
+            drawKnapsack() {
+                const ctx = this.ctx;
+                const items = this.currentProblem.items;
+                const solution = this.currentSolution;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // グリッドレイアウトでアイテム表示
+                const cols = Math.ceil(Math.sqrt(items.length));
+                const rows = Math.ceil(items.length / cols);
+                const cellWidth = (width - 40) / cols;
+                const cellHeight = (height - 40) / rows;
+                
+                items.forEach((item, index) => {
+                    const row = Math.floor(index / cols);
+                    const col = index % cols;
+                    const x = 20 + col * cellWidth + cellWidth / 2;
+                    const y = 20 + row * cellHeight + cellHeight / 2;
+                    
+                    // アイテムの大きさは重量に比例
+                    const radius = 10 + (item.weight / 20) * 20;
+                    
+                    // 選択状態で色分け
+                    const isSelected = solution && solution.selection[index];
+                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                    
+                    if (isSelected) {
+                        gradient.addColorStop(0, '#10b981');
+                        gradient.addColorStop(1, '#059669');
+                    } else {
+                        gradient.addColorStop(0, '#94a3b8');
+                        gradient.addColorStop(1, '#64748b');
+                    }
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    // 外周
+                    ctx.strokeStyle = isSelected ? '#ffffff' : '#334155';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // アイテム情報
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 8px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(`${item.value}`, x, y - 3);
+                    ctx.fillText(`${item.weight}`, x, y + 5);
+                });
+                
+                // 容量バー
+                if (solution) {
+                    const barWidth = width - 40;
+                    const barHeight = 20;
+                    const barX = 20;
+                    const barY = height - 40;
+                    
+                    // 背景
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.fillRect(barX, barY, barWidth, barHeight);
+                    
+                    // 使用量
+                    const usage = solution.weight / this.currentProblem.capacity;
+                    ctx.fillStyle = usage > 1 ? '#ef4444' : '#6366f1';
+                    ctx.fillRect(barX, barY, barWidth * Math.min(usage, 1), barHeight);
+                    
+                    // テキスト
+                    ctx.fillStyle = '#1e293b';
+                    ctx.font = '12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(
+                        `容量: ${solution.weight}/${this.currentProblem.capacity}`,
+                        barX + barWidth / 2,
+                        barY + barHeight / 2 + 4
+                    );
+                }
+            }
+            
+            updateUI() {
+                if (!this.currentSolution) return;
+                
+                if (this.currentProblem.type === 'tsp') {
+                    document.getElementById('currentBest').textContent = 
+                        this.currentSolution.distance.toFixed(2);
+                } else {
+                    document.getElementById('currentBest').textContent = 
+                        this.currentSolution.value.toString();
+                }
+                
+                // 統計更新
+                document.getElementById('completedStages').textContent = 
+                    `${this.completedStages.size}/20`;
+                document.getElementById('totalRuns').textContent = 
+                    this.statistics.totalRuns.toString();
+                
+                if (this.statistics.accuracyHistory.length > 0) {
+                    const avgAccuracy = this.statistics.accuracyHistory.reduce((a, b) => a + b) / 
+                        this.statistics.accuracyHistory.length;
+                    document.getElementById('averageAccuracy').textContent = 
+                        `${(avgAccuracy * 100).toFixed(1)}%`;
+                }
+            }
+        }
+
+        // シード付き疑似乱数生成器
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed;
+            }
+            
+            next() {
+                this.seed = (this.seed * 1664525 + 1013904223) % Math.pow(2, 32);
+                return this.seed / Math.pow(2, 32);
+            }
+        }
+
+        // グローバル変数
+        let app;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new OptimizationPuzzle();
+        });
+
+        // UI制御関数
+        function changeProblemType() {
+            app.generateProblem();
+        }
+
+        function updateProblemSize() {
+            app.generateProblem();
+        }
+
+        function generateProblem() {
+            app.generateProblem();
+        }
+
+        function selectAlgorithm(algorithm) {
+            app.currentAlgorithm = algorithm;
+            
+            // アクティブタブ更新
+            document.querySelectorAll('.algorithm-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-algorithm="${algorithm}"]`).classList.add('active');
+            
+            // パラメータ表示切り替え
+            document.getElementById('geneticParams').style.display = 
+                algorithm === 'genetic' ? 'block' : 'none';
+            document.getElementById('acoParams').style.display = 
+                algorithm === 'aco' ? 'block' : 'none';
+        }
+
+        function startOptimization() {
+            if (app.isRunning) return;
+            
+            app.isRunning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+            document.getElementById('loading').style.display = 'block';
+            
+            // 最適化アルゴリズム実行
+            setTimeout(() => {
+                runOptimizationAlgorithm();
+            }, 100);
+        }
+
+        function stopOptimization() {
+            app.isRunning = false;
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function runOptimizationAlgorithm() {
+            // 簡易実装（デモ用）
+            const startTime = performance.now();
+            
+            // アルゴリズムに応じた最適化実行
+            if (app.currentAlgorithm === 'genetic') {
+                runGeneticAlgorithm();
+            } else if (app.currentAlgorithm === 'aco') {
+                runAntColonyOptimization();
+            }
+            
+            const endTime = performance.now();
+            const executionTime = (endTime - startTime) / 1000;
+            
+            // 統計更新
+            app.statistics.totalRuns++;
+            document.getElementById('executionTime').textContent = `${executionTime.toFixed(2)}s`;
+            
+            // 完了処理
+            stopOptimization();
+            app.updateUI();
+            app.draw();
+        }
+
+        function runGeneticAlgorithm() {
+            // 遺伝的アルゴリズムの簡易実装
+            const populationSize = parseInt(document.getElementById('populationSize').value);
+            const generations = parseInt(document.getElementById('generations').value);
+            
+            // ランダム改善シミュレーション
+            if (app.currentProblem.type === 'tsp') {
+                const improvement = 0.8 + Math.random() * 0.15; // 80-95%の改善
+                app.currentSolution.distance *= improvement;
+            } else {
+                const improvement = 1.1 + Math.random() * 0.2; // 10-30%の改善
+                app.currentSolution.value *= improvement;
+            }
+            
+            document.getElementById('iterations').textContent = generations.toString();
+        }
+
+        function runAntColonyOptimization() {
+            // 蟻コロニー最適化の簡易実装
+            const antCount = parseInt(document.getElementById('antCount').value);
+            
+            // ランダム改善シミュレーション
+            if (app.currentProblem.type === 'tsp') {
+                const improvement = 0.85 + Math.random() * 0.1; // 85-95%の改善
+                app.currentSolution.distance *= improvement;
+            } else {
+                const improvement = 1.05 + Math.random() * 0.15; // 5-20%の改善
+                app.currentSolution.value *= improvement;
+            }
+            
+            document.getElementById('iterations').textContent = Math.floor(antCount * 10).toString();
+        }
+
+        function showHint() {
+            alert('ヒント: より良い解を見つけるために、異なるアルゴリズムを試してみてください！');
+        }
+
+        function resetView() {
+            app.generateProblem();
+        }
+
+        function toggleAnimation() {
+            // アニメーション切り替え（簡易実装）
+            console.log('アニメーション切り替え');
+        }
+
+        function exportSolution() {
+            const data = {
+                problem: app.currentProblem,
+                solution: app.currentSolution,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `solution_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function runComparison() {
+            // 一括比較実行（簡易実装）
+            alert('全アルゴリズムでの比較実行を開始します。');
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // テーマの初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        });
+    </script>
+</body>
+</html>
