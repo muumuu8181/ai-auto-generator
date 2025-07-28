@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太陽系天体運動シミュレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c2e, #1a1a3e);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 0;
+            text-align: center;
+            border-bottom: 2px solid #4a90e2;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .header p {
+            color: #cccccc;
+            font-size: 1.1em;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 100px);
+        }
+
+        .control-panel {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 2px solid #4a90e2;
+        }
+
+        .simulation-area {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(circle at center, #0a0a2e, #000012);
+        }
+
+        #solarSystemCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+        }
+
+        #solarSystemCanvas:active {
+            cursor: grabbing;
+        }
+
+        .info-panel {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 2px solid #4a90e2;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-section h3 {
+            color: #4a90e2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 1px solid #4a90e2;
+            padding-bottom: 5px;
+        }
+
+        .time-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #357abd, #2968a3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            color: #000;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cccccc;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            outline: none;
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4a90e2;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #4a90e2;
+        }
+
+        .planet-selector select {
+            width: 100%;
+            padding: 8px;
+            background: #333;
+            color: white;
+            border: 1px solid #4a90e2;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-display {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .info-label {
+            color: #cccccc;
+        }
+
+        .info-value {
+            color: #4a90e2;
+            font-weight: bold;
+        }
+
+        .time-display {
+            background: rgba(0, 0, 0, 0.8);
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #4a90e2;
+            font-size: 1.1em;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        .speed-indicator {
+            background: rgba(0, 0, 0, 0.8);
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 1px solid #4a90e2;
+            font-size: 0.9em;
+            color: #cccccc;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #4a90e2;
+            font-size: 0.8em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .control-panel, .info-panel {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+            
+            .simulation-area {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>太陽系天体運動シミュレーター</h1>
+        <p>ケプラーの法則に基づく精密な軌道計算による天体運動の可視化</p>
+    </div>
+
+    <div class="main-container">
+        <div class="control-panel">
+            <div class="control-section">
+                <h3>時間制御</h3>
+                <div class="time-controls">
+                    <div class="button-group">
+                        <button id="playBtn">▶ 再生</button>
+                        <button id="pauseBtn">⏸ 停止</button>
+                        <button id="resetBtn">⏹ リセット</button>
+                    </div>
+                    <div class="slider-container">
+                        <label for="speedSlider">時間倍速 (1秒 = <span id="speedDisplay">1日</span>)</label>
+                        <input type="range" id="speedSlider" min="0.1" max="100" value="1" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>表示設定</h3>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showOrbits" checked>
+                        <label for="showOrbits">軌道表示</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showLabels" checked>
+                        <label for="showLabels">天体名表示</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showTrails" checked>
+                        <label for="showTrails">軌道履歴</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showStars" checked>
+                        <label for="showStars">背景星空</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>天体選択</h3>
+                <div class="planet-selector">
+                    <select id="planetSelect">
+                        <option value="sun">太陽</option>
+                        <option value="mercury">水星</option>
+                        <option value="venus">金星</option>
+                        <option value="earth" selected>地球</option>
+                        <option value="mars">火星</option>
+                        <option value="jupiter">木星</option>
+                        <option value="saturn">土星</option>
+                        <option value="uranus">天王星</option>
+                        <option value="neptune">海王星</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>視点制御</h3>
+                <div class="button-group">
+                    <button id="zoomInBtn">🔍+ 拡大</button>
+                    <button id="zoomOutBtn">🔍- 縮小</button>
+                    <button id="centerBtn">🎯 中心</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="simulation-area">
+            <canvas id="solarSystemCanvas"></canvas>
+            <div class="time-display" id="timeDisplay">
+                2024年1月1日 00:00:00
+            </div>
+            <div class="speed-indicator" id="speedIndicator">
+                時間倍速: 1x
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FFD700;"></div>
+                    <span>太陽</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #8C7853;"></div>
+                    <span>水星</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FFC649;"></div>
+                    <span>金星</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #6B93D6;"></div>
+                    <span>地球</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #C1440E;"></div>
+                    <span>火星</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #D8CA9D;"></div>
+                    <span>木星</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FAD5A5;"></div>
+                    <span>土星</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4FD0E3;"></div>
+                    <span>天王星</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4B70DD;"></div>
+                    <span>海王星</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="control-section">
+                <h3>選択天体情報</h3>
+                <div class="info-display" id="planetInfo">
+                    <div class="info-item">
+                        <span class="info-label">天体名:</span>
+                        <span class="info-value" id="planetName">地球</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">太陽からの距離:</span>
+                        <span class="info-value" id="planetDistance">1.00 AU</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">軌道速度:</span>
+                        <span class="info-value" id="planetSpeed">29.8 km/s</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">公転周期:</span>
+                        <span class="info-value" id="planetPeriod">365.25 日</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">軌道進行:</span>
+                        <span class="info-value" id="planetProgress">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>軌道要素</h3>
+                <div class="info-display" id="orbitalElements">
+                    <div class="info-item">
+                        <span class="info-label">長半径:</span>
+                        <span class="info-value" id="semiMajorAxis">1.00 AU</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">離心率:</span>
+                        <span class="info-value" id="eccentricity">0.017</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">軌道傾斜角:</span>
+                        <span class="info-value" id="inclination">0.0°</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">近日点引数:</span>
+                        <span class="info-value" id="argumentPeriapsis">102.9°</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>システム情報</h3>
+                <div class="info-display" id="systemInfo">
+                    <div class="info-item">
+                        <span class="info-label">フレームレート:</span>
+                        <span class="info-value" id="frameRate">60 FPS</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">計算精度:</span>
+                        <span class="info-value" id="accuracy">高精度</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">表示天体数:</span>
+                        <span class="info-value" id="bodyCount">9</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>教育情報</h3>
+                <div class="info-display" id="educationInfo">
+                    <div style="font-size: 0.9em; line-height: 1.4; color: #cccccc;">
+                        <strong>ケプラーの法則:</strong><br>
+                        1. 天体は楕円軌道を持つ<br>
+                        2. 面積速度は一定<br>
+                        3. 周期の2乗は長半径の3乗に比例
+                        <br><br>
+                        <strong>現在の観測:</strong><br>
+                        <span id="currentObservation">軌道の美しい調和を観察中...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 物理定数と天体データ
+        const AU = 149597870.7; // 天文単位 (km)
+        const G = 6.67430e-11; // 万有引力定数
+        const SOLAR_MASS = 1.989e30; // 太陽質量 (kg)
+        
+        // 天体データ（実際の軌道要素に基づく）
+        const celestialBodies = {
+            sun: {
+                name: '太陽',
+                mass: 1.989e30,
+                radius: 696340,
+                color: '#FFD700',
+                semiMajorAxis: 0,
+                eccentricity: 0,
+                inclination: 0,
+                argumentPeriapsis: 0,
+                longitudeAscendingNode: 0,
+                meanAnomalyEpoch: 0,
+                orbitalPeriod: 0
+            },
+            mercury: {
+                name: '水星',
+                mass: 3.301e23,
+                radius: 2439.7,
+                color: '#8C7853',
+                semiMajorAxis: 0.387,
+                eccentricity: 0.206,
+                inclination: 7.0,
+                argumentPeriapsis: 29.1,
+                longitudeAscendingNode: 48.3,
+                meanAnomalyEpoch: 174.8,
+                orbitalPeriod: 87.97
+            },
+            venus: {
+                name: '金星',
+                mass: 4.867e24,
+                radius: 6051.8,
+                color: '#FFC649',
+                semiMajorAxis: 0.723,
+                eccentricity: 0.007,
+                inclination: 3.4,
+                argumentPeriapsis: 54.9,
+                longitudeAscendingNode: 76.7,
+                meanAnomalyEpoch: 50.1,
+                orbitalPeriod: 224.7
+            },
+            earth: {
+                name: '地球',
+                mass: 5.972e24,
+                radius: 6371,
+                color: '#6B93D6',
+                semiMajorAxis: 1.000,
+                eccentricity: 0.017,
+                inclination: 0.0,
+                argumentPeriapsis: 102.9,
+                longitudeAscendingNode: 0.0,
+                meanAnomalyEpoch: 100.5,
+                orbitalPeriod: 365.25
+            },
+            mars: {
+                name: '火星',
+                mass: 6.417e23,
+                radius: 3389.5,
+                color: '#C1440E',
+                semiMajorAxis: 1.524,
+                eccentricity: 0.093,
+                inclination: 1.9,
+                argumentPeriapsis: 286.5,
+                longitudeAscendingNode: 49.6,
+                meanAnomalyEpoch: 19.4,
+                orbitalPeriod: 686.98
+            },
+            jupiter: {
+                name: '木星',
+                mass: 1.898e27,
+                radius: 69911,
+                color: '#D8CA9D',
+                semiMajorAxis: 5.203,
+                eccentricity: 0.049,
+                inclination: 1.3,
+                argumentPeriapsis: 273.9,
+                longitudeAscendingNode: 100.5,
+                meanAnomalyEpoch: 20.0,
+                orbitalPeriod: 4331.87
+            },
+            saturn: {
+                name: '土星',
+                mass: 5.683e26,
+                radius: 58232,
+                color: '#FAD5A5',
+                semiMajorAxis: 9.537,
+                eccentricity: 0.057,
+                inclination: 2.5,
+                argumentPeriapsis: 339.4,
+                longitudeAscendingNode: 113.7,
+                meanAnomalyEpoch: 317.0,
+                orbitalPeriod: 10747.2
+            },
+            uranus: {
+                name: '天王星',
+                mass: 8.681e25,
+                radius: 25362,
+                color: '#4FD0E3',
+                semiMajorAxis: 19.191,
+                eccentricity: 0.046,
+                inclination: 0.8,
+                argumentPeriapsis: 96.5,
+                longitudeAscendingNode: 74.0,
+                meanAnomalyEpoch: 142.2,
+                orbitalPeriod: 30589.0
+            },
+            neptune: {
+                name: '海王星',
+                mass: 1.024e26,
+                radius: 24622,
+                color: '#4B70DD',
+                semiMajorAxis: 30.069,
+                eccentricity: 0.009,
+                inclination: 1.8,
+                argumentPeriapsis: 273.2,
+                longitudeAscendingNode: 131.8,
+                meanAnomalyEpoch: 256.2,
+                orbitalPeriod: 59802.0
+            }
+        };
+
+        // シミュレーション状態
+        let simulation = {
+            isRunning: false,
+            timeSpeed: 1, // 1 = 1日/秒
+            currentTime: 0, // エポックからの日数
+            selectedPlanet: 'earth',
+            zoom: 1,
+            offsetX: 0,
+            offsetY: 0,
+            showOrbits: true,
+            showLabels: true,
+            showTrails: true,
+            showStars: true,
+            trails: {} // 軌道履歴
+        };
+
+        // Canvas設定
+        const canvas = document.getElementById('solarSystemCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        // Canvas初期化
+        function initCanvas() {
+            function resize() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                generateStars();
+            }
+            
+            resize();
+            window.addEventListener('resize', resize);
+        }
+
+        // 背景星空生成
+        function generateStars() {
+            stars = [];
+            const numStars = 200;
+            
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    brightness: Math.random() * 0.8 + 0.2,
+                    size: Math.random() * 1.5 + 0.5
+                });
+            }
+        }
+
+        // 数学関数
+        function degreesToRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+
+        function radiansToDegrees(radians) {
+            return radians * 180 / Math.PI;
+        }
+
+        // ケプラー方程式の解（ニュートン・ラフソン法）
+        function solveKeplerEquation(M, e, tolerance = 1e-6) {
+            let E = M; // 初期値
+            
+            for (let i = 0; i < 20; i++) {
+                const deltaE = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+                E -= deltaE;
+                
+                if (Math.abs(deltaE) < tolerance) break;
+            }
+            
+            return E;
+        }
+
+        // 軌道上の位置計算
+        function calculateOrbitalPosition(body, time) {
+            if (body.semiMajorAxis === 0) {
+                return { x: 0, y: 0, z: 0 };
+            }
+
+            const a = body.semiMajorAxis;
+            const e = body.eccentricity;
+            const i = degreesToRadians(body.inclination);
+            const omega = degreesToRadians(body.argumentPeriapsis);
+            const Omega = degreesToRadians(body.longitudeAscendingNode);
+            const M0 = degreesToRadians(body.meanAnomalyEpoch);
+            
+            // 平均近点角
+            const n = 2 * Math.PI / body.orbitalPeriod; // 平均日日運動
+            const M = M0 + n * time;
+            
+            // 離心近点角
+            const E = solveKeplerEquation(M, e);
+            
+            // 真近点角
+            const nu = 2 * Math.atan2(
+                Math.sqrt(1 + e) * Math.sin(E / 2),
+                Math.sqrt(1 - e) * Math.cos(E / 2)
+            );
+            
+            // 太陽からの距離
+            const r = a * (1 - e * Math.cos(E));
+            
+            // 軌道面での位置
+            const x_orbit = r * Math.cos(nu);
+            const y_orbit = r * Math.sin(nu);
+            
+            // 3D空間での位置（軌道要素による回転）
+            const cosOmega = Math.cos(Omega);
+            const sinOmega = Math.sin(Omega);
+            const cosomega = Math.cos(omega);
+            const sinomega = Math.sin(omega);
+            const cosi = Math.cos(i);
+            const sini = Math.sin(i);
+            
+            const x = (cosOmega * cosomega - sinOmega * sinomega * cosi) * x_orbit +
+                     (-cosOmega * sinomega - sinOmega * cosomega * cosi) * y_orbit;
+            
+            const y = (sinOmega * cosomega + cosOmega * sinomega * cosi) * x_orbit +
+                     (-sinOmega * sinomega + cosOmega * cosomega * cosi) * y_orbit;
+            
+            const z = sini * sinomega * x_orbit + sini * cosomega * y_orbit;
+            
+            return { 
+                x: x, 
+                y: y, 
+                z: z, 
+                distance: r,
+                trueAnomaly: nu,
+                eccentricAnomaly: E
+            };
+        }
+
+        // 画面座標変換
+        function worldToScreen(x, y) {
+            const scale = Math.min(canvas.width, canvas.height) * 0.03 * simulation.zoom;
+            const centerX = canvas.width / 2 + simulation.offsetX;
+            const centerY = canvas.height / 2 + simulation.offsetY;
+            
+            return {
+                x: centerX + x * scale,
+                y: centerY + y * scale
+            };
+        }
+
+        // 軌道描画
+        function drawOrbit(body) {
+            if (body.semiMajorAxis === 0) return;
+            
+            ctx.strokeStyle = body.color + '40';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            
+            const numPoints = 360;
+            let firstPoint = true;
+            
+            for (let i = 0; i <= numPoints; i++) {
+                const angle = (i / numPoints) * 2 * Math.PI;
+                const time = (angle / (2 * Math.PI)) * body.orbitalPeriod;
+                const pos = calculateOrbitalPosition(body, time);
+                const screen = worldToScreen(pos.x, pos.y);
+                
+                if (firstPoint) {
+                    ctx.moveTo(screen.x, screen.y);
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(screen.x, screen.y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+
+        // 天体描画
+        function drawCelestialBody(bodyKey, body) {
+            const pos = calculateOrbitalPosition(body, simulation.currentTime);
+            const screen = worldToScreen(pos.x, pos.y);
+            
+            // 天体のサイズ計算
+            let size;
+            if (bodyKey === 'sun') {
+                size = 15;
+            } else if (bodyKey === 'jupiter' || bodyKey === 'saturn') {
+                size = 8;
+            } else {
+                size = 5;
+            }
+            
+            // 天体描画
+            ctx.fillStyle = body.color;
+            ctx.beginPath();
+            ctx.arc(screen.x, screen.y, size, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 選択天体のハイライト
+            if (bodyKey === simulation.selectedPlanet) {
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(screen.x, screen.y, size + 5, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+            
+            // ラベル表示
+            if (simulation.showLabels) {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(body.name, screen.x, screen.y - size - 10);
+            }
+            
+            // 軌道履歴の更新
+            if (simulation.showTrails) {
+                if (!simulation.trails[bodyKey]) {
+                    simulation.trails[bodyKey] = [];
+                }
+                
+                simulation.trails[bodyKey].push({ x: screen.x, y: screen.y });
+                
+                // 履歴の長さを制限
+                if (simulation.trails[bodyKey].length > 500) {
+                    simulation.trails[bodyKey].shift();
+                }
+                
+                // 軌道履歴描画
+                if (simulation.trails[bodyKey].length > 1) {
+                    ctx.strokeStyle = body.color + '80';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    
+                    for (let i = 1; i < simulation.trails[bodyKey].length; i++) {
+                        const point = simulation.trails[bodyKey][i];
+                        if (i === 1) {
+                            ctx.moveTo(point.x, point.y);
+                        } else {
+                            ctx.lineTo(point.x, point.y);
+                        }
+                    }
+                    
+                    ctx.stroke();
+                }
+            }
+            
+            return pos;
+        }
+
+        // 背景星空描画
+        function drawStars() {
+            if (!simulation.showStars) return;
+            
+            ctx.fillStyle = '#FFFFFF';
+            
+            for (const star of stars) {
+                ctx.globalAlpha = star.brightness;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            ctx.globalAlpha = 1.0;
+        }
+
+        // メイン描画関数
+        function draw() {
+            // 画面クリア
+            ctx.fillStyle = '#000012';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 背景星空
+            drawStars();
+            
+            // 軌道描画
+            if (simulation.showOrbits) {
+                for (const [bodyKey, body] of Object.entries(celestialBodies)) {
+                    drawOrbit(body);
+                }
+            }
+            
+            // 天体描画
+            let selectedBodyPos = null;
+            
+            for (const [bodyKey, body] of Object.entries(celestialBodies)) {
+                const pos = drawCelestialBody(bodyKey, body);
+                if (bodyKey === simulation.selectedPlanet) {
+                    selectedBodyPos = pos;
+                }
+            }
+            
+            // 情報更新
+            updateInformation(selectedBodyPos);
+        }
+
+        // 情報パネル更新
+        function updateInformation(selectedBodyPos) {
+            const selectedBody = celestialBodies[simulation.selectedPlanet];
+            
+            if (selectedBodyPos && selectedBody) {
+                document.getElementById('planetName').textContent = selectedBody.name;
+                document.getElementById('planetDistance').textContent = 
+                    selectedBodyPos.distance ? selectedBodyPos.distance.toFixed(3) + ' AU' : '0.000 AU';
+                
+                // 軌道速度計算 (簡易版)
+                const speed = selectedBody.semiMajorAxis > 0 ? 
+                    Math.sqrt(G * SOLAR_MASS / (selectedBodyPos.distance * AU)) / 1000 : 0;
+                document.getElementById('planetSpeed').textContent = speed.toFixed(1) + ' km/s';
+                
+                document.getElementById('planetPeriod').textContent = selectedBody.orbitalPeriod.toFixed(1) + ' 日';
+                
+                // 軌道進行度
+                const progress = selectedBody.orbitalPeriod > 0 ? 
+                    ((simulation.currentTime % selectedBody.orbitalPeriod) / selectedBody.orbitalPeriod * 100) : 0;
+                document.getElementById('planetProgress').textContent = progress.toFixed(1) + '%';
+                
+                // 軌道要素
+                document.getElementById('semiMajorAxis').textContent = selectedBody.semiMajorAxis.toFixed(3) + ' AU';
+                document.getElementById('eccentricity').textContent = selectedBody.eccentricity.toFixed(3);
+                document.getElementById('inclination').textContent = selectedBody.inclination.toFixed(1) + '°';
+                document.getElementById('argumentPeriapsis').textContent = selectedBody.argumentPeriapsis.toFixed(1) + '°';
+            }
+            
+            // 時間表示
+            const date = new Date(2024, 0, 1);
+            date.setDate(date.getDate() + simulation.currentTime);
+            document.getElementById('timeDisplay').textContent = 
+                date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP');
+            
+            // 速度表示
+            document.getElementById('speedIndicator').textContent = `時間倍速: ${simulation.timeSpeed.toFixed(1)}x`;
+            
+            // 教育情報
+            updateEducationalInfo();
+        }
+
+        // 教育情報更新
+        function updateEducationalInfo() {
+            const observations = [
+                '内惑星ほど高速で軌道運動している',
+                '楕円軌道の離心率が天体ごとに異なる',
+                '軌道傾斜角による3次元的な動きを観察',
+                'ケプラーの第2法則：面積速度一定を確認',
+                '外惑星の長い公転周期を実感',
+                '太陽系の調和的な構造を発見'
+            ];
+            
+            const randomObservation = observations[Math.floor(Math.random() * observations.length)];
+            document.getElementById('currentObservation').textContent = randomObservation;
+        }
+
+        // アニメーションループ
+        let lastTime = 0;
+        let frameCount = 0;
+        let fpsTime = 0;
+
+        function animate(currentTime) {
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            
+            // FPS計算
+            frameCount++;
+            fpsTime += deltaTime;
+            if (fpsTime >= 1000) {
+                const fps = Math.round(frameCount * 1000 / fpsTime);
+                document.getElementById('frameRate').textContent = fps + ' FPS';
+                frameCount = 0;
+                fpsTime = 0;
+            }
+            
+            // シミュレーション時間更新
+            if (simulation.isRunning) {
+                simulation.currentTime += simulation.timeSpeed * deltaTime / 1000;
+            }
+            
+            // 描画
+            draw();
+            
+            requestAnimationFrame(animate);
+        }
+
+        // イベントリスナー設定
+        function setupEventListeners() {
+            // 時間制御
+            document.getElementById('playBtn').addEventListener('click', () => {
+                simulation.isRunning = true;
+                document.getElementById('playBtn').classList.add('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                simulation.isRunning = false;
+                document.getElementById('pauseBtn').classList.add('active');
+                document.getElementById('playBtn').classList.remove('active');
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                simulation.currentTime = 0;
+                simulation.trails = {};
+                simulation.isRunning = false;
+                document.getElementById('playBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+            });
+            
+            // 速度制御
+            document.getElementById('speedSlider').addEventListener('input', (e) => {
+                simulation.timeSpeed = parseFloat(e.target.value);
+                let speedText = '1日';
+                if (simulation.timeSpeed >= 365) {
+                    speedText = (simulation.timeSpeed / 365).toFixed(1) + '年';
+                } else if (simulation.timeSpeed >= 30) {
+                    speedText = (simulation.timeSpeed / 30).toFixed(1) + 'ヶ月';
+                } else {
+                    speedText = simulation.timeSpeed.toFixed(1) + '日';
+                }
+                document.getElementById('speedDisplay').textContent = speedText;
+            });
+            
+            // 表示設定
+            document.getElementById('showOrbits').addEventListener('change', (e) => {
+                simulation.showOrbits = e.target.checked;
+            });
+            
+            document.getElementById('showLabels').addEventListener('change', (e) => {
+                simulation.showLabels = e.target.checked;
+            });
+            
+            document.getElementById('showTrails').addEventListener('change', (e) => {
+                simulation.showTrails = e.target.checked;
+                if (!e.target.checked) {
+                    simulation.trails = {};
+                }
+            });
+            
+            document.getElementById('showStars').addEventListener('change', (e) => {
+                simulation.showStars = e.target.checked;
+            });
+            
+            // 天体選択
+            document.getElementById('planetSelect').addEventListener('change', (e) => {
+                simulation.selectedPlanet = e.target.value;
+            });
+            
+            // 視点制御
+            document.getElementById('zoomInBtn').addEventListener('click', () => {
+                simulation.zoom *= 1.5;
+            });
+            
+            document.getElementById('zoomOutBtn').addEventListener('click', () => {
+                simulation.zoom /= 1.5;
+            });
+            
+            document.getElementById('centerBtn').addEventListener('click', () => {
+                simulation.offsetX = 0;
+                simulation.offsetY = 0;
+                simulation.zoom = 1;
+            });
+            
+            // マウス操作
+            let isDragging = false;
+            let lastMouseX, lastMouseY;
+            
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaX = e.clientX - lastMouseX;
+                    const deltaY = e.clientY - lastMouseY;
+                    
+                    simulation.offsetX += deltaX;
+                    simulation.offsetY += deltaY;
+                    
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+                }
+            });
+            
+            canvas.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                simulation.zoom *= zoomFactor;
+            });
+        }
+
+        // 初期化
+        function init() {
+            initCanvas();
+            setupEventListeners();
+            
+            // デフォルトで停止状態
+            document.getElementById('pauseBtn').classList.add('active');
+            
+            // アニメーション開始
+            requestAnimationFrame(animate);
+            
+            console.log('太陽系天体運動シミュレーター初期化完了');
+        }
+
+        // ページ読み込み完了時に初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
