@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多分野統合型知識探索・創造支援プラットフォーム | InterDisciplinary Discovery Hub</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "sidebar main control"
+                "footer footer footer";
+            grid-template-rows: auto 1fr auto;
+            grid-template-columns: 250px 1fr 300px;
+            height: 100vh;
+            gap: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .header {
+            grid-area: header;
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-view {
+            grid-area: main;
+            background: rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-panel {
+            grid-area: control;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer {
+            grid-area: footer;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .knowledge-domain {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            border-left: 4px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .knowledge-domain:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .domain-mathematics { border-left-color: #ff6b6b; }
+        .domain-physics { border-left-color: #4ecdc4; }
+        .domain-chemistry { border-left-color: #45b7d1; }
+        .domain-biology { border-left-color: #96ceb4; }
+        .domain-art { border-left-color: #ffeaa7; }
+        .domain-music { border-left-color: #dda0dd; }
+        .domain-language { border-left-color: #74b9ff; }
+        .domain-philosophy { border-left-color: #fd79a8; }
+        .domain-psychology { border-left-color: #fdcb6e; }
+        .domain-technology { border-left-color: #6c5ce7; }
+
+        .domain-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .domain-desc {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        #knowledge-network {
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .control-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+        }
+
+        .slider-label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+        }
+
+        .insight-panel {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            border-left: 4px solid #4fc3f7;
+        }
+
+        .insight-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #4fc3f7;
+        }
+
+        .insight-content {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .connection-strength {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .strength-high { background: #ff6b6b; }
+        .strength-medium { background: #feca57; }
+        .strength-low { background: #48dbfb; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .pulse { animation: pulse 2s infinite; }
+
+        .floating-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .active-connection {
+            stroke-width: 3px !important;
+            stroke: #ff6b6b !important;
+            animation: pulse 1s infinite;
+        }
+
+        .node-highlight {
+            stroke: #fff !important;
+            stroke-width: 3px !important;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-areas: 
+                    "header"
+                    "main"
+                    "footer";
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+            .sidebar, .control-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="logo">🧠 InterDisciplinary Discovery Hub</div>
+            <div class="mode-toggle">
+                <button class="btn" onclick="toggleExploreMode()">探索モード</button>
+                <button class="btn" onclick="toggleCreateMode()">創造モード</button>
+                <button class="btn" onclick="generateInsight()">洞察生成</button>
+            </div>
+        </header>
+
+        <aside class="sidebar">
+            <h3 style="margin-bottom: 15px; color: #4fc3f7;">知識分野</h3>
+            <div class="knowledge-domain domain-mathematics" onclick="focusDomain('mathematics')">
+                <div class="domain-title">数学・統計学</div>
+                <div class="domain-desc">代数・幾何・確率・最適化</div>
+            </div>
+            <div class="knowledge-domain domain-physics" onclick="focusDomain('physics')">
+                <div class="domain-title">物理学</div>
+                <div class="domain-desc">量子・相対性・熱力学・流体</div>
+            </div>
+            <div class="knowledge-domain domain-chemistry" onclick="focusDomain('chemistry')">
+                <div class="domain-title">化学</div>
+                <div class="domain-desc">有機・無機・物理化学・分析</div>
+            </div>
+            <div class="knowledge-domain domain-biology" onclick="focusDomain('biology')">
+                <div class="domain-title">生物学</div>
+                <div class="domain-desc">分子・細胞・進化・生態系</div>
+            </div>
+            <div class="knowledge-domain domain-art" onclick="focusDomain('art')">
+                <div class="domain-title">芸術・美学</div>
+                <div class="domain-desc">視覚芸術・デザイン・美術史</div>
+            </div>
+            <div class="knowledge-domain domain-music" onclick="focusDomain('music')">
+                <div class="domain-title">音楽理論</div>
+                <div class="domain-desc">和声・リズム・音響・作曲</div>
+            </div>
+            <div class="knowledge-domain domain-language" onclick="focusDomain('language')">
+                <div class="domain-title">言語学</div>
+                <div class="domain-desc">音韻・統語・意味・文字</div>
+            </div>
+            <div class="knowledge-domain domain-philosophy" onclick="focusDomain('philosophy')">
+                <div class="domain-title">哲学・論理学</div>
+                <div class="domain-desc">認識論・存在論・倫理学</div>
+            </div>
+            <div class="knowledge-domain domain-psychology" onclick="focusDomain('psychology')">
+                <div class="domain-title">心理学</div>
+                <div class="domain-desc">認知・行動・社会・発達</div>
+            </div>
+            <div class="knowledge-domain domain-technology" onclick="focusDomain('technology')">
+                <div class="domain-title">情報科学</div>
+                <div class="domain-desc">アルゴリズム・AI・データ構造</div>
+            </div>
+        </aside>
+
+        <main class="main-view">
+            <svg id="knowledge-network"></svg>
+        </main>
+
+        <aside class="control-panel">
+            <div class="control-section">
+                <div class="control-title">ネットワーク制御</div>
+                <div class="slider-container">
+                    <label class="slider-label">接続強度フィルター</label>
+                    <input type="range" class="slider" min="0" max="100" value="50" id="connectionStrength">
+                </div>
+                <div class="slider-container">
+                    <label class="slider-label">表示密度</label>
+                    <input type="range" class="slider" min="10" max="100" value="70" id="displayDensity">
+                </div>
+                <div class="slider-container">
+                    <label class="slider-label">アニメーション速度</label>
+                    <input type="range" class="slider" min="1" max="10" value="5" id="animationSpeed">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-title">分析モード</div>
+                <button class="btn" onclick="analyzePatterns()" style="width: 100%; margin-bottom: 10px;">パターン分析</button>
+                <button class="btn" onclick="findBridges()" style="width: 100%; margin-bottom: 10px;">橋渡し概念発見</button>
+                <button class="btn" onclick="clusterAnalysis()" style="width: 100%;">クラスター分析</button>
+            </div>
+
+            <div class="insight-panel">
+                <div class="insight-title">🔍 発見された洞察</div>
+                <div class="insight-content" id="insightContent">
+                    異分野間の予想外な関連性を探索中...
+                    <br><br>
+                    <span class="connection-strength strength-high"></span>数学と音楽の調和理論
+                    <br>
+                    <span class="connection-strength strength-medium"></span>物理学と芸術の対称性
+                    <br>
+                    <span class="connection-strength strength-low"></span>言語学と生物学の構造類似
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-title">創造支援</div>
+                <button class="btn" onclick="generateIdeaCombination()" style="width: 100%; margin-bottom: 10px;">アイディア融合</button>
+                <button class="btn" onclick="suggestResearchTopics()" style="width: 100%; margin-bottom: 10px;">研究テーマ提案</button>
+                <button class="btn" onclick="exportKnowledgeMap()" style="width: 100%;">知識マップ出力</button>
+            </div>
+        </aside>
+
+        <footer class="footer">
+            InterDisciplinary Discovery Hub v1.0 | AI Auto Generator ws10-#10/10 | 多分野統合型知識探索・創造支援プラットフォーム
+        </footer>
+    </div>
+
+    <div class="floating-tooltip" id="tooltip"></div>
+
+    <script>
+        // グローバル変数
+        let networkData = null;
+        let simulation = null;
+        let currentMode = 'explore';
+        let selectedDomain = null;
+        let svg, g, nodes, links;
+
+        // 知識ネットワークデータの初期化
+        function initializeKnowledgeNetwork() {
+            const domains = [
+                { id: 'mathematics', name: '数学・統計学', color: '#ff6b6b', x: 0, y: 0 },
+                { id: 'physics', name: '物理学', color: '#4ecdc4', x: 0, y: 0 },
+                { id: 'chemistry', name: '化学', color: '#45b7d1', x: 0, y: 0 },
+                { id: 'biology', name: '生物学', color: '#96ceb4', x: 0, y: 0 },
+                { id: 'art', name: '芸術・美学', color: '#ffeaa7', x: 0, y: 0 },
+                { id: 'music', name: '音楽理論', color: '#dda0dd', x: 0, y: 0 },
+                { id: 'language', name: '言語学', color: '#74b9ff', x: 0, y: 0 },
+                { id: 'philosophy', name: '哲学・論理学', color: '#fd79a8', x: 0, y: 0 },
+                { id: 'psychology', name: '心理学', color: '#fdcb6e', x: 0, y: 0 },
+                { id: 'technology', name: '情報科学', color: '#6c5ce7', x: 0, y: 0 }
+            ];
+
+            // サブ概念を追加
+            const concepts = [];
+            domains.forEach(domain => {
+                concepts.push({ ...domain, type: 'domain', size: 20 });
+                
+                // 各ドメインに関連概念を追加
+                const relatedConcepts = generateRelatedConcepts(domain.id);
+                relatedConcepts.forEach(concept => {
+                    concepts.push({
+                        id: `${domain.id}_${concept.id}`,
+                        name: concept.name,
+                        color: domain.color,
+                        type: 'concept',
+                        domain: domain.id,
+                        size: Math.random() * 10 + 5,
+                        x: 0,
+                        y: 0
+                    });
+                });
+            });
+
+            // 接続関係を生成
+            const connections = generateConnections(concepts);
+
+            networkData = {
+                nodes: concepts,
+                links: connections
+            };
+
+            createNetworkVisualization();
+        }
+
+        // 関連概念生成
+        function generateRelatedConcepts(domainId) {
+            const conceptMap = {
+                mathematics: [
+                    { id: 'algebra', name: '代数学' },
+                    { id: 'geometry', name: '幾何学' },
+                    { id: 'calculus', name: '微積分学' },
+                    { id: 'statistics', name: '統計学' },
+                    { id: 'topology', name: '位相数学' }
+                ],
+                physics: [
+                    { id: 'quantum', name: '量子力学' },
+                    { id: 'relativity', name: '相対性理論' },
+                    { id: 'thermodynamics', name: '熱力学' },
+                    { id: 'electromagnetism', name: '電磁気学' },
+                    { id: 'mechanics', name: '力学' }
+                ],
+                chemistry: [
+                    { id: 'organic', name: '有機化学' },
+                    { id: 'inorganic', name: '無機化学' },
+                    { id: 'physical_chem', name: '物理化学' },
+                    { id: 'analytical', name: '分析化学' },
+                    { id: 'biochemistry', name: '生化学' }
+                ],
+                biology: [
+                    { id: 'molecular', name: '分子生物学' },
+                    { id: 'evolution', name: '進化論' },
+                    { id: 'ecology', name: '生態学' },
+                    { id: 'genetics', name: '遺伝学' },
+                    { id: 'neurobiology', name: '神経生物学' }
+                ],
+                art: [
+                    { id: 'visual_art', name: '視覚芸術' },
+                    { id: 'sculpture', name: '彫刻' },
+                    { id: 'painting', name: '絵画' },
+                    { id: 'design', name: 'デザイン' },
+                    { id: 'aesthetics', name: '美学理論' }
+                ],
+                music: [
+                    { id: 'harmony', name: '和声理論' },
+                    { id: 'rhythm', name: 'リズム' },
+                    { id: 'composition', name: '作曲技法' },
+                    { id: 'acoustics', name: '音響学' },
+                    { id: 'ethnomusicology', name: '民族音楽学' }
+                ],
+                language: [
+                    { id: 'phonetics', name: '音韻学' },
+                    { id: 'syntax', name: '統語論' },
+                    { id: 'semantics', name: '意味論' },
+                    { id: 'pragmatics', name: '語用論' },
+                    { id: 'sociolinguistics', name: '社会言語学' }
+                ],
+                philosophy: [
+                    { id: 'logic', name: '論理学' },
+                    { id: 'epistemology', name: '認識論' },
+                    { id: 'ethics', name: '倫理学' },
+                    { id: 'metaphysics', name: '形而上学' },
+                    { id: 'philosophy_of_mind', name: '心の哲学' }
+                ],
+                psychology: [
+                    { id: 'cognitive', name: '認知心理学' },
+                    { id: 'behavioral', name: '行動心理学' },
+                    { id: 'social_psych', name: '社会心理学' },
+                    { id: 'developmental', name: '発達心理学' },
+                    { id: 'neuropsychology', name: '神経心理学' }
+                ],
+                technology: [
+                    { id: 'algorithms', name: 'アルゴリズム' },
+                    { id: 'ai_ml', name: 'AI・機械学習' },
+                    { id: 'data_structures', name: 'データ構造' },
+                    { id: 'software_engineering', name: 'ソフトウェア工学' },
+                    { id: 'cybernetics', name: 'サイバネティクス' }
+                ]
+            };
+            return conceptMap[domainId] || [];
+        }
+
+        // 接続関係生成
+        function generateConnections(concepts) {
+            const connections = [];
+            
+            // ドメイン間接続
+            const domains = concepts.filter(c => c.type === 'domain');
+            for (let i = 0; i < domains.length; i++) {
+                for (let j = i + 1; j < domains.length; j++) {
+                    const strength = calculateConnectionStrength(domains[i].id, domains[j].id);
+                    if (strength > 0.3) {
+                        connections.push({
+                            source: domains[i].id,
+                            target: domains[j].id,
+                            strength: strength,
+                            type: 'interdisciplinary'
+                        });
+                    }
+                }
+            }
+
+            // ドメイン内接続
+            domains.forEach(domain => {
+                const domainConcepts = concepts.filter(c => c.domain === domain.id);
+                domainConcepts.forEach(concept => {
+                    connections.push({
+                        source: domain.id,
+                        target: concept.id,
+                        strength: 0.8,
+                        type: 'domain_concept'
+                    });
+                });
+            });
+
+            // 概念間接続
+            const conceptNodes = concepts.filter(c => c.type === 'concept');
+            for (let i = 0; i < conceptNodes.length; i++) {
+                for (let j = i + 1; j < conceptNodes.length; j++) {
+                    if (Math.random() < 0.15) {
+                        const strength = Math.random() * 0.7 + 0.3;
+                        connections.push({
+                            source: conceptNodes[i].id,
+                            target: conceptNodes[j].id,
+                            strength: strength,
+                            type: 'concept_concept'
+                        });
+                    }
+                }
+            }
+
+            return connections;
+        }
+
+        // 分野間接続強度計算
+        function calculateConnectionStrength(domain1, domain2) {
+            const strengthMatrix = {
+                'mathematics-physics': 0.9,
+                'mathematics-technology': 0.8,
+                'mathematics-music': 0.7,
+                'physics-chemistry': 0.8,
+                'chemistry-biology': 0.9,
+                'biology-psychology': 0.6,
+                'art-psychology': 0.7,
+                'music-mathematics': 0.7,
+                'language-philosophy': 0.8,
+                'technology-psychology': 0.6,
+                'philosophy-psychology': 0.8,
+                'art-music': 0.8,
+                'physics-technology': 0.7,
+                'language-technology': 0.6,
+                'biology-chemistry': 0.9
+            };
+
+            const key1 = `${domain1}-${domain2}`;
+            const key2 = `${domain2}-${domain1}`;
+            
+            return strengthMatrix[key1] || strengthMatrix[key2] || Math.random() * 0.6;
+        }
+
+        // ネットワーク可視化作成
+        function createNetworkVisualization() {
+            const container = d3.select('#knowledge-network');
+            const width = container.node().getBoundingClientRect().width;
+            const height = container.node().getBoundingClientRect().height;
+
+            container.selectAll("*").remove();
+
+            svg = container
+                .attr('width', width)
+                .attr('height', height);
+
+            g = svg.append('g');
+
+            // ズーム機能
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                });
+
+            svg.call(zoom);
+
+            // 力学シミュレーション
+            simulation = d3.forceSimulation(networkData.nodes)
+                .force('link', d3.forceLink(networkData.links).id(d => d.id).distance(d => {
+                    return d.type === 'domain_concept' ? 50 : 100;
+                }))
+                .force('charge', d3.forceManyBody().strength(d => {
+                    return d.type === 'domain' ? -500 : -200;
+                }))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(d => d.size + 10));
+
+            // リンク描画
+            links = g.append('g')
+                .selectAll('line')
+                .data(networkData.links)
+                .enter().append('line')
+                .attr('stroke', d => {
+                    const colors = {
+                        'interdisciplinary': '#ff6b6b',
+                        'domain_concept': '#4fc3f7',
+                        'concept_concept': '#96ceb4'
+                    };
+                    return colors[d.type] || '#666';
+                })
+                .attr('stroke-width', d => Math.sqrt(d.strength * 5))
+                .attr('stroke-opacity', d => d.strength);
+
+            // ノード描画
+            nodes = g.append('g')
+                .selectAll('circle')
+                .data(networkData.nodes)
+                .enter().append('circle')
+                .attr('r', d => d.size)
+                .attr('fill', d => d.color)
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 2)
+                .style('cursor', 'pointer')
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended))
+                .on('mouseover', handleMouseOver)
+                .on('mouseout', handleMouseOut)
+                .on('click', handleNodeClick);
+
+            // ラベル描画
+            const labels = g.append('g')
+                .selectAll('text')
+                .data(networkData.nodes)
+                .enter().append('text')
+                .text(d => d.name)
+                .attr('font-size', d => d.type === 'domain' ? '12px' : '10px')
+                .attr('font-weight', d => d.type === 'domain' ? 'bold' : 'normal')
+                .attr('fill', '#fff')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '.35em')
+                .style('pointer-events', 'none');
+
+            // シミュレーション更新
+            simulation.on('tick', () => {
+                links
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                nodes
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+
+                labels
+                    .attr('x', d => d.x)
+                    .attr('y', d => d.y);
+            });
+
+            startNetworkAnimation();
+        }
+
+        // ドラッグイベント
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // マウスイベント
+        function handleMouseOver(event, d) {
+            const tooltip = d3.select('#tooltip');
+            tooltip.style('opacity', 1)
+                .html(`<strong>${d.name}</strong><br>分野: ${d.domain || d.id}<br>タイプ: ${d.type}`)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 10) + 'px');
+
+            d3.select(this).classed('node-highlight', true);
+            
+            // 関連リンクをハイライト
+            links.classed('active-connection', l => l.source.id === d.id || l.target.id === d.id);
+        }
+
+        function handleMouseOut(event, d) {
+            d3.select('#tooltip').style('opacity', 0);
+            d3.select(this).classed('node-highlight', false);
+            links.classed('active-connection', false);
+        }
+
+        function handleNodeClick(event, d) {
+            if (d.type === 'domain') {
+                focusDomain(d.id);
+            } else {
+                showConceptDetails(d);
+            }
+        }
+
+        // ネットワークアニメーション
+        function startNetworkAnimation() {
+            setInterval(() => {
+                if (currentMode === 'explore') {
+                    // ランダムな接続をハイライト
+                    const randomLink = networkData.links[Math.floor(Math.random() * networkData.links.length)];
+                    links.classed('active-connection', false);
+                    links.filter(l => l === randomLink).classed('active-connection', true);
+                    
+                    setTimeout(() => {
+                        links.classed('active-connection', false);
+                    }, 2000);
+                }
+            }, 5000);
+        }
+
+        // UI制御関数
+        function toggleExploreMode() {
+            currentMode = 'explore';
+            updateInsight('探索モード: 知識間の関連性を発見しています...');
+        }
+
+        function toggleCreateMode() {
+            currentMode = 'create';
+            updateInsight('創造モード: 新しいアイディアの組み合わせを生成中...');
+        }
+
+        function focusDomain(domainId) {
+            selectedDomain = domainId;
+            
+            // ノードの強調表示
+            nodes.style('opacity', d => d.id === domainId || d.domain === domainId ? 1 : 0.3);
+            links.style('opacity', l => 
+                l.source.id === domainId || l.target.id === domainId || 
+                l.source.domain === domainId || l.target.domain === domainId ? 1 : 0.1
+            );
+
+            updateInsight(`${domainId}分野にフォーカス中。関連概念と他分野との接続を表示しています。`);
+        }
+
+        function generateInsight() {
+            const insights = [
+                "数学の対称性理論と音楽の和声構造に共通するパターンを発見！",
+                "量子物理学の不確定性原理と芸術表現の曖昧性に類似性を発見！",
+                "言語学の構造主義と生物学の分類体系に共通の階層構造を発見！",
+                "心理学の認知バイアスと哲学の論理的誤謬に関連性を発見！",
+                "化学の反応機構と社会システムの変化プロセスに類似点を発見！"
+            ];
+            
+            const randomInsight = insights[Math.floor(Math.random() * insights.length)];
+            updateInsight(randomInsight);
+            
+            // 視覚的効果
+            nodes.classed('pulse', true);
+            setTimeout(() => {
+                nodes.classed('pulse', false);
+            }, 3000);
+        }
+
+        function analyzePatterns() {
+            updateInsight('パターン分析実行中: 知識ネットワークの構造的特徴を解析しています...');
+            
+            setTimeout(() => {
+                const analysis = {
+                    clusters: Math.floor(Math.random() * 5) + 3,
+                    bridges: Math.floor(Math.random() * 8) + 5,
+                    density: (Math.random() * 0.4 + 0.3).toFixed(2)
+                };
+                
+                updateInsight(`分析結果: ${analysis.clusters}個のクラスター、${analysis.bridges}個の橋渡し概念、ネットワーク密度${analysis.density}を検出。`);
+            }, 2000);
+        }
+
+        function findBridges() {
+            updateInsight('橋渡し概念探索中: 分野間を繋ぐ重要な概念を特定しています...');
+            
+            // 橋渡し概念をハイライト
+            const bridgeConcepts = networkData.nodes.filter(n => Math.random() < 0.2);
+            nodes.style('stroke', d => bridgeConcepts.includes(d) ? '#ff6b6b' : '#fff');
+            nodes.style('stroke-width', d => bridgeConcepts.includes(d) ? 4 : 2);
+        }
+
+        function clusterAnalysis() {
+            updateInsight('クラスター分析実行中: 関連概念のグループ化を行っています...');
+            
+            // 簡易クラスター表示
+            const clusterColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
+            nodes.attr('fill', d => {
+                if (d.type === 'domain') return d.color;
+                return clusterColors[Math.floor(Math.random() * clusterColors.length)];
+            });
+        }
+
+        function generateIdeaCombination() {
+            const combinations = [
+                "量子音楽学: 量子力学の重ね合わせ原理を音楽作曲に応用",
+                "バイオメトリック詩学: 生体リズムから詩の韻律を自動生成",
+                "フラクタル建築学: 数学的フラクタル構造の建築デザイン応用",
+                "神経言語学的絵画: 脳波パターンから視覚芸術を創造",
+                "化学的調和論: 分子の振動周波数から新しい音階システム"
+            ];
+            
+            const randomCombination = combinations[Math.floor(Math.random() * combinations.length)];
+            updateInsight(`💡 創造的アイディア: ${randomCombination}`);
+        }
+
+        function suggestResearchTopics() {
+            const topics = [
+                "認知科学×芸術: 創造性の神経メカニズム解明",
+                "数学×生物学: 生物形態のトポロジカル分析",
+                "物理学×哲学: 量子力学の存在論への影響",
+                "言語学×音楽: 言語リズムと音楽リズムの普遍性",
+                "化学×心理学: 神経伝達物質と感情の化学的基盤"
+            ];
+            
+            const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+            updateInsight(`🔬 研究テーマ提案: ${randomTopic}`);
+        }
+
+        function exportKnowledgeMap() {
+            const exportData = {
+                nodes: networkData.nodes.length,
+                links: networkData.links.length,
+                timestamp: new Date().toISOString(),
+                selectedDomain: selectedDomain,
+                mode: currentMode
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'knowledge_map_export.json';
+            link.click();
+            
+            updateInsight('知識マップをJSONファイルとしてエクスポートしました。');
+        }
+
+        function updateInsight(text) {
+            document.getElementById('insightContent').innerHTML = text;
+        }
+
+        function showConceptDetails(concept) {
+            updateInsight(`概念詳細: ${concept.name} (${concept.domain}分野)`);
+        }
+
+        // スライダーイベント
+        document.getElementById('connectionStrength').addEventListener('input', function(e) {
+            const threshold = e.target.value / 100;
+            links.style('opacity', d => d.strength >= threshold ? d.strength : 0.1);
+        });
+
+        document.getElementById('displayDensity').addEventListener('input', function(e) {
+            const density = e.target.value / 100;
+            nodes.style('opacity', d => Math.random() < density ? 1 : 0.3);
+        });
+
+        document.getElementById('animationSpeed').addEventListener('input', function(e) {
+            const speed = e.target.value;
+            simulation.alphaDecay(0.01 * speed);
+        });
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeKnowledgeNetwork();
+            updateInsight('InterDisciplinary Discovery Hub へようこそ！異分野間の知識を探索し、新しい発見を楽しんでください。');
+        });
+
+        // ウィンドウリサイズ対応
+        window.addEventListener('resize', function() {
+            if (networkData) {
+                setTimeout(createNetworkVisualization, 100);
+            }
+        });
+    </script>
+</body>
+</html>
