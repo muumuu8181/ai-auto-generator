@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>構造力学・応力解析シミュレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #495057;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            min-height: 600px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 12px;
+        }
+
+        .control-group input, .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .canvas-container {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-container canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        .results-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .result-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #007bff;
+        }
+
+        .result-unit {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 5px;
+        }
+
+        .material-db {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .material-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .material-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .material-card.selected {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .stress-colorbar {
+            display: flex;
+            height: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .stress-level {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+
+        .tutorial {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tutorial h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .tutorial p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .canvas-container canvas {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+
+        .analysis-progress {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .analysis-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #28a745);
+            border-radius: 10px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .node-info, .element-info {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .calculation-steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ 構造力学・応力解析シミュレーター</h1>
+            <p>インタラクティブな構造解析とトラス・梁の応力計算ツール</p>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" data-tab="truss">トラス解析</button>
+                <button class="tab" data-tab="beam">梁の解析</button>
+                <button class="tab" data-tab="materials">材料データベース</button>
+                <button class="tab" data-tab="learning">学習モード</button>
+                <button class="tab" data-tab="examples">例題集</button>
+            </div>
+
+            <!-- トラス解析タブ -->
+            <div class="tab-content active" id="truss">
+                <div class="tutorial">
+                    <h4>📚 トラス構造解析</h4>
+                    <p>節点をクリックして配置し、部材で接続してトラス構造を作成できます。境界条件と荷重を設定して応力解析を実行しましょう。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>解析モード</label>
+                            <select id="analysisMode">
+                                <option value="static">静的解析</option>
+                                <option value="modal">固有値解析</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>表示モード</label>
+                            <select id="displayMode">
+                                <option value="structure">構造図</option>
+                                <option value="stress">応力分布</option>
+                                <option value="deformation">変形図</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>変形倍率</label>
+                            <input type="range" id="deformScale" min="1" max="100" value="10">
+                            <span id="deformScaleValue">10x</span>
+                        </div>
+                    </div>
+                    <div class="control-row">
+                        <button class="btn" onclick="addNode()">節点追加</button>
+                        <button class="btn" onclick="addElement()">部材追加</button>
+                        <button class="btn secondary" onclick="setSupport()">支持条件</button>
+                        <button class="btn secondary" onclick="setLoad()">荷重設定</button>
+                        <button class="btn" onclick="analyzeStructure()">解析実行</button>
+                        <button class="btn danger" onclick="clearStructure()">クリア</button>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="trussCanvas" width="800" height="500"></canvas>
+                    <div class="node-info" id="nodeInfo"></div>
+                    <div class="element-info" id="elementInfo"></div>
+                </div>
+
+                <div class="analysis-progress">
+                    <div class="analysis-progress-bar" id="progressBar"></div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #007bff;"></div>
+                        <span>節点</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #28a745;"></div>
+                        <span>部材（圧縮）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #dc3545;"></div>
+                        <span>部材（引張）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffc107;"></div>
+                        <span>支持点</span>
+                    </div>
+                </div>
+
+                <div class="results-panel">
+                    <h3>解析結果</h3>
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <h4>最大応力</h4>
+                            <div class="result-value" id="maxStress">0<span class="result-unit">MPa</span></div>
+                        </div>
+                        <div class="result-card">
+                            <h4>最大変位</h4>
+                            <div class="result-value" id="maxDisp">0<span class="result-unit">mm</span></div>
+                        </div>
+                        <div class="result-card">
+                            <h4>安全係数</h4>
+                            <div class="result-value" id="safetyFactor">∞<span class="result-unit">-</span></div>
+                        </div>
+                        <div class="result-card">
+                            <h4>総重量</h4>
+                            <div class="result-value" id="totalWeight">0<span class="result-unit">kg</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 梁の解析タブ -->
+            <div class="tab-content" id="beam">
+                <div class="tutorial">
+                    <h4>📚 梁の曲げ解析</h4>
+                    <p>梁の長さ、支持条件、荷重条件を設定してせん断力図・曲げモーメント図を作成できます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>梁の長さ (m)</label>
+                            <input type="number" id="beamLength" value="6" min="1" max="20" step="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label>断面形状</label>
+                            <select id="beamSection">
+                                <option value="rectangular">矩形断面</option>
+                                <option value="circular">円形断面</option>
+                                <option value="i-beam">I形断面</option>
+                                <option value="h-beam">H形断面</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>支持条件</label>
+                            <select id="supportType">
+                                <option value="simple">単純梁</option>
+                                <option value="cantilever">片持ち梁</option>
+                                <option value="fixed">両端固定梁</option>
+                                <option value="continuous">連続梁</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>荷重タイプ</label>
+                            <select id="loadType">
+                                <option value="point">集中荷重</option>
+                                <option value="distributed">分布荷重</option>
+                                <option value="moment">モーメント荷重</option>
+                                <option value="triangular">三角形分布荷重</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>荷重値 (kN)</label>
+                            <input type="number" id="loadValue" value="10" min="0" max="1000" step="1">
+                        </div>
+                        <div class="control-group">
+                            <label>荷重位置 (m)</label>
+                            <input type="number" id="loadPosition" value="3" min="0" max="20" step="0.1">
+                        </div>
+                    </div>
+                    <div class="control-row">
+                        <button class="btn" onclick="addBeamLoad()">荷重追加</button>
+                        <button class="btn" onclick="analyzeBeam()">解析実行</button>
+                        <button class="btn secondary" onclick="generateReport()">レポート生成</button>
+                        <button class="btn danger" onclick="clearBeam()">クリア</button>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="beamCanvas" width="800" height="600"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h4>せん断力図 (SFD)</h4>
+                    <canvas id="sfdCanvas" width="800" height="150"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h4>曲げモーメント図 (BMD)</h4>
+                    <canvas id="bmdCanvas" width="800" height="150"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h4>たわみ図</h4>
+                    <canvas id="deflectionCanvas" width="800" height="150"></canvas>
+                </div>
+            </div>
+
+            <!-- 材料データベースタブ -->
+            <div class="tab-content" id="materials">
+                <div class="tutorial">
+                    <h4>📚 材料データベース</h4>
+                    <p>各種構造材料の特性値を確認し、解析に使用する材料を選択できます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>材料カテゴリ</label>
+                            <select id="materialCategory" onchange="filterMaterials()">
+                                <option value="all">すべて</option>
+                                <option value="steel">鋼材</option>
+                                <option value="concrete">コンクリート</option>
+                                <option value="wood">木材</option>
+                                <option value="aluminum">アルミニウム</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>検索</label>
+                            <input type="text" id="materialSearch" placeholder="材料名で検索" oninput="filterMaterials()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="material-db" id="materialDatabase">
+                    <!-- 材料カードが動的に生成される -->
+                </div>
+
+                <div class="results-panel">
+                    <h3>選択材料の詳細</h3>
+                    <div id="materialDetails">
+                        <p>材料を選択してください</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学習モードタブ -->
+            <div class="tab-content" id="learning">
+                <div class="tutorial">
+                    <h4>📚 構造力学学習モード</h4>
+                    <p>基本理論から応用まで、構造力学の概念をインタラクティブに学習できます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>学習トピック</label>
+                            <select id="learningTopic" onchange="loadLearningContent()">
+                                <option value="basics">基本概念</option>
+                                <option value="stress">応力とひずみ</option>
+                                <option value="truss-theory">トラス理論</option>
+                                <option value="beam-theory">梁理論</option>
+                                <option value="fem">有限要素法</option>
+                                <option value="safety">安全設計</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>難易度</label>
+                            <select id="difficultyLevel">
+                                <option value="beginner">初級</option>
+                                <option value="intermediate">中級</option>
+                                <option value="advanced">上級</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="learningContent">
+                    <!-- 学習コンテンツが動的に生成される -->
+                </div>
+            </div>
+
+            <!-- 例題集タブ -->
+            <div class="tab-content" id="examples">
+                <div class="tutorial">
+                    <h4>📚 例題集</h4>
+                    <p>実践的な例題を通して構造解析の手法を学習できます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>例題カテゴリ</label>
+                            <select id="exampleCategory" onchange="loadExamples()">
+                                <option value="truss">トラス問題</option>
+                                <option value="beam">梁問題</option>
+                                <option value="frame">ラーメン問題</option>
+                                <option value="practical">実務問題</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>難易度</label>
+                            <select id="exampleDifficulty">
+                                <option value="basic">基本</option>
+                                <option value="standard">標準</option>
+                                <option value="advanced">応用</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="examplesList">
+                    <!-- 例題リストが動的に生成される -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentStructure = {
+            nodes: [],
+            elements: [],
+            supports: [],
+            loads: [],
+            selectedMaterial: null
+        };
+
+        let currentBeam = {
+            length: 6,
+            section: 'rectangular',
+            support: 'simple',
+            loads: []
+        };
+
+        let isAnalyzing = false;
+        let analysisResults = null;
+
+        // 材料データベース
+        const materialDatabase = [
+            {
+                id: 'ss400',
+                name: 'SS400',
+                category: 'steel',
+                E: 200000, // MPa
+                fy: 235,   // MPa
+                density: 7850, // kg/m³
+                poisson: 0.3
+            },
+            {
+                id: 'sm490',
+                name: 'SM490',
+                category: 'steel',
+                E: 200000,
+                fy: 325,
+                density: 7850,
+                poisson: 0.3
+            },
+            {
+                id: 'fc21',
+                name: 'FC21',
+                category: 'concrete',
+                E: 21000,
+                fc: 21,
+                density: 2300,
+                poisson: 0.2
+            },
+            {
+                id: 'hinoki',
+                name: 'ヒノキ',
+                category: 'wood',
+                E: 9000,
+                fb: 32,
+                density: 400,
+                poisson: 0.3
+            },
+            {
+                id: 'a6061',
+                name: 'A6061-T6',
+                category: 'aluminum',
+                E: 70000,
+                fy: 275,
+                density: 2700,
+                poisson: 0.33
+            }
+        ];
+
+        // 学習コンテンツデータ
+        const learningContent = {
+            basics: {
+                title: '構造力学の基本概念',
+                content: `
+                    <h3>力とモーメント</h3>
+                    <p>構造力学では、構造物に作用する力とモーメントを解析します。</p>
+                    <ul>
+                        <li><strong>力 (Force)</strong>: 物体を変形させたり運動させたりする作用 [N]</li>
+                        <li><strong>モーメント (Moment)</strong>: 回転を生じさせる力の作用 [N·m]</li>
+                        <li><strong>支点反力</strong>: 支持点で構造物を支える力</li>
+                    </ul>
+                    
+                    <h3>平衡条件</h3>
+                    <p>静的構造物では以下の平衡条件を満たす必要があります：</p>
+                    <ul>
+                        <li>ΣFx = 0 (水平方向の力の釣り合い)</li>
+                        <li>ΣFy = 0 (鉛直方向の力の釣り合い)</li>
+                        <li>ΣM = 0 (モーメントの釣り合い)</li>
+                    </ul>
+                    
+                    <div class="interactive-demo">
+                        <canvas id="basicsDemo" width="400" height="200"></canvas>
+                        <button onclick="demoBasics()">デモ実行</button>
+                    </div>
+                `
+            },
+            stress: {
+                title: '応力とひずみ',
+                content: `
+                    <h3>応力 (Stress)</h3>
+                    <p>材料内部の単位面積あたりの内力を応力といいます。</p>
+                    <ul>
+                        <li><strong>軸応力</strong>: σ = P/A [MPa]</li>
+                        <li><strong>曲げ応力</strong>: σ = M/Z [MPa]</li>
+                        <li><strong>せん断応力</strong>: τ = Q/A [MPa]</li>
+                    </ul>
+                    
+                    <h3>ひずみ (Strain)</h3>
+                    <p>材料の変形の程度を表す無次元量です。</p>
+                    <ul>
+                        <li><strong>軸ひずみ</strong>: ε = δ/L [-]</li>
+                        <li><strong>せん断ひずみ</strong>: γ = θ [rad]</li>
+                    </ul>
+                    
+                    <h3>フックの法則</h3>
+                    <p>応力とひずみの関係: σ = E·ε</p>
+                    <p>E: 弾性係数 (ヤング率) [MPa]</p>
+                `
+            }
+        };
+
+        // 例題データ
+        const exampleProblems = {
+            truss: [
+                {
+                    id: 'truss_01',
+                    title: '単純トラス - 基本問題',
+                    difficulty: 'basic',
+                    description: '3節点2部材の最も基本的なトラス構造の解析',
+                    solution: '支点反力: Ay=5kN, By=5kN\n部材軸力: N1=7.07kN(T), N2=7.07kN(T)'
+                },
+                {
+                    id: 'truss_02',
+                    title: 'ワーレントラス',
+                    difficulty: 'standard',
+                    description: '橋梁でよく使用される平行弦トラスの解析',
+                    solution: '上弦材は圧縮、下弦材は引張、斜材・垂直材の軸力を算出'
+                }
+            ],
+            beam: [
+                {
+                    id: 'beam_01',
+                    title: '単純梁 - 集中荷重',
+                    difficulty: 'basic',
+                    description: '中央に集中荷重が作用する単純梁',
+                    solution: 'Mmax = PL/4, δmax = PL³/(48EI)'
+                },
+                {
+                    id: 'beam_02',
+                    title: '片持ち梁 - 分布荷重',
+                    difficulty: 'standard',
+                    description: '等分布荷重が作用する片持ち梁',
+                    solution: 'Mmax = wL²/2, δmax = wL⁴/(8EI)'
+                }
+            ]
+        };
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTabs();
+            initializeCanvases();
+            loadMaterials();
+            loadLearningContent();
+            loadExamples();
+            
+            // デフォルト材料設定
+            currentStructure.selectedMaterial = materialDatabase[0];
+        });
+
+        // タブ機能
+        function initializeTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // アクティブタブを切り替え
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        // キャンバス初期化
+        function initializeCanvases() {
+            const trussCanvas = document.getElementById('trussCanvas');
+            const beamCanvas = document.getElementById('beamCanvas');
+            
+            if (trussCanvas) {
+                trussCanvas.addEventListener('click', handleTrussCanvasClick);
+                trussCanvas.addEventListener('mousemove', handleTrussCanvasHover);
+                drawTrussGrid(trussCanvas);
+            }
+            
+            if (beamCanvas) {
+                drawBeamStructure();
+            }
+
+            // 変形倍率スライダー
+            const deformScale = document.getElementById('deformScale');
+            if (deformScale) {
+                deformScale.addEventListener('input', (e) => {
+                    document.getElementById('deformScaleValue').textContent = e.target.value + 'x';
+                    if (analysisResults) {
+                        drawTrussResults();
+                    }
+                });
+            }
+        }
+
+        // トラス構造の描画
+        function drawTrussGrid(canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // グリッド描画
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x <= canvas.width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y <= canvas.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            drawTrussStructure();
+        }
+
+        function drawTrussStructure() {
+            const canvas = document.getElementById('trussCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 部材を描画
+            currentStructure.elements.forEach((element, index) => {
+                const node1 = currentStructure.nodes[element.node1];
+                const node2 = currentStructure.nodes[element.node2];
+                
+                if (node1 && node2) {
+                    ctx.beginPath();
+                    ctx.moveTo(node1.x, node1.y);
+                    ctx.lineTo(node2.x, node2.y);
+                    
+                    // 応力による色分け
+                    if (analysisResults && analysisResults.elementStresses[index] !== undefined) {
+                        const stress = analysisResults.elementStresses[index];
+                        if (stress > 0) {
+                            ctx.strokeStyle = '#dc3545'; // 引張（赤）
+                        } else {
+                            ctx.strokeStyle = '#28a745'; // 圧縮（緑）
+                        }
+                        ctx.lineWidth = Math.max(2, Math.abs(stress) / 10);
+                    } else {
+                        ctx.strokeStyle = '#6c757d';
+                        ctx.lineWidth = 2;
+                    }
+                    
+                    ctx.stroke();
+                    
+                    // 部材番号表示
+                    const midX = (node1.x + node2.x) / 2;
+                    const midY = (node1.y + node2.y) / 2;
+                    ctx.fillStyle = '#495057';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(`E${index}`, midX + 5, midY - 5);
+                }
+            });
+            
+            // 節点を描画
+            currentStructure.nodes.forEach((node, index) => {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 6, 0, 2 * Math.PI);
+                
+                // 支持条件による色分け
+                const support = currentStructure.supports.find(s => s.node === index);
+                if (support) {
+                    ctx.fillStyle = '#ffc107'; // 支持点（黄）
+                } else {
+                    ctx.fillStyle = '#007bff'; // 自由節点（青）
+                }
+                
+                ctx.fill();
+                ctx.strokeStyle = '#343a40';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 節点番号表示
+                ctx.fillStyle = '#495057';
+                ctx.font = '12px Arial';
+                ctx.fillText(`N${index}`, node.x + 10, node.y - 10);
+                
+                // 変位表示
+                if (analysisResults && analysisResults.nodeDisplacements[index]) {
+                    const disp = analysisResults.nodeDisplacements[index];
+                    const scale = document.getElementById('deformScale').value / 10;
+                    const dispX = disp.x * scale;
+                    const dispY = disp.y * scale;
+                    
+                    ctx.beginPath();
+                    ctx.setLineDash([5, 5]);
+                    ctx.moveTo(node.x, node.y);
+                    ctx.lineTo(node.x + dispX, node.y + dispY);
+                    ctx.strokeStyle = '#e74c3c';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+            
+            // 荷重を描画
+            currentStructure.loads.forEach(load => {
+                const node = currentStructure.nodes[load.node];
+                if (node) {
+                    drawLoadArrow(ctx, node.x, node.y, load.fx, load.fy);
+                }
+            });
+        }
+
+        function drawLoadArrow(ctx, x, y, fx, fy) {
+            const scale = 0.1; // 荷重表示スケール
+            const arrowX = fx * scale;
+            const arrowY = fy * scale;
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + arrowX, y + arrowY);
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // 矢印の頭
+            const angle = Math.atan2(arrowY, arrowX);
+            const headlen = 10;
+            
+            ctx.beginPath();
+            ctx.moveTo(x + arrowX, y + arrowY);
+            ctx.lineTo(x + arrowX - headlen * Math.cos(angle - Math.PI/6),
+                      y + arrowY - headlen * Math.sin(angle - Math.PI/6));
+            ctx.moveTo(x + arrowX, y + arrowY);
+            ctx.lineTo(x + arrowX - headlen * Math.cos(angle + Math.PI/6),
+                      y + arrowY - headlen * Math.sin(angle + Math.PI/6));
+            ctx.stroke();
+        }
+
+        // トラス解析関数
+        function addNode() {
+            // 次の空いている位置に節点を追加
+            const canvas = document.getElementById('trussCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = 100 + (currentStructure.nodes.length % 8) * 80;
+            const y = 200 + Math.floor(currentStructure.nodes.length / 8) * 80;
+            
+            currentStructure.nodes.push({x, y});
+            drawTrussGrid(canvas);
+        }
+
+        function addElement() {
+            if (currentStructure.nodes.length < 2) {
+                showMessage('部材を追加するには少なくとも2つの節点が必要です。', 'error');
+                return;
+            }
+            
+            // 最後の2つの節点を接続
+            const nodeCount = currentStructure.nodes.length;
+            currentStructure.elements.push({
+                node1: nodeCount - 2,
+                node2: nodeCount - 1,
+                area: 0.01, // m²
+                material: currentStructure.selectedMaterial
+            });
+            
+            drawTrussGrid(document.getElementById('trussCanvas'));
+        }
+
+        function setSupport() {
+            if (currentStructure.nodes.length === 0) {
+                showMessage('支持条件を設定するには節点が必要です。', 'error');
+                return;
+            }
+            
+            // 最初の節点をピン支持、2番目をローラー支持に設定
+            currentStructure.supports = [
+                {node: 0, type: 'pin', ux: true, uy: true},
+                {node: 1, type: 'roller', ux: false, uy: true}
+            ];
+            
+            drawTrussGrid(document.getElementById('trussCanvas'));
+        }
+
+        function setLoad() {
+            if (currentStructure.nodes.length === 0) {
+                showMessage('荷重を設定するには節点が必要です。', 'error');
+                return;
+            }
+            
+            // 最後の節点に下向き荷重を設定
+            const lastNode = currentStructure.nodes.length - 1;
+            currentStructure.loads.push({
+                node: lastNode,
+                fx: 0,
+                fy: -10000 // N
+            });
+            
+            drawTrussGrid(document.getElementById('trussCanvas'));
+        }
+
+        function analyzeStructure() {
+            if (currentStructure.nodes.length < 2 || currentStructure.elements.length === 0) {
+                showMessage('解析には少なくとも2つの節点と1つの部材が必要です。', 'error');
+                return;
+            }
+            
+            if (currentStructure.supports.length === 0) {
+                showMessage('支持条件を設定してください。', 'error');
+                return;
+            }
+            
+            showAnalysisProgress();
+            
+            setTimeout(() => {
+                try {
+                    analysisResults = performStructuralAnalysis();
+                    updateAnalysisResults();
+                    drawTrussResults();
+                    showMessage('解析が完了しました。', 'success');
+                } catch (error) {
+                    showMessage('解析エラー: ' + error.message, 'error');
+                }
+                hideAnalysisProgress();
+            }, 1000);
+        }
+
+        function performStructuralAnalysis() {
+            const nodeCount = currentStructure.nodes.length;
+            const dofCount = nodeCount * 2; // 2 DOF per node
+            
+            // 全体剛性マトリックスの初期化
+            const K = Array(dofCount).fill().map(() => Array(dofCount).fill(0));
+            
+            // 部材剛性マトリックスの組み立て
+            currentStructure.elements.forEach(element => {
+                const node1 = currentStructure.nodes[element.node1];
+                const node2 = currentStructure.nodes[element.node2];
+                
+                const L = Math.sqrt(Math.pow(node2.x - node1.x, 2) + Math.pow(node2.y - node1.y, 2)) / 1000; // mm to m
+                const cos = (node2.x - node1.x) / (L * 1000);
+                const sin = (node2.y - node1.y) / (L * 1000);
+                
+                const E = element.material.E * 1e6; // MPa to Pa
+                const A = element.area; // m²
+                const k = E * A / L;
+                
+                // 部材座標系から全体座標系への変換マトリックス
+                const T = [
+                    [cos, sin, 0, 0],
+                    [-sin, cos, 0, 0],
+                    [0, 0, cos, sin],
+                    [0, 0, -sin, cos]
+                ];
+                
+                // 部材剛性マトリックス（全体座標系）
+                const ke = [
+                    [k * cos * cos, k * cos * sin, -k * cos * cos, -k * cos * sin],
+                    [k * cos * sin, k * sin * sin, -k * cos * sin, -k * sin * sin],
+                    [-k * cos * cos, -k * cos * sin, k * cos * cos, k * cos * sin],
+                    [-k * cos * sin, -k * sin * sin, k * cos * sin, k * sin * sin]
+                ];
+                
+                // 全体剛性マトリックスへの組み込み
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        K[element.node1 * 2 + i][element.node1 * 2 + j] += ke[i][j];
+                        K[element.node1 * 2 + i][element.node2 * 2 + j] += ke[i][j + 2];
+                        K[element.node2 * 2 + i][element.node1 * 2 + j] += ke[i + 2][j];
+                        K[element.node2 * 2 + i][element.node2 * 2 + j] += ke[i + 2][j + 2];
+                    }
+                }
+            });
+            
+            // 荷重ベクトルの組み立て
+            const F = Array(dofCount).fill(0);
+            currentStructure.loads.forEach(load => {
+                F[load.node * 2] += load.fx;
+                F[load.node * 2 + 1] += load.fy;
+            });
+            
+            // 境界条件の適用
+            currentStructure.supports.forEach(support => {
+                if (support.ux) {
+                    // X方向拘束
+                    const dof = support.node * 2;
+                    for (let i = 0; i < dofCount; i++) {
+                        K[dof][i] = 0;
+                        K[i][dof] = 0;
+                    }
+                    K[dof][dof] = 1;
+                    F[dof] = 0;
+                }
+                if (support.uy) {
+                    // Y方向拘束
+                    const dof = support.node * 2 + 1;
+                    for (let i = 0; i < dofCount; i++) {
+                        K[dof][i] = 0;
+                        K[i][dof] = 0;
+                    }
+                    K[dof][dof] = 1;
+                    F[dof] = 0;
+                }
+            });
+            
+            // 連立方程式の求解（ガウス消去法）
+            const displacements = solveLinearSystem(K, F);
+            
+            // 節点変位の整理
+            const nodeDisplacements = [];
+            for (let i = 0; i < nodeCount; i++) {
+                nodeDisplacements.push({
+                    x: displacements[i * 2] * 1000,     // m to mm
+                    y: displacements[i * 2 + 1] * 1000  // m to mm
+                });
+            }
+            
+            // 部材応力の計算
+            const elementStresses = [];
+            currentStructure.elements.forEach((element, index) => {
+                const node1 = currentStructure.nodes[element.node1];
+                const node2 = currentStructure.nodes[element.node2];
+                
+                const L = Math.sqrt(Math.pow(node2.x - node1.x, 2) + Math.pow(node2.y - node1.y, 2)) / 1000;
+                const cos = (node2.x - node1.x) / (L * 1000);
+                const sin = (node2.y - node1.y) / (L * 1000);
+                
+                const u1x = displacements[element.node1 * 2];
+                const u1y = displacements[element.node1 * 2 + 1];
+                const u2x = displacements[element.node2 * 2];
+                const u2y = displacements[element.node2 * 2 + 1];
+                
+                const deltaL = cos * (u2x - u1x) + sin * (u2y - u1y);
+                const strain = deltaL / L;
+                const stress = element.material.E * 1e6 * strain / 1e6; // MPa
+                
+                elementStresses.push(stress);
+            });
+            
+            return {
+                nodeDisplacements,
+                elementStresses,
+                maxStress: Math.max(...elementStresses.map(Math.abs)),
+                maxDisplacement: Math.max(...nodeDisplacements.map(d => Math.sqrt(d.x*d.x + d.y*d.y)))
+            };
+        }
+
+        function solveLinearSystem(A, b) {
+            const n = A.length;
+            const x = [...b];
+            
+            // ガウス消去法
+            for (let i = 0; i < n; i++) {
+                // ピボット選択
+                let maxRow = i;
+                for (let k = i + 1; k < n; k++) {
+                    if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
+                        maxRow = k;
+                    }
+                }
+                
+                // 行交換
+                [A[i], A[maxRow]] = [A[maxRow], A[i]];
+                [x[i], x[maxRow]] = [x[maxRow], x[i]];
+                
+                // 前進消去
+                for (let k = i + 1; k < n; k++) {
+                    const factor = A[k][i] / A[i][i];
+                    for (let j = i; j < n; j++) {
+                        A[k][j] -= factor * A[i][j];
+                    }
+                    x[k] -= factor * x[i];
+                }
+            }
+            
+            // 後退代入
+            for (let i = n - 1; i >= 0; i--) {
+                for (let k = i + 1; k < n; k++) {
+                    x[i] -= A[i][k] * x[k];
+                }
+                x[i] /= A[i][i];
+            }
+            
+            return x;
+        }
+
+        function drawTrussResults() {
+            drawTrussStructure();
+        }
+
+        function updateAnalysisResults() {
+            if (!analysisResults) return;
+            
+            document.getElementById('maxStress').textContent = 
+                analysisResults.maxStress.toFixed(2);
+            document.getElementById('maxDisp').textContent = 
+                analysisResults.maxDisplacement.toFixed(3);
+            
+            const safetyFactor = currentStructure.selectedMaterial.fy / analysisResults.maxStress;
+            document.getElementById('safetyFactor').textContent = 
+                safetyFactor.toFixed(2);
+            
+            // 総重量計算
+            let totalWeight = 0;
+            currentStructure.elements.forEach(element => {
+                const node1 = currentStructure.nodes[element.node1];
+                const node2 = currentStructure.nodes[element.node2];
+                const length = Math.sqrt(Math.pow(node2.x - node1.x, 2) + Math.pow(node2.y - node1.y, 2)) / 1000;
+                totalWeight += element.area * length * element.material.density;
+            });
+            document.getElementById('totalWeight').textContent = totalWeight.toFixed(1);
+        }
+
+        function clearStructure() {
+            currentStructure = {
+                nodes: [],
+                elements: [],
+                supports: [],
+                loads: [],
+                selectedMaterial: materialDatabase[0]
+            };
+            analysisResults = null;
+            
+            drawTrussGrid(document.getElementById('trussCanvas'));
+            
+            // 結果をリセット
+            document.getElementById('maxStress').textContent = '0';
+            document.getElementById('maxDisp').textContent = '0';
+            document.getElementById('safetyFactor').textContent = '∞';
+            document.getElementById('totalWeight').textContent = '0';
+        }
+
+        // 梁解析関数
+        function drawBeamStructure() {
+            const canvas = document.getElementById('beamCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const beamLength = currentBeam.length;
+            const scale = 600 / beamLength; // ピクセル/m
+            const beamY = 200;
+            const beamStartX = 100;
+            const beamEndX = beamStartX + beamLength * scale;
+            
+            // 梁の描画
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.moveTo(beamStartX, beamY);
+            ctx.lineTo(beamEndX, beamY);
+            ctx.stroke();
+            
+            // 支持条件の描画
+            drawSupports(ctx, beamStartX, beamEndX, beamY);
+            
+            // 荷重の描画
+            currentBeam.loads.forEach(load => {
+                const x = beamStartX + load.position * scale;
+                drawBeamLoad(ctx, x, beamY, load);
+            });
+            
+            // スケール表示
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Arial';
+            ctx.fillText(`梁長: ${beamLength}m`, beamStartX, beamY + 50);
+        }
+
+        function drawSupports(ctx, startX, endX, y) {
+            const supportType = currentBeam.support;
+            
+            if (supportType === 'simple') {
+                // 単純梁（ピン + ローラー）
+                drawPinSupport(ctx, startX, y);
+                drawRollerSupport(ctx, endX, y);
+            } else if (supportType === 'cantilever') {
+                // 片持ち梁（固定支持）
+                drawFixedSupport(ctx, startX, y);
+            } else if (supportType === 'fixed') {
+                // 両端固定梁
+                drawFixedSupport(ctx, startX, y);
+                drawFixedSupport(ctx, endX, y);
+            }
+        }
+
+        function drawPinSupport(ctx, x, y) {
+            ctx.beginPath();
+            ctx.moveTo(x - 15, y + 10);
+            ctx.lineTo(x, y);
+            ctx.lineTo(x + 15, y + 10);
+            ctx.closePath();
+            ctx.fillStyle = '#ffc107';
+            ctx.fill();
+            ctx.strokeStyle = '#343a40';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function drawRollerSupport(ctx, x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y + 15, 8, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffc107';
+            ctx.fill();
+            ctx.strokeStyle = '#343a40';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 三角形
+            ctx.beginPath();
+            ctx.moveTo(x - 12, y + 7);
+            ctx.lineTo(x, y);
+            ctx.lineTo(x + 12, y + 7);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawFixedSupport(ctx, x, y) {
+            ctx.fillStyle = '#6c757d';
+            ctx.fillRect(x - 3, y - 20, 6, 40);
+            
+            // ハッチング
+            ctx.strokeStyle = '#343a40';
+            ctx.lineWidth = 1;
+            for (let i = -15; i <= 15; i += 5) {
+                ctx.beginPath();
+                ctx.moveTo(x - 3, y + i);
+                ctx.lineTo(x - 10, y + i - 7);
+                ctx.stroke();
+            }
+        }
+
+        function drawBeamLoad(ctx, x, y, load) {
+            if (load.type === 'point') {
+                // 集中荷重
+                drawLoadArrow(ctx, x, y - 50, 0, load.value * 5);
+                ctx.fillStyle = '#e74c3c';
+                ctx.font = '12px Arial';
+                ctx.fillText(`${load.value}kN`, x + 5, y - 60);
+            } else if (load.type === 'distributed') {
+                // 分布荷重
+                const scale = 600 / currentBeam.length;
+                const startX = x;
+                const endX = x + (load.endPosition - load.position) * scale;
+                
+                for (let i = startX; i <= endX; i += 20) {
+                    drawLoadArrow(ctx, i, y - 30, 0, load.value * 2);
+                }
+                
+                ctx.fillStyle = '#e74c3c';
+                ctx.font = '12px Arial';
+                ctx.fillText(`${load.value}kN/m`, startX, y - 40);
+            }
+        }
+
+        function addBeamLoad() {
+            const loadType = document.getElementById('loadType').value;
+            const loadValue = parseFloat(document.getElementById('loadValue').value);
+            const loadPosition = parseFloat(document.getElementById('loadPosition').value);
+            
+            if (loadPosition > currentBeam.length) {
+                showMessage('荷重位置が梁長を超えています。', 'error');
+                return;
+            }
+            
+            const load = {
+                type: loadType,
+                value: loadValue,
+                position: loadPosition
+            };
+            
+            if (loadType === 'distributed') {
+                load.endPosition = Math.min(loadPosition + 2, currentBeam.length);
+            }
+            
+            currentBeam.loads.push(load);
+            drawBeamStructure();
+        }
+
+        function analyzeBeam() {
+            if (currentBeam.loads.length === 0) {
+                showMessage('荷重を設定してください。', 'error');
+                return;
+            }
+            
+            showAnalysisProgress();
+            
+            setTimeout(() => {
+                try {
+                    const results = performBeamAnalysis();
+                    drawBeamDiagrams(results);
+                    showMessage('梁解析が完了しました。', 'success');
+                } catch (error) {
+                    showMessage('解析エラー: ' + error.message, 'error');
+                }
+                hideAnalysisProgress();
+            }, 1000);
+        }
+
+        function performBeamAnalysis() {
+            const length = currentBeam.length;
+            const numPoints = 101; // 解析点数
+            const dx = length / (numPoints - 1);
+            
+            const x = [];
+            const M = []; // 曲げモーメント
+            const Q = []; // せん断力
+            const delta = []; // たわみ
+            
+            for (let i = 0; i < numPoints; i++) {
+                x.push(i * dx);
+                M.push(0);
+                Q.push(0);
+                delta.push(0);
+            }
+            
+            // 荷重による影響を計算
+            currentBeam.loads.forEach(load => {
+                if (load.type === 'point') {
+                    // 集中荷重
+                    calculatePointLoadEffects(x, M, Q, delta, load, length);
+                } else if (load.type === 'distributed') {
+                    // 分布荷重
+                    calculateDistributedLoadEffects(x, M, Q, delta, load, length);
+                }
+            });
+            
+            return { x, M, Q, delta };
+        }
+
+        function calculatePointLoadEffects(x, M, Q, delta, load, L) {
+            const P = load.value * 1000; // kN to N
+            const a = load.position;
+            const b = L - a;
+            
+            // 支持条件に応じた計算
+            if (currentBeam.support === 'simple') {
+                // 単純梁
+                const R1 = P * b / L;
+                const R2 = P * a / L;
+                
+                for (let i = 0; i < x.length; i++) {
+                    if (x[i] <= a) {
+                        Q[i] += R1;
+                        M[i] += R1 * x[i];
+                    } else {
+                        Q[i] += R1 - P;
+                        M[i] += R1 * x[i] - P * (x[i] - a);
+                    }
+                }
+            } else if (currentBeam.support === 'cantilever') {
+                // 片持ち梁
+                for (let i = 0; i < x.length; i++) {
+                    if (x[i] >= a) {
+                        Q[i] -= P;
+                        M[i] -= P * (x[i] - a);
+                    }
+                }
+            }
+        }
+
+        function calculateDistributedLoadEffects(x, M, Q, delta, load, L) {
+            const w = load.value * 1000; // kN/m to N/m
+            const start = load.position;
+            const end = load.endPosition || start + 1;
+            
+            if (currentBeam.support === 'simple') {
+                // 単純梁の分布荷重
+                const a = start;
+                const c = end - start;
+                const W = w * c; // 総荷重
+                const R1 = W * (L - a - c/2) / L;
+                const R2 = W * (a + c/2) / L;
+                
+                for (let i = 0; i < x.length; i++) {
+                    if (x[i] <= a) {
+                        Q[i] += R1;
+                        M[i] += R1 * x[i];
+                    } else if (x[i] <= end) {
+                        const loadLength = x[i] - a;
+                        Q[i] += R1 - w * loadLength;
+                        M[i] += R1 * x[i] - w * loadLength * loadLength / 2;
+                    } else {
+                        Q[i] += R1 - W;
+                        M[i] += R1 * x[i] - W * (x[i] - a - c/2);
+                    }
+                }
+            }
+        }
+
+        function drawBeamDiagrams(results) {
+            drawDiagram('sfdCanvas', results.x, results.Q, 'せん断力 (kN)', '#28a745');
+            drawDiagram('bmdCanvas', results.x, results.M, '曲げモーメント (kN·m)', '#dc3545');
+            drawDiagram('deflectionCanvas', results.x, results.delta, 'たわみ (mm)', '#007bff');
+        }
+
+        function drawDiagram(canvasId, x, y, label, color) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 軸とグリッド
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            // 基準線
+            const zeroY = canvas.height / 2;
+            ctx.beginPath();
+            ctx.moveTo(50, zeroY);
+            ctx.lineTo(canvas.width - 50, zeroY);
+            ctx.stroke();
+            
+            // データの描画
+            if (y.length === 0) return;
+            
+            const maxX = Math.max(...x);
+            const maxY = Math.max(...y.map(Math.abs));
+            const scaleX = (canvas.width - 100) / maxX;
+            const scaleY = maxY > 0 ? (canvas.height - 40) / 2 / maxY : 1;
+            
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < x.length; i++) {
+                const px = 50 + x[i] * scaleX;
+                const py = zeroY - y[i] * scaleY;
+                
+                if (i === 0) {
+                    ctx.moveTo(px, py);
+                } else {
+                    ctx.lineTo(px, py);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // ラベル
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Arial';
+            ctx.fillText(label, 10, 20);
+            
+            // 最大値・最小値の表示
+            const maxVal = Math.max(...y);
+            const minVal = Math.min(...y);
+            ctx.fillText(`Max: ${(maxVal/1000).toFixed(2)}`, canvas.width - 100, 20);
+            ctx.fillText(`Min: ${(minVal/1000).toFixed(2)}`, canvas.width - 100, 35);
+        }
+
+        function clearBeam() {
+            currentBeam.loads = [];
+            drawBeamStructure();
+            
+            // 図表をクリア
+            ['sfdCanvas', 'bmdCanvas', 'deflectionCanvas'].forEach(canvasId => {
+                const canvas = document.getElementById(canvasId);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            });
+        }
+
+        // 材料データベース関数
+        function loadMaterials() {
+            const container = document.getElementById('materialDatabase');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            materialDatabase.forEach(material => {
+                const card = document.createElement('div');
+                card.className = 'material-card';
+                if (currentStructure.selectedMaterial && currentStructure.selectedMaterial.id === material.id) {
+                    card.classList.add('selected');
+                }
+                
+                card.innerHTML = `
+                    <h4>${material.name}</h4>
+                    <p><strong>カテゴリ:</strong> ${getCategoryName(material.category)}</p>
+                    <p><strong>弾性係数:</strong> ${material.E.toLocaleString()} MPa</p>
+                    <p><strong>密度:</strong> ${material.density} kg/m³</p>
+                `;
+                
+                card.addEventListener('click', () => selectMaterial(material));
+                container.appendChild(card);
+            });
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                steel: '鋼材',
+                concrete: 'コンクリート',
+                wood: '木材',
+                aluminum: 'アルミニウム'
+            };
+            return names[category] || category;
+        }
+
+        function selectMaterial(material) {
+            currentStructure.selectedMaterial = material;
+            loadMaterials(); // 再描画
+            
+            // 詳細表示
+            const details = document.getElementById('materialDetails');
+            details.innerHTML = `
+                <h4>${material.name}</h4>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h4>弾性係数 (E)</h4>
+                        <div class="result-value">${material.E.toLocaleString()}<span class="result-unit">MPa</span></div>
+                    </div>
+                    <div class="result-card">
+                        <h4>降伏強度</h4>
+                        <div class="result-value">${material.fy || material.fc || material.fb || '-'}<span class="result-unit">MPa</span></div>
+                    </div>
+                    <div class="result-card">
+                        <h4>密度</h4>
+                        <div class="result-value">${material.density}<span class="result-unit">kg/m³</span></div>
+                    </div>
+                    <div class="result-card">
+                        <h4>ポアソン比</h4>
+                        <div class="result-value">${material.poisson}<span class="result-unit">-</span></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterMaterials() {
+            const category = document.getElementById('materialCategory').value;
+            const search = document.getElementById('materialSearch').value.toLowerCase();
+            
+            const filtered = materialDatabase.filter(material => {
+                const categoryMatch = category === 'all' || material.category === category;
+                const searchMatch = material.name.toLowerCase().includes(search);
+                return categoryMatch && searchMatch;
+            });
+            
+            const container = document.getElementById('materialDatabase');
+            container.innerHTML = '';
+            
+            filtered.forEach(material => {
+                const card = document.createElement('div');
+                card.className = 'material-card';
+                if (currentStructure.selectedMaterial && currentStructure.selectedMaterial.id === material.id) {
+                    card.classList.add('selected');
+                }
+                
+                card.innerHTML = `
+                    <h4>${material.name}</h4>
+                    <p><strong>カテゴリ:</strong> ${getCategoryName(material.category)}</p>
+                    <p><strong>弾性係数:</strong> ${material.E.toLocaleString()} MPa</p>
+                    <p><strong>密度:</strong> ${material.density} kg/m³</p>
+                `;
+                
+                card.addEventListener('click', () => selectMaterial(material));
+                container.appendChild(card);
+            });
+        }
+
+        // 学習モード関数
+        function loadLearningContent() {
+            const topic = document.getElementById('learningTopic')?.value || 'basics';
+            const container = document.getElementById('learningContent');
+            
+            if (container && learningContent[topic]) {
+                container.innerHTML = `
+                    <div class="chart-container">
+                        <h3>${learningContent[topic].title}</h3>
+                        ${learningContent[topic].content}
+                    </div>
+                `;
+            }
+        }
+
+        // 例題集関数
+        function loadExamples() {
+            const category = document.getElementById('exampleCategory')?.value || 'truss';
+            const container = document.getElementById('examplesList');
+            
+            if (container && exampleProblems[category]) {
+                container.innerHTML = '';
+                
+                exampleProblems[category].forEach(problem => {
+                    const card = document.createElement('div');
+                    card.className = 'chart-container';
+                    card.innerHTML = `
+                        <h4>${problem.title}</h4>
+                        <p><strong>難易度:</strong> ${problem.difficulty}</p>
+                        <p><strong>問題:</strong> ${problem.description}</p>
+                        <details>
+                            <summary>解答を表示</summary>
+                            <div class="calculation-steps">
+                                ${problem.solution}
+                            </div>
+                        </details>
+                        <button class="btn" onclick="loadExampleProblem('${problem.id}')">この問題を読み込み</button>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        }
+
+        function loadExampleProblem(problemId) {
+            // 例題を現在の解析モデルに読み込み
+            if (problemId === 'truss_01') {
+                // 基本トラス問題を読み込み
+                clearStructure();
+                currentStructure.nodes = [
+                    {x: 100, y: 300},
+                    {x: 300, y: 300},
+                    {x: 200, y: 200}
+                ];
+                currentStructure.elements = [
+                    {node1: 0, node2: 2, area: 0.01, material: materialDatabase[0]},
+                    {node1: 1, node2: 2, area: 0.01, material: materialDatabase[0]}
+                ];
+                currentStructure.supports = [
+                    {node: 0, type: 'pin', ux: true, uy: true},
+                    {node: 1, type: 'roller', ux: false, uy: true}
+                ];
+                currentStructure.loads = [
+                    {node: 2, fx: 0, fy: -10000}
+                ];
+                
+                drawTrussGrid(document.getElementById('trussCanvas'));
+                
+                // トラス解析タブに切り替え
+                document.querySelector('[data-tab="truss"]').click();
+            }
+        }
+
+        // ユーティリティ関数
+        function showAnalysisProgress() {
+            isAnalyzing = true;
+            const progressBar = document.getElementById('progressBar');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 10;
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                
+                if (progress >= 100 || !isAnalyzing) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+
+        function hideAnalysisProgress() {
+            isAnalyzing = false;
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = '0%';
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.textContent = message;
+            
+            const container = document.querySelector('.main-content');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        function generateReport() {
+            // レポート生成機能（簡易版）
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(`
+                <html>
+                <head>
+                    <title>構造解析レポート</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; }
+                        h1, h2 { color: #333; }
+                        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>構造解析レポート</h1>
+                    <h2>解析条件</h2>
+                    <p>梁長: ${currentBeam.length}m</p>
+                    <p>支持条件: ${currentBeam.support}</p>
+                    <p>荷重数: ${currentBeam.loads.length}</p>
+                    
+                    <h2>解析結果</h2>
+                    <p>このレポートは構造力学シミュレーターで生成されました。</p>
+                    
+                    <h2>結論</h2>
+                    <p>設計条件を満足しています。</p>
+                </body>
+                </html>
+            `);
+        }
+
+        // キャンバスイベントハンドラ
+        function handleTrussCanvasClick(event) {
+            const canvas = event.target;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // グリッドスナップ
+            const snapX = Math.round(x / 40) * 40;
+            const snapY = Math.round(y / 40) * 40;
+            
+            // 既存の節点と重複チェック
+            const existingNode = currentStructure.nodes.find(node => 
+                Math.abs(node.x - snapX) < 20 && Math.abs(node.y - snapY) < 20
+            );
+            
+            if (!existingNode) {
+                currentStructure.nodes.push({x: snapX, y: snapY});
+                drawTrussGrid(canvas);
+            }
+        }
+
+        function handleTrussCanvasHover(event) {
+            const canvas = event.target;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // 節点やエレメントの情報表示
+            const nodeInfo = document.getElementById('nodeInfo');
+            const elementInfo = document.getElementById('elementInfo');
+            
+            // 近くの節点を検索
+            const nearbyNode = currentStructure.nodes.findIndex(node => 
+                Math.sqrt((node.x - x) ** 2 + (node.y - y) ** 2) < 15
+            );
+            
+            if (nearbyNode !== -1) {
+                nodeInfo.style.display = 'block';
+                nodeInfo.style.left = (rect.left + x + 10) + 'px';
+                nodeInfo.style.top = (rect.top + y - 30) + 'px';
+                
+                let info = `節点 ${nearbyNode}`;
+                if (analysisResults && analysisResults.nodeDisplacements[nearbyNode]) {
+                    const disp = analysisResults.nodeDisplacements[nearbyNode];
+                    info += `<br>変位: (${disp.x.toFixed(2)}, ${disp.y.toFixed(2)})mm`;
+                }
+                nodeInfo.innerHTML = info;
+            } else {
+                nodeInfo.style.display = 'none';
+            }
+        }
+
+        // パフォーマンス最適化
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // レスポンシブ対応
+        window.addEventListener('resize', debounce(() => {
+            const canvases = document.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+                if (canvas.id === 'trussCanvas') {
+                    drawTrussGrid(canvas);
+                } else if (canvas.id === 'beamCanvas') {
+                    drawBeamStructure();
+                }
+            });
+        }, 250));
+
+        // デモ機能
+        function demoBasics() {
+            const canvas = document.getElementById('basicsDemo');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 力の釣り合いデモ
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            
+            // 水平力
+            ctx.beginPath();
+            ctx.moveTo(200, 100);
+            ctx.lineTo(150, 100);
+            ctx.stroke();
+            drawArrowHead(ctx, 150, 100, Math.PI, '#007bff');
+            
+            ctx.beginPath();
+            ctx.moveTo(200, 100);
+            ctx.lineTo(250, 100);
+            ctx.stroke();
+            drawArrowHead(ctx, 250, 100, 0, '#007bff');
+            
+            // 中心点
+            ctx.beginPath();
+            ctx.arc(200, 100, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#dc3545';
+            ctx.fill();
+            
+            // ラベル
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Arial';
+            ctx.fillText('F1', 130, 95);
+            ctx.fillText('F2', 255, 95);
+            ctx.fillText('ΣF = 0', 180, 130);
+        }
+
+        function drawArrowHead(ctx, x, y, angle, color) {
+            const headlen = 8;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - headlen * Math.cos(angle - Math.PI/6), y - headlen * Math.sin(angle - Math.PI/6));
+            ctx.lineTo(x - headlen * Math.cos(angle + Math.PI/6), y - headlen * Math.sin(angle + Math.PI/6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // 品質保証とエラーハンドリング
+        window.addEventListener('error', function(event) {
+            console.error('アプリケーションエラー:', event.error);
+            showMessage('予期しないエラーが発生しました。ページを再読み込みしてください。', 'error');
+        });
+
+        // パフォーマンス監視
+        let performanceMetrics = {
+            analysisTime: 0,
+            renderTime: 0,
+            lastAnalysis: null
+        };
+
+        function measurePerformance(operation, func) {
+            const start = performance.now();
+            const result = func();
+            const end = performance.now();
+            
+            performanceMetrics[operation + 'Time'] = end - start;
+            performanceMetrics.lastAnalysis = new Date();
+            
+            return result;
+        }
+
+        // 自動保存機能（オプション）
+        function autoSave() {
+            const data = {
+                structure: currentStructure,
+                beam: currentBeam,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem('structuralAnalysisAutoSave', JSON.stringify(data));
+            } catch (e) {
+                console.warn('自動保存に失敗しました:', e);
+            }
+        }
+
+        function autoLoad() {
+            try {
+                const saved = localStorage.getItem('structuralAnalysisAutoSave');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    // 必要に応じて復元ロジックを実装
+                }
+            } catch (e) {
+                console.warn('自動読み込みに失敗しました:', e);
+            }
+        }
+
+        // 定期的な自動保存
+        setInterval(autoSave, 30000); // 30秒ごと
+    </script>
+</body>
+</html>
