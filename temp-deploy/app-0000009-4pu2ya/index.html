@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube URL Extraction System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎥 YouTube URL Extraction System</h1>
+            <p>キーワード検索による動画情報抽出システム</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-form">
+                <div class="input-group">
+                    <input type="text" id="searchKeyword" placeholder="検索キーワードを入力 (例: 機械学習, プログラミング, JavaScript)">
+                    <button id="searchBtn" class="btn-primary">🔍 検索開始</button>
+                </div>
+                
+                <div class="search-options">
+                    <div class="option-group">
+                        <label for="maxResults">最大取得数:</label>
+                        <select id="maxResults">
+                            <option value="10">10件</option>
+                            <option value="25" selected>25件</option>
+                            <option value="50">50件</option>
+                            <option value="100">100件</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="sortBy">ソート順:</label>
+                        <select id="sortBy">
+                            <option value="relevance">関連性</option>
+                            <option value="date">投稿日時</option>
+                            <option value="viewCount">再生回数</option>
+                            <option value="rating">評価</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="duration">動画長:</label>
+                        <select id="duration">
+                            <option value="any">指定なし</option>
+                            <option value="short">4分未満</option>
+                            <option value="medium">4-20分</option>
+                            <option value="long">20分以上</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>🔧 フィルター設定</h3>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="minViews">最小再生回数:</label>
+                    <input type="number" id="minViews" placeholder="1000" min="0">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="minSubscribers">最小登録者数:</label>
+                    <input type="number" id="minSubscribers" placeholder="10000" min="0">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="dateRange">投稿期間:</label>
+                    <select id="dateRange">
+                        <option value="all">全期間</option>
+                        <option value="hour">過去1時間</option>
+                        <option value="today">今日</option>
+                        <option value="week">過去1週間</option>
+                        <option value="month">過去1ヶ月</option>
+                        <option value="year">過去1年</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h3 id="resultsTitle">検索結果</h3>
+                <div class="results-controls">
+                    <button id="exportBtn" class="btn-secondary">📊 データ出力</button>
+                    <button id="clearBtn" class="btn-secondary">🗑️ クリア</button>
+                    <div class="view-toggle">
+                        <button id="gridView" class="view-btn active">⊞ グリッド</button>
+                        <button id="listView" class="view-btn">☰ リスト</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-stats" id="resultsStats"></div>
+
+            <div class="video-grid" id="videoGrid">
+                <div class="placeholder">
+                    <h4>🔍 検索を開始してください</h4>
+                    <p>キーワードを入力して「検索開始」ボタンを押してください</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="export-modal" id="exportModal">
+            <div class="modal-content">
+                <h3>📊 データ出力設定</h3>
+                <div class="export-options">
+                    <label><input type="checkbox" id="includeTitle" checked> タイトル</label>
+                    <label><input type="checkbox" id="includeUrl" checked> URL</label>
+                    <label><input type="checkbox" id="includeChannel" checked> チャンネル名</label>
+                    <label><input type="checkbox" id="includeViews" checked> 再生回数</label>
+                    <label><input type="checkbox" id="includeDate" checked> 投稿日</label>
+                    <label><input type="checkbox" id="includeSubscribers" checked> 登録者数</label>
+                    <label><input type="checkbox" id="includeDuration" checked> 動画長</label>
+                    <label><input type="checkbox" id="includeDescription"> 説明文</label>
+                </div>
+                <div class="export-formats">
+                    <button id="exportCsv" class="btn-primary">📄 CSV形式</button>
+                    <button id="exportJson" class="btn-primary">📋 JSON形式</button>
+                    <button id="exportTxt" class="btn-primary">📝 テキスト形式</button>
+                </div>
+                <button id="closeModal" class="btn-secondary">閉じる</button>
+            </div>
+        </div>
+
+        <div class="sample-keywords">
+            <h3>💡 人気検索キーワード</h3>
+            <div class="keyword-tags">
+                <span class="keyword-tag" data-keyword="JavaScript">JavaScript</span>
+                <span class="keyword-tag" data-keyword="Python">Python</span>
+                <span class="keyword-tag" data-keyword="React">React</span>
+                <span class="keyword-tag" data-keyword="機械学習">機械学習</span>
+                <span class="keyword-tag" data-keyword="AI">AI</span>
+                <span class="keyword-tag" data-keyword="Webデザイン">Webデザイン</span>
+                <span class="keyword-tag" data-keyword="データサイエンス">データサイエンス</span>
+                <span class="keyword-tag" data-keyword="ブロックチェーン">ブロックチェーン</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loadingText">YouTube API検索中...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-text" id="progressText">0%</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

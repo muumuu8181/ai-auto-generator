@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning Text Analysis System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧠 Deep Learning Text Analysis</h1>
+            <p>テキストのベクトル化と類似度分析システム</p>
+        </header>
+
+        <div class="main-content">
+            <section class="input-section">
+                <h2>📝 テキスト入力</h2>
+                <div class="text-inputs">
+                    <div class="input-group">
+                        <label for="shortText">短文 (50文字以下)</label>
+                        <textarea id="shortText" placeholder="今日は良い天気です。"></textarea>
+                        <span class="char-count" id="shortCount">0/50</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="mediumText">中文 (200文字以下)</label>
+                        <textarea id="mediumText" placeholder="機械学習は人工知能の一分野で..."></textarea>
+                        <span class="char-count" id="mediumCount">0/200</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="longText">長文 (1000文字以下)</label>
+                        <textarea id="longText" placeholder="ディープラーニングの歴史と発展について..."></textarea>
+                        <span class="char-count" id="longCount">0/1000</span>
+                    </div>
+                </div>
+                
+                <div class="sample-buttons">
+                    <button id="loadSamples" class="btn-secondary">📋 サンプルテキスト読み込み</button>
+                    <button id="clearAll" class="btn-secondary">🗑️ 全てクリア</button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="analyzeBtn" class="btn-primary">🚀 分析開始</button>
+                    <button id="vectorizeBtn" class="btn-primary">🔢 ベクトル化</button>
+                </div>
+            </section>
+
+            <section class="results-section">
+                <div class="analysis-tabs">
+                    <button class="tab-btn active" data-tab="vectors">📊 ベクトル表示</button>
+                    <button class="tab-btn" data-tab="similarity">🔍 類似度分析</button>
+                    <button class="tab-btn" data-tab="graph">📈 視覚化グラフ</button>
+                    <button class="tab-btn" data-tab="statistics">📋 統計情報</button>
+                </div>
+
+                <div class="tab-content active" id="vectors-tab">
+                    <h3>ベクトル表示</h3>
+                    <div class="vectors-display" id="vectorsDisplay">
+                        <p class="placeholder">テキストを入力して分析を開始してください</p>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="similarity-tab">
+                    <h3>類似度マトリックス</h3>
+                    <div class="similarity-matrix" id="similarityMatrix">
+                        <p class="placeholder">分析後に類似度が表示されます</p>
+                    </div>
+                    <div class="similarity-ranking" id="similarityRanking"></div>
+                </div>
+
+                <div class="tab-content" id="graph-tab">
+                    <h3>2D 散布図</h3>
+                    <div class="graph-container">
+                        <canvas id="scatterPlot" width="600" height="400"></canvas>
+                        <div class="graph-controls">
+                            <label><input type="checkbox" id="showLabels" checked> ラベル表示</label>
+                            <label><input type="checkbox" id="showConnections"> 類似線表示</label>
+                            <button id="resetZoom" class="btn-small">🔍 ズームリセット</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="statistics-tab">
+                    <h3>統計情報</h3>
+                    <div class="stats-grid" id="statsGrid">
+                        <p class="placeholder">分析後に統計情報が表示されます</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="export-section">
+            <h3>📤 データエクスポート</h3>
+            <div class="export-buttons">
+                <button id="exportVectors" class="btn-secondary">📊 ベクトルデータ (JSON)</button>
+                <button id="exportSimilarity" class="btn-secondary">🔍 類似度データ (CSV)</button>
+                <button id="exportGraph" class="btn-secondary">📈 グラフ画像 (PNG)</button>
+                <button id="exportReport" class="btn-secondary">📋 分析レポート (PDF)</button>
+            </div>
+        </section>
+
+        <section class="sample-texts" id="sampleTexts">
+            <h3>📚 サンプルテキスト集</h3>
+            <div class="samples-grid">
+                <div class="sample-category">
+                    <h4>技術系</h4>
+                    <div class="sample-items" data-category="tech"></div>
+                </div>
+                <div class="sample-category">
+                    <h4>文学系</h4>
+                    <div class="sample-items" data-category="literature"></div>
+                </div>
+                <div class="sample-category">
+                    <h4>科学系</h4>
+                    <div class="sample-items" data-category="science"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>ディープラーニング処理中...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-text" id="progressText">0%</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

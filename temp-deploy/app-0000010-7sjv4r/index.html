@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal GUI Design System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">🎨 GUI Design System</h1>
+                <span class="app-version">v2.5.3</span>
+            </div>
+            <div class="header-controls">
+                <button class="theme-btn" id="themeToggle">🌙</button>
+                <button class="settings-btn" id="settingsBtn">⚙️</button>
+                <button class="help-btn">❓</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <nav class="nav-menu">
+                    <div class="nav-section">
+                        <h3>🎨 デザイン</h3>
+                        <button class="nav-btn active" data-tab="colors">カラーパレット</button>
+                        <button class="nav-btn" data-tab="typography">タイポグラフィ</button>
+                        <button class="nav-btn" data-tab="layout">レイアウト</button>
+                        <button class="nav-btn" data-tab="effects">エフェクト</button>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3>🧩 コンポーネント</h3>
+                        <button class="nav-btn" data-tab="buttons">ボタン</button>
+                        <button class="nav-btn" data-tab="forms">フォーム</button>
+                        <button class="nav-btn" data-tab="cards">カード</button>
+                        <button class="nav-btn" data-tab="modals">モーダル</button>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3>📱 レスポンシブ</h3>
+                        <button class="nav-btn" data-tab="mobile">モバイル</button>
+                        <button class="nav-btn" data-tab="tablet">タブレット</button>
+                        <button class="nav-btn" data-tab="desktop">デスクトップ</button>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3>🔧 ツール</h3>
+                        <button class="nav-btn" data-tab="export">エクスポート</button>
+                        <button class="nav-btn" data-tab="templates">テンプレート</button>
+                    </div>
+                </nav>
+                
+                <div class="sidebar-footer">
+                    <div class="quick-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">12</span>
+                            <span class="stat-label">プロジェクト</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">45</span>
+                            <span class="stat-label">コンポーネント</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <span>デザインシステム</span>
+                        <span class="separator">></span>
+                        <span id="currentSection">カラーパレット</span>
+                    </div>
+                    
+                    <div class="content-actions">
+                        <button class="action-btn secondary">🔄 リセット</button>
+                        <button class="action-btn primary">💾 保存</button>
+                        <button class="action-btn accent">🚀 プレビュー</button>
+                    </div>
+                </div>
+
+                <!-- カラーパレットタブ -->
+                <div class="tab-content active" id="colors-tab">
+                    <div class="color-system">
+                        <div class="color-section">
+                            <h3>プライマリカラー</h3>
+                            <div class="color-palette">
+                                <div class="color-swatch" style="background: #6366f1" data-color="#6366f1">
+                                    <span class="color-label">Primary</span>
+                                    <span class="color-value">#6366f1</span>
+                                </div>
+                                <div class="color-swatch" style="background: #8b5cf6" data-color="#8b5cf6">
+                                    <span class="color-label">Secondary</span>
+                                    <span class="color-value">#8b5cf6</span>
+                                </div>
+                                <div class="color-swatch" style="background: #06b6d4" data-color="#06b6d4">
+                                    <span class="color-label">Accent</span>
+                                    <span class="color-value">#06b6d4</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="color-section">
+                            <h3>ステータスカラー</h3>
+                            <div class="color-palette">
+                                <div class="color-swatch" style="background: #10b981" data-color="#10b981">
+                                    <span class="color-label">Success</span>
+                                    <span class="color-value">#10b981</span>
+                                </div>
+                                <div class="color-swatch" style="background: #f59e0b" data-color="#f59e0b">
+                                    <span class="color-label">Warning</span>
+                                    <span class="color-value">#f59e0b</span>
+                                </div>
+                                <div class="color-swatch" style="background: #ef4444" data-color="#ef4444">
+                                    <span class="color-label">Error</span>
+                                    <span class="color-value">#ef4444</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="color-section">
+                            <h3>ニュートラルカラー</h3>
+                            <div class="color-palette gradient-palette">
+                                <div class="color-swatch" style="background: #1e293b" data-color="#1e293b">
+                                    <span class="color-label">Gray 900</span>
+                                    <span class="color-value">#1e293b</span>
+                                </div>
+                                <div class="color-swatch" style="background: #475569" data-color="#475569">
+                                    <span class="color-label">Gray 600</span>
+                                    <span class="color-value">#475569</span>
+                                </div>
+                                <div class="color-swatch" style="background: #94a3b8" data-color="#94a3b8">
+                                    <span class="color-label">Gray 400</span>
+                                    <span class="color-value">#94a3b8</span>
+                                </div>
+                                <div class="color-swatch" style="background: #e2e8f0" data-color="#e2e8f0">
+                                    <span class="color-label">Gray 200</span>
+                                    <span class="color-value">#e2e8f0</span>
+                                </div>
+                                <div class="color-swatch" style="background: #f8fafc" data-color="#f8fafc">
+                                    <span class="color-label">Gray 50</span>
+                                    <span class="color-value">#f8fafc</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- タイポグラフィタブ -->
+                <div class="tab-content" id="typography-tab">
+                    <div class="typography-system">
+                        <div class="font-showcase">
+                            <h1 class="display-1">見出し1 - Display Large</h1>
+                            <h2 class="display-2">見出し2 - Display Medium</h2>
+                            <h3 class="display-3">見出し3 - Display Small</h3>
+                            <h4 class="heading-1">見出し4 - Heading Large</h4>
+                            <h5 class="heading-2">見出し5 - Heading Medium</h5>
+                            <h6 class="heading-3">見出し6 - Heading Small</h6>
+                            <p class="body-large">本文Large - このテキストは本文のサンプルです。読みやすさを重視した設計となっています。</p>
+                            <p class="body-medium">本文Medium - 標準的な本文テキストのサンプルです。適切な行間とサイズで構成されています。</p>
+                            <p class="body-small">本文Small - 補足情報やキャプション用のテキストサンプルです。</p>
+                            <span class="label-text">ラベル - フォーム要素用</span>
+                        </div>
+                        
+                        <div class="font-controls">
+                            <div class="control-group">
+                                <label>フォントファミリー</label>
+                                <select id="fontFamily">
+                                    <option value="system">システムフォント</option>
+                                    <option value="noto">Noto Sans JP</option>
+                                    <option value="hiragino">ヒラギノ角ゴ</option>
+                                    <option value="meiryo">メイリオ</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>行間</label>
+                                <input type="range" id="lineHeight" min="1" max="2" step="0.1" value="1.6">
+                                <span id="lineHeightValue">1.6</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- レイアウトタブ -->
+                <div class="tab-content" id="layout-tab">
+                    <div class="layout-system">
+                        <div class="grid-showcase">
+                            <h3>グリッドシステム</h3>
+                            <div class="grid-demo">
+                                <div class="grid-item">Col 1</div>
+                                <div class="grid-item">Col 2</div>
+                                <div class="grid-item">Col 3</div>
+                                <div class="grid-item">Col 4</div>
+                            </div>
+                        </div>
+                        
+                        <div class="spacing-showcase">
+                            <h3>スペーシング</h3>
+                            <div class="spacing-demo">
+                                <div class="spacing-item" data-size="xs">XS - 4px</div>
+                                <div class="spacing-item" data-size="sm">SM - 8px</div>
+                                <div class="spacing-item" data-size="md">MD - 16px</div>
+                                <div class="spacing-item" data-size="lg">LG - 24px</div>
+                                <div class="spacing-item" data-size="xl">XL - 32px</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- その他のタブコンテンツ（簡略化） -->
+                <div class="tab-content" id="effects-tab">
+                    <div class="effects-system">
+                        <h3>シャドウエフェクト</h3>
+                        <div class="effects-demo">
+                            <div class="shadow-demo small">Small Shadow</div>
+                            <div class="shadow-demo medium">Medium Shadow</div>
+                            <div class="shadow-demo large">Large Shadow</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="buttons-tab">
+                    <div class="components-showcase">
+                        <h3>ボタンコンポーネント</h3>
+                        <div class="component-demo">
+                            <button class="demo-btn primary">Primary Button</button>
+                            <button class="demo-btn secondary">Secondary Button</button>
+                            <button class="demo-btn accent">Accent Button</button>
+                            <button class="demo-btn outline">Outline Button</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- プレビューエリア -->
+                <div class="preview-area" id="previewArea">
+                    <h3>ライブプレビュー</h3>
+                    <div class="preview-frame">
+                        <div class="preview-content">
+                            <h4>サンプルアプリケーション</h4>
+                            <p>選択した設定がリアルタイムで反映されます</p>
+                            <button class="preview-btn">アクションボタン</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 設定モーダル -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>⚙️ 設定</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label>画面密度</label>
+                        <select id="density">
+                            <option value="compact">コンパクト</option>
+                            <option value="normal" selected>標準</option>
+                            <option value="comfortable">ゆったり</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>アニメーション</label>
+                        <input type="checkbox" id="animations" checked>
+                        <span>エフェクトを有効にする</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

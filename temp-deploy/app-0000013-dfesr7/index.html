@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic Tetris Revolution</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="tetris-container">
+        <header class="game-header">
+            <div class="title-section">
+                <h1>🎮 Epic Tetris</h1>
+                <span class="subtitle">Revolution Edition</span>
+            </div>
+            <div class="score-section">
+                <div class="score-item">
+                    <span class="score-label">スコア</span>
+                    <span class="score-value" id="scoreDisplay">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">レベル</span>
+                    <span class="score-value" id="levelDisplay">1</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">ライン</span>
+                    <span class="score-value" id="linesDisplay">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="left-panel">
+                <div class="next-piece-area">
+                    <h3>🔮 NEXT</h3>
+                    <canvas id="nextPieceCanvas" width="120" height="120"></canvas>
+                </div>
+                
+                <div class="hold-piece-area">
+                    <h3>🤏 HOLD</h3>
+                    <canvas id="holdPieceCanvas" width="120" height="120"></canvas>
+                </div>
+                
+                <div class="game-stats">
+                    <h3>📊 統計</h3>
+                    <div class="stat-item">
+                        <span>時間:</span>
+                        <span id="gameTime">00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>PPS:</span>
+                        <span id="ppsDisplay">0.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>APM:</span>
+                        <span id="apmDisplay">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <canvas id="gameBoard" width="400" height="800"></canvas>
+                <div class="game-effects" id="gameEffects"></div>
+                
+                <!-- Particle Effect Canvas -->
+                <canvas id="particleCanvas" width="400" height="800"></canvas>
+                
+                <!-- Game Status Overlay -->
+                <div class="game-overlay" id="gameOverlay">
+                    <div class="game-message" id="gameMessage">
+                        <h2>🎮 TETRIS READY</h2>
+                        <p>スペースキーでゲーム開始</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="controls-info">
+                    <h3>🎮 操作方法</h3>
+                    <div class="control-item">
+                        <span class="key">A/D</span>
+                        <span>左右移動</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">S</span>
+                        <span>ソフトドロップ</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">W</span>
+                        <span>ハードドロップ</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">J/K</span>
+                        <span>回転</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">L</span>
+                        <span>ホールド</span>
+                    </div>
+                </div>
+
+                <div class="effect-settings">
+                    <h3>✨ エフェクト</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="particleEffects" checked>
+                            パーティクル
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="screenShake" checked>
+                            画面振動
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="ghostPiece" checked>
+                            ゴーストピース
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="soundEffects" checked>
+                            効果音
+                        </label>
+                    </div>
+                </div>
+
+                <div class="theme-selector">
+                    <h3>🎨 テーマ</h3>
+                    <select id="themeSelect">
+                        <option value="neon">ネオン</option>
+                        <option value="retro">レトロ</option>
+                        <option value="galaxy">ギャラクシー</option>
+                        <option value="matrix">マトリックス</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-panel">
+            <div class="action-buttons">
+                <button class="game-btn start" id="startBtn">▶️ 開始</button>
+                <button class="game-btn pause" id="pauseBtn">⏸️ 一時停止</button>
+                <button class="game-btn restart" id="restartBtn">🔄 リスタート</button>
+            </div>
+            
+            <div class="piece-stats">
+                <h3>📦 ピース統計</h3>
+                <div class="piece-counter-grid">
+                    <div class="piece-counter" data-piece="I">
+                        <div class="piece-preview i-piece">█</div>
+                        <span class="piece-count" id="countI">0</span>
+                    </div>
+                    <div class="piece-counter" data-piece="O">
+                        <div class="piece-preview o-piece">█</div>
+                        <span class="piece-count" id="countO">0</span>
+                    </div>
+                    <div class="piece-counter" data-piece="T">
+                        <div class="piece-preview t-piece">█</div>
+                        <span class="piece-count" id="countT">0</span>
+                    </div>
+                    <div class="piece-counter" data-piece="S">
+                        <div class="piece-preview s-piece">█</div>
+                        <span class="piece-count" id="countS">0</span>
+                    </div>
+                    <div class="piece-counter" data-piece="Z">
+                        <div class="piece-preview z-piece">█</div>
+                        <span class="piece-count" id="countZ">0</span>
+                    </div>
+                    <div class="piece-counter" data-piece="J">
+                        <div class="piece-preview j-piece">█</div>
+                        <span class="piece-count" id="countJ">0</span>
+                    </div>
+                    <div class="piece-counter" data-piece="L">
+                        <div class="piece-preview l-piece">█</div>
+                        <span class="piece-count" id="countL">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- High Score Modal -->
+        <div class="modal-overlay" id="highScoreModal">
+            <div class="modal">
+                <h2>🏆 新記録！</h2>
+                <div class="final-score">
+                    <span id="finalScore">0</span>
+                </div>
+                <input type="text" id="playerName" placeholder="名前を入力" maxlength="10">
+                <div class="modal-buttons">
+                    <button class="modal-btn save" id="saveScore">💾 保存</button>
+                    <button class="modal-btn close" id="closeModal">❌ 閉じる</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard" id="leaderboard">
+            <h3>🏅 ランキング</h3>
+            <div class="rank-list" id="rankList">
+                <!-- Rankings will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

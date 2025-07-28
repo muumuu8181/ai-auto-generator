@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Defense Command - 宇宙防衛司令部</title>
+    <meta name="description" content="宇宙からの侵略者を撃退する本格的な防衛シミュレーションゲーム">
+    <meta name="keywords" content="宇宙防衛, シューティング, ゲーム, タワーディフェンス, SF">
+    <meta name="author" content="AI Auto Generator">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header -->
+        <header class="game-header">
+            <div class="title-section">
+                <h1>🚀 Space Defense Command</h1>
+                <div class="subtitle">宇宙防衛司令部 - Elite Squadron</div>
+            </div>
+            <div class="status-display">
+                <div class="status-item">
+                    <span class="status-label">威力</span>
+                    <span class="status-value" id="powerLevel">100</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">スコア</span>
+                    <span class="status-value" id="scoreDisplay">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">ウェーブ</span>
+                    <span class="status-value" id="waveNumber">1</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">体力</span>
+                    <span class="status-value" id="hullIntegrity">100%</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="space-battlefield">
+            <canvas id="gameCanvas" width="1200" height="700"></canvas>
+            <canvas id="effectCanvas" width="1200" height="700"></canvas>
+            
+            <!-- HUD Overlay -->
+            <div class="hud-overlay">
+                <div class="radar-display">
+                    <div class="radar-screen">
+                        <div class="radar-sweep"></div>
+                        <div class="radar-blips" id="radarBlips"></div>
+                    </div>
+                    <div class="radar-label">RADAR</div>
+                </div>
+                
+                <div class="weapon-systems">
+                    <div class="weapon-slot active" data-weapon="laser">
+                        <div class="weapon-icon">🔴</div>
+                        <div class="weapon-name">レーザー</div>
+                        <div class="ammo-count" id="laserAmmo">∞</div>
+                    </div>
+                    <div class="weapon-slot" data-weapon="missile">
+                        <div class="weapon-icon">🚀</div>
+                        <div class="weapon-name">ミサイル</div>
+                        <div class="ammo-count" id="missileAmmo">20</div>
+                    </div>
+                    <div class="weapon-slot" data-weapon="plasma">
+                        <div class="weapon-icon">⚡</div>
+                        <div class="weapon-name">プラズマ</div>
+                        <div class="ammo-count" id="plasmaAmmo">5</div>
+                    </div>
+                    <div class="weapon-slot" data-weapon="shield">
+                        <div class="weapon-icon">🛡️</div>
+                        <div class="weapon-name">シールド</div>
+                        <div class="ammo-count" id="shieldCharge">100%</div>
+                    </div>
+                </div>
+                
+                <div class="mission-objectives">
+                    <h3>🎯 ミッション目標</h3>
+                    <div class="objective-list">
+                        <div class="objective active" id="objective1">
+                            <span class="objective-icon">☐</span>
+                            <span class="objective-text">敵艦隊を撃破する</span>
+                        </div>
+                        <div class="objective" id="objective2">
+                            <span class="objective-icon">☐</span>
+                            <span class="objective-text">宇宙基地を防衛する</span>
+                        </div>
+                        <div class="objective" id="objective3">
+                            <span class="objective-icon">☐</span>
+                            <span class="objective-text">ボス艦を倒す</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warning System -->
+            <div class="warning-system" id="warningSystem">
+                <div class="warning-text" id="warningText">WARNING: INCOMING HOSTILES</div>
+            </div>
+        </main>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="panel-section">
+                <h3>🎮 ゲーム制御</h3>
+                <div class="control-group">
+                    <button class="control-btn start" id="startGame">
+                        <span class="btn-icon">▶️</span>
+                        <span>ゲーム開始</span>
+                    </button>
+                    <button class="control-btn pause" id="pauseGame">
+                        <span class="btn-icon">⏸️</span>
+                        <span>一時停止</span>
+                    </button>
+                    <button class="control-btn reset" id="resetGame">
+                        <span class="btn-icon">🔄</span>
+                        <span>リセット</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3>⚙️ 設定</h3>
+                <div class="setting-group">
+                    <label>難易度:</label>
+                    <select id="difficultySelect">
+                        <option value="easy">イージー</option>
+                        <option value="normal" selected>ノーマル</option>
+                        <option value="hard">ハード</option>
+                        <option value="nightmare">ナイトメア</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>音効果:</label>
+                    <input type="range" id="sfxVolume" min="0" max="100" value="70">
+                    <span id="sfxVolumeValue">70%</span>
+                </div>
+                <div class="setting-group">
+                    <label>自動射撃:</label>
+                    <input type="checkbox" id="autoFire">
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3>📊 統計</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">総撃破数:</span>
+                        <span class="stat-value" id="totalKills">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">命中率:</span>
+                        <span class="stat-value" id="accuracy">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">生存時間:</span>
+                        <span class="stat-value" id="survivalTime">00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最高スコア:</span>
+                        <span class="stat-value" id="highScore">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3>🎬 エフェクト制御</h3>
+                <div class="effect-controls">
+                    <button class="effect-btn" id="testExplosion">
+                        <span>💥</span>
+                        <span>爆発テスト</span>
+                    </button>
+                    <button class="effect-btn" id="testLaser">
+                        <span>🔴</span>
+                        <span>レーザーテスト</span>
+                    </button>
+                    <button class="effect-btn" id="testShield">
+                        <span>🛡️</span>
+                        <span>シールドテスト</span>
+                    </button>
+                    <button class="effect-btn" id="clearEffects">
+                        <span>🧹</span>
+                        <span>エフェクトクリア</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Monitor -->
+        <div class="performance-monitor">
+            <div class="fps-display">
+                <span class="fps-label">FPS:</span>
+                <span class="fps-value" id="fpsValue">60</span>
+            </div>
+            <div class="object-count">
+                <span class="count-label">Objects:</span>
+                <span class="count-value" id="objectCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="gameOverTitle">🚀 ミッション完了</h2>
+            </div>
+            <div class="modal-content">
+                <div class="final-stats">
+                    <div class="stat-row">
+                        <span>最終スコア:</span>
+                        <span id="finalScore">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>撃破数:</span>
+                        <span id="finalKills">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>到達ウェーブ:</span>
+                        <span id="finalWave">1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>生存時間:</span>
+                        <span id="finalTime">00:00</span>
+                    </div>
+                </div>
+                <div class="achievement-section" id="achievementSection">
+                    <h3>🏆 達成項目</h3>
+                    <div class="achievement-list" id="achievementList"></div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn retry" id="retryGame">
+                    <span>🔄</span>
+                    <span>再挑戦</span>
+                </button>
+                <button class="modal-btn menu" id="backToMenu">
+                    <span>🏠</span>
+                    <span>メニューに戻る</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

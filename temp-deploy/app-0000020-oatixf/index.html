@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Security Dashboard - サイバーセキュリティダッシュボード</title>
+    <meta name="description" content="リアルタイムサイバー攻撃監視とネットワークセキュリティ分析ダッシュボード">
+    <meta name="keywords" content="サイバーセキュリティ, ネットワーク監視, セキュリティ分析, 脅威検知">
+    <meta name="author" content="AI Auto Generator">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="security-dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>🛡️ Cyber Security Dashboard</h1>
+                <div class="subtitle">サイバーセキュリティ統合監視システム</div>
+            </div>
+            <div class="header-center">
+                <div class="threat-level" id="threatLevel">
+                    <div class="threat-indicator low"></div>
+                    <span class="threat-text">脅威レベル: 低</span>
+                </div>
+                <div class="active-connections">
+                    <span class="connection-count" id="activeConnections">1,247</span>
+                    <span class="connection-label">アクティブ接続</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="system-time" id="systemTime">2025-07-27 13:30:45</div>
+                <div class="security-status">
+                    <span class="status-indicator online"></span>
+                    <span>システム正常</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-main">
+            <!-- Real-time Attack Map -->
+            <section class="attack-map-section">
+                <div class="section-header">
+                    <h2>🌍 リアルタイム攻撃マップ</h2>
+                    <div class="map-controls">
+                        <button class="map-btn" id="zoomIn">🔍+</button>
+                        <button class="map-btn" id="zoomOut">🔍-</button>
+                        <button class="map-btn" id="filterAttacks">🔧</button>
+                        <button class="map-btn" id="fullscreen">⛶</button>
+                    </div>
+                </div>
+                <div class="attack-map-container">
+                    <canvas id="attackMap" width="1000" height="500"></canvas>
+                    <div class="attack-overlay">
+                        <div class="attack-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot malware"></div>
+                                <span>マルウェア</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot ddos"></div>
+                                <span>DDoS攻撃</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot intrusion"></div>
+                                <span>侵入試行</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot phishing"></div>
+                                <span>フィッシング</span>
+                            </div>
+                        </div>
+                        <div class="attack-stats">
+                            <div class="stat-box">
+                                <span class="stat-number" id="attacksToday">1,847</span>
+                                <span class="stat-label">今日の攻撃数</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-number" id="blockedAttacks">1,792</span>
+                                <span class="stat-label">ブロック済み</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Network Traffic Analysis -->
+            <section class="traffic-section">
+                <div class="section-header">
+                    <h2>📊 ネットワークトラフィック分析</h2>
+                    <div class="time-range-selector">
+                        <button class="time-btn active" data-range="1h">1時間</button>
+                        <button class="time-btn" data-range="6h">6時間</button>
+                        <button class="time-btn" data-range="24h">24時間</button>
+                        <button class="time-btn" data-range="7d">7日間</button>
+                    </div>
+                </div>
+                <div class="traffic-container">
+                    <div class="traffic-chart">
+                        <canvas id="trafficChart" width="800" height="300"></canvas>
+                    </div>
+                    <div class="traffic-details">
+                        <div class="traffic-metric">
+                            <div class="metric-header">
+                                <span class="metric-title">受信トラフィック</span>
+                                <span class="metric-value" id="inboundTraffic">847.2 MB/s</span>
+                            </div>
+                            <div class="metric-bar">
+                                <div class="metric-fill inbound" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <div class="traffic-metric">
+                            <div class="metric-header">
+                                <span class="metric-title">送信トラフィック</span>
+                                <span class="metric-value" id="outboundTraffic">623.8 MB/s</span>
+                            </div>
+                            <div class="metric-bar">
+                                <div class="metric-fill outbound" style="width: 48%"></div>
+                            </div>
+                        </div>
+                        <div class="traffic-metric">
+                            <div class="metric-header">
+                                <span class="metric-title">疑わしいトラフィック</span>
+                                <span class="metric-value" id="suspiciousTraffic">12.4 MB/s</span>
+                            </div>
+                            <div class="metric-bar">
+                                <div class="metric-fill suspicious" style="width: 8%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Events Log -->
+            <section class="events-section">
+                <div class="section-header">
+                    <h2>🚨 セキュリティイベントログ</h2>
+                    <div class="log-controls">
+                        <select id="severityFilter">
+                            <option value="all">全ての重要度</option>
+                            <option value="critical">危険</option>
+                            <option value="high">高</option>
+                            <option value="medium">中</option>
+                            <option value="low">低</option>
+                        </select>
+                        <button class="log-btn" id="exportLogs">📥 エクスポート</button>
+                        <button class="log-btn" id="clearLogs">🗑️ クリア</button>
+                    </div>
+                </div>
+                <div class="events-container">
+                    <div class="events-list" id="eventsList">
+                        <!-- Events will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <!-- Threat Intelligence -->
+            <section class="threat-intel-section">
+                <h3>🧠 脅威インテリジェンス</h3>
+                <div class="intel-feed" id="threatFeed">
+                    <div class="intel-item critical">
+                        <div class="intel-header">
+                            <span class="intel-severity">危険</span>
+                            <span class="intel-time">2分前</span>
+                        </div>
+                        <div class="intel-content">
+                            新しいランサムウェア「CryptoLock2025」が検出されました
+                        </div>
+                    </div>
+                    <div class="intel-item high">
+                        <div class="intel-header">
+                            <span class="intel-severity">高</span>
+                            <span class="intel-time">15分前</span>
+                        </div>
+                        <div class="intel-content">
+                            SQLインジェクション攻撃の増加が確認されています
+                        </div>
+                    </div>
+                    <div class="intel-item medium">
+                        <div class="intel-header">
+                            <span class="intel-severity">中</span>
+                            <span class="intel-time">1時間前</span>
+                        </div>
+                        <div class="intel-content">
+                            フィッシングメールキャンペーンが金融機関を標的に開始
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Health -->
+            <section class="system-health-section">
+                <h3>💻 システムヘルス</h3>
+                <div class="health-metrics">
+                    <div class="health-metric">
+                        <div class="metric-label">CPU使用率</div>
+                        <div class="metric-gauge">
+                            <div class="gauge-fill" style="width: 35%"></div>
+                        </div>
+                        <div class="metric-percentage">35%</div>
+                    </div>
+                    <div class="health-metric">
+                        <div class="metric-label">メモリ使用率</div>
+                        <div class="metric-gauge">
+                            <div class="gauge-fill" style="width: 68%"></div>
+                        </div>
+                        <div class="metric-percentage">68%</div>
+                    </div>
+                    <div class="health-metric">
+                        <div class="metric-label">ディスク使用率</div>
+                        <div class="metric-gauge">
+                            <div class="gauge-fill" style="width: 42%"></div>
+                        </div>
+                        <div class="metric-percentage">42%</div>
+                    </div>
+                    <div class="health-metric">
+                        <div class="metric-label">ネットワーク負荷</div>
+                        <div class="metric-gauge">
+                            <div class="gauge-fill" style="width: 78%"></div>
+                        </div>
+                        <div class="metric-percentage">78%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Tools -->
+            <section class="security-tools-section">
+                <h3>🛠️ セキュリティツール</h3>
+                <div class="tools-grid">
+                    <button class="tool-btn" id="portScan">
+                        <span class="tool-icon">🔍</span>
+                        <span class="tool-name">ポートスキャン</span>
+                    </button>
+                    <button class="tool-btn" id="vulnScan">
+                        <span class="tool-icon">🛡️</span>
+                        <span class="tool-name">脆弱性スキャン</span>
+                    </button>
+                    <button class="tool-btn" id="trafficAnalysis">
+                        <span class="tool-icon">📈</span>
+                        <span class="tool-name">トラフィック解析</span>
+                    </button>
+                    <button class="tool-btn" id="incidentResponse">
+                        <span class="tool-icon">🚨</span>
+                        <span class="tool-name">インシデント対応</span>
+                    </button>
+                    <button class="tool-btn" id="forensics">
+                        <span class="tool-icon">🔬</span>
+                        <span class="tool-name">フォレンジック</span>
+                    </button>
+                    <button class="tool-btn" id="threatHunting">
+                        <span class="tool-icon">🎯</span>
+                        <span class="tool-name">脅威ハンティング</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions-section">
+                <h3>⚡ クイックアクション</h3>
+                <div class="actions-list">
+                    <button class="action-btn critical" id="emergencyShutdown">
+                        <span class="action-icon">🔴</span>
+                        <span class="action-text">緊急停止</span>
+                    </button>
+                    <button class="action-btn warning" id="isolateNetwork">
+                        <span class="action-icon">🚧</span>
+                        <span class="action-text">ネットワーク隔離</span>
+                    </button>
+                    <button class="action-btn info" id="backupData">
+                        <span class="action-icon">💾</span>
+                        <span class="action-text">データバックアップ</span>
+                    </button>
+                    <button class="action-btn success" id="updateSignatures">
+                        <span class="action-icon">🔄</span>
+                        <span class="action-text">シグネチャ更新</span>
+                    </button>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Bottom Panel -->
+        <footer class="dashboard-footer">
+            <div class="footer-stats">
+                <div class="footer-stat">
+                    <span class="stat-label">稼働時間:</span>
+                    <span class="stat-value" id="uptime">99.98%</span>
+                </div>
+                <div class="footer-stat">
+                    <span class="stat-label">処理済みイベント:</span>
+                    <span class="stat-value" id="processedEvents">2,847,192</span>
+                </div>
+                <div class="footer-stat">
+                    <span class="stat-label">検出率:</span>
+                    <span class="stat-value" id="detectionRate">97.2%</span>
+                </div>
+                <div class="footer-stat">
+                    <span class="stat-label">最終更新:</span>
+                    <span class="stat-value" id="lastUpdate">2秒前</span>
+                </div>
+            </div>
+            
+            <div class="footer-controls">
+                <button class="footer-btn" id="settingsBtn">⚙️ 設定</button>
+                <button class="footer-btn" id="reportsBtn">📊 レポート</button>
+                <button class="footer-btn" id="alertsBtn">🔔 アラート</button>
+                <button class="footer-btn" id="helpBtn">❓ ヘルプ</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Alert Modal -->
+    <div class="modal-overlay" id="alertModal">
+        <div class="modal alert-modal">
+            <div class="modal-header">
+                <h2 id="alertTitle">🚨 セキュリティアラート</h2>
+                <button class="modal-close" id="closeAlert">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="alert-severity" id="alertSeverity">危険</div>
+                <div class="alert-message" id="alertMessage">
+                    複数のIPアドレスからの同時ログイン試行が検出されました。
+                </div>
+                <div class="alert-details">
+                    <div class="detail-row">
+                        <span>検出時刻:</span>
+                        <span id="alertTime">2025-07-27 13:30:42</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>送信元IP:</span>
+                        <span id="alertIP">192.168.1.100 他15件</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>攻撃タイプ:</span>
+                        <span id="alertType">ブルートフォース攻撃</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn block">ブロック</button>
+                <button class="modal-btn investigate">調査</button>
+                <button class="modal-btn dismiss">無視</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

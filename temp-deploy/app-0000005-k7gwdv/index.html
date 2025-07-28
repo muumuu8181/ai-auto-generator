@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バックアップシステム検証アプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ バックアップシステム検証</h1>
+            <div class="status-indicator" id="system-status">
+                <span class="status-icon">●</span>
+                <span class="status-text">システム待機中</span>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- ファイル監視パネル -->
+            <section class="panel file-monitor">
+                <h2>📁 リアルタイムファイル監視</h2>
+                <div class="monitor-controls">
+                    <button id="start-monitor" class="btn btn-primary">監視開始</button>
+                    <button id="stop-monitor" class="btn btn-secondary" disabled>監視停止</button>
+                </div>
+                <div class="file-list" id="file-list">
+                    <p class="empty-state">監視を開始してください</p>
+                </div>
+            </section>
+
+            <!-- バックアップ実行パネル -->
+            <section class="panel backup-control">
+                <h2>💾 自動バックアップ</h2>
+                <div class="backup-options">
+                    <label>
+                        <input type="checkbox" id="auto-backup" checked>
+                        自動バックアップ有効
+                    </label>
+                    <label>
+                        間隔: 
+                        <select id="backup-interval">
+                            <option value="60">1分</option>
+                            <option value="300" selected>5分</option>
+                            <option value="600">10分</option>
+                            <option value="1800">30分</option>
+                        </select>
+                    </label>
+                </div>
+                <button id="manual-backup" class="btn btn-success">手動バックアップ実行</button>
+                <div class="backup-progress" id="backup-progress">
+                    <div class="progress-bar"></div>
+                    <span class="progress-text">待機中</span>
+                </div>
+            </section>
+
+            <!-- 整合性確認パネル -->
+            <section class="panel integrity-check">
+                <h2>🔍 MD5整合性確認</h2>
+                <button id="check-integrity" class="btn btn-warning">整合性チェック実行</button>
+                <div class="integrity-results" id="integrity-results">
+                    <div class="result-item template">
+                        <span class="file-name"></span>
+                        <span class="result-status"></span>
+                        <span class="md5-hash"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- フォーマット解析パネル -->
+            <section class="panel format-parser">
+                <h2>📊 3形式解析</h2>
+                <div class="format-tabs">
+                    <button class="tab-btn active" data-format="markdown">Markdown</button>
+                    <button class="tab-btn" data-format="json">JSON</button>
+                    <button class="tab-btn" data-format="natural">自然言語</button>
+                </div>
+                <div class="parser-input">
+                    <textarea id="parser-input" placeholder="解析するテキストを入力..."></textarea>
+                    <button id="parse-text" class="btn btn-primary">解析実行</button>
+                </div>
+                <div class="parser-output" id="parser-output"></div>
+            </section>
+
+            <!-- 復旧テストパネル -->
+            <section class="panel recovery-test">
+                <h2>🔧 自動復旧機能テスト</h2>
+                <div class="test-scenarios">
+                    <button class="test-btn" data-test="corrupt">ファイル破損シミュレート</button>
+                    <button class="test-btn" data-test="delete">ファイル削除シミュレート</button>
+                    <button class="test-btn" data-test="modify">不正変更シミュレート</button>
+                </div>
+                <button id="run-recovery" class="btn btn-danger">自動復旧実行</button>
+                <div class="recovery-log" id="recovery-log"></div>
+            </section>
+
+            <!-- 統計ダッシュボード -->
+            <section class="panel statistics">
+                <h2>📈 統計グラフ</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>総ファイル数</h3>
+                        <div class="stat-value" id="total-files">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>バックアップ成功率</h3>
+                        <div class="stat-value" id="success-rate">100%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>最終バックアップ</h3>
+                        <div class="stat-value" id="last-backup">--:--</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>総容量</h3>
+                        <div class="stat-value" id="total-size">0 MB</div>
+                    </div>
+                </div>
+                <canvas id="backup-chart"></canvas>
+            </section>
+
+            <!-- バックアップ一覧 -->
+            <section class="panel backup-list">
+                <h2>📚 バックアップ一覧</h2>
+                <div class="list-controls">
+                    <input type="search" id="search-backups" placeholder="検索...">
+                    <select id="sort-backups">
+                        <option value="date-desc">日付（新しい順）</option>
+                        <option value="date-asc">日付（古い順）</option>
+                        <option value="size-desc">サイズ（大きい順）</option>
+                        <option value="size-asc">サイズ（小さい順）</option>
+                    </select>
+                </div>
+                <div class="backup-items" id="backup-items"></div>
+            </section>
+
+            <!-- ワンクリックテスト -->
+            <section class="panel quick-test">
+                <h2>⚡ ワンクリックテスト</h2>
+                <button id="one-click-test" class="btn btn-large btn-primary">
+                    <span class="icon">🚀</span>
+                    <span>完全システムテスト実行</span>
+                </button>
+                <div class="test-results" id="test-results"></div>
+            </section>
+        </div>
+
+        <!-- ログビューア -->
+        <div class="log-viewer" id="log-viewer">
+            <div class="log-header">
+                <h3>📋 システムログ</h3>
+                <button id="clear-log" class="btn btn-sm">クリア</button>
+            </div>
+            <div class="log-content" id="log-content"></div>
+        </div>
+    </div>
+
+    <!-- WebSocket接続インジケーター -->
+    <div class="connection-indicator" id="connection-indicator">
+        <span class="indicator-icon">📡</span>
+        <span class="indicator-text">未接続</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

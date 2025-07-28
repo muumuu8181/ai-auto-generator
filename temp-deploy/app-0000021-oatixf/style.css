@@ -1,0 +1,751 @@
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #7c3aed;
+    --accent-color: #06b6d4;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --bg-color: #0f172a;
+    --surface-color: #1e293b;
+    --text-color: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --molecular-glow: 0 0 20px currentColor;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    background: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.molecular-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: radial-gradient(circle at 30% 40%, #1e293b 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, #312e81 0%, transparent 50%),
+                var(--bg-color);
+}
+
+/* Header */
+.molecular-header {
+    background: linear-gradient(135deg, var(--surface-color), #1e293b);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary-color);
+    box-shadow: var(--molecular-glow);
+    position: relative;
+    overflow: hidden;
+}
+
+.molecular-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+    animation: molecularScan 3s infinite;
+}
+
+@keyframes molecularScan {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.title-section h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: var(--molecular-glow);
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    color: var(--accent-color);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    opacity: 0.9;
+}
+
+.molecule-info {
+    text-align: right;
+}
+
+.molecule-name {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.molecule-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Main Layout */
+.molecular-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+/* Visualization Area */
+.visualization-area {
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 2px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.viz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.viz-header h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.view-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.control-btn {
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.control-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.2);
+}
+
+.control-btn.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.molecule-canvas-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 600px;
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    background: #000014;
+    overflow: hidden;
+}
+
+#moleculeCanvas {
+    border-radius: 10px;
+    cursor: grab;
+}
+
+#moleculeCanvas:active {
+    cursor: grabbing;
+}
+
+/* Render Mode Controls */
+.render-modes {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(30, 41, 59, 0.9);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.render-modes h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.mode-btn {
+    background: var(--surface-color);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.mode-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.2);
+}
+
+.mode-btn.active {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.mode-icon {
+    font-size: 1.2rem;
+}
+
+/* Animation Controls */
+.animation-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(30, 41, 59, 0.9);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.animation-controls h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.animation-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.anim-btn {
+    background: var(--surface-color);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-align: center;
+}
+
+.anim-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.2);
+}
+
+.anim-btn.play { border-color: var(--success-color); }
+.anim-btn.pause { border-color: var(--warning-color); }
+.anim-btn.step { border-color: var(--accent-color); }
+
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.speed-control label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 60px;
+}
+
+.speed-control input {
+    flex: 1;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    outline: none;
+    appearance: none;
+}
+
+.speed-control input::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    box-shadow: var(--molecular-glow);
+}
+
+.speed-value {
+    font-weight: bold;
+    color: var(--primary-color);
+    min-width: 30px;
+}
+
+/* Sidebar */
+.molecular-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sidebar-section {
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 2px solid var(--border-color);
+}
+
+.sidebar-section h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+/* Molecule Library */
+.molecule-library {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.mol-item {
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.mol-item:hover {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.mol-item.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.mol-name {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.mol-formula {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.mol-item.active .mol-formula {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Properties Panel */
+.property-tabs {
+    display: flex;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.prop-tab {
+    flex: 1;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.prop-tab:hover, .prop-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.prop-panel {
+    display: none;
+}
+
+.prop-panel.active {
+    display: block;
+}
+
+.property-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.prop-item {
+    text-align: center;
+}
+
+.prop-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.prop-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Parameters Section */
+.parameter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.param-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.param-control label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    min-width: 80px;
+}
+
+.param-control input {
+    flex: 1;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    outline: none;
+    appearance: none;
+}
+
+.param-control input::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    box-shadow: var(--molecular-glow);
+}
+
+.param-display {
+    font-weight: bold;
+    color: var(--primary-color);
+    min-width: 60px;
+    text-align: right;
+}
+
+/* Analysis Tools */
+.analysis-tools {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.analysis-btn {
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.analysis-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.2);
+    transform: translateY(-2px);
+}
+
+.analysis-icon {
+    font-size: 1.2rem;
+}
+
+/* Calculation Status */
+.calc-status {
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.status-text {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+/* Export Options */
+.export-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.export-btn {
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.export-btn:hover {
+    border-color: var(--success-color);
+    background: rgba(16, 185, 129, 0.2);
+}
+
+/* Energy Chart */
+.energy-section {
+    margin-top: 1rem;
+}
+
+.energy-chart-container {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: #000014;
+    margin-bottom: 1rem;
+}
+
+#energyChart {
+    width: 100%;
+    height: 200px;
+    border-radius: 6px;
+}
+
+.energy-levels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.energy-level {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--bg-color);
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.level-name {
+    font-weight: 600;
+}
+
+.level-energy {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+/* Performance Monitor */
+.performance-monitor {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(30, 41, 59, 0.9);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    z-index: 100;
+}
+
+.perf-metric {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.perf-label {
+    color: var(--text-secondary);
+}
+
+.perf-value {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .molecular-main {
+        grid-template-columns: 1fr;
+    }
+    
+    .molecular-sidebar {
+        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+    }
+    
+    .render-modes, .animation-controls {
+        position: static;
+        margin-bottom: 1rem;
+    }
+    
+    .performance-monitor {
+        position: static;
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .molecular-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .viz-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .view-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .mode-grid, .molecule-library, .property-grid, .analysis-tools, .export-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .molecular-sidebar {
+        grid-template-columns: 1fr;
+    }
+    
+    .performance-monitor {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Animations */
+@keyframes molecularVibration {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(1px) translateY(1px); }
+    50% { transform: translateX(-1px) translateY(-1px); }
+    75% { transform: translateX(1px) translateY(-1px); }
+}
+
+.vibrating {
+    animation: molecularVibration 0.1s infinite;
+}
+
+@keyframes bondStretch {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(1.1); }
+}
+
+.stretching {
+    animation: bondStretch 0.5s infinite;
+}
+
+/* Tooltip */
+.molecule-tooltip {
+    position: absolute;
+    background: rgba(30, 41, 59, 0.95);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    pointer-events: none;
+    font-size: 0.8rem;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--molecular-glow);
+}
+
+/* Loading Animation */
+@keyframes molecularSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: molecularSpin 1s linear infinite;
+}

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Physics Simulator - 量子物理シミュレーター</title>
+    <meta name="description" content="量子力学の現象を美しく可視化するインタラクティブシミュレーター">
+    <meta name="keywords" content="量子力学, 物理学, シミュレーション, 量子もつれ, 波動関数">
+    <meta name="author" content="AI Auto Generator">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="quantum-container">
+        <!-- Header -->
+        <header class="quantum-header">
+            <div class="title-section">
+                <h1>⚛️ Quantum Physics Simulator</h1>
+                <div class="subtitle">量子物理シミュレーター - Quantum Mechanics Visualization</div>
+            </div>
+            <div class="quantum-stats">
+                <div class="stat-display">
+                    <span class="stat-label">エネルギー準位</span>
+                    <span class="stat-value" id="energyLevel">1.0 eV</span>
+                </div>
+                <div class="stat-display">
+                    <span class="stat-label">波動関数</span>
+                    <span class="stat-value" id="waveFunction">ψ₁</span>
+                </div>
+                <div class="stat-display">
+                    <span class="stat-label">確率密度</span>
+                    <span class="stat-value" id="probability">95.2%</span>
+                </div>
+                <div class="stat-display">
+                    <span class="stat-label">もつれ度</span>
+                    <span class="stat-value" id="entanglement">0.85</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Simulation Area -->
+        <main class="simulation-area">
+            <div class="quantum-canvas-container">
+                <canvas id="quantumCanvas" width="1200" height="800"></canvas>
+                <canvas id="particleCanvas" width="1200" height="800"></canvas>
+                
+                <!-- Control Overlay -->
+                <div class="control-overlay">
+                    <div class="experiment-selector">
+                        <h3>🧪 実験選択</h3>
+                        <div class="experiment-grid">
+                            <button class="experiment-btn active" data-experiment="wave-particle">
+                                <div class="exp-icon">🌊</div>
+                                <div class="exp-name">波動粒子二重性</div>
+                            </button>
+                            <button class="experiment-btn" data-experiment="quantum-tunnel">
+                                <div class="exp-icon">🚇</div>
+                                <div class="exp-name">量子トンネル効果</div>
+                            </button>
+                            <button class="experiment-btn" data-experiment="double-slit">
+                                <div class="exp-icon">📐</div>
+                                <div class="exp-name">二重スリット実験</div>
+                            </button>
+                            <button class="experiment-btn" data-experiment="entanglement">
+                                <div class="exp-icon">🔗</div>
+                                <div class="exp-name">量子もつれ</div>
+                            </button>
+                            <button class="experiment-btn" data-experiment="superposition">
+                                <div class="exp-icon">⚖️</div>
+                                <div class="exp-name">重ね合わせ</div>
+                            </button>
+                            <button class="experiment-btn" data-experiment="uncertainty">
+                                <div class="exp-icon">❓</div>
+                                <div class="exp-name">不確定性原理</div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="simulation-controls">
+                        <h3>⚙️ シミュレーション制御</h3>
+                        <div class="control-group">
+                            <button class="sim-btn play" id="playSimulation">
+                                <span>▶️</span>
+                                <span>開始</span>
+                            </button>
+                            <button class="sim-btn pause" id="pauseSimulation">
+                                <span>⏸️</span>
+                                <span>停止</span>
+                            </button>
+                            <button class="sim-btn reset" id="resetSimulation">
+                                <span>🔄</span>
+                                <span>リセット</span>
+                            </button>
+                            <button class="sim-btn step" id="stepSimulation">
+                                <span>⏭️</span>
+                                <span>ステップ</span>
+                            </button>
+                        </div>
+                        
+                        <div class="parameter-controls">
+                            <div class="param-slider">
+                                <label>時間倍率:</label>
+                                <input type="range" id="timeScale" min="0.1" max="5" step="0.1" value="1">
+                                <span id="timeScaleValue">1.0x</span>
+                            </div>
+                            <div class="param-slider">
+                                <label>粒子数:</label>
+                                <input type="range" id="particleCount" min="1" max="100" value="20">
+                                <span id="particleCountValue">20</span>
+                            </div>
+                            <div class="param-slider">
+                                <label>エネルギー:</label>
+                                <input type="range" id="energySlider" min="0.5" max="10" step="0.1" value="2">
+                                <span id="energyValue">2.0 eV</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Measurement Panel -->
+                <div class="measurement-panel">
+                    <h3>📏 測定パネル</h3>
+                    <div class="measurement-tools">
+                        <button class="measure-btn" id="measurePosition">
+                            <span>📍</span>
+                            <span>位置測定</span>
+                        </button>
+                        <button class="measure-btn" id="measureMomentum">
+                            <span>💨</span>
+                            <span>運動量測定</span>
+                        </button>
+                        <button class="measure-btn" id="measureSpin">
+                            <span>🌀</span>
+                            <span>スピン測定</span>
+                        </button>
+                        <button class="measure-btn" id="measureEnergy">
+                            <span>⚡</span>
+                            <span>エネルギー測定</span>
+                        </button>
+                    </div>
+                    
+                    <div class="measurement-results">
+                        <div class="result-item">
+                            <span class="result-label">最後の測定:</span>
+                            <span class="result-value" id="lastMeasurement">未測定</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">不確定性:</span>
+                            <span class="result-value" id="uncertainty">Δx·Δp ≥ ℏ/2</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">状態収束:</span>
+                            <span class="result-value" id="collapse">なし</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Side Panel -->
+        <aside class="quantum-sidebar">
+            <!-- Wave Function Visualization -->
+            <div class="wavefunction-section">
+                <h3>🌊 波動関数</h3>
+                <div class="wavefunction-display">
+                    <canvas id="waveFunctionCanvas" width="300" height="200"></canvas>
+                </div>
+                <div class="wavefunction-equation">
+                    <div class="equation" id="schrodingerEq">
+                        iℏ ∂ψ/∂t = Ĥψ
+                    </div>
+                    <div class="equation-label">シュレーディンガー方程式</div>
+                </div>
+            </div>
+
+            <!-- Probability Distribution -->
+            <div class="probability-section">
+                <h3>📊 確率分布</h3>
+                <div class="probability-chart">
+                    <canvas id="probabilityCanvas" width="300" height="150"></canvas>
+                </div>
+                <div class="probability-stats">
+                    <div class="prob-stat">
+                        <span>最大確率:</span>
+                        <span id="maxProbability">0.95</span>
+                    </div>
+                    <div class="prob-stat">
+                        <span>期待値:</span>
+                        <span id="expectedValue">⟨x⟩ = 0.0</span>
+                    </div>
+                    <div class="prob-stat">
+                        <span>分散:</span>
+                        <span id="variance">σ² = 1.2</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantum States -->
+            <div class="states-section">
+                <h3>🔢 量子状態</h3>
+                <div class="state-list" id="quantumStates">
+                    <div class="state-item active">
+                        <span class="state-label">|0⟩</span>
+                        <span class="state-amplitude">0.707</span>
+                        <div class="state-bar" style="width: 70.7%"></div>
+                    </div>
+                    <div class="state-item">
+                        <span class="state-label">|1⟩</span>
+                        <span class="state-amplitude">0.707</span>
+                        <div class="state-bar" style="width: 70.7%"></div>
+                    </div>
+                </div>
+                <div class="state-operations">
+                    <button class="state-btn" id="hadamardGate">H</button>
+                    <button class="state-btn" id="pauliXGate">X</button>
+                    <button class="state-btn" id="pauliYGate">Y</button>
+                    <button class="state-btn" id="pauliZGate">Z</button>
+                </div>
+            </div>
+
+            <!-- Entanglement Visualization -->
+            <div class="entanglement-section">
+                <h3>🔗 量子もつれ</h3>
+                <div class="entanglement-display">
+                    <div class="particle-pair">
+                        <div class="particle particle-a" id="particleA">
+                            <div class="spin-arrow" id="spinA">↑</div>
+                            <div class="particle-label">粒子A</div>
+                        </div>
+                        <div class="entanglement-link">
+                            <div class="link-line"></div>
+                            <div class="link-animation"></div>
+                        </div>
+                        <div class="particle particle-b" id="particleB">
+                            <div class="spin-arrow" id="spinB">↓</div>
+                            <div class="particle-label">粒子B</div>
+                        </div>
+                    </div>
+                    <div class="entanglement-strength">
+                        <span>もつれ強度:</span>
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="entanglementStrength" style="width: 85%"></div>
+                        </div>
+                        <span id="entanglementValue">0.85</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Experiment Information -->
+        <div class="info-panel">
+            <div class="experiment-info" id="experimentInfo">
+                <h3>📚 実験について</h3>
+                <div class="info-content">
+                    <h4>波動粒子二重性</h4>
+                    <p>光や電子などの量子粒子は、波動性と粒子性の両方の性質を同時に持っています。この実験では、粒子の行動が観測方法によって変化する様子を観察できます。</p>
+                    <div class="key-concepts">
+                        <span class="concept-tag">波動関数</span>
+                        <span class="concept-tag">確率解釈</span>
+                        <span class="concept-tag">観測者効果</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="theory-section">
+                <h3>🧮 理論的背景</h3>
+                <div class="theory-equations">
+                    <div class="equation-block">
+                        <div class="equation">E = hν</div>
+                        <div class="equation-desc">プランクの関係式</div>
+                    </div>
+                    <div class="equation-block">
+                        <div class="equation">λ = h/p</div>
+                        <div class="equation-desc">ド・ブロイ波長</div>
+                    </div>
+                    <div class="equation-block">
+                        <div class="equation">ΔxΔp ≥ ℏ/2</div>
+                        <div class="equation-desc">ハイゼンベルクの不確定性原理</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Monitor -->
+        <div class="performance-monitor">
+            <div class="perf-stat">
+                <span class="perf-label">FPS:</span>
+                <span class="perf-value" id="fpsCounter">60</span>
+            </div>
+            <div class="perf-stat">
+                <span class="perf-label">計算負荷:</span>
+                <span class="perf-value" id="computeLoad">低</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>⚙️ 詳細設定</h2>
+                <button class="modal-close" id="closeModal">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="settings-section">
+                    <h4>視覚設定</h4>
+                    <div class="setting-option">
+                        <label>
+                            <input type="checkbox" id="showGrid" checked>
+                            グリッド表示
+                        </label>
+                    </div>
+                    <div class="setting-option">
+                        <label>
+                            <input type="checkbox" id="showTrails" checked>
+                            軌跡表示
+                        </label>
+                    </div>
+                    <div class="setting-option">
+                        <label>
+                            <input type="checkbox" id="showEquations" checked>
+                            数式表示
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>物理パラメータ</h4>
+                    <div class="param-setting">
+                        <label>プランク定数 (×10⁻³⁴):</label>
+                        <input type="number" id="planckConstant" value="6.626" step="0.001">
+                    </div>
+                    <div class="param-setting">
+                        <label>光速 (×10⁸ m/s):</label>
+                        <input type="number" id="lightSpeed" value="2.998" step="0.001">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn save">保存</button>
+                <button class="modal-btn cancel">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

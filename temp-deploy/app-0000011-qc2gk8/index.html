@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Battle Effects Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>⚔️ RPG Battle Effects</h1>
+            <div class="header-controls">
+                <button class="control-btn" id="fullscreenBtn">🔳</button>
+                <button class="control-btn" id="settingsBtn">⚙️</button>
+            </div>
+        </header>
+
+        <div class="battle-arena">
+            <div class="battlefield" id="battlefield">
+                <!-- Enemy Characters -->
+                <div class="enemy-area">
+                    <div class="enemy-character" id="enemy1">
+                        <div class="enemy-sprite dragon">🐉</div>
+                        <div class="health-bar">
+                            <div class="health-fill" style="width: 100%"></div>
+                        </div>
+                        <div class="enemy-name">ドラゴン</div>
+                    </div>
+                    
+                    <div class="enemy-character" id="enemy2">
+                        <div class="enemy-sprite orc">👹</div>
+                        <div class="health-bar">
+                            <div class="health-fill" style="width: 85%"></div>
+                        </div>
+                        <div class="enemy-name">オーク</div>
+                    </div>
+                    
+                    <div class="enemy-character" id="enemy3">
+                        <div class="enemy-sprite skeleton">💀</div>
+                        <div class="health-bar">
+                            <div class="health-fill" style="width: 60%"></div>
+                        </div>
+                        <div class="enemy-name">スケルトン</div>
+                    </div>
+                </div>
+
+                <!-- Effect Canvas -->
+                <canvas id="effectCanvas" width="800" height="600"></canvas>
+                
+                <!-- Damage Numbers -->
+                <div class="damage-numbers" id="damageNumbers"></div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="effect-categories">
+                <div class="category-tabs">
+                    <button class="tab-btn active" data-category="physical">⚔️ 物理攻撃</button>
+                    <button class="tab-btn" data-category="magic">🔮 魔法攻撃</button>
+                    <button class="tab-btn" data-category="special">✨ 特殊技</button>
+                    <button class="tab-btn" data-category="healing">💚 回復</button>
+                    <button class="tab-btn" data-category="ultimate">💥 必殺技</button>
+                </div>
+
+                <div class="effect-grid" id="effectGrid">
+                    <!-- Physical Effects -->
+                    <div class="effect-category active" data-category="physical">
+                        <div class="effect-card" data-effect="slash">
+                            <div class="effect-icon">⚔️</div>
+                            <div class="effect-name">斬撃</div>
+                            <div class="effect-damage">120-180</div>
+                        </div>
+                        <div class="effect-card" data-effect="pierce">
+                            <div class="effect-icon">🗡️</div>
+                            <div class="effect-name">突き</div>
+                            <div class="effect-damage">100-150</div>
+                        </div>
+                        <div class="effect-card" data-effect="crush">
+                            <div class="effect-icon">🔨</div>
+                            <div class="effect-name">強打</div>
+                            <div class="effect-damage">150-200</div>
+                        </div>
+                        <div class="effect-card" data-effect="combo">
+                            <div class="effect-icon">⚡</div>
+                            <div class="effect-name">連続攻撃</div>
+                            <div class="effect-damage">80-120×3</div>
+                        </div>
+                    </div>
+
+                    <!-- Magic Effects -->
+                    <div class="effect-category" data-category="magic">
+                        <div class="effect-card" data-effect="fireball">
+                            <div class="effect-icon">🔥</div>
+                            <div class="effect-name">ファイアボール</div>
+                            <div class="effect-damage">200-250</div>
+                        </div>
+                        <div class="effect-card" data-effect="lightning">
+                            <div class="effect-icon">⚡</div>
+                            <div class="effect-name">ライトニング</div>
+                            <div class="effect-damage">180-230</div>
+                        </div>
+                        <div class="effect-card" data-effect="freeze">
+                            <div class="effect-icon">❄️</div>
+                            <div class="effect-name">アイスブラスト</div>
+                            <div class="effect-damage">160-210</div>
+                        </div>
+                        <div class="effect-card" data-effect="meteor">
+                            <div class="effect-icon">☄️</div>
+                            <div class="effect-name">メテオ</div>
+                            <div class="effect-damage">300-400</div>
+                        </div>
+                    </div>
+
+                    <!-- Special Effects -->
+                    <div class="effect-category" data-category="special">
+                        <div class="effect-card" data-effect="poison">
+                            <div class="effect-icon">☠️</div>
+                            <div class="effect-name">毒霧</div>
+                            <div class="effect-damage">50×5ターン</div>
+                        </div>
+                        <div class="effect-card" data-effect="blind">
+                            <div class="effect-icon">🌫️</div>
+                            <div class="effect-name">暗闇</div>
+                            <div class="effect-damage">デバフ</div>
+                        </div>
+                        <div class="effect-card" data-effect="curse">
+                            <div class="effect-icon">🔮</div>
+                            <div class="effect-name">呪い</div>
+                            <div class="effect-damage">継続ダメージ</div>
+                        </div>
+                        <div class="effect-card" data-effect="drain">
+                            <div class="effect-icon">🩸</div>
+                            <div class="effect-name">吸血</div>
+                            <div class="effect-damage">HP吸収</div>
+                        </div>
+                    </div>
+
+                    <!-- Healing Effects -->
+                    <div class="effect-category" data-category="healing">
+                        <div class="effect-card" data-effect="heal">
+                            <div class="effect-icon">💚</div>
+                            <div class="effect-name">ヒール</div>
+                            <div class="effect-damage">+150-200</div>
+                        </div>
+                        <div class="effect-card" data-effect="regen">
+                            <div class="effect-icon">🌿</div>
+                            <div class="effect-name">リジェネ</div>
+                            <div class="effect-damage">+50×5ターン</div>
+                        </div>
+                        <div class="effect-card" data-effect="barrier">
+                            <div class="effect-icon">🛡️</div>
+                            <div class="effect-name">バリア</div>
+                            <div class="effect-damage">防御力UP</div>
+                        </div>
+                        <div class="effect-card" data-effect="revive">
+                            <div class="effect-icon">✨</div>
+                            <div class="effect-name">蘇生</div>
+                            <div class="effect-damage">HP50%回復</div>
+                        </div>
+                    </div>
+
+                    <!-- Ultimate Effects -->
+                    <div class="effect-category" data-category="ultimate">
+                        <div class="effect-card" data-effect="dragonbreath">
+                            <div class="effect-icon">🐲</div>
+                            <div class="effect-name">ドラゴンブレス</div>
+                            <div class="effect-damage">500-800</div>
+                        </div>
+                        <div class="effect-card" data-effect="earthquake">
+                            <div class="effect-icon">🌍</div>
+                            <div class="effect-name">大地震</div>
+                            <div class="effect-damage">全体400-600</div>
+                        </div>
+                        <div class="effect-card" data-effect="timespace">
+                            <div class="effect-icon">🌌</div>
+                            <div class="effect-name">時空斬</div>
+                            <div class="effect-damage">999-1500</div>
+                        </div>
+                        <div class="effect-card" data-effect="galaxyblast">
+                            <div class="effect-icon">🌟</div>
+                            <div class="effect-name">銀河爆裂</div>
+                            <div class="effect-damage">1200-2000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="effect-controls">
+                <div class="target-selection">
+                    <label>ターゲット選択:</label>
+                    <select id="targetSelect">
+                        <option value="enemy1">ドラゴン</option>
+                        <option value="enemy2">オーク</option>
+                        <option value="enemy3">スケルトン</option>
+                        <option value="all">全体攻撃</option>
+                    </select>
+                </div>
+                
+                <div class="effect-intensity">
+                    <label>エフェクト強度:</label>
+                    <input type="range" id="intensitySlider" min="1" max="10" value="5">
+                    <span id="intensityValue">5</span>
+                </div>
+                
+                <div class="effect-speed">
+                    <label>再生速度:</label>
+                    <input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1">
+                    <span id="speedValue">1.0x</span>
+                </div>
+                
+                <div class="control-buttons">
+                    <button class="action-btn preview" id="previewBtn">👁️ プレビュー</button>
+                    <button class="action-btn execute" id="executeBtn">⚡ 実行</button>
+                    <button class="action-btn reset" id="resetBtn">🔄 リセット</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="battle-log">
+            <h3>🔍 バトルログ</h3>
+            <div class="log-content" id="logContent">
+                <div class="log-entry">ゲーム開始 - エフェクトを選択してください</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound Effects (Web Audio API) -->
+    <audio id="audioContext" style="display: none;"></audio>
+    
+    <script src="script.js"></script>
+</body>
+</html>
