@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>言語学習・語彙構築インタラクティブツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-tab.active {
+            background: #4299e1;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+        }
+
+        .nav-tab:hover {
+            background: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        .nav-tab.active:hover {
+            background: #3182ce;
+        }
+
+        .main-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .vocab-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 8px 32px rgba(240, 147, 251, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(240, 147, 251, 0.4);
+        }
+
+        .vocab-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transition: all 0.3s ease;
+            transform: translateX(-100%);
+        }
+
+        .vocab-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .vocab-word {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .vocab-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .grammar-tree {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 8px 32px rgba(168, 237, 234, 0.3);
+        }
+
+        .tree-node {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            display: inline-block;
+            border: 2px solid #4299e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tree-node:hover {
+            background: #4299e1;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .pronunciation-panel {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 8px 32px rgba(252, 182, 159, 0.3);
+        }
+
+        .ipa-display {
+            font-size: 1.8rem;
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 1rem 0;
+            border: 2px solid #ed8936;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(210, 153, 194, 0.3);
+            text-align: center;
+        }
+
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#4299e1 0deg, #4299e1 var(--progress), #e2e8f0 var(--progress));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            position: relative;
+        }
+
+        .progress-circle::before {
+            content: '';
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+        }
+
+        .progress-text {
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .language-comparison {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            color: white;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .lang-tree {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .lang-node {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lang-node:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .input-group {
+            margin: 1rem 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .network-diagram {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            margin: 1rem 0;
+        }
+
+        .log-output {
+            background: #1a202c;
+            color: #68d391;
+            font-family: 'Courier New', monospace;
+            padding: 1rem;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            border: 2px solid #4a5568;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+
+        .timestamp {
+            color: #a0aec0;
+            margin-right: 1rem;
+        }
+
+        .memory-strength {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .star {
+            color: #fbbf24;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .star:hover {
+            transform: scale(1.2);
+        }
+
+        .star.filled {
+            color: #f59e0b;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .nav-tabs {
+                gap: 0.5rem;
+            }
+            
+            .nav-tab {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .vocab-word {
+                font-size: 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border-left: 4px solid #38a169;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #4a5568;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #4299e1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>言語学習・語彙構築インタラクティブツール</h1>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('vocabulary')">語彙学習</button>
+            <button class="nav-tab" onclick="showTab('grammar')">文法分析</button>
+            <button class="nav-tab" onclick="showTab('pronunciation')">発音・音韻</button>
+            <button class="nav-tab" onclick="showTab('stats')">学習統計</button>
+            <button class="nav-tab" onclick="showTab('languages')">言語比較</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 語彙学習タブ -->
+        <div id="vocabulary" class="tab-content active">
+            <div class="control-panel">
+                <div class="input-group">
+                    <label for="vocab-input">新しい単語を追加:</label>
+                    <input type="text" id="vocab-input" placeholder="例: comprehensive">
+                </div>
+                <button class="btn" onclick="addVocabulary()">語彙追加</button>
+                <button class="btn" onclick="generateRandomVocab()">ランダム語彙生成</button>
+                <button class="btn" onclick="startSpacedRepetition()">スペーシング反復開始</button>
+            </div>
+
+            <div id="vocab-cards-container">
+                <!-- 語彙カードが動的に追加される -->
+            </div>
+
+            <div class="network-diagram">
+                <canvas id="vocab-network" width="800" height="400"></canvas>
+            </div>
+        </div>
+
+        <!-- 文法分析タブ -->
+        <div id="grammar" class="tab-content">
+            <div class="control-panel">
+                <div class="input-group">
+                    <label for="sentence-input">分析する文章:</label>
+                    <textarea id="sentence-input" rows="3" placeholder="例: The book that I read yesterday was interesting."></textarea>
+                </div>
+                <button class="btn" onclick="analyzeSentence()">文法分析実行</button>
+                <button class="btn" onclick="generateSyntaxTree()">構文木生成</button>
+                <button class="btn" onclick="showPOSPattern()">品詞パターン表示</button>
+            </div>
+
+            <div id="grammar-analysis-result">
+                <!-- 文法分析結果が表示される -->
+            </div>
+
+            <div class="grammar-tree" id="syntax-tree">
+                <h3>構文木</h3>
+                <div id="tree-visualization">
+                    <!-- 構文木が動的に生成される -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 発音・音韻タブ -->
+        <div id="pronunciation" class="tab-content">
+            <div class="control-panel">
+                <div class="input-group">
+                    <label for="phonetic-input">音韻分析する単語:</label>
+                    <input type="text" id="phonetic-input" placeholder="例: language">
+                </div>
+                <button class="btn" onclick="analyzePhonetics()">音韻分析</button>
+                <button class="btn" onclick="showIPAChart()">IPA表示</button>
+                <button class="btn" onclick="comparePhonemes()">音素比較</button>
+            </div>
+
+            <div class="pronunciation-panel" id="phonetic-result">
+                <h3>音韻分析結果</h3>
+                <div class="ipa-display" id="ipa-output">
+                    /ˈlæŋɡwɪdʒ/
+                </div>
+                <div class="phonetic-info">
+                    <p><strong>音節構造:</strong> LAN-guage (2音節)</p>
+                    <p><strong>強勢パターン:</strong> 第1音節に主強勢 (ˈ)</p>
+                    <p><strong>音韻変化:</strong> 古仏語 langage → 中英語 language</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学習統計タブ -->
+        <div id="stats" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>語彙習得進捗</h3>
+                    <div class="progress-circle" style="--progress: 216deg;">
+                        <div class="progress-text">60%</div>
+                    </div>
+                    <p>今日の目標: 15語彙 (9/15達成)</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>文法理解度</h3>
+                    <div class="progress-circle" style="--progress: 306deg;">
+                        <div class="progress-text">85%</div>
+                    </div>
+                    <p>正答率: 17/20問正解</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>学習継続日数</h3>
+                    <div class="progress-circle" style="--progress: 180deg;">
+                        <div class="progress-text">7日</div>
+                    </div>
+                    <p>連続学習記録更新中！</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>習熟度分布</h3>
+                    <canvas id="mastery-chart" width="250" height="150"></canvas>
+                    <p>総語彙数: 247語彙</p>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <button class="btn" onclick="exportLearningData()">学習データエクスポート</button>
+                <button class="btn" onclick="generateProgressReport()">進捗レポート生成</button>
+                <button class="btn" onclick="resetStatistics()">統計リセット</button>
+            </div>
+        </div>
+
+        <!-- 言語比較タブ -->
+        <div id="languages" class="tab-content">
+            <div class="language-comparison">
+                <h3>インドヨーロッパ語族系統樹</h3>
+                <div class="lang-tree">
+                    <div class="lang-node" onclick="showLanguageDetails('proto-ie')">原インドヨーロッパ語</div>
+                    <div class="lang-node" onclick="showLanguageDetails('germanic')">ゲルマン語族</div>
+                    <div class="lang-node" onclick="showLanguageDetails('romance')">ロマンス語族</div>
+                    <div class="lang-node" onclick="showLanguageDetails('slavic')">スラブ語族</div>
+                    <div class="lang-node" onclick="showLanguageDetails('celtic')">ケルト語族</div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="input-group">
+                    <label for="comparison-word">比較する語彙:</label>
+                    <input type="text" id="comparison-word" placeholder="例: water">
+                </div>
+                <button class="btn" onclick="compareAcrossLanguages()">多言語比較</button>
+                <button class="btn" onclick="showSoundCorrespondence()">音韻対応表示</button>
+                <button class="btn" onclick="analyzeBorrowings()">借用語分析</button>
+            </div>
+
+            <div id="language-comparison-result">
+                <!-- 言語比較結果が表示される -->
+            </div>
+        </div>
+
+        <!-- ログ出力パネル -->
+        <div class="control-panel">
+            <h3>システムログ</h3>
+            <button class="btn" onclick="downloadLogs()">ログダウンロード</button>
+            <button class="btn" onclick="clearLogs()">ログクリア</button>
+            <div class="log-output" id="log-container">
+                <div class="log-entry">
+                    <span class="timestamp">[16:33:27]</span>
+                    <span>システム初期化完了</span>
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[16:33:28]</span>
+                    <span>語彙データベース読み込み完了 (247語彙)</span>
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[16:33:29]</span>
+                    <span>文法ルールエンジン起動完了</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let vocabularyDB = [];
+        let grammarRules = [];
+        let learningStats = {
+            totalWords: 247,
+            masteredWords: 148,
+            studyStreak: 7,
+            todayGoal: 15,
+            todayProgress: 9
+        };
+        let currentCard = null;
+        let spacedRepetitionQueue = [];
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadDefaultVocabulary();
+            updateStatistics();
+            drawMasteryChart();
+            log('アプリケーション初期化完了');
+        });
+
+        function initializeApp() {
+            // IndexedDBの初期化シミュレーション
+            setTimeout(() => {
+                log('データベース接続確立');
+                loadUserProgress();
+            }, 1000);
+        }
+
+        function showTab(tabName) {
+            // 全てのタブを非表示
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 全てのナビゲーションタブの選択状態を解除
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 選択されたタブを表示
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            log(`タブ切り替え: ${tabName}`);
+        }
+
+        function addVocabulary() {
+            const input = document.getElementById('vocab-input');
+            const word = input.value.trim();
+            
+            if (!word) {
+                showMessage('単語を入力してください', 'error');
+                return;
+            }
+
+            const vocabData = {
+                word: word,
+                definition: generateDefinition(word),
+                etymology: generateEtymology(word),
+                relatedWords: generateRelatedWords(word),
+                memoryStrength: 1,
+                lastReviewed: new Date(),
+                nextReview: calculateNextReview(1)
+            };
+
+            vocabularyDB.push(vocabData);
+            displayVocabCard(vocabData);
+            updateVocabNetwork();
+            input.value = '';
+            
+            log(`新しい語彙追加: ${word}`);
+            showMessage(`語彙「${word}」を追加しました`, 'success');
+        }
+
+        function generateRandomVocab() {
+            const sampleWords = [
+                'comprehensive', 'sophisticated', 'fundamental', 'inevitable', 
+                'substantial', 'innovative', 'significant', 'traditional',
+                'contemporary', 'analytical', 'systematic', 'theoretical'
+            ];
+            
+            const randomWord = sampleWords[Math.floor(Math.random() * sampleWords.length)];
+            document.getElementById('vocab-input').value = randomWord;
+            addVocabulary();
+        }
+
+        function displayVocabCard(vocabData) {
+            const container = document.getElementById('vocab-cards-container');
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'vocab-card';
+            cardDiv.onclick = () => flipCard(cardDiv, vocabData);
+
+            cardDiv.innerHTML = `
+                <div class="vocab-word">${vocabData.word}</div>
+                <div class="vocab-info">
+                    <div>
+                        <strong>定義:</strong> ${vocabData.definition}
+                    </div>
+                    <div>
+                        <strong>語源:</strong> ${vocabData.etymology}
+                    </div>
+                    <div>
+                        <strong>関連語:</strong> ${vocabData.relatedWords.join(', ')}
+                    </div>
+                    <div class="memory-strength">
+                        <strong>記憶強度:</strong>
+                        ${generateStars(vocabData.memoryStrength)}
+                        <span>(次回復習: ${formatDate(vocabData.nextReview)})</span>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(cardDiv);
+        }
+
+        function generateStars(strength) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                const filled = i <= strength ? 'filled' : '';
+                stars += `<span class="star ${filled}" onclick="updateMemoryStrength(event, ${i})">★</span>`;
+            }
+            return stars;
+        }
+
+        function generateDefinition(word) {
+            const definitions = {
+                'comprehensive': '包括的な、総合的な、広範囲にわたる',
+                'sophisticated': '洗練された、高度な、複雑な',
+                'fundamental': '基本的な、根本的な、重要な',
+                'inevitable': '避けられない、必然的な'
+            };
+            return definitions[word] || '【定義生成中...】高度な語彙分析により定義を生成';
+        }
+
+        function generateEtymology(word) {
+            const etymologies = {
+                'comprehensive': 'com-(共に) + prehend-(掴む) + -ive(形容詞語尾)',
+                'sophisticated': 'sophist-(詭弁家) + -icated(過去分詞)',
+                'fundamental': 'fundament-(基礎) + -al(形容詞語尾)',
+                'inevitable': 'in-(否定) + evit-(避ける) + -able(可能)'
+            };
+            return etymologies[word] || 'ラテン語・ギリシャ語系統の語源分析中...';
+        }
+
+        function generateRelatedWords(word) {
+            const relatedSets = {
+                'comprehensive': ['comprehend', 'apprehend', 'prehensile', 'comprehensive'],
+                'sophisticated': ['sophisticate', 'sophism', 'philosopher', 'wisdom'],
+                'fundamental': ['foundation', 'fund', 'fundamental', 'basically'],
+                'inevitable': ['avoid', 'evitable', 'inevitability', 'necessarily']
+            };
+            return relatedSets[word] || ['analysis', 'linguistic', 'semantic', 'related'];
+        }
+
+        function startSpacedRepetition() {
+            if (vocabularyDB.length === 0) {
+                showMessage('復習する語彙がありません', 'error');
+                return;
+            }
+
+            spacedRepetitionQueue = vocabularyDB
+                .filter(vocab => new Date(vocab.nextReview) <= new Date())
+                .sort((a, b) => new Date(a.nextReview) - new Date(b.nextReview));
+
+            if (spacedRepetitionQueue.length === 0) {
+                showMessage('今日復習する語彙はありません', 'success');
+                return;
+            }
+
+            log(`スペーシング反復開始: ${spacedRepetitionQueue.length}語彙が対象`);
+            showNextReviewCard();
+        }
+
+        function showNextReviewCard() {
+            if (spacedRepetitionQueue.length === 0) {
+                showMessage('復習完了！', 'success');
+                return;
+            }
+
+            currentCard = spacedRepetitionQueue.shift();
+            displayVocabCard(currentCard);
+            log(`復習中: ${currentCard.word}`);
+        }
+
+        function analyzeSentence() {
+            const sentence = document.getElementById('sentence-input').value.trim();
+            if (!sentence) {
+                showMessage('分析する文章を入力してください', 'error');
+                return;
+            }
+
+            const analysis = performGrammarAnalysis(sentence);
+            displayGrammarAnalysis(analysis);
+            log(`文法分析実行: "${sentence}"`);
+        }
+
+        function performGrammarAnalysis(sentence) {
+            // 簡略化された文法分析シミュレーション
+            const words = sentence.split(/\s+/);
+            const pos = words.map(word => ({
+                word: word,
+                pos: determinePOS(word),
+                function: determineFunction(word)
+            }));
+
+            return {
+                sentence: sentence,
+                wordCount: words.length,
+                posAnalysis: pos,
+                sentenceType: determineSentenceType(sentence),
+                complexity: calculateComplexity(sentence)
+            };
+        }
+
+        function determinePOS(word) {
+            const posMap = {
+                'the': 'Det', 'a': 'Det', 'an': 'Det',
+                'book': 'N', 'cat': 'N', 'dog': 'N', 'man': 'N', 'woman': 'N',
+                'read': 'V', 'was': 'V', 'is': 'V', 'are': 'V', 'were': 'V',
+                'interesting': 'Adj', 'beautiful': 'Adj', 'large': 'Adj',
+                'that': 'Rel', 'which': 'Rel', 'who': 'Rel',
+                'I': 'Pron', 'you': 'Pron', 'he': 'Pron', 'she': 'Pron',
+                'yesterday': 'Adv', 'quickly': 'Adv', 'very': 'Adv'
+            };
+            return posMap[word.toLowerCase()] || 'N';
+        }
+
+        function determineFunction(word) {
+            // 簡略化された機能分析
+            const functions = ['Subject', 'Object', 'Predicate', 'Modifier', 'Complement'];
+            return functions[Math.floor(Math.random() * functions.length)];
+        }
+
+        function determineSentenceType(sentence) {
+            if (sentence.includes('?')) return '疑問文';
+            if (sentence.includes('!')) return '感嘆文';
+            return '平叙文';
+        }
+
+        function calculateComplexity(sentence) {
+            const words = sentence.split(/\s+/).length;
+            const clauses = sentence.split(/that|which|who|when|where/).length;
+            return words + clauses * 2;
+        }
+
+        function displayGrammarAnalysis(analysis) {
+            const resultDiv = document.getElementById('grammar-analysis-result');
+            resultDiv.innerHTML = `
+                <div class="grammar-tree">
+                    <h3>文法分析結果</h3>
+                    <p><strong>文章:</strong> "${analysis.sentence}"</p>
+                    <p><strong>語数:</strong> ${analysis.wordCount}語</p>
+                    <p><strong>文種:</strong> ${analysis.sentenceType}</p>
+                    <p><strong>複雑度:</strong> ${analysis.complexity}</p>
+                    
+                    <h4>品詞分析:</h4>
+                    <div class="pos-analysis">
+                        ${analysis.posAnalysis.map(item => 
+                            `<span class="tree-node">${item.word} (${item.pos})</span>`
+                        ).join(' ')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateSyntaxTree() {
+            const sentence = document.getElementById('sentence-input').value.trim();
+            if (!sentence) {
+                showMessage('構文木を生成する文章を入力してください', 'error');
+                return;
+            }
+
+            const treeDiv = document.getElementById('tree-visualization');
+            treeDiv.innerHTML = generateTreeHTML(sentence);
+            log(`構文木生成: "${sentence}"`);
+        }
+
+        function generateTreeHTML(sentence) {
+            // 簡略化された構文木生成
+            return `
+                <div style="text-align: center; font-family: monospace;">
+                    <div style="margin: 10px;">S</div>
+                    <div style="margin: 10px;">├── NP (主語部)</div>
+                    <div style="margin: 10px;">│   ├── Det: The</div>
+                    <div style="margin: 10px;">│   └── N: book</div>
+                    <div style="margin: 10px;">└── VP (述語部)</div>
+                    <div style="margin: 10px;">    ├── V: was</div>
+                    <div style="margin: 10px;">    └── AP: interesting</div>
+                </div>
+            `;
+        }
+
+        function analyzePhonetics() {
+            const word = document.getElementById('phonetic-input').value.trim();
+            if (!word) {
+                showMessage('音韻分析する単語を入力してください', 'error');
+                return;
+            }
+
+            const phoneticData = generatePhoneticAnalysis(word);
+            displayPhoneticAnalysis(phoneticData);
+            log(`音韻分析実行: ${word}`);
+        }
+
+        function generatePhoneticAnalysis(word) {
+            const phoneticMap = {
+                'language': {
+                    ipa: '/ˈlæŋɡwɪdʒ/',
+                    syllables: 'LAN-guage (2音節)',
+                    stress: '第1音節に主強勢 (ˈ)',
+                    evolution: '古仏語 langage → 中英語 language'
+                },
+                'comprehensive': {
+                    ipa: '/ˌkɒmprɪˈhɛnsɪv/',
+                    syllables: 'com-pre-HEN-sive (4音節)',
+                    stress: '第3音節に主強勢',
+                    evolution: 'ラテン語 comprehensus → 英語'
+                }
+            };
+
+            return phoneticMap[word.toLowerCase()] || {
+                ipa: '/ˈfəʊnətɪk/',
+                syllables: 'pho-ne-tic (3音節)',
+                stress: '第1音節に主強勢',
+                evolution: '音韻変化データベース検索中...'
+            };
+        }
+
+        function displayPhoneticAnalysis(data) {
+            document.getElementById('ipa-output').textContent = data.ipa;
+            
+            const resultDiv = document.getElementById('phonetic-result');
+            const infoDiv = resultDiv.querySelector('.phonetic-info');
+            infoDiv.innerHTML = `
+                <p><strong>音節構造:</strong> ${data.syllables}</p>
+                <p><strong>強勢パターン:</strong> ${data.stress}</p>
+                <p><strong>音韻変化:</strong> ${data.evolution}</p>
+            `;
+        }
+
+        function compareAcrossLanguages() {
+            const word = document.getElementById('comparison-word').value.trim();
+            if (!word) {
+                showMessage('比較する語彙を入力してください', 'error');
+                return;
+            }
+
+            const comparison = generateLanguageComparison(word);
+            displayLanguageComparison(comparison);
+            log(`多言語比較実行: ${word}`);
+        }
+
+        function generateLanguageComparison(word) {
+            const comparisons = {
+                'water': {
+                    english: 'water',
+                    german: 'Wasser',
+                    dutch: 'water',
+                    french: 'eau',
+                    spanish: 'agua',
+                    italian: 'acqua',
+                    latin: 'aqua',
+                    greek: 'hydōr'
+                },
+                'mother': {
+                    english: 'mother',
+                    german: 'Mutter',
+                    dutch: 'moeder',
+                    french: 'mère',
+                    spanish: 'madre',
+                    italian: 'madre',
+                    latin: 'mater',
+                    sanskrit: 'mātṛ'
+                }
+            };
+
+            return comparisons[word.toLowerCase()] || {
+                english: word,
+                note: '比較データベース拡張中...'
+            };
+        }
+
+        function displayLanguageComparison(comparison) {
+            const resultDiv = document.getElementById('language-comparison-result');
+            let html = '<div class="language-comparison"><h3>多言語比較結果</h3><div class="lang-tree">';
+            
+            for (const [lang, term] of Object.entries(comparison)) {
+                if (lang !== 'note') {
+                    html += `<div class="lang-node"><strong>${lang}:</strong> ${term}</div>`;
+                }
+            }
+            
+            html += '</div>';
+            if (comparison.note) {
+                html += `<p><em>${comparison.note}</em></p>`;
+            }
+            html += '</div>';
+            
+            resultDiv.innerHTML = html;
+        }
+
+        function updateStatistics() {
+            // プログレスサークルの更新
+            const vocabProgress = (learningStats.todayProgress / learningStats.todayGoal) * 100;
+            const masteryProgress = (learningStats.masteredWords / learningStats.totalWords) * 100;
+            
+            document.querySelector('.stat-card:nth-child(1) .progress-circle').style.setProperty('--progress', `${vocabProgress * 3.6}deg`);
+            document.querySelector('.stat-card:nth-child(1) .progress-text').textContent = `${Math.round(vocabProgress)}%`;
+            
+            log(`統計更新完了 - 語彙習得: ${vocabProgress.toFixed(1)}%`);
+        }
+
+        function drawMasteryChart() {
+            const canvas = document.getElementById('mastery-chart');
+            const ctx = canvas.getContext('2d');
+            
+            // 簡単な棒グラフを描画
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#4299e1';
+            
+            const levels = [60, 45, 38, 32, 22]; // 習熟度レベル別語彙数
+            const barWidth = 40;
+            const maxHeight = 120;
+            
+            levels.forEach((count, index) => {
+                const height = (count / 60) * maxHeight;
+                const x = index * 50 + 10;
+                const y = canvas.height - height - 10;
+                
+                ctx.fillRect(x, y, barWidth, height);
+                ctx.fillStyle = '#2d3748';
+                ctx.font = '12px Arial';
+                ctx.fillText(count, x + 10, canvas.height - 5);
+                ctx.fillStyle = '#4299e1';
+            });
+        }
+
+        function updateVocabNetwork() {
+            const canvas = document.getElementById('vocab-network');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 語彙ネットワークの簡略可視化
+            vocabularyDB.forEach((vocab, index) => {
+                const x = 100 + (index % 6) * 120;
+                const y = 100 + Math.floor(index / 6) * 80;
+                
+                // ノード描画
+                ctx.beginPath();
+                ctx.arc(x, y, 30, 0, 2 * Math.PI);
+                ctx.fillStyle = '#667eea';
+                ctx.fill();
+                
+                // テキスト描画
+                ctx.fillStyle = 'white';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(vocab.word.substring(0, 8), x, y);
+                
+                // 関連語との接続線
+                vocab.relatedWords.forEach(relatedWord => {
+                    const relatedIndex = vocabularyDB.findIndex(v => v.word === relatedWord);
+                    if (relatedIndex !== -1 && relatedIndex !== index) {
+                        const relatedX = 100 + (relatedIndex % 6) * 120;
+                        const relatedY = 100 + Math.floor(relatedIndex / 6) * 80;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(relatedX, relatedY);
+                        ctx.strokeStyle = '#cbd5e0';
+                        ctx.stroke();
+                    }
+                });
+            });
+        }
+
+        function calculateNextReview(memoryStrength) {
+            const intervals = [1, 3, 7, 14, 30]; // 日数
+            const days = intervals[Math.min(memoryStrength - 1, intervals.length - 1)];
+            const nextDate = new Date();
+            nextDate.setDate(nextDate.getDate() + days);
+            return nextDate;
+        }
+
+        function loadDefaultVocabulary() {
+            const defaultVocabs = [
+                'comprehensive', 'sophisticated', 'fundamental', 'inevitable'
+            ];
+            
+            defaultVocabs.forEach(word => {
+                const vocabData = {
+                    word: word,
+                    definition: generateDefinition(word),
+                    etymology: generateEtymology(word),
+                    relatedWords: generateRelatedWords(word),
+                    memoryStrength: Math.floor(Math.random() * 5) + 1,
+                    lastReviewed: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+                    nextReview: calculateNextReview(Math.floor(Math.random() * 5) + 1)
+                };
+                vocabularyDB.push(vocabData);
+            });
+            
+            // 最初の語彙カードを表示
+            vocabularyDB.forEach(vocab => displayVocabCard(vocab));
+            updateVocabNetwork();
+        }
+
+        function loadUserProgress() {
+            // ユーザー進捗データのロードシミュレーション
+            log('ユーザー進捗データ読み込み完了');
+            log(`総語彙数: ${learningStats.totalWords}, 習得済み: ${learningStats.masteredWords}`);
+        }
+
+        function exportLearningData() {
+            const data = {
+                vocabulary: vocabularyDB,
+                stats: learningStats,
+                timestamp: new Date().toISOString()
+            };
+            
+            const jsonData = JSON.stringify(data, null, 2);
+            downloadFile('learning-data.json', jsonData);
+            log('学習データエクスポート完了');
+        }
+
+        function downloadLogs() {
+            const logContainer = document.getElementById('log-container');
+            const logs = Array.from(logContainer.children).map(entry => entry.textContent).join('\n');
+            downloadFile('system-logs.txt', logs);
+            log('システムログダウンロード完了');
+        }
+
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function clearLogs() {
+            const logContainer = document.getElementById('log-container');
+            logContainer.innerHTML = '';
+            log('ログクリア完了');
+        }
+
+        function log(message) {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span>
+                <span>${message}</span>
+            `;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString();
+        }
+
+        // その他のユーティリティ関数
+        function showLanguageDetails(langCode) {
+            const details = {
+                'proto-ie': '原インドヨーロッパ語 - 紀元前3500年頃の推定祖語',
+                'germanic': 'ゲルマン語族 - 英語、ドイツ語、オランダ語など',
+                'romance': 'ロマンス語族 - フランス語、スペイン語、イタリア語など',
+                'slavic': 'スラブ語族 - ロシア語、ポーランド語、チェコ語など',
+                'celtic': 'ケルト語族 - アイルランド語、ウェールズ語など'
+            };
+            
+            showMessage(details[langCode] || '詳細情報なし', 'success');
+            log(`言語詳細表示: ${langCode}`);
+        }
+
+        function showIPAChart() {
+            showMessage('IPA音韻表を別ウィンドウで表示します', 'success');
+            log('IPA音韻表表示要求');
+        }
+
+        function comparePhonemes() {
+            showMessage('音素比較モードを開始します', 'success');
+            log('音素比較モード開始');
+        }
+
+        function showSoundCorrespondence() {
+            showMessage('音韻対応規則を表示します', 'success');
+            log('音韻対応規則表示');
+        }
+
+        function analyzeBorrowings() {
+            showMessage('借用語分析を実行します', 'success');
+            log('借用語分析実行');
+        }
+
+        function generateProgressReport() {
+            const report = `
+学習進捗レポート
+================
+生成日時: ${new Date().toLocaleString()}
+総語彙数: ${learningStats.totalWords}
+習得済み語彙: ${learningStats.masteredWords}
+習得率: ${((learningStats.masteredWords / learningStats.totalWords) * 100).toFixed(1)}%
+連続学習日数: ${learningStats.studyStreak}日
+今日の進捗: ${learningStats.todayProgress}/${learningStats.todayGoal}
+            `;
+            
+            downloadFile('progress-report.txt', report);
+            log('進捗レポート生成完了');
+        }
+
+        function resetStatistics() {
+            if (confirm('本当に統計をリセットしますか？この操作は取り消せません。')) {
+                learningStats = {
+                    totalWords: 0,
+                    masteredWords: 0,
+                    studyStreak: 0,
+                    todayGoal: 15,
+                    todayProgress: 0
+                };
+                updateStatistics();
+                drawMasteryChart();
+                log('統計リセット完了');
+                showMessage('統計をリセットしました', 'success');
+            }
+        }
+
+        function updateMemoryStrength(event, strength) {
+            event.stopPropagation();
+            if (currentCard) {
+                currentCard.memoryStrength = strength;
+                currentCard.nextReview = calculateNextReview(strength);
+                log(`記憶強度更新: ${currentCard.word} → ${strength}星`);
+                showMessage(`記憶強度を${strength}星に更新しました`, 'success');
+            }
+        }
+
+        function flipCard(cardElement, vocabData) {
+            cardElement.style.transform = 'rotateY(180deg)';
+            setTimeout(() => {
+                cardElement.style.transform = 'rotateY(0deg)';
+            }, 600);
+            log(`語彙カードフリップ: ${vocabData.word}`);
+        }
+
+        function showPOSPattern() {
+            const sentence = document.getElementById('sentence-input').value.trim();
+            if (!sentence) {
+                showMessage('品詞パターンを表示する文章を入力してください', 'error');
+                return;
+            }
+            
+            const words = sentence.split(/\s+/);
+            const pattern = words.map(word => determinePOS(word)).join(' → ');
+            showMessage(`品詞パターン: ${pattern}`, 'success');
+            log(`品詞パターン表示: ${pattern}`);
+        }
+
+        // 初期ログメッセージ
+        setTimeout(() => {
+            log('言語学習システム完全起動');
+            log('全機能利用可能状態');
+        }, 2000);
+    </script>
+</body>
+</html>
