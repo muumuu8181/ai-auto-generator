@@ -2,7 +2,7 @@
 *作成日: 2025-07-28*
 *適用対象: 全52個のCJSツール*
 
-## 🎯 **必須要件: 実行履歴**
+## 🎯 **必須要件: 実行履歴 + 自動実行対応**
 
 ### 📋 **全ツール必須実装事項**
 
@@ -34,6 +34,27 @@ const executionRecord = {
 #### 4. **エラー時ログ**
 ```javascript
 console.error(`❌ [${new Date().toISOString()}] ${ツール名} 実行失敗: ${エラー内容}`);
+```
+
+#### 5. **自動実行対応 (新規追加要件)**
+```javascript
+// インタラクティブツールの場合、必ず以下を実装
+class ToolName {
+    constructor() {
+        this.autoMode = process.argv.includes('--auto') || process.env.AUTO_MODE === 'true';
+        this.testAnswers = []; // 自動実行用回答配列
+    }
+    
+    // 外部ファイルからの質問読み込み
+    loadQuestions() {
+        // questions.txt等から質問を読み込み
+    }
+    
+    // 自動回答実行モード
+    processQuestionsAuto() {
+        // readline不使用、配列から回答取得
+    }
+}
 ```
 
 ---

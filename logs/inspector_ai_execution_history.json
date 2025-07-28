@@ -1,0 +1,583 @@
+[
+  {
+    "timestamp": "2025-07-28T02:29:39.092Z",
+    "tool_name": "test_questionnaire.cjs",
+    "session_id": "session_1753669779080",
+    "execution_time_ms": 12,
+    "success": true,
+    "input_parameters": {
+      "questions_file": "/mnt/c/Users/user/ai-auto-generator/inspector/minitest/questions.txt",
+      "questions_count": 3,
+      "test_mode": true
+    },
+    "output_summary": {
+      "total_questions": 3,
+      "total_answers": 3,
+      "completion_rate": "3/3"
+    },
+    "detailed_results": [
+      {
+        "question_number": 1,
+        "question": "今日の天気は？",
+        "answer": "晴れ",
+        "timestamp": "2025-07-28T02:29:39.090Z"
+      },
+      {
+        "question_number": 2,
+        "question": "お腹は空いてますか？",
+        "answer": "はい",
+        "timestamp": "2025-07-28T02:29:39.091Z"
+      },
+      {
+        "question_number": 3,
+        "question": "焼肉とお寿司はどっちが好きですか？",
+        "answer": "焼肉",
+        "timestamp": "2025-07-28T02:29:39.091Z"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:24:12.750Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753673052704",
+    "execution_time_ms": 46,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:24:12.749Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:24:12.749Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:24:12.750Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:24:12.750Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:24:12.750Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:24:12.750Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:29:37.546Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753673377528",
+    "execution_time_ms": 18,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:29:37.543Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:29:37.544Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:29:37.545Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:29:37.545Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:29:37.545Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:29:37.545Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:32:26.012Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753673545996",
+    "execution_time_ms": 16,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:32:26.011Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:32:26.011Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:32:26.011Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:32:26.011Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:32:26.012Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:32:26.012Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:36:59.082Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753673819058",
+    "execution_time_ms": 24,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:36:59.079Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:36:59.080Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:36:59.080Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:36:59.080Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:36:59.080Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:36:59.081Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:42:37.612Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753674157592",
+    "execution_time_ms": 20,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:42:37.610Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:42:37.611Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:42:37.611Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:42:37.611Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:42:37.611Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:42:37.611Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:44:47.010Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753674286991",
+    "execution_time_ms": 19,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:44:47.008Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:44:47.009Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:44:47.009Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:44:47.009Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:44:47.009Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:44:47.009Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:47:05.321Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753674425297",
+    "execution_time_ms": 24,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:47:05.318Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:47:05.319Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:47:05.319Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:47:05.319Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:47:05.319Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:47:05.320Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-07-28T03:50:12.978Z",
+    "tool_name": "startup-checklist.cjs",
+    "session_id": "startup_session_1753674612944",
+    "execution_time_ms": 34,
+    "success": true,
+    "input_parameters": {
+      "checklist_file": "/mnt/c/Users/user/ai-auto-generator/inspector/tools/startup-checklist-items.txt",
+      "checklist_count": 6,
+      "mode": "startup_validation"
+    },
+    "output_summary": {
+      "total_items": 6,
+      "completed_items": 0,
+      "completion_rate": "0/6",
+      "startup_ready": false
+    },
+    "detailed_results": [
+      {
+        "item_number": 1,
+        "item": "重要度確認ツール実行 (find コマンド)",
+        "completed": false,
+        "status_message": "❌ find コマンド未実行",
+        "timestamp": "2025-07-28T03:50:12.973Z",
+        "action_required": "find . -name \"*重要L[8-9]*\" -o -name \"*超重要L10*\" | head -10 を実行"
+      },
+      {
+        "item_number": 2,
+        "item": "確認報告メッセージ記載 (「私は毎回〜」)",
+        "completed": false,
+        "status_message": "❌ 必須メッセージ未記載",
+        "timestamp": "2025-07-28T03:50:12.975Z",
+        "action_required": "「私は毎回、重要度が8以上のテキストを確認してから返事をします」を記載"
+      },
+      {
+        "item_number": 3,
+        "item": "Inspector AIチェックリスト確認完了報告",
+        "completed": false,
+        "status_message": "❌ Inspector AIチェックリスト確認報告なし",
+        "timestamp": "2025-07-28T03:50:12.976Z",
+        "action_required": "中立性・監査ツール準備等の確認完了報告を記載"
+      },
+      {
+        "item_number": 4,
+        "item": "5グラフ要約表示 (📱📋🌐🔧💊)",
+        "completed": false,
+        "status_message": "❌ 5グラフ要約未表示",
+        "timestamp": "2025-07-28T03:50:12.976Z",
+        "action_required": "📱アプリ統計・🌐URL健全性・🔧ツール・📋チェックリスト・💊健全性の横並び表示"
+      },
+      {
+        "item_number": 5,
+        "item": "視覚ダッシュボード自動実行",
+        "completed": false,
+        "status_message": "❌ ダッシュボード自動実行なし",
+        "timestamp": "2025-07-28T03:50:12.977Z",
+        "action_required": "node core/inspector-auto-display.cjs を実行"
+      },
+      {
+        "item_number": 6,
+        "item": "具体的監査作業開始準備完了",
+        "completed": false,
+        "status_message": "❌ 前提条件未満了につき開始不可",
+        "timestamp": "2025-07-28T03:50:12.977Z",
+        "action_required": "上記全項目の完了が必要"
+      }
+    ]
+  }
+]
