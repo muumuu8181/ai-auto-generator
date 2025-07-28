@@ -1,0 +1,2367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>経済指標・市場分析ダッシュボード</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #495057;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            min-height: 700px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .widget {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .widget h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+
+        .indicator-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        .indicator-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .indicator-change {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .indicator-change.positive {
+            color: #28a745;
+        }
+
+        .indicator-change.negative {
+            color: #dc3545;
+        }
+
+        .indicator-change.neutral {
+            color: #6c757d;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 12px;
+        }
+
+        .control-group input, .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn.success {
+            background: #28a745;
+        }
+
+        .btn.success:hover {
+            background: #218838;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .market-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .market-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .market-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .market-price {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .market-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .simulation-panel {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .simulation-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+        }
+
+        .slider-value {
+            font-weight: 600;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .asset-list {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .asset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .asset-item:hover {
+            background: #f8f9fa;
+        }
+
+        .asset-item.selected {
+            background: #e3f2fd;
+            border-left: 4px solid #007bff;
+        }
+
+        .risk-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .risk-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .risk-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .risk-label {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .news-feed {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .news-meta {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .news-summary {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .learning-content {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .learning-content h4 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .learning-content p {
+            color: #856404;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+
+        .interactive-chart {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .alert-panel {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #c3e6cb;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-message {
+            font-weight: 600;
+            color: #155724;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #155724;
+            opacity: 0.8;
+        }
+
+        .tutorial {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tutorial h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .tutorial p {
+            color: #1565c0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .market-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-offline {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .correlation-matrix {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 2px;
+            margin: 15px 0;
+        }
+
+        .correlation-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .heatmap-legend {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .legend-bar {
+            width: 100px;
+            height: 15px;
+            background: linear-gradient(to right, #dc3545, #ffc107, #28a745);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 経済指標・市場分析ダッシュボード</h1>
+            <p>リアルタイム経済データと金融市場の包括的分析プラットフォーム</p>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" data-tab="dashboard">ダッシュボード</button>
+                <button class="tab" data-tab="economic">経済指標</button>
+                <button class="tab" data-tab="markets">金融市場</button>
+                <button class="tab" data-tab="simulation">経済理論</button>
+                <button class="tab" data-tab="portfolio">ポートフォリオ</button>
+                <button class="tab" data-tab="learning">学習モード</button>
+                <button class="tab" data-tab="alerts">アラート</button>
+            </div>
+
+            <!-- ダッシュボードタブ -->
+            <div class="tab-content active" id="dashboard">
+                <div class="tutorial">
+                    <h4>📚 経済指標・市場分析ダッシュボード</h4>
+                    <p>主要な経済指標と金融市場データをリアルタイムで監視できます。各セクションをクリックして詳細な分析を表示できます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>データ更新間隔</label>
+                            <select id="updateInterval">
+                                <option value="1">1秒</option>
+                                <option value="5" selected>5秒</option>
+                                <option value="30">30秒</option>
+                                <option value="60">1分</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>表示期間</label>
+                            <select id="timeRange">
+                                <option value="1D">1日</option>
+                                <option value="1W" selected>1週間</option>
+                                <option value="1M">1ヶ月</option>
+                                <option value="1Y">1年</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>データ接続状況</label>
+                            <div>
+                                <span class="status-indicator status-online"></span>
+                                <span>オンライン</span>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="refreshAllData()">全データ更新</button>
+                        <button class="btn secondary" onclick="exportData()">データエクスポート</button>
+                    </div>
+                </div>
+
+                <div class="market-summary">
+                    <div class="market-card">
+                        <h4>日経平均</h4>
+                        <div class="market-price" style="color: #28a745;">39,580.50</div>
+                        <div class="market-change positive">+245.30 (+0.62%)</div>
+                    </div>
+                    <div class="market-card">
+                        <h4>TOPIX</h4>
+                        <div class="market-price" style="color: #28a745;">2,785.20</div>
+                        <div class="market-change positive">+15.80 (+0.57%)</div>
+                    </div>
+                    <div class="market-card">
+                        <h4>USD/JPY</h4>
+                        <div class="market-price" style="color: #dc3545;">154.25</div>
+                        <div class="market-change negative">-0.45 (-0.29%)</div>
+                    </div>
+                    <div class="market-card">
+                        <h4>10年債利回り</h4>
+                        <div class="market-price" style="color: #28a745;">0.825%</div>
+                        <div class="market-change positive">+0.015%</div>
+                    </div>
+                    <div class="market-card">
+                        <h4>原油(WTI)</h4>
+                        <div class="market-price" style="color: #dc3545;">$72.45</div>
+                        <div class="market-change negative">-$1.25 (-1.70%)</div>
+                    </div>
+                    <div class="market-card">
+                        <h4>金(NY)</h4>
+                        <div class="market-price" style="color: #28a745;">$2,415.30</div>
+                        <div class="market-change positive">+$8.50 (+0.35%)</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="widget">
+                        <h3>
+                            <div class="widget-icon" style="background: #007bff;">📈</div>
+                            主要経済指標
+                        </h3>
+                        <div class="indicator-card">
+                            <div class="indicator-value">2.1%</div>
+                            <div>GDP成長率（年率）</div>
+                            <div class="indicator-change positive">+0.3% 前期比</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-value">2.8%</div>
+                            <div>消費者物価指数（CPI）</div>
+                            <div class="indicator-change neutral">±0.0% 前月比</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-value">2.4%</div>
+                            <div>完全失業率</div>
+                            <div class="indicator-change negative">+0.1% 前月比</div>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <h3>
+                            <div class="widget-icon" style="background: #28a745;">📊</div>
+                            市場動向
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="marketTrendChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <h3>
+                            <div class="widget-icon" style="background: #dc3545;">🌍</div>
+                            国際比較
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="internationalChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="widget news-feed">
+                        <h3>
+                            <div class="widget-icon" style="background: #ffc107;">📰</div>
+                            経済ニュース
+                        </h3>
+                        <div class="news-item">
+                            <div class="news-title">日銀、政策金利を0.25%に引き上げ</div>
+                            <div class="news-meta">2025-07-28 15:30 | 日本経済新聞</div>
+                            <div class="news-summary">日本銀行は金融政策決定会合で、政策金利を0.25%に引き上げることを決定した。インフレ率の上昇を受けた措置。</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-title">米雇用統計、予想を上回る</div>
+                            <div class="news-meta">2025-07-28 14:45 | Reuters</div>
+                            <div class="news-summary">6月の米雇用統計で非農業部門雇用者数が予想を上回る25万人増となり、労働市場の堅調さを示した。</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-title">中国GDP、第2四半期5.2%成長</div>
+                            <div class="news-meta">2025-07-28 13:20 | Bloomberg</div>
+                            <div class="news-summary">中国の第2四半期GDP成長率は前年同期比5.2%となり、政府目標の5%を上回った。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 経済指標タブ -->
+            <div class="tab-content" id="economic">
+                <div class="tutorial">
+                    <h4>📚 経済指標分析</h4>
+                    <p>主要な経済指標の推移を時系列で分析し、経済サイクルの理解を深めることができます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>国・地域</label>
+                            <select id="economicRegion">
+                                <option value="japan" selected>日本</option>
+                                <option value="usa">アメリカ</option>
+                                <option value="eurozone">ユーロ圏</option>
+                                <option value="china">中国</option>
+                                <option value="global">グローバル</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>指標カテゴリ</label>
+                            <select id="indicatorCategory">
+                                <option value="growth">成長指標</option>
+                                <option value="inflation">物価指標</option>
+                                <option value="employment">雇用指標</option>
+                                <option value="monetary">金融指標</option>
+                                <option value="trade">貿易指標</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>表示形式</label>
+                            <select id="displayFormat">
+                                <option value="level">水準値</option>
+                                <option value="yoy">前年同月比</option>
+                                <option value="mom">前月比</option>
+                                <option value="qoq">前期比</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="updateEconomicChart()">チャート更新</button>
+                        <button class="btn secondary" onclick="compareCountries()">国際比較</button>
+                    </div>
+                </div>
+
+                <div class="interactive-chart">
+                    <div class="chart-controls">
+                        <button class="btn" onclick="addTrendline()">トレンドライン</button>
+                        <button class="btn" onclick="addMovingAverage()">移動平均</button>
+                        <button class="btn" onclick="detectCycles()">サイクル検出</button>
+                        <button class="btn secondary" onclick="exportChart()">チャート保存</button>
+                    </div>
+                    <canvas id="economicIndicatorChart" width="800" height="400"></canvas>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="widget">
+                        <h3>📊 指標詳細</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>指標名</th>
+                                    <th>最新値</th>
+                                    <th>前期比</th>
+                                    <th>前年比</th>
+                                    <th>更新日</th>
+                                </tr>
+                            </thead>
+                            <tbody id="indicatorTableBody">
+                                <tr>
+                                    <td>実質GDP</td>
+                                    <td>543.2兆円</td>
+                                    <td class="positive">+0.5%</td>
+                                    <td class="positive">+2.1%</td>
+                                    <td>2025-07-15</td>
+                                </tr>
+                                <tr>
+                                    <td>消費者物価指数</td>
+                                    <td>106.8</td>
+                                    <td class="neutral">+0.0%</td>
+                                    <td class="positive">+2.8%</td>
+                                    <td>2025-07-26</td>
+                                </tr>
+                                <tr>
+                                    <td>完全失業率</td>
+                                    <td>2.4%</td>
+                                    <td class="negative">+0.1pt</td>
+                                    <td class="negative">+0.2pt</td>
+                                    <td>2025-07-30</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="widget">
+                        <h3>🔍 相関分析</h3>
+                        <div class="correlation-matrix" id="correlationMatrix"></div>
+                        <div class="heatmap-legend">
+                            <span>-1.0</span>
+                            <div class="legend-bar"></div>
+                            <span>+1.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 金融市場タブ -->
+            <div class="tab-content" id="markets">
+                <div class="tutorial">
+                    <h4>📚 金融市場分析</h4>
+                    <p>株式、債券、為替、商品市場のリアルタイム分析とテクニカル指標を提供します。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>市場</label>
+                            <select id="marketType">
+                                <option value="stocks" selected>株式</option>
+                                <option value="bonds">債券</option>
+                                <option value="forex">為替</option>
+                                <option value="commodities">商品</option>
+                                <option value="crypto">暗号資産</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>銘柄・指数</label>
+                            <select id="securitySelect">
+                                <option value="nikkei">日経平均</option>
+                                <option value="topix">TOPIX</option>
+                                <option value="sp500">S&P500</option>
+                                <option value="nasdaq">NASDAQ</option>
+                                <option value="dji">ダウ平均</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>チャート種類</label>
+                            <select id="chartType">
+                                <option value="candlestick">ローソク足</option>
+                                <option value="line">線グラフ</option>
+                                <option value="area">面グラフ</option>
+                                <option value="volume">出来高</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="updateMarketChart()">更新</button>
+                        <button class="btn secondary" onclick="addTechnicalIndicator()">テクニカル追加</button>
+                    </div>
+                </div>
+
+                <div class="interactive-chart">
+                    <canvas id="marketChart" width="800" height="500"></canvas>
+                    <div class="chart-controls">
+                        <button class="btn" onclick="addMA(25)">MA25</button>
+                        <button class="btn" onclick="addMA(75)">MA75</button>
+                        <button class="btn" onclick="addBollinger()">ボリンジャー</button>
+                        <button class="btn" onclick="addRSI()">RSI</button>
+                        <button class="btn" onclick="addMACD()">MACD</button>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="widget">
+                        <h3>📈 テクニカル指標</h3>
+                        <div class="risk-metrics">
+                            <div class="risk-card">
+                                <div class="risk-value">67.5</div>
+                                <div class="risk-label">RSI (14)</div>
+                            </div>
+                            <div class="risk-card">
+                                <div class="risk-value">+125</div>
+                                <div class="risk-label">MACD</div>
+                            </div>
+                            <div class="risk-card">
+                                <div class="risk-value">18.5%</div>
+                                <div class="risk-label">ボラティリティ</div>
+                            </div>
+                            <div class="risk-card">
+                                <div class="risk-value">0.85</div>
+                                <div class="risk-label">ベータ値</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <h3>💹 市場統計</h3>
+                        <div class="chart-container">
+                            <canvas id="marketStatsChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <h3>🌐 為替レート</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>通貨ペア</th>
+                                    <th>現在値</th>
+                                    <th>変化額</th>
+                                    <th>変化率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>USD/JPY</td>
+                                    <td>154.25</td>
+                                    <td class="negative">-0.45</td>
+                                    <td class="negative">-0.29%</td>
+                                </tr>
+                                <tr>
+                                    <td>EUR/JPY</td>
+                                    <td>167.80</td>
+                                    <td class="positive">+0.25</td>
+                                    <td class="positive">+0.15%</td>
+                                </tr>
+                                <tr>
+                                    <td>GBP/JPY</td>
+                                    <td>195.45</td>
+                                    <td class="positive">+0.85</td>
+                                    <td class="positive">+0.44%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="widget">
+                        <h3>📊 セクター分析</h3>
+                        <div class="chart-container">
+                            <canvas id="sectorChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 経済理論シミュレーションタブ -->
+            <div class="tab-content" id="simulation">
+                <div class="tutorial">
+                    <h4>📚 経済理論シミュレーション</h4>
+                    <p>IS-LM分析、AD-AS分析、成長理論などの経済モデルをインタラクティブに学習できます。</p>
+                </div>
+
+                <div class="simulation-panel">
+                    <h3>IS-LM分析シミュレーション</h3>
+                    <div class="simulation-controls">
+                        <div class="slider-group">
+                            <label>政府支出 (G)</label>
+                            <input type="range" id="govSpending" min="50" max="150" value="100" oninput="updateISLM()">
+                            <div class="slider-value" id="govSpendingValue">100</div>
+                        </div>
+                        <div class="slider-group">
+                            <label>税率 (t)</label>
+                            <input type="range" id="taxRate" min="10" max="40" value="25" oninput="updateISLM()">
+                            <div class="slider-value" id="taxRateValue">25%</div>
+                        </div>
+                        <div class="slider-group">
+                            <label>マネーサプライ (M)</label>
+                            <input type="range" id="moneySupply" min="80" max="120" value="100" oninput="updateISLM()">
+                            <div class="slider-value" id="moneySupplyValue">100</div>
+                        </div>
+                        <div class="slider-group">
+                            <label>投資感応度</label>
+                            <input type="range" id="investSensitivity" min="50" max="150" value="100" oninput="updateISLM()">
+                            <div class="slider-value" id="investSensitivityValue">100</div>
+                        </div>
+                    </div>
+                    
+                    <div class="interactive-chart">
+                        <canvas id="islmChart" width="600" height="400"></canvas>
+                    </div>
+
+                    <div class="learning-content">
+                        <h4>IS-LMモデルの基本概念</h4>
+                        <p><strong>IS曲線</strong>: 消費市場（投資=貯蓄）の均衡を表す</p>
+                        <p><strong>LM曲線</strong>: 貨幣市場（流動性=マネーサプライ）の均衡を表す</p>
+                        <div class="formula">
+                            IS: Y = C(Y-T) + I(r) + G + NX<br>
+                            LM: M/P = L(Y, r)
+                        </div>
+                        <p>両曲線の交点で財市場と貨幣市場が同時均衡し、均衡GDP(Y)と均衡利子率(r)が決定されます。</p>
+                    </div>
+                </div>
+
+                <div class="simulation-panel">
+                    <h3>AD-AS分析シミュレーション</h3>
+                    <div class="simulation-controls">
+                        <div class="slider-group">
+                            <label>総需要ショック</label>
+                            <input type="range" id="demandShock" min="-20" max="20" value="0" oninput="updateADAS()">
+                            <div class="slider-value" id="demandShockValue">0%</div>
+                        </div>
+                        <div class="slider-group">
+                            <label>供給ショック</label>
+                            <input type="range" id="supplyShock" min="-20" max="20" value="0" oninput="updateADAS()">
+                            <div class="slider-value" id="supplyShockValue">0%</div>
+                        </div>
+                        <div class="slider-group">
+                            <label>期待インフレ率</label>
+                            <input type="range" id="expectedInflation" min="0" max="5" value="2" step="0.1" oninput="updateADAS()">
+                            <div class="slider-value" id="expectedInflationValue">2.0%</div>
+                        </div>
+                        <div class="slider-group">
+                            <label>賃金硬直性</label>
+                            <input type="range" id="wageRigidity" min="50" max="150" value="100" oninput="updateADAS()">
+                            <div class="slider-value" id="wageRigidityValue">100</div>
+                        </div>
+                    </div>
+                    
+                    <div class="interactive-chart">
+                        <canvas id="adasChart" width="600" height="400"></canvas>
+                    </div>
+
+                    <div class="learning-content">
+                        <h4>AD-ASモデルの基本概念</h4>
+                        <p><strong>AD曲線</strong>: 総需要（消費+投資+政府支出+純輸出）</p>
+                        <p><strong>AS曲線</strong>: 総供給（短期・長期で異なる傾き）</p>
+                        <div class="formula">
+                            AD: Y = C + I + G + NX<br>
+                            SRAS: P = P_e + α(Y - Y_n)<br>
+                            LRAS: Y = Y_n (潜在GDP)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ポートフォリオタブ -->
+            <div class="tab-content" id="portfolio">
+                <div class="tutorial">
+                    <h4>📚 ポートフォリオ分析</h4>
+                    <p>現代ポートフォリオ理論に基づいて、リスクとリターンを最適化した投資戦略を構築できます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>最適化目標</label>
+                            <select id="optimizationTarget">
+                                <option value="sharpe">シャープレシオ最大化</option>
+                                <option value="return">リターン最大化</option>
+                                <option value="risk">リスク最小化</option>
+                                <option value="utility">効用最大化</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>制約条件</label>
+                            <select id="constraints">
+                                <option value="none">制約なし</option>
+                                <option value="longonly">ロングオンリー</option>
+                                <option value="maxweight">最大ウェイト制限</option>
+                                <option value="sector">セクター制限</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>リバランス頻度</label>
+                            <select id="rebalanceFreq">
+                                <option value="monthly">月次</option>
+                                <option value="quarterly">四半期</option>
+                                <option value="yearly">年次</option>
+                                <option value="threshold">閾値ベース</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="optimizePortfolio()">最適化実行</button>
+                        <button class="btn secondary" onclick="backtestPortfolio()">バックテスト</button>
+                    </div>
+                </div>
+
+                <div class="portfolio-grid">
+                    <div class="asset-list">
+                        <h4>資産選択</h4>
+                        <div class="asset-item selected" data-asset="stocks">
+                            <span>国内株式</span>
+                            <span>30%</span>
+                        </div>
+                        <div class="asset-item" data-asset="foreign-stocks">
+                            <span>外国株式</span>
+                            <span>25%</span>
+                        </div>
+                        <div class="asset-item" data-asset="bonds">
+                            <span>国内債券</span>
+                            <span>20%</span>
+                        </div>
+                        <div class="asset-item" data-asset="foreign-bonds">
+                            <span>外国債券</span>
+                            <span>15%</span>
+                        </div>
+                        <div class="asset-item" data-asset="reits">
+                            <span>不動産投信</span>
+                            <span>5%</span>
+                        </div>
+                        <div class="asset-item" data-asset="commodities">
+                            <span>商品</span>
+                            <span>3%</span>
+                        </div>
+                        <div class="asset-item" data-asset="cash">
+                            <span>現金</span>
+                            <span>2%</span>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <h3>効率的フロンティア</h3>
+                        <div class="chart-container">
+                            <canvas id="efficientFrontierChart" width="350" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-metrics">
+                    <div class="risk-card">
+                        <div class="risk-value">8.5%</div>
+                        <div class="risk-label">期待リターン</div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-value">12.3%</div>
+                        <div class="risk-label">リスク（標準偏差）</div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-value">0.69</div>
+                        <div class="risk-label">シャープレシオ</div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-value">-18.5%</div>
+                        <div class="risk-label">VaR (95%)</div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-value">-22.8%</div>
+                        <div class="risk-label">最大ドローダウン</div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-value">1.15</div>
+                        <div class="risk-label">情報レシオ</div>
+                    </div>
+                </div>
+
+                <div class="learning-content">
+                    <h4>現代ポートフォリオ理論</h4>
+                    <p>ハリー・マーコウィッツによる理論で、リスク資産の組み合わせによりリスクを軽減できることを示しています。</p>
+                    <div class="formula">
+                        E(r_p) = Σw_i × E(r_i)<br>
+                        σ_p² = Σw_i² × σ_i² + ΣΣw_i × w_j × σ_ij<br>
+                        シャープレシオ = (E(r_p) - r_f) / σ_p
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学習モードタブ -->
+            <div class="tab-content" id="learning">
+                <div class="tutorial">
+                    <h4>📚 経済学・金融学学習モード</h4>
+                    <p>基本的な経済理論から高度な金融工学まで、段階的に学習できる包括的な教育プラットフォームです。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>学習分野</label>
+                            <select id="learningField" onchange="loadLearningContent()">
+                                <option value="macro">マクロ経済学</option>
+                                <option value="micro">ミクロ経済学</option>
+                                <option value="finance">金融論</option>
+                                <option value="econometrics">計量経済学</option>
+                                <option value="behavioral">行動経済学</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>難易度</label>
+                            <select id="learningLevel">
+                                <option value="beginner">初級</option>
+                                <option value="intermediate">中級</option>
+                                <option value="advanced">上級</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>学習形式</label>
+                            <select id="learningFormat">
+                                <option value="theory">理論学習</option>
+                                <option value="simulation">シミュレーション</option>
+                                <option value="case">ケーススタディ</option>
+                                <option value="exercise">演習問題</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="startLearning()">学習開始</button>
+                        <button class="btn secondary" onclick="checkProgress()">進捗確認</button>
+                    </div>
+                </div>
+
+                <div id="learningContentArea">
+                    <div class="learning-content">
+                        <h4>マクロ経済学入門</h4>
+                        <p><strong>GDP（国内総生産）</strong>は、一定期間内に国内で生産された財・サービスの総価値です。</p>
+                        
+                        <h5>GDPの計算方法</h5>
+                        <div class="formula">
+                            支出面: GDP = C + I + G + (X - M)<br>
+                            C: 民間最終消費支出<br>
+                            I: 民間設備投資<br>
+                            G: 政府支出<br>
+                            X: 輸出, M: 輸入
+                        </div>
+
+                        <h5>インタラクティブ演習</h5>
+                        <p>下記のスライダーを調整して、GDPの構成要素がどのように変化するかを観察してください。</p>
+                        
+                        <div class="simulation-controls">
+                            <div class="slider-group">
+                                <label>消費 (C)</label>
+                                <input type="range" id="consumption" min="300" max="400" value="350" oninput="updateGDPComponents()">
+                                <div class="slider-value" id="consumptionValue">350兆円</div>
+                            </div>
+                            <div class="slider-group">
+                                <label>投資 (I)</label>
+                                <input type="range" id="investment" min="80" max="120" value="100" oninput="updateGDPComponents()">
+                                <div class="slider-value" id="investmentValue">100兆円</div>
+                            </div>
+                            <div class="slider-group">
+                                <label>政府支出 (G)</label>
+                                <input type="range" id="govExpenditure" min="80" max="120" value="100" oninput="updateGDPComponents()">
+                                <div class="slider-value" id="govExpenditureValue">100兆円</div>
+                            </div>
+                            <div class="slider-group">
+                                <label>純輸出 (NX)</label>
+                                <input type="range" id="netExports" min="-10" max="10" value="0" oninput="updateGDPComponents()">
+                                <div class="slider-value" id="netExportsValue">0兆円</div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="gdpComponentsChart" width="600" height="250"></canvas>
+                        </div>
+
+                        <div class="risk-card" style="margin: 20px 0;">
+                            <div class="risk-value" id="totalGDP">550兆円</div>
+                            <div class="risk-label">総GDP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- アラートタブ -->
+            <div class="tab-content" id="alerts">
+                <div class="tutorial">
+                    <h4>📚 アラート管理</h4>
+                    <p>経済指標や市場価格の変動を監視し、設定した条件に基づいてアラートを受け取ることができます。</p>
+                </div>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>アラートタイプ</label>
+                            <select id="alertType">
+                                <option value="price">価格アラート</option>
+                                <option value="change">変動率アラート</option>
+                                <option value="technical">テクニカルアラート</option>
+                                <option value="economic">経済指標アラート</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>監視対象</label>
+                            <select id="alertTarget">
+                                <option value="nikkei">日経平均</option>
+                                <option value="usdjpy">USD/JPY</option>
+                                <option value="cpi">消費者物価指数</option>
+                                <option value="gdp">GDP成長率</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>条件</label>
+                            <select id="alertCondition">
+                                <option value="above">以上</option>
+                                <option value="below">以下</option>
+                                <option value="change">変化率</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>閾値</label>
+                            <input type="number" id="alertThreshold" placeholder="数値を入力">
+                        </div>
+                        <button class="btn" onclick="addAlert()">アラート追加</button>
+                    </div>
+                </div>
+
+                <div class="alert-panel">
+                    <h3>🔔 アクティブアラート</h3>
+                    <div class="alert-item">
+                        <div class="alert-message">日経平均が40,000円を超過</div>
+                        <div class="alert-time">2025-07-28 15:30</div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-message">USD/JPYが155円に接近</div>
+                        <div class="alert-time">2025-07-28 14:45</div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-message">日銀政策金利変更の可能性</div>
+                        <div class="alert-time">2025-07-28 13:20</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="widget">
+                        <h3>📊 アラート統計</h3>
+                        <div class="risk-metrics">
+                            <div class="risk-card">
+                                <div class="risk-value">15</div>
+                                <div class="risk-label">アクティブアラート</div>
+                            </div>
+                            <div class="risk-card">
+                                <div class="risk-value">142</div>
+                                <div class="risk-label">今月の通知数</div>
+                            </div>
+                            <div class="risk-card">
+                                <div class="risk-value">85%</div>
+                                <div class="risk-label">的中率</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <h3>📈 アラート履歴</h3>
+                        <div class="chart-container">
+                            <canvas id="alertHistoryChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let dashboardData = {
+            marketData: new Map(),
+            economicIndicators: new Map(),
+            portfolioWeights: new Map(),
+            alertsActive: [],
+            updateInterval: null
+        };
+
+        let simulationState = {
+            islm: {
+                govSpending: 100,
+                taxRate: 25,
+                moneySupply: 100,
+                investSensitivity: 100
+            },
+            adas: {
+                demandShock: 0,
+                supplyShock: 0,
+                expectedInflation: 2.0,
+                wageRigidity: 100
+            }
+        };
+
+        // チャート描画用のコンテキスト
+        let chartContexts = new Map();
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTabs();
+            initializeCharts();
+            loadMarketData();
+            startDataUpdates();
+            initializePortfolioData();
+            initializeSimulations();
+        });
+
+        // タブ機能
+        function initializeTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                    
+                    // タブ切り替え時の処理
+                    onTabSwitch(tab.dataset.tab);
+                });
+            });
+        }
+
+        function onTabSwitch(tabId) {
+            switch(tabId) {
+                case 'markets':
+                    updateMarketChart();
+                    break;
+                case 'simulation':
+                    updateISLM();
+                    updateADAS();
+                    break;
+                case 'portfolio':
+                    drawEfficientFrontier();
+                    break;
+            }
+        }
+
+        // チャート初期化
+        function initializeCharts() {
+            // 主要チャートのコンテキストを取得
+            const chartIds = [
+                'marketTrendChart', 'internationalChart', 'economicIndicatorChart',
+                'marketChart', 'marketStatsChart', 'sectorChart', 'islmChart',
+                'adasChart', 'efficientFrontierChart', 'gdpComponentsChart', 'alertHistoryChart'
+            ];
+
+            chartIds.forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    chartContexts.set(id, canvas.getContext('2d'));
+                }
+            });
+
+            // 初期チャート描画
+            drawMarketTrendChart();
+            drawInternationalChart();
+            drawCorrelationMatrix();
+            drawGDPComponentsChart();
+        }
+
+        // 市場データ読み込み
+        function loadMarketData() {
+            // 模擬データの生成
+            const markets = ['nikkei', 'topix', 'usdjpy', 'bond10y', 'wti', 'gold'];
+            
+            markets.forEach(market => {
+                dashboardData.marketData.set(market, generateMarketData(market));
+            });
+
+            updateMarketSummary();
+        }
+
+        function generateMarketData(market) {
+            const baseValues = {
+                nikkei: 39580,
+                topix: 2785,
+                usdjpy: 154.25,
+                bond10y: 0.825,
+                wti: 72.45,
+                gold: 2415.30
+            };
+
+            const data = [];
+            const baseValue = baseValues[market] || 100;
+            
+            for (let i = 0; i < 100; i++) {
+                const time = new Date(Date.now() - (100 - i) * 60000); // 1分間隔
+                const randomChange = (Math.random() - 0.5) * 0.02; // ±1%の変動
+                const value = baseValue * (1 + randomChange * i * 0.1);
+                
+                data.push({
+                    time: time,
+                    value: value,
+                    change: i > 0 ? value - data[i-1].value : 0
+                });
+            }
+            
+            return data;
+        }
+
+        function updateMarketSummary() {
+            // 市場サマリーの更新（実際のAPIからデータを取得する場合はここを修正）
+            const summaryCards = document.querySelectorAll('.market-card');
+            
+            summaryCards.forEach(card => {
+                const priceElement = card.querySelector('.market-price');
+                const changeElement = card.querySelector('.market-change');
+                
+                // ランダムな価格変動をシミュレート
+                const currentPrice = parseFloat(priceElement.textContent.replace(/[^\d.-]/g, ''));
+                const change = (Math.random() - 0.5) * currentPrice * 0.01;
+                const newPrice = currentPrice + change;
+                const changePercent = (change / currentPrice * 100);
+                
+                priceElement.textContent = newPrice.toFixed(2);
+                changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
+                changeElement.className = `market-change ${change >= 0 ? 'positive' : 'negative'}`;
+                priceElement.style.color = change >= 0 ? '#28a745' : '#dc3545';
+            });
+        }
+
+        // チャート描画関数
+        function drawMarketTrendChart() {
+            const ctx = chartContexts.get('marketTrendChart');
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            // 簡単な線グラフを描画
+            const data = Array.from({length: 20}, (_, i) => ({
+                x: i * (ctx.canvas.width / 19),
+                y: ctx.canvas.height/2 + Math.sin(i * 0.3) * 50 + (Math.random() - 0.5) * 20
+            }));
+
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            data.forEach((point, i) => {
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            
+            ctx.stroke();
+
+            // グリッド線
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= 4; i++) {
+                const y = (ctx.canvas.height / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(ctx.canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawInternationalChart() {
+            const ctx = chartContexts.get('internationalChart');
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            const countries = ['Japan', 'USA', 'EU', 'China'];
+            const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545'];
+            const barWidth = ctx.canvas.width / countries.length - 10;
+            
+            countries.forEach((country, i) => {
+                const height = Math.random() * ctx.canvas.height * 0.7 + 20;
+                const x = i * (barWidth + 10) + 5;
+                const y = ctx.canvas.height - height;
+                
+                ctx.fillStyle = colors[i];
+                ctx.fillRect(x, y, barWidth, height);
+                
+                // ラベル
+                ctx.fillStyle = '#495057';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(country, x + barWidth/2, ctx.canvas.height - 5);
+            });
+        }
+
+        function drawCorrelationMatrix() {
+            const container = document.getElementById('correlationMatrix');
+            if (!container) return;
+
+            const assets = ['株式', '債券', '為替', '商品', 'REIT', '現金'];
+            
+            container.innerHTML = '';
+            
+            assets.forEach((asset1, i) => {
+                assets.forEach((asset2, j) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'correlation-cell';
+                    
+                    let correlation;
+                    if (i === j) {
+                        correlation = 1.0;
+                    } else {
+                        correlation = (Math.random() - 0.5) * 2; // -1 to 1
+                    }
+                    
+                    cell.textContent = correlation.toFixed(2);
+                    
+                    // 色分け
+                    const intensity = Math.abs(correlation);
+                    if (correlation > 0) {
+                        cell.style.backgroundColor = `rgba(40, 167, 69, ${intensity})`;
+                    } else {
+                        cell.style.backgroundColor = `rgba(220, 53, 69, ${intensity})`;
+                    }
+                    
+                    container.appendChild(cell);
+                });
+            });
+        }
+
+        // IS-LM分析
+        function updateISLM() {
+            const govSpending = document.getElementById('govSpending').value;
+            const taxRate = document.getElementById('taxRate').value;
+            const moneySupply = document.getElementById('moneySupply').value;
+            const investSensitivity = document.getElementById('investSensitivity').value;
+
+            // スライダーの値を表示
+            document.getElementById('govSpendingValue').textContent = govSpending;
+            document.getElementById('taxRateValue').textContent = taxRate + '%';
+            document.getElementById('moneySupplyValue').textContent = moneySupply;
+            document.getElementById('investSensitivityValue').textContent = investSensitivity;
+
+            // シミュレーション状態更新
+            simulationState.islm = {
+                govSpending: parseInt(govSpending),
+                taxRate: parseInt(taxRate),
+                moneySupply: parseInt(moneySupply),
+                investSensitivity: parseInt(investSensitivity)
+            };
+
+            drawISLMChart();
+        }
+
+        function drawISLMChart() {
+            const ctx = chartContexts.get('islmChart');
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const margin = 50;
+
+            // 軸の描画
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 2;
+            
+            // Y軸（利子率）
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.stroke();
+            
+            // X軸（GDP）
+            ctx.beginPath();
+            ctx.moveTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+
+            // ラベル
+            ctx.fillStyle = '#495057';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('GDP (Y)', width/2, height - 10);
+            
+            ctx.save();
+            ctx.translate(20, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('利子率 (r)', 0, 0);
+            ctx.restore();
+
+            // IS曲線の描画
+            const state = simulationState.islm;
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = margin; x < width - margin; x += 5) {
+                const gdp = (x - margin) / (width - 2*margin) * 1000;
+                const interestRate = calculateISCurve(gdp, state);
+                const y = height - margin - (interestRate / 10) * (height - 2*margin);
+                
+                if (x === margin) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // LM曲線の描画
+            ctx.strokeStyle = '#dc3545';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = margin; x < width - margin; x += 5) {
+                const gdp = (x - margin) / (width - 2*margin) * 1000;
+                const interestRate = calculateLMCurve(gdp, state);
+                const y = height - margin - (interestRate / 10) * (height - 2*margin);
+                
+                if (x === margin) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // 凡例
+            ctx.fillStyle = '#007bff';
+            ctx.fillRect(width - 150, 20, 20, 15);
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Arial';
+            ctx.fillText('IS曲線', width - 120, 32);
+            
+            ctx.fillStyle = '#dc3545';
+            ctx.fillRect(width - 150, 40, 20, 15);
+            ctx.fillStyle = '#495057';
+            ctx.fillText('LM曲線', width - 120, 52);
+        }
+
+        function calculateISCurve(gdp, state) {
+            // 簡化されたIS曲線: r = a - b*Y + c*G - d*t
+            const a = 8;
+            const b = 0.005;
+            const c = 0.01;
+            const d = 0.05;
+            
+            return Math.max(0, a - b * gdp + c * state.govSpending - d * state.taxRate);
+        }
+
+        function calculateLMCurve(gdp, state) {
+            // 簡化されたLM曲線: r = e*Y - f*M
+            const e = 0.008;
+            const f = 0.05;
+            
+            return Math.max(0, e * gdp - f * state.moneySupply);
+        }
+
+        // AD-AS分析
+        function updateADAS() {
+            const demandShock = document.getElementById('demandShock').value;
+            const supplyShock = document.getElementById('supplyShock').value;
+            const expectedInflation = document.getElementById('expectedInflation').value;
+            const wageRigidity = document.getElementById('wageRigidity').value;
+
+            // スライダーの値を表示
+            document.getElementById('demandShockValue').textContent = demandShock + '%';
+            document.getElementById('supplyShockValue').textContent = supplyShock + '%';
+            document.getElementById('expectedInflationValue').textContent = expectedInflation + '%';
+            document.getElementById('wageRigidityValue').textContent = wageRigidity;
+
+            simulationState.adas = {
+                demandShock: parseFloat(demandShock),
+                supplyShock: parseFloat(supplyShock),
+                expectedInflation: parseFloat(expectedInflation),
+                wageRigidity: parseInt(wageRigidity)
+            };
+
+            drawADASChart();
+        }
+
+        function drawADASChart() {
+            const ctx = chartContexts.get('adasChart');
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const margin = 50;
+
+            // 軸の描画
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.moveTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+
+            // ラベル
+            ctx.fillStyle = '#495057';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('GDP (Y)', width/2, height - 10);
+            
+            ctx.save();
+            ctx.translate(20, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('物価水準 (P)', 0, 0);
+            ctx.restore();
+
+            const state = simulationState.adas;
+
+            // AD曲線
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = margin; x < width - margin; x += 5) {
+                const gdp = (x - margin) / (width - 2*margin) * 1000;
+                const price = calculateADCurve(gdp, state);
+                const y = height - margin - (price / 5) * (height - 2*margin);
+                
+                if (x === margin) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // SRAS曲線
+            ctx.strokeStyle = '#28a745';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = margin; x < width - margin; x += 5) {
+                const gdp = (x - margin) / (width - 2*margin) * 1000;
+                const price = calculateSRASCurve(gdp, state);
+                const y = height - margin - (price / 5) * (height - 2*margin);
+                
+                if (x === margin) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // LRAS曲線
+            ctx.strokeStyle = '#ffc107';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            const lrasX = margin + (width - 2*margin) * 0.6; // 潜在GDP位置
+            ctx.moveTo(lrasX, margin);
+            ctx.lineTo(lrasX, height - margin);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 凡例
+            const legendY = 20;
+            ctx.fillStyle = '#007bff';
+            ctx.fillRect(width - 150, legendY, 20, 15);
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Arial';
+            ctx.fillText('AD曲線', width - 120, legendY + 12);
+            
+            ctx.fillStyle = '#28a745';
+            ctx.fillRect(width - 150, legendY + 20, 20, 15);
+            ctx.fillText('SRAS曲線', width - 120, legendY + 32);
+            
+            ctx.fillStyle = '#ffc107';
+            ctx.fillRect(width - 150, legendY + 40, 20, 15);
+            ctx.fillText('LRAS曲線', width - 120, legendY + 52);
+        }
+
+        function calculateADCurve(gdp, state) {
+            // AD曲線: P = a - b*Y + shock
+            const a = 4;
+            const b = 0.003;
+            return Math.max(0.5, a - b * gdp + state.demandShock * 0.1);
+        }
+
+        function calculateSRASCurve(gdp, state) {
+            // SRAS曲線: P = Pe + c*(Y - Yn) + supply_shock
+            const naturalGDP = 600;
+            const c = 0.005;
+            return Math.max(0.5, state.expectedInflation + c * (gdp - naturalGDP) + state.supplyShock * 0.1);
+        }
+
+        // ポートフォリオ関数
+        function initializePortfolioData() {
+            const assets = ['stocks', 'foreign-stocks', 'bonds', 'foreign-bonds', 'reits', 'commodities', 'cash'];
+            const weights = [30, 25, 20, 15, 5, 3, 2];
+            
+            assets.forEach((asset, i) => {
+                dashboardData.portfolioWeights.set(asset, weights[i]);
+            });
+
+            setupAssetSelection();
+        }
+
+        function setupAssetSelection() {
+            const assetItems = document.querySelectorAll('.asset-item');
+            
+            assetItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    assetItems.forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // 選択された資産の詳細を表示（実装可能）
+                });
+            });
+        }
+
+        function drawEfficientFrontier() {
+            const ctx = chartContexts.get('efficientFrontierChart');
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const margin = 30;
+
+            // 軸
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.moveTo(margin, height - margin);
+            ctx.lineTo(margin, margin);
+            ctx.stroke();
+
+            // 効率的フロンティア
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let i = 0; i <= 50; i++) {
+                const risk = 5 + i * 0.5; // 5% - 30%のリスク
+                const expectedReturn = Math.sqrt(risk) * 2.2 + 2; // リスクに応じたリターン
+                
+                const x = margin + (risk / 30) * (width - 2*margin);
+                const y = height - margin - (expectedReturn / 15) * (height - 2*margin);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // 現在のポートフォリオ
+            ctx.fillStyle = '#dc3545';
+            ctx.beginPath();
+            ctx.arc(margin + (12.3 / 30) * (width - 2*margin), 
+                   height - margin - (8.5 / 15) * (height - 2*margin), 5, 0, 2*Math.PI);
+            ctx.fill();
+
+            // ラベル
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('リスク (%)', width/2, height - 5);
+            
+            ctx.save();
+            ctx.translate(15, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('期待リターン (%)', 0, 0);
+            ctx.restore();
+        }
+
+        // GDP構成要素チャート
+        function updateGDPComponents() {
+            const consumption = document.getElementById('consumption').value;
+            const investment = document.getElementById('investment').value;
+            const govExpenditure = document.getElementById('govExpenditure').value;
+            const netExports = document.getElementById('netExports').value;
+
+            // 値の更新
+            document.getElementById('consumptionValue').textContent = consumption + '兆円';
+            document.getElementById('investmentValue').textContent = investment + '兆円';
+            document.getElementById('govExpenditureValue').textContent = govExpenditure + '兆円';
+            document.getElementById('netExportsValue').textContent = netExports + '兆円';
+
+            const totalGDP = parseInt(consumption) + parseInt(investment) + 
+                           parseInt(govExpenditure) + parseInt(netExports);
+            document.getElementById('totalGDP').textContent = totalGDP + '兆円';
+
+            drawGDPComponentsChart();
+        }
+
+        function drawGDPComponentsChart() {
+            const ctx = chartContexts.get('gdpComponentsChart');
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            const consumption = parseInt(document.getElementById('consumption')?.value || 350);
+            const investment = parseInt(document.getElementById('investment')?.value || 100);
+            const govExpenditure = parseInt(document.getElementById('govExpenditure')?.value || 100);
+            const netExports = parseInt(document.getElementById('netExports')?.value || 0);
+
+            const components = [
+                {name: '消費 (C)', value: consumption, color: '#007bff'},
+                {name: '投資 (I)', value: investment, color: '#28a745'},
+                {name: '政府支出 (G)', value: govExpenditure, color: '#ffc107'},
+                {name: '純輸出 (NX)', value: netExports, color: '#dc3545'}
+            ];
+
+            const total = consumption + investment + govExpenditure + netExports;
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            
+            let currentX = 0;
+            
+            components.forEach(component => {
+                const barWidth = (Math.abs(component.value) / Math.abs(total)) * width;
+                
+                ctx.fillStyle = component.color;
+                ctx.fillRect(currentX, height/2 - 30, barWidth, 60);
+                
+                // ラベル
+                ctx.fillStyle = 'white';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                if (barWidth > 50) {
+                    ctx.fillText(component.name, currentX + barWidth/2, height/2 - 5);
+                    ctx.fillText(component.value + '兆円', currentX + barWidth/2, height/2 + 15);
+                }
+                
+                currentX += barWidth;
+            });
+        }
+
+        // データ更新関数
+        function startDataUpdates() {
+            const interval = parseInt(document.getElementById('updateInterval')?.value || 5) * 1000;
+            
+            if (dashboardData.updateInterval) {
+                clearInterval(dashboardData.updateInterval);
+            }
+            
+            dashboardData.updateInterval = setInterval(() => {
+                updateMarketSummary();
+                updateCharts();
+            }, interval);
+        }
+
+        function updateCharts() {
+            // チャートの更新（必要に応じて）
+            if (document.querySelector('.tab[data-tab="dashboard"]').classList.contains('active')) {
+                drawMarketTrendChart();
+            }
+        }
+
+        function refreshAllData() {
+            loadMarketData();
+            updateMarketSummary();
+            updateCharts();
+            
+            // 成功メッセージ
+            showNotification('データを更新しました', 'success');
+        }
+
+        // ユーティリティ関数
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert-panel ${type}`;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '1000';
+            notification.style.minWidth = '300px';
+            
+            notification.innerHTML = `
+                <div class="alert-item">
+                    <div class="alert-message">${message}</div>
+                    <div class="alert-time">${new Date().toLocaleTimeString()}</div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // API関数（実装例）
+        function updateEconomicChart() {
+            showNotification('経済指標チャートを更新中...', 'info');
+            // 実際のAPI呼び出しはここに実装
+        }
+
+        function compareCountries() {
+            showNotification('国際比較データを取得中...', 'info');
+        }
+
+        function updateMarketChart() {
+            showNotification('市場データを更新中...', 'info');
+        }
+
+        function addTechnicalIndicator() {
+            showNotification('テクニカル指標を追加しました', 'success');
+        }
+
+        function optimizePortfolio() {
+            showNotification('ポートフォリオ最適化を実行中...', 'info');
+            
+            setTimeout(() => {
+                showNotification('最適化が完了しました', 'success');
+                drawEfficientFrontier();
+            }, 2000);
+        }
+
+        function backtestPortfolio() {
+            showNotification('バックテストを実行中...', 'info');
+        }
+
+        function addAlert() {
+            const alertType = document.getElementById('alertType')?.value;
+            const alertTarget = document.getElementById('alertTarget')?.value;
+            const alertCondition = document.getElementById('alertCondition')?.value;
+            const alertThreshold = document.getElementById('alertThreshold')?.value;
+            
+            if (!alertThreshold) {
+                showNotification('閾値を入力してください', 'error');
+                return;
+            }
+            
+            dashboardData.alertsActive.push({
+                type: alertType,
+                target: alertTarget,
+                condition: alertCondition,
+                threshold: parseFloat(alertThreshold),
+                created: new Date()
+            });
+            
+            showNotification('アラートを追加しました', 'success');
+        }
+
+        function exportData() {
+            showNotification('データをエクスポート中...', 'info');
+            
+            const data = {
+                marketData: Object.fromEntries(dashboardData.marketData),
+                economicIndicators: Object.fromEntries(dashboardData.economicIndicators),
+                portfolioWeights: Object.fromEntries(dashboardData.portfolioWeights),
+                exportTime: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `economic_data_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('データをエクスポートしました', 'success');
+        }
+
+        // 学習モード関数
+        function loadLearningContent() {
+            const field = document.getElementById('learningField')?.value;
+            showNotification(`${field}の学習コンテンツを読み込み中...`, 'info');
+        }
+
+        function startLearning() {
+            showNotification('学習を開始します', 'success');
+        }
+
+        function checkProgress() {
+            showNotification('学習進捗: 65% 完了', 'info');
+        }
+
+        // チャート操作関数
+        function addTrendline() {
+            showNotification('トレンドラインを追加しました', 'success');
+        }
+
+        function addMovingAverage() {
+            showNotification('移動平均線を追加しました', 'success');
+        }
+
+        function detectCycles() {
+            showNotification('経済サイクルを検出中...', 'info');
+        }
+
+        function exportChart() {
+            showNotification('チャートを保存しました', 'success');
+        }
+
+        function addMA(period) {
+            showNotification(`MA${period}を追加しました`, 'success');
+        }
+
+        function addBollinger() {
+            showNotification('ボリンジャーバンドを追加しました', 'success');
+        }
+
+        function addRSI() {
+            showNotification('RSIを追加しました', 'success');
+        }
+
+        function addMACD() {
+            showNotification('MACDを追加しました', 'success');
+        }
+
+        // エラーハンドリング
+        window.addEventListener('error', function(event) {
+            console.error('アプリケーションエラー:', event.error);
+            showNotification('予期しないエラーが発生しました', 'error');
+        });
+
+        // パフォーマンス監視
+        let performanceMetrics = {
+            chartRenderTime: 0,
+            dataUpdateTime: 0,
+            lastUpdate: null
+        };
+
+        function measurePerformance(operation, func) {
+            const start = performance.now();
+            const result = func();
+            const end = performance.now();
+            
+            performanceMetrics[operation + 'Time'] = end - start;
+            performanceMetrics.lastUpdate = new Date();
+            
+            return result;
+        }
+
+        // レスポンシブ対応
+        function handleResize() {
+            // チャートのリサイズ処理
+            setTimeout(() => {
+                Object.keys(chartContexts).forEach(chartId => {
+                    const canvas = document.getElementById(chartId);
+                    if (canvas && canvas.offsetParent !== null) {
+                        // チャートの再描画
+                        switch(chartId) {
+                            case 'marketTrendChart':
+                                drawMarketTrendChart();
+                                break;
+                            case 'internationalChart':
+                                drawInternationalChart();
+                                break;
+                            case 'islmChart':
+                                drawISLMChart();
+                                break;
+                            case 'adasChart':
+                                drawADASChart();
+                                break;
+                            case 'efficientFrontierChart':
+                                drawEfficientFrontier();
+                                break;
+                            case 'gdpComponentsChart':
+                                drawGDPComponentsChart();
+                                break;
+                        }
+                    }
+                });
+            }, 250);
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // 初期データ設定
+        function initializeSimulations() {
+            // IS-LMシミュレーション初期化
+            updateISLM();
+            
+            // AD-ASシミュレーション初期化
+            updateADAS();
+            
+            // GDP構成要素初期化
+            updateGDPComponents();
+        }
+
+        // 自動保存機能
+        function autoSave() {
+            const data = {
+                dashboardSettings: {
+                    updateInterval: document.getElementById('updateInterval')?.value,
+                    timeRange: document.getElementById('timeRange')?.value
+                },
+                portfolioWeights: Object.fromEntries(dashboardData.portfolioWeights),
+                alerts: dashboardData.alertsActive,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem('economicDashboardData', JSON.stringify(data));
+            } catch (e) {
+                console.warn('自動保存に失敗しました:', e);
+            }
+        }
+
+        function autoLoad() {
+            try {
+                const saved = localStorage.getItem('economicDashboardData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    // 設定の復元処理をここに実装
+                }
+            } catch (e) {
+                console.warn('自動読み込みに失敗しました:', e);
+            }
+        }
+
+        // 定期的な自動保存
+        setInterval(autoSave, 60000); // 1分ごと
+
+        // ページ読み込み時の自動復元
+        document.addEventListener('DOMContentLoaded', autoLoad);
+    </script>
+</body>
+</html>
