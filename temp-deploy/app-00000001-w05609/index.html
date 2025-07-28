@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社会学・文化人類学統合分析プラットフォーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tab-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-size: 0.9em;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.2);
+            border-bottom-color: #ff6b6b;
+        }
+
+        .content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            background: rgba(255,255,255,0.1);
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        .section h3 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .card h4 {
+            color: #ffd93d;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            color: #b0bec5;
+        }
+
+        select, input[type="range"], input[type="number"], input[type="text"], button, textarea {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.9em;
+        }
+
+        select option {
+            background: #764ba2;
+            color: #fff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #ee5a52, #ff4757);
+            transform: translateY(-2px);
+        }
+
+        .visualization {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        canvas {
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .info-panel {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .data-table th, .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .data-table th {
+            background: rgba(255,255,255,0.1);
+            color: #ff6b6b;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .network-node {
+            fill: #ff6b6b;
+            stroke: #fff;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+
+        .network-node:hover {
+            fill: #ffd93d;
+            r: 8;
+        }
+
+        .network-link {
+            stroke: rgba(255,255,255,0.6);
+            stroke-width: 1px;
+        }
+
+        .text-analysis {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .concept-map {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .concept-node {
+            background: rgba(255,107,107,0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .concept-node:hover {
+            background: rgba(255,107,107,1);
+            transform: scale(1.1);
+        }
+
+        .survey-form {
+            background: rgba(255,255,255,0.05);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .question-item {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .question-item h5 {
+            color: #ffd93d;
+            margin-bottom: 10px;
+        }
+
+        .response-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .response-option {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .response-option:hover, .response-option.selected {
+            background: rgba(255,107,107,0.7);
+        }
+
+        .cultural-trait {
+            display: inline-block;
+            background: rgba(118,75,162,0.7);
+            color: #fff;
+            padding: 5px 12px;
+            margin: 3px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+
+        .analysis-result {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .theory-box {
+            background: rgba(255,213,61,0.1);
+            border: 1px solid rgba(255,213,61,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .theory-box h5 {
+            color: #ffd93d;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                min-width: unset;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .ethnography-notes {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .field-note {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .interview-transcript {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .coding-category {
+            background: rgba(102,126,234,0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+
+        .coding-category:hover {
+            background: rgba(102,126,234,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👥 社会学・文化人類学統合分析プラットフォーム</h1>
+        <p>社会構造分析・文化比較・質的研究の統合システム</p>
+    </div>
+
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('overview')">概要</div>
+            <div class="tab" onclick="showTab('social_structure')">社会構造</div>
+            <div class="tab" onclick="showTab('network')">ネットワーク</div>
+            <div class="tab" onclick="showTab('culture')">文化比較</div>
+            <div class="tab" onclick="showTab('ethnography')">エスノグラフィー</div>
+            <div class="tab" onclick="showTab('qualitative')">質的研究</div>
+            <div class="tab" onclick="showTab('survey')">社会調査</div>
+            <div class="tab" onclick="showTab('statistics')">統計分析</div>
+        </div>
+
+        <!-- 概要タブ -->
+        <div id="overview" class="content active">
+            <div class="section">
+                <h3>👥 社会学・文化人類学統合分析プラットフォーム</h3>
+                <p>社会構造分析、文化比較研究、質的調査を統合した革新的な社会科学研究支援システムです。</p>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>🏛️ 社会構造分析</h4>
+                        <p>階層・階級分析、権力構造の解明、社会制度・組織の研究、不平等の定量化</p>
+                    </div>
+                    <div class="card">
+                        <h4>🌐 社会ネットワーク</h4>
+                        <p>人間関係ネットワークの可視化、中心性分析、コミュニティ検出、影響力測定</p>
+                    </div>
+                    <div class="card">
+                        <h4>🌍 文化比較研究</h4>
+                        <p>世界の文化システム比較、親族・宗教制度分析、文化変動・拡散の研究</p>
+                    </div>
+                    <div class="card">
+                        <h4>📖 エスノグラフィー</h4>
+                        <p>フィールドワーク支援、参与観察記録、厚い記述の方法論、文化記述技法</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔍 質的研究</h4>
+                        <p>グラウンデッド・セオリー、テーマ分析、談話分析、理論構築支援</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 社会調査・統計</h4>
+                        <p>調査設計、多変量解析、因果推論、計量社会学、データマイニング</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🎯 主要研究領域</h3>
+                <div class="grid">
+                    <div class="info-panel">
+                        <h4>📈 社会階層・不平等</h4>
+                        <p>現在のジニ係数: <strong>0.334</strong></p>
+                        <p>世代間移動率: <strong>38%</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="info-panel">
+                        <h4>🌐 社会ネットワーク密度</h4>
+                        <p>平均クラスタ係数: <strong>0.28</strong></p>
+                        <p>小世界性指標: <strong>2.4</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 72%"></div>
+                        </div>
+                    </div>
+                    <div class="info-panel">
+                        <h4>🌍 文化多様性指数</h4>
+                        <p>ハーフィンダール指数: <strong>0.85</strong></p>
+                        <p>文化的距離: <strong>1.2</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 社会構造タブ -->
+        <div id="social_structure" class="content">
+            <div class="section">
+                <h3>🏛️ 社会構造・階層分析</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>分析対象</label>
+                        <select id="structureAnalysis">
+                            <option value="class">階級・階層構造</option>
+                            <option value="mobility">社会移動</option>
+                            <option value="inequality">不平等・格差</option>
+                            <option value="power">権力構造</option>
+                            <option value="institution">制度・組織</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>理論的枠組み</label>
+                        <select id="theoreticalFramework">
+                            <option value="marx">マルクス主義</option>
+                            <option value="weber">ウェーバー的階層論</option>
+                            <option value="bourdieu">ブルデューの資本論</option>
+                            <option value="coleman">コールマンの社会資本論</option>
+                            <option value="modern">現代階層論</option>
+                        </select>
+                    </div>
+                    <button onclick="analyzeStructure()">構造分析実行</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="structureChart" width="800" height="400"></canvas>
+                    <p>社会構造・階層分析結果</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>📊 階層分布</h4>
+                        <table class="data-table">
+                            <tr><th>階層</th><th>比率</th><th>平均所得</th></tr>
+                            <tr><td>上層</td><td id="upperClass">8%</td><td>1,200万円</td></tr>
+                            <tr><td>中層</td><td id="middleClass">45%</td><td>580万円</td></tr>
+                            <tr><td>労働者</td><td id="workingClass">38%</td><td>420万円</td></tr>
+                            <tr><td>下層</td><td id="lowerClass">9%</td><td>280万円</td></tr>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h4>📈 社会移動</h4>
+                        <div class="info-panel">
+                            <p>世代間移動率: <strong>38%</strong></p>
+                            <p>上昇移動: <strong>22%</strong></p>
+                            <p>下降移動: <strong>16%</strong></p>
+                            <p>移動の開放性: <strong>0.65</strong></p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>⚖️ 不平等指標</h4>
+                        <div class="info-panel">
+                            <p>ジニ係数: <strong>0.334</strong></p>
+                            <p>タイル指数: <strong>0.198</strong></p>
+                            <p>90/10比: <strong>5.2</strong></p>
+                            <p>相対的貧困率: <strong>15.4%</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-box">
+                    <h5>🎓 理論的背景：ピエール・ブルデューの資本論</h5>
+                    <p>ブルデューは社会空間を経済資本・文化資本・社会資本・象徴資本の4つの資本によって構成されると論じました。これらの資本の蓄積と変換が社会的地位を決定し、階級再生産のメカニズムを形成します。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ネットワーク分析タブ -->
+        <div id="network" class="content">
+            <div class="section">
+                <h3>🌐 社会ネットワーク分析</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>ネットワーク種別</label>
+                        <select id="networkType">
+                            <option value="friendship">友人関係</option>
+                            <option value="collaboration">協力関係</option>
+                            <option value="information">情報伝達</option>
+                            <option value="kinship">親族関係</option>
+                            <option value="organization">組織関係</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>分析手法</label>
+                        <select id="networkAnalysis">
+                            <option value="centrality">中心性分析</option>
+                            <option value="community">コミュニティ検出</option>
+                            <option value="clustering">クラスタリング</option>
+                            <option value="pathfinding">経路分析</option>
+                        </select>
+                    </div>
+                    <button onclick="analyzeNetwork()">ネットワーク分析</button>
+                </div>
+
+                <div class="visualization">
+                    <svg id="networkVisualization" width="800" height="500"></svg>
+                    <p>社会ネットワーク可視化</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>📊 ネットワーク統計</h4>
+                        <table class="data-table">
+                            <tr><th>指標</th><th>値</th></tr>
+                            <tr><td>ノード数</td><td id="nodeCount">45</td></tr>
+                            <tr><td>エッジ数</td><td id="edgeCount">128</td></tr>
+                            <tr><td>密度</td><td id="density">0.13</td></tr>
+                            <tr><td>平均経路長</td><td id="avgPath">2.8</td></tr>
+                            <tr><td>クラスタ係数</td><td id="clustering">0.31</td></tr>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h4>🎯 中心性分析</h4>
+                        <div class="info-panel">
+                            <p><strong>次数中心性最高:</strong> ノード12 (度数: 8)</p>
+                            <p><strong>媒介中心性最高:</strong> ノード7 (0.24)</p>
+                            <p><strong>固有ベクトル中心性:</strong> ノード15 (0.31)</p>
+                            <p><strong>PageRank最高:</strong> ノード12 (0.045)</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🔍 コミュニティ構造</h4>
+                        <div class="concept-map">
+                            <div class="concept-node" style="background: rgba(255,107,107,0.7);">コミュニティA (12名)</div>
+                            <div class="concept-node" style="background: rgba(102,126,234,0.7);">コミュニティB (18名)</div>
+                            <div class="concept-node" style="background: rgba(255,213,61,0.7);">コミュニティC (15名)</div>
+                        </div>
+                        <div class="info-panel">
+                            <p>モジュラリティ: <strong>0.42</strong></p>
+                            <p>検出コミュニティ数: <strong>3</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-box">
+                    <h5>🎓 理論的背景：マーク・グラノヴェッターの弱い紐帯理論</h5>
+                    <p>グラノヴェッターは、就職などの情報獲得において「弱い紐帯」（acquaintances）が「強い紐帯」（close friends）よりも重要な役割を果たすことを発見しました。弱い紐帯は異なるクラスターを結ぶブリッジとして機能します。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文化比較タブ -->
+        <div id="culture" class="content">
+            <div class="section">
+                <h3>🌍 文化比較・文化人類学研究</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>比較対象文化</label>
+                        <select id="culture1">
+                            <option value="japanese">日本文化</option>
+                            <option value="american">アメリカ文化</option>
+                            <option value="chinese">中国文化</option>
+                            <option value="indian">インド文化</option>
+                            <option value="european">ヨーロッパ文化</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>比較文化</label>
+                        <select id="culture2">
+                            <option value="american">アメリカ文化</option>
+                            <option value="japanese">日本文化</option>
+                            <option value="chinese">中国文化</option>
+                            <option value="indian">インド文化</option>
+                            <option value="african">アフリカ文化</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>比較次元</label>
+                        <select id="cultureDimension">
+                            <option value="kinship">親族システム</option>
+                            <option value="religion">宗教・信仰</option>
+                            <option value="economy">経済制度</option>
+                            <option value="politics">政治制度</option>
+                            <option value="values">価値観・世界観</option>
+                        </select>
+                    </div>
+                    <button onclick="compareCultures()">文化比較分析</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="cultureChart" width="800" height="400"></canvas>
+                    <p>文化的距離・類似性分析</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🏛️ 日本文化の特徴</h4>
+                        <div class="cultural-trait">集団主義</div>
+                        <div class="cultural-trait">階層意識</div>
+                        <div class="cultural-trait">和の精神</div>
+                        <div class="cultural-trait">終身雇用</div>
+                        <div class="cultural-trait">年功序列</div>
+                        <div class="cultural-trait">神道・仏教</div>
+                        <div class="cultural-trait">季節感</div>
+                        <div class="cultural-trait">おもてなし</div>
+                        <div class="info-panel">
+                            <p><strong>文化タイプ:</strong> 集団主義・高コンテクスト</p>
+                            <p><strong>権力距離:</strong> 中程度 (54)</p>
+                            <p><strong>不確実性回避:</strong> 高 (92)</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🗽 アメリカ文化の特徴</h4>
+                        <div class="cultural-trait">個人主義</div>
+                        <div class="cultural-trait">平等主義</div>
+                        <div class="cultural-trait">競争原理</div>
+                        <div class="cultural-trait">実力主義</div>
+                        <div class="cultural-trait">多様性</div>
+                        <div class="cultural-trait">キリスト教</div>
+                        <div class="cultural-trait">フロンティア精神</div>
+                        <div class="cultural-trait">起業家精神</div>
+                        <div class="info-panel">
+                            <p><strong>文化タイプ:</strong> 個人主義・低コンテクスト</p>
+                            <p><strong>権力距離:</strong> 低 (40)</p>
+                            <p><strong>不確実性回避:</strong> 低 (46)</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>📊 比較分析結果</h4>
+                        <table class="data-table">
+                            <tr><th>次元</th><th>類似度</th><th>差異</th></tr>
+                            <tr><td>親族制度</td><td>0.35</td><td>核家族 vs 拡大家族</td></tr>
+                            <tr><td>経済制度</td><td>0.72</td><td>市場経済の変種</td></tr>
+                            <tr><td>政治制度</td><td>0.68</td><td>民主主義の実現形態</td></tr>
+                            <tr><td>価値観</td><td>0.41</td><td>集団 vs 個人重視</td></tr>
+                        </table>
+                        <p><strong>総合文化距離:</strong> 1.24</p>
+                    </div>
+                </div>
+
+                <div class="theory-box">
+                    <h5>🎓 理論的背景：クリフォード・ギアツの厚い記述</h5>
+                    <p>ギアツは文化を「意味の網」として捉え、人間の行動を理解するには表面的な観察ではなく、その背後にある意味体系を解釈する「厚い記述」が必要だと主張しました。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- エスノグラフィータブ -->
+        <div id="ethnography" class="content">
+            <div class="section">
+                <h3>📖 エスノグラフィー・フィールドワーク</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>研究対象</label>
+                        <select id="fieldSite">
+                            <option value="urban">都市コミュニティ</option>
+                            <option value="rural">農村社会</option>
+                            <option value="workplace">職場文化</option>
+                            <option value="school">学校・教育現場</option>
+                            <option value="religious">宗教共同体</option>
+                            <option value="online">オンラインコミュニティ</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>調査手法</label>
+                        <select id="researchMethod">
+                            <option value="participant">参与観察</option>
+                            <option value="interview">深層インタビュー</option>
+                            <option value="lifehist">ライフヒストリー</option>
+                            <option value="focus">フォーカスグループ</option>
+                            <option value="document">文書分析</option>
+                        </select>
+                    </div>
+                    <button onclick="startFieldwork()">フィールドワーク開始</button>
+                </div>
+
+                <div class="ethnography-notes">
+                    <h4>📝 フィールドノート</h4>
+                    <div class="field-note">
+                        <strong>2024年7月28日 - 都市コミュニティ観察</strong>
+                        <p>商店街での参与観察を実施。午前中の買い物客の多くは高齢者で、店主との親密な会話が観察された。「おはよう」「元気だった？」といった挨拶に加え、家族の近況を尋ね合う様子が見られた。これは都市部でありながら、農村的な社会関係が維持されていることを示唆している。</p>
+                        <p><em>分析メモ: ゲマインシャフト的結合の都市部での残存</em></p>
+                    </div>
+                    <div class="field-note">
+                        <strong>2024年7月28日 - インタビュー記録</strong>
+                        <p>商店主(65歳男性)へのインタビュー実施。「最近は大型店に客を取られがちだが、常連のお客さんとの関係は何物にも代えがたい」「商売というより、地域の人との付き合いを大切にしている」との発言。経済的利益よりも社会関係を重視する価値観が明確に表れている。</p>
+                        <p><em>分析メモ: 経済合理性vs社会関係性の価値対立</em></p>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🎤 インタビュー分析</h4>
+                        <div class="interview-transcript">
+                            <p><strong>研究者:</strong> この地域での生活について教えてください。</p>
+                            <p><strong>情報提供者A:</strong> もう30年住んでるけど、昔と比べて随分変わったね。でも、近所付き合いはまだ残ってるよ。</p>
+                            <p><strong>研究者:</strong> どのような変化を感じますか？</p>
+                            <p><strong>情報提供者A:</strong> 若い人が減って、お年寄りが増えた。商店街も空き店が多くなって寂しいね。</p>
+                        </div>
+                        <div class="analysis-result">
+                            <strong>分析結果:</strong> 高齢化、過疎化による地域コミュニティの変容が語られている。しかし近所付き合いの維持への言及は、共同体意識の持続を示唆。
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🔍 参与観察記録</h4>
+                        <div class="info-panel">
+                            <p><strong>観察期間:</strong> 3ヶ月間</p>
+                            <p><strong>観察時間:</strong> 週15時間</p>
+                            <p><strong>記録ページ数:</strong> 127ページ</p>
+                            <p><strong>主要テーマ:</strong> 地域コミュニティの結束</p>
+                        </div>
+                        <div class="concept-map">
+                            <div class="concept-node">高齢化</div>
+                            <div class="concept-node">相互扶助</div>
+                            <div class="concept-node">伝統行事</div>
+                            <div class="concept-node">商店街</div>
+                            <div class="concept-node">世代交代</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>📚 文化記述</h4>
+                        <div class="text-analysis">
+                            <h5>厚い記述の実践</h5>
+                            <p>観察された「挨拶」行動は単なる社会的儀礼を超えて、共同体メンバーシップの確認、社会的地位の確認、情報交換、感情的支援の提供など多層的な意味を持つ。この挨拶の省略や形式化は、コミュニティの結束の弱化を意味する重要な指標となる。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-box">
+                    <h5>🎓 理論的背景：ブロニスワフ・マリノフスキーの機能主義</h5>
+                    <p>マリノフスキーは文化の各要素が生物学的・心理学的・社会的ニーズを満たす機能を持つと論じました。参与観察による長期フィールドワークの重要性を確立し、現代エスノグラフィーの基礎を築きました。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 質的研究タブ -->
+        <div id="qualitative" class="content">
+            <div class="section">
+                <h3>🔍 質的研究・理論構築</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>分析手法</label>
+                        <select id="qualitativeMethod">
+                            <option value="grounded">グラウンデッド・セオリー</option>
+                            <option value="phenomenology">現象学的分析</option>
+                            <option value="narrative">物語分析</option>
+                            <option value="discourse">談話分析</option>
+                            <option value="content">内容分析</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>データ種別</label>
+                        <select id="dataType">
+                            <option value="interview">インタビュー</option>
+                            <option value="observation">観察記録</option>
+                            <option value="document">文書・テキスト</option>
+                            <option value="visual">視覚的データ</option>
+                            <option value="mixed">混合データ</option>
+                        </select>
+                    </div>
+                    <button onclick="performQualitativeAnalysis()">質的分析実行</button>
+                </div>
+
+                <div class="text-analysis">
+                    <h4>📝 データ分析プロセス</h4>
+                    <textarea id="rawData" placeholder="分析対象のテキストデータを入力してください...">
+地域の高齢者の方々との対話を通じて感じたのは、彼らが単に孤独を感じているのではなく、長年築いてきた人間関係や地域への愛着を次世代に伝えたいという強い願いを持っているということです。商店街の店主さんは「利益よりも人とのつながりが大事」と語り、常連客との会話を何よりも楽しみにしていました。一方で、若い世代は効率性や利便性を重視し、オンラインでの買い物を好む傾向にあります。この世代間の価値観の違いが、地域コミュニティの維持にとって大きな課題となっています。
+                    </textarea>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🏷️ オープンコーディング</h4>
+                        <div class="coding-category" onclick="selectCode('elderly_values')">
+                            <strong>高齢者の価値観</strong><br>
+                            人間関係重視、地域愛着、継承願望
+                        </div>
+                        <div class="coding-category" onclick="selectCode('business_philosophy')">
+                            <strong>商売の哲学</strong><br>
+                            利益<人間関係、顧客との対話重視
+                        </div>
+                        <div class="coding-category" onclick="selectCode('youth_values')">
+                            <strong>若年層の価値観</strong><br>
+                            効率性、利便性、オンライン志向
+                        </div>
+                        <div class="coding-category" onclick="selectCode('generational_gap')">
+                            <strong>世代間ギャップ</strong><br>
+                            価値観の相違、コミュニティ維持への影響
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🔗 軸コーディング</h4>
+                        <div class="analysis-result">
+                            <strong>中心カテゴリー:</strong> 世代間価値観の対立
+                            <p><strong>因果条件:</strong> 社会変化、技術進歩</p>
+                            <p><strong>文脈:</strong> 地域コミュニティの変容</p>
+                            <p><strong>介入条件:</strong> 世代間交流の機会</p>
+                            <p><strong>作用/相互作用:</strong> 価値観の摺り合わせ</p>
+                            <p><strong>結果:</strong> コミュニティの再構築</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🎯 選択コーディング</h4>
+                        <div class="theory-box">
+                            <h5>構築された理論: 「世代間価値調和理論」</h5>
+                            <p>地域コミュニティの持続性は、異なる世代の価値観（関係性重視 vs 効率性重視）の対立を調和させる社会的メカニズムの存在に依存する。この調和は世代間の相互理解と価値の部分的統合を通じて実現される。</p>
+                        </div>
+                        <div class="info-panel">
+                            <p><strong>理論的飽和:</strong> 達成済み</p>
+                            <p><strong>メンバーチェック:</strong> 実施済み</p>
+                            <p><strong>信頼性:</strong> 高</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📊 テーマ分析結果</h3>
+                    <div class="visualization">
+                        <canvas id="themeChart" width="800" height="300"></canvas>
+                        <p>主要テーマの出現頻度と関連性</p>
+                    </div>
+                </div>
+
+                <div class="theory-box">
+                    <h5>🎓 理論的背景：アンセルム・ストラウスのグラウンデッド・セオリー</h5>
+                    <p>グラウンデッド・セオリーは既存の理論に依存せず、データから帰納的に理論を構築する手法です。オープン→軸→選択コーディングの段階的プロセスを通じて、現象の本質的構造を理論化します。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 社会調査タブ -->
+        <div id="survey" class="content">
+            <div class="section">
+                <h3>📊 社会調査・データ収集</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>調査種別</label>
+                        <select id="surveyType">
+                            <option value="cross_sectional">横断調査</option>
+                            <option value="longitudinal">縦断調査</option>
+                            <option value="panel">パネル調査</option>
+                            <option value="cohort">コーホート調査</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>サンプリング手法</label>
+                        <select id="samplingMethod">
+                            <option value="random">単純ランダム</option>
+                            <option value="stratified">層化抽出</option>
+                            <option value="cluster">クラスター抽出</option>
+                            <option value="systematic">系統抽出</option>
+                            <option value="quota">割当抽出</option>
+                        </select>
+                    </div>
+                    <button onclick="designSurvey()">調査設計</button>
+                </div>
+
+                <div class="survey-form">
+                    <h4>📋 調査票サンプル: 地域コミュニティ意識調査</h4>
+                    
+                    <div class="question-item">
+                        <h5>Q1. あなたの居住地域への愛着はどの程度ですか？</h5>
+                        <div class="response-options">
+                            <div class="response-option" onclick="selectResponse(this, 'q1', 5)">とても強い</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q1', 4)">やや強い</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q1', 3)">どちらともいえない</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q1', 2)">やや弱い</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q1', 1)">とても弱い</div>
+                        </div>
+                    </div>
+
+                    <div class="question-item">
+                        <h5>Q2. 近所の人々との交流頻度はどの程度ですか？</h5>
+                        <div class="response-options">
+                            <div class="response-option" onclick="selectResponse(this, 'q2', 5)">ほぼ毎日</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q2', 4)">週に数回</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q2', 3)">月に数回</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q2', 2)">年に数回</div>
+                            <div class="response-option" onclick="selectResponse(this, 'q2', 1)">ほとんどない</div>
+                        </div>
+                    </div>
+
+                    <div class="question-item">
+                        <h5>Q3. 地域の課題として最も重要だと思うものは？（複数選択可）</h5>
+                        <div class="response-options">
+                            <div class="response-option" onclick="toggleResponse(this, 'q3', 'aging')">高齢化</div>
+                            <div class="response-option" onclick="toggleResponse(this, 'q3', 'economy')">経済活性化</div>
+                            <div class="response-option" onclick="toggleResponse(this, 'q3', 'education')">教育環境</div>
+                            <div class="response-option" onclick="toggleResponse(this, 'q3', 'safety')">治安・安全</div>
+                            <div class="response-option" onclick="toggleResponse(this, 'q3', 'environment')">環境保護</div>
+                            <div class="response-option" onclick="toggleResponse(this, 'q3', 'transport')">交通インフラ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>📈 調査設計パラメータ</h4>
+                        <table class="data-table">
+                            <tr><th>項目</th><th>設定値</th></tr>
+                            <tr><td>母集団</td><td>地域住民 (20-80歳)</td></tr>
+                            <tr><td>標本サイズ</td><td id="sampleSize">1,200</td></tr>
+                            <tr><td>信頼水準</td><td>95%</td></tr>
+                            <tr><td>誤差範囲</td><td>±2.8%</td></tr>
+                            <tr><td>予想回収率</td><td>65%</td></tr>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h4>🎯 調査結果（仮想データ）</h4>
+                        <div class="info-panel">
+                            <p><strong>地域愛着度平均:</strong> 3.4 (5点満点)</p>
+                            <p><strong>近所交流頻度:</strong> 2.8 (5点満点)</p>
+                            <p><strong>主要課題:</strong> 高齢化 (67%), 経済活性化 (45%)</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 68%"></div>
+                        </div>
+                        <p>地域コミュニティ結束指数: 68%</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 データ品質評価</h4>
+                        <div class="info-panel">
+                            <p><strong>回収率:</strong> 68.5%</p>
+                            <p><strong>有効回答率:</strong> 94.2%</p>
+                            <p><strong>欠損データ率:</strong> 3.8%</p>
+                            <p><strong>一貫性係数:</strong> 0.87</p>
+                        </div>
+                        <div class="analysis-result">
+                            高い回収率と低い欠損率により、信頼性の高いデータが得られました。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-box">
+                    <h5>🎓 理論的背景：調査研究の方法論</h5>
+                    <p>社会調査は仮説検証型の量的研究の中核手法です。適切なサンプリングと測定により、母集団の特性を推定し、変数間の関係を統計的に検証することで、社会現象の法則性を明らかにします。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 統計分析タブ -->
+        <div id="statistics" class="content">
+            <div class="section">
+                <h3>📈 統計分析・因果推論</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>分析手法</label>
+                        <select id="statisticalMethod">
+                            <option value="regression">回帰分析</option>
+                            <option value="factor">因子分析</option>
+                            <option value="sem">構造方程式モデリング</option>
+                            <option value="cluster">クラスター分析</option>
+                            <option value="causal">因果推論</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>従属変数</label>
+                        <select id="dependentVar">
+                            <option value="attachment">地域愛着度</option>
+                            <option value="interaction">近所交流頻度</option>
+                            <option value="satisfaction">生活満足度</option>
+                            <option value="participation">地域参加度</option>
+                        </select>
+                    </div>
+                    <button onclick="performStatisticalAnalysis()">統計分析実行</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="statisticsChart" width="800" height="400"></canvas>
+                    <p>統計分析結果の可視化</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>📊 重回帰分析結果</h4>
+                        <table class="data-table">
+                            <tr><th>変数</th><th>係数</th><th>標準誤差</th><th>t値</th><th>p値</th></tr>
+                            <tr><td>年齢</td><td>0.023</td><td>0.008</td><td>2.88</td><td>0.004**</td></tr>
+                            <tr><td>居住年数</td><td>0.041</td><td>0.012</td><td>3.42</td><td>0.001**</td></tr>
+                            <tr><td>所得</td><td>-0.008</td><td>0.015</td><td>-0.53</td><td>0.596</td></tr>
+                            <tr><td>教育年数</td><td>-0.019</td><td>0.011</td><td>-1.73</td><td>0.084</td></tr>
+                        </table>
+                        <div class="info-panel">
+                            <p><strong>R²:</strong> 0.234</p>
+                            <p><strong>調整済みR²:</strong> 0.227</p>
+                            <p><strong>F値:</strong> 32.4*** (p<0.001)</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🔍 因子分析結果</h4>
+                        <div class="analysis-result">
+                            <strong>抽出因子 (Kaiser基準)</strong>
+                            <p><strong>因子1:</strong> 地域結束 (固有値: 3.24)</p>
+                            <p><strong>因子2:</strong> 個人的満足 (固有値: 2.18)</p>
+                            <p><strong>因子3:</strong> 社会参加 (固有値: 1.67)</p>
+                        </div>
+                        <div class="info-panel">
+                            <p><strong>累積寄与率:</strong> 67.8%</p>
+                            <p><strong>KMO測度:</strong> 0.84</p>
+                            <p><strong>Bartlett検定:</strong> p<0.001</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>⚡ 因果推論分析</h4>
+                        <div class="analysis-result">
+                            <strong>処置効果推定（地域イベント参加の効果）</strong>
+                            <p><strong>ATE:</strong> +0.42 (95%CI: 0.18-0.66)</p>
+                            <p><strong>ATT:</strong> +0.51 (95%CI: 0.23-0.79)</p>
+                        </div>
+                        <div class="info-panel">
+                            <p><strong>傾向スコアマッチング:</strong> 実施済み</p>
+                            <p><strong>共変量バランス:</strong> 改善確認</p>
+                            <p><strong>感度分析:</strong> 頑健な結果</p>
+                        </div>
+                        <div class="theory-box">
+                            <h5>解釈</h5>
+                            <p>地域イベントへの参加は地域愛着度を平均0.42ポイント(5点満点中)向上させる因果効果を持つ。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🧠 構造方程式モデリング</h3>
+                    <div class="visualization">
+                        <svg id="semDiagram" width="800" height="400"></svg>
+                        <p>地域コミュニティ結束の構造モデル</p>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <h4>📈 モデル適合度</h4>
+                            <table class="data-table">
+                                <tr><th>適合度指標</th><th>値</th><th>基準</th><th>判定</th></tr>
+                                <tr><td>χ²/df</td><td>2.18</td><td>&lt;3.0</td><td>良好</td></tr>
+                                <tr><td>CFI</td><td>0.94</td><td>&gt;0.90</td><td>良好</td></tr>
+                                <tr><td>TLI</td><td>0.92</td><td>&gt;0.90</td><td>良好</td></tr>
+                                <tr><td>RMSEA</td><td>0.051</td><td>&lt;0.08</td><td>良好</td></tr>
+                                <tr><td>SRMR</td><td>0.045</td><td>&lt;0.08</td><td>良好</td></tr>
+                            </table>
+                        </div>
+                        <div class="card">
+                            <h4>🎯 パス係数</h4>
+                            <div class="analysis-result">
+                                <p><strong>居住年数 → 地域愛着:</strong> 0.31***</p>
+                                <p><strong>地域愛着 → 近所交流:</strong> 0.45***</p>
+                                <p><strong>近所交流 → 生活満足:</strong> 0.28**</p>
+                                <p><strong>年齢 → 地域参加:</strong> 0.22*</p>
+                            </div>
+                            <p><em>* p&lt;0.05, ** p&lt;0.01, *** p&lt;0.001</em></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-box">
+                    <h5>🎓 理論的背景：計量社会学・統計的因果推論</h5>
+                    <p>現代社会学は統計的手法を用いて社会現象の因果関係を解明します。構造方程式モデリングにより複雑な理論モデルを検証し、因果推論により政策効果を評価します。ドナルド・ルービンの潜在的結果モデルが理論的基盤となっています。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 調査回答データ格納
+        const surveyResponses = {
+            q1: null,
+            q2: null,
+            q3: []
+        };
+
+        // タブ切り替え機能
+        function showTab(tabName) {
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 社会構造分析
+        function analyzeStructure() {
+            const analysisType = document.getElementById('structureAnalysis').value;
+            const framework = document.getElementById('theoreticalFramework').value;
+            
+            const canvas = document.getElementById('structureChart');
+            const ctx = canvas.getContext('2d');
+            
+            drawStructureAnalysis(ctx, canvas, analysisType, framework);
+        }
+
+        function drawStructureAnalysis(ctx, canvas, type, framework) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 軸の描画
+            drawAxes(ctx, canvas, '社会階層', '人口比率 (%)');
+            
+            // 階層データ
+            const classData = {
+                labels: ['上層', '中層上', '中層下', '労働者', '下層'],
+                percentages: [8, 22, 23, 38, 9],
+                colors: ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4ecdc4', '#a8e6cf']
+            };
+            
+            // 棒グラフ描画
+            const barWidth = 80;
+            const barSpacing = 20;
+            const startX = 100;
+            
+            for (let i = 0; i < classData.labels.length; i++) {
+                const barHeight = (classData.percentages[i] / 50) * (canvas.height - 150);
+                const x = startX + i * (barWidth + barSpacing);
+                const y = canvas.height - 80 - barHeight;
+                
+                ctx.fillStyle = classData.colors[i];
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // ラベル
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(classData.labels[i], x + barWidth/2, canvas.height - 50);
+                ctx.fillText(classData.percentages[i] + '%', x + barWidth/2, y - 10);
+            }
+        }
+
+        // ネットワーク分析
+        function analyzeNetwork() {
+            const networkType = document.getElementById('networkType').value;
+            const analysisType = document.getElementById('networkAnalysis').value;
+            
+            drawNetworkVisualization(networkType, analysisType);
+        }
+
+        function drawNetworkVisualization(networkType, analysisType) {
+            const svg = d3.select('#networkVisualization');
+            svg.selectAll('*').remove();
+            
+            // ネットワークデータ生成
+            const nodes = generateNetworkNodes(45);
+            const links = generateNetworkLinks(nodes, 128);
+            
+            // 力学シミュレーション
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(50))
+                .force('charge', d3.forceManyBody().strength(-100))
+                .force('center', d3.forceCenter(400, 250));
+            
+            // リンク描画
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(links)
+                .enter().append('line')
+                .attr('class', 'network-link');
+            
+            // ノード描画
+            const node = svg.append('g')
+                .selectAll('circle')
+                .data(nodes)
+                .enter().append('circle')
+                .attr('class', 'network-node')
+                .attr('r', d => 3 + d.centrality * 5)
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+            
+            // ラベル
+            const label = svg.append('g')
+                .selectAll('text')
+                .data(nodes)
+                .enter().append('text')
+                .text(d => d.id)
+                .style('font-size', '10px')
+                .style('fill', '#fff');
+            
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+                
+                label
+                    .attr('x', d => d.x + 8)
+                    .attr('y', d => d.y + 3);
+            });
+            
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // 文化比較分析
+        function compareCultures() {
+            const culture1 = document.getElementById('culture1').value;
+            const culture2 = document.getElementById('culture2').value;
+            const dimension = document.getElementById('cultureDimension').value;
+            
+            const canvas = document.getElementById('cultureChart');
+            const ctx = canvas.getContext('2d');
+            
+            drawCultureComparison(ctx, canvas, culture1, culture2, dimension);
+        }
+
+        function drawCultureComparison(ctx, canvas, culture1, culture2, dimension) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // レーダーチャート描画
+            const center = { x: canvas.width / 2, y: canvas.height / 2 };
+            const radius = 150;
+            const dimensions = ['個人主義', '権力距離', '不確実性回避', '長期志向', '男性性', '寛容性'];
+            
+            // 文化データ（仮想）
+            const cultureData = {
+                japanese: [0.3, 0.6, 0.9, 0.8, 0.4, 0.3],
+                american: [0.9, 0.4, 0.4, 0.3, 0.6, 0.7]
+            };
+            
+            // 軸描画
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < dimensions.length; i++) {
+                const angle = (i * Math.PI * 2) / dimensions.length - Math.PI / 2;
+                const x = center.x + Math.cos(angle) * radius;
+                const y = center.y + Math.sin(angle) * radius;
+                
+                ctx.beginPath();
+                ctx.moveTo(center.x, center.y);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                // ラベル
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(dimensions[i], x + Math.cos(angle) * 20, y + Math.sin(angle) * 20);
+            }
+            
+            // データプロット
+            const colors = ['rgba(255,107,107,0.7)', 'rgba(102,126,234,0.7)'];
+            const cultures = [culture1, culture2];
+            
+            cultures.forEach((culture, index) => {
+                const data = cultureData[culture] || cultureData.japanese;
+                ctx.fillStyle = colors[index];
+                ctx.strokeStyle = colors[index];
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                for (let i = 0; i < data.length; i++) {
+                    const angle = (i * Math.PI * 2) / data.length - Math.PI / 2;
+                    const distance = data[i] * radius;
+                    const x = center.x + Math.cos(angle) * distance;
+                    const y = center.y + Math.sin(angle) * distance;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            });
+        }
+
+        // フィールドワーク開始
+        function startFieldwork() {
+            const site = document.getElementById('fieldSite').value;
+            const method = document.getElementById('researchMethod').value;
+            
+            let message = `${site}での${method}による調査を開始しました。\n`;
+            message += "倫理的配慮を十分に行い、研究協力者との信頼関係を構築してください。";
+            
+            alert(message);
+        }
+
+        // 質的分析実行
+        function performQualitativeAnalysis() {
+            const method = document.getElementById('qualitativeMethod').value;
+            const dataType = document.getElementById('dataType').value;
+            const rawData = document.getElementById('rawData').value;
+            
+            if (!rawData.trim()) {
+                alert('分析対象のデータを入力してください');
+                return;
+            }
+            
+            // 簡単な語彙分析
+            const words = rawData.split(/\s+/);
+            const wordCount = {};
+            
+            words.forEach(word => {
+                const cleanWord = word.replace(/[^\w]/g, '').toLowerCase();
+                if (cleanWord.length > 2) {
+                    wordCount[cleanWord] = (wordCount[cleanWord] || 0) + 1;
+                }
+            });
+            
+            // テーマチャート描画
+            drawThemeChart(wordCount);
+        }
+
+        function drawThemeChart(wordCount) {
+            const canvas = document.getElementById('themeChart');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const sortedWords = Object.entries(wordCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            // 棒グラフ描画
+            const barWidth = 60;
+            const barSpacing = 10;
+            const maxCount = sortedWords[0] ? sortedWords[0][1] : 1;
+            
+            sortedWords.forEach((word, index) => {
+                const barHeight = (word[1] / maxCount) * (canvas.height - 100);
+                const x = 50 + index * (barWidth + barSpacing);
+                const y = canvas.height - 50 - barHeight;
+                
+                ctx.fillStyle = `hsl(${index * 36}, 70%, 60%)`;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // ラベル
+                ctx.fillStyle = '#fff';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.save();
+                ctx.translate(x + barWidth/2, canvas.height - 20);
+                ctx.rotate(-Math.PI/4);
+                ctx.fillText(word[0], 0, 0);
+                ctx.restore();
+                
+                ctx.fillText(word[1], x + barWidth/2, y - 5);
+            });
+        }
+
+        // コーディング選択
+        function selectCode(codeId) {
+            const categories = document.querySelectorAll('.coding-category');
+            categories.forEach(cat => cat.style.backgroundColor = 'rgba(102,126,234,0.3)');
+            
+            event.target.style.backgroundColor = 'rgba(102,126,234,0.8)';
+        }
+
+        // 調査設計
+        function designSurvey() {
+            const surveyType = document.getElementById('surveyType').value;
+            const sampling = document.getElementById('samplingMethod').value;
+            
+            // サンプルサイズ計算
+            const populationSize = 50000; // 仮定
+            const confidence = 0.95;
+            const margin = 0.028;
+            
+            const z = 1.96; // 95%信頼区間
+            const p = 0.5; // 最大分散
+            
+            let sampleSize = (z * z * p * (1-p)) / (margin * margin);
+            if (populationSize < 100000) {
+                sampleSize = sampleSize / (1 + (sampleSize - 1) / populationSize);
+            }
+            
+            document.getElementById('sampleSize').textContent = Math.ceil(sampleSize);
+        }
+
+        // 調査回答選択
+        function selectResponse(element, questionId, value) {
+            // 単一選択
+            const siblings = element.parentNode.querySelectorAll('.response-option');
+            siblings.forEach(sib => sib.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            surveyResponses[questionId] = value;
+        }
+
+        function toggleResponse(element, questionId, value) {
+            // 複数選択
+            element.classList.toggle('selected');
+            
+            if (!surveyResponses[questionId]) {
+                surveyResponses[questionId] = [];
+            }
+            
+            const index = surveyResponses[questionId].indexOf(value);
+            if (index > -1) {
+                surveyResponses[questionId].splice(index, 1);
+            } else {
+                surveyResponses[questionId].push(value);
+            }
+        }
+
+        // 統計分析実行
+        function performStatisticalAnalysis() {
+            const method = document.getElementById('statisticalMethod').value;
+            const depVar = document.getElementById('dependentVar').value;
+            
+            const canvas = document.getElementById('statisticsChart');
+            const ctx = canvas.getContext('2d');
+            
+            drawStatisticalResults(ctx, canvas, method, depVar);
+        }
+
+        function drawStatisticalResults(ctx, canvas, method, depVar) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (method === 'regression') {
+                drawRegressionResults(ctx, canvas);
+            } else if (method === 'factor') {
+                drawFactorResults(ctx, canvas);
+            } else if (method === 'sem') {
+                drawSEMDiagram();
+            }
+        }
+
+        function drawRegressionResults(ctx, canvas) {
+            // 散布図と回帰直線
+            ctx.fillStyle = 'rgba(255,107,107,0.6)';
+            
+            // データポイント生成（仮想）
+            for (let i = 0; i < 100; i++) {
+                const x = 100 + Math.random() * 600;
+                const y = 100 + Math.random() * 200 + (x - 100) * 0.3;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // 回帰直線
+            ctx.strokeStyle = '#ffd93d';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(100, 130);
+            ctx.lineTo(700, 310);
+            ctx.stroke();
+            
+            // 軸
+            drawAxes(ctx, canvas, '独立変数', '従属変数');
+        }
+
+        function drawSEMDiagram() {
+            const svg = d3.select('#semDiagram');
+            svg.selectAll('*').remove();
+            
+            // 潜在変数
+            const latentVars = [
+                {id: 'attachment', name: '地域愛着', x: 200, y: 100},
+                {id: 'interaction', name: '近所交流', x: 400, y: 100},
+                {id: 'satisfaction', name: '生活満足', x: 600, y: 100}
+            ];
+            
+            // 観測変数
+            const observedVars = [
+                {id: 'att1', name: '愛着1', x: 150, y: 200, latent: 'attachment'},
+                {id: 'att2', name: '愛着2', x: 250, y: 200, latent: 'attachment'},
+                {id: 'int1', name: '交流1', x: 350, y: 200, latent: 'interaction'},
+                {id: 'int2', name: '交流2', x: 450, y: 200, latent: 'interaction'},
+                {id: 'sat1', name: '満足1', x: 550, y: 200, latent: 'satisfaction'},
+                {id: 'sat2', name: '満足2', x: 650, y: 200, latent: 'satisfaction'}
+            ];
+            
+            // 潜在変数間のパス
+            const paths = [
+                {from: 'attachment', to: 'interaction', coefficient: 0.45},
+                {from: 'interaction', to: 'satisfaction', coefficient: 0.28}
+            ];
+            
+            // 潜在変数描画（楕円）
+            latentVars.forEach(v => {
+                svg.append('ellipse')
+                    .attr('cx', v.x)
+                    .attr('cy', v.y)
+                    .attr('rx', 60)
+                    .attr('ry', 30)
+                    .style('fill', 'rgba(255,107,107,0.3)')
+                    .style('stroke', '#ff6b6b')
+                    .style('stroke-width', 2);
+                
+                svg.append('text')
+                    .attr('x', v.x)
+                    .attr('y', v.y)
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '0.35em')
+                    .style('fill', '#fff')
+                    .style('font-size', '12px')
+                    .text(v.name);
+            });
+            
+            // 観測変数描画（矩形）
+            observedVars.forEach(v => {
+                svg.append('rect')
+                    .attr('x', v.x - 25)
+                    .attr('y', v.y - 15)
+                    .attr('width', 50)
+                    .attr('height', 30)
+                    .style('fill', 'rgba(102,126,234,0.3)')
+                    .style('stroke', '#667eea')
+                    .style('stroke-width', 1);
+                
+                svg.append('text')
+                    .attr('x', v.x)
+                    .attr('y', v.y)
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '0.35em')
+                    .style('fill', '#fff')
+                    .style('font-size', '10px')
+                    .text(v.name);
+            });
+            
+            // パス描画
+            paths.forEach(p => {
+                const from = latentVars.find(v => v.id === p.from);
+                const to = latentVars.find(v => v.id === p.to);
+                
+                svg.append('line')
+                    .attr('x1', from.x + 60)
+                    .attr('y1', from.y)
+                    .attr('x2', to.x - 60)
+                    .attr('y2', to.y)
+                    .style('stroke', '#ffd93d')
+                    .style('stroke-width', 3)
+                    .attr('marker-end', 'url(#arrowhead)');
+                
+                svg.append('text')
+                    .attr('x', (from.x + to.x) / 2)
+                    .attr('y', from.y - 10)
+                    .attr('text-anchor', 'middle')
+                    .style('fill', '#ffd93d')
+                    .style('font-size', '12px')
+                    .style('font-weight', 'bold')
+                    .text(p.coefficient);
+            });
+            
+            // 矢印マーカー定義
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead')
+                .attr('viewBox', '-0 -5 10 10')
+                .attr('refX', 8)
+                .attr('refY', 0)
+                .attr('orient', 'auto')
+                .attr('markerWidth', 8)
+                .attr('markerHeight', 8)
+                .append('path')
+                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+                .attr('fill', '#ffd93d');
+        }
+
+        // ユーティリティ関数群
+        function generateNetworkNodes(count) {
+            const nodes = [];
+            for (let i = 0; i < count; i++) {
+                nodes.push({
+                    id: i,
+                    centrality: Math.random()
+                });
+            }
+            return nodes;
+        }
+
+        function generateNetworkLinks(nodes, linkCount) {
+            const links = [];
+            for (let i = 0; i < linkCount; i++) {
+                const source = Math.floor(Math.random() * nodes.length);
+                let target = Math.floor(Math.random() * nodes.length);
+                while (target === source) {
+                    target = Math.floor(Math.random() * nodes.length);
+                }
+                links.push({source, target});
+            }
+            return links;
+        }
+
+        function drawAxes(ctx, canvas, xLabel, yLabel) {
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            
+            // X軸
+            ctx.beginPath();
+            ctx.moveTo(80, canvas.height - 80);
+            ctx.lineTo(canvas.width - 50, canvas.height - 80);
+            ctx.stroke();
+            
+            // Y軸
+            ctx.beginPath();
+            ctx.moveTo(80, 50);
+            ctx.lineTo(80, canvas.height - 80);
+            ctx.stroke();
+            
+            // ラベル
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.fillText(xLabel, canvas.width - 100, canvas.height - 20);
+            ctx.fillText(yLabel, 20, 40);
+        }
+
+        // D3.js読み込み確認とフォールバック
+        if (typeof d3 === 'undefined') {
+            // D3.jsが読み込まれていない場合のフォールバック
+            window.d3 = {
+                select: () => ({
+                    selectAll: () => ({remove: () => {}}),
+                    append: () => ({
+                        selectAll: () => ({
+                            data: () => ({
+                                enter: () => ({
+                                    append: () => ({
+                                        attr: () => ({}),
+                                        style: () => ({}),
+                                        text: () => ({}),
+                                        call: () => ({})
+                                    })
+                                })
+                            })
+                        }),
+                        attr: () => ({}),
+                        style: () => ({})
+                    })
+                }),
+                forceSimulation: () => ({
+                    force: () => ({}),
+                    on: () => ({})
+                }),
+                forceLink: () => ({
+                    id: () => ({}),
+                    distance: () => ({})
+                }),
+                forceManyBody: () => ({
+                    strength: () => ({})
+                }),
+                forceCenter: () => ({}),
+                drag: () => ({
+                    on: () => ({})
+                })
+            };
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // デフォルトチャート描画
+            setTimeout(() => {
+                analyzeStructure();
+                analyzenetwork();
+                compareCultures();
+                performQualitativeAnalysis();
+                designSurvey();
+                performStatisticalAnalysis();
+            }, 1000);
+        });
+    </script>
+
+    <!-- D3.js CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</body>
+</html>
