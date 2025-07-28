@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学際的知識統合プラットフォーム (IKIP)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(40px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .dashboard-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.7s;
+            opacity: 0;
+        }
+
+        .dashboard-card:hover::before {
+            animation: shimmer 1.5s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) rotate(45deg); opacity: 0; }
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .card-content {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Domain-specific styles */
+        .domain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .domain-card {
+            border-radius: 20px;
+            padding: 2rem;
+            background: white;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .domain-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .domain-math { border-left: 5px solid #ff6b6b; }
+        .domain-physics { border-left: 5px solid #4ecdc4; }
+        .domain-logic { border-left: 5px solid #45b7d1; }
+        .domain-creative { border-left: 5px solid #96ceb4; }
+        .domain-music { border-left: 5px solid #feca57; }
+        .domain-language { border-left: 5px solid #ff9ff3; }
+
+        .domain-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .domain-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        .math-icon { background: linear-gradient(135deg, #ff6b6b, #ee5a6f); }
+        .physics-icon { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .logic-icon { background: linear-gradient(135deg, #45b7d1, #3867d6); }
+        .creative-icon { background: linear-gradient(135deg, #96ceb4, #79b8a3); }
+        .music-icon { background: linear-gradient(135deg, #feca57, #ff9ff3); }
+        .language-icon { background: linear-gradient(135deg, #ff9ff3, #ff6b6b); }
+
+        .domain-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+
+        .exercise-container {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .exercise-question {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .exercise-options {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .exercise-option {
+            padding: 0.8rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exercise-option:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+
+        .exercise-option.selected {
+            border-color: #4299e1;
+            background: #4299e1;
+            color: white;
+        }
+
+        .exercise-option.correct {
+            border-color: #48bb78;
+            background: #48bb78;
+            color: white;
+        }
+
+        .exercise-option.incorrect {
+            border-color: #f56565;
+            background: #f56565;
+            color: white;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            margin: 1rem 0.5rem 0 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .integration-map {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            margin-top: 1rem;
+            position: relative;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        }
+
+        .log-container {
+            background: #1a202c;
+            color: #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .log-timestamp {
+            color: #4299e1;
+            font-weight: 600;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4299e1;
+            display: block;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .tab-content {
+                padding: 1.5rem;
+            }
+            
+            .dashboard-grid,
+            .domain-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                gap: 0.5rem;
+            }
+            
+            .nav-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <header class="header">
+        <h1>学際的知識統合プラットフォーム</h1>
+        <p class="subtitle">Interdisciplinary Knowledge Integration Platform (IKIP)</p>
+        
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">ダッシュボード</button>
+            <button class="nav-tab" onclick="showTab('domains')">学習分野</button>
+            <button class="nav-tab" onclick="showTab('exercises')">統合演習</button>
+            <button class="nav-tab" onclick="showTab('integration')">関連性マップ</button>
+            <button class="nav-tab" onclick="showTab('progress')">進捗分析</button>
+            <button class="nav-tab" onclick="showTab('logs')">学習ログ</button>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>学習ダッシュボード</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="totalSessions">0</span>
+                    <span class="stat-label">総学習セッション</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="totalTime">0</span>
+                    <span class="stat-label">総学習時間 (分)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="integrationScore">0</span>
+                    <span class="stat-label">統合度スコア</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="completedExercises">0</span>
+                    <span class="stat-label">完了演習数</span>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3 class="card-title">📊 今日の学習状況</h3>
+                    <div class="card-content">
+                        <p>学習時間: <span id="todayTime">0</span> 分</p>
+                        <p>完了した演習: <span id="todayExercises">0</span> 問</p>
+                        <p>活用した分野: <span id="todayDomains">0</span> 分野</p>
+                        <p>統合度向上: +<span id="todayIntegration">0</span> ポイント</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="card-title">🎯 推奨学習パス</h3>
+                    <div class="card-content" id="recommendedPath">
+                        <p>あなたの学習履歴を分析中...</p>
+                        <button class="btn btn-success" onclick="generateRecommendation()">
+                            パーソナライズド推奨を取得
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="card-title">🏆 最近の成果</h3>
+                    <div class="card-content" id="recentAchievements">
+                        <p>新しい成果が表示されます</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="card-title">🔗 分野間連携</h3>
+                    <div class="card-content">
+                        <p>最も強い連携: <span id="strongestConnection">分析中</span></p>
+                        <p>発見された関連性: <span id="discoveredConnections">0</span> 個</p>
+                        <p>統合レベル: <span id="integrationLevel">初級</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Domains Tab -->
+        <div id="domains" class="tab-content">
+            <h2>学習分野</h2>
+            <p>6つの思考分野を統合して、学際的な理解を深めましょう。</p>
+            
+            <div class="domain-grid">
+                <div class="domain-card domain-math">
+                    <div class="domain-header">
+                        <div class="domain-icon math-icon">∑</div>
+                        <div class="domain-title">数学的思考</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%; background: linear-gradient(90deg, #ff6b6b, #ee5a6f);"></div>
+                    </div>
+                    <p>論理的推論、数式展開、統計分析の基礎を学習し、定量的思考力を向上させます。</p>
+                    <div class="exercise-container">
+                        <div class="exercise-question">微分の応用: f(x) = x³ - 3x² + 2x の極値を求めてください。</div>
+                        <button class="btn" onclick="solveMathProblem()">演習を開始</button>
+                    </div>
+                </div>
+                
+                <div class="domain-card domain-physics">
+                    <div class="domain-header">
+                        <div class="domain-icon physics-icon">⚛</div>
+                        <div class="domain-title">物理的思考</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 52%; background: linear-gradient(90deg, #4ecdc4, #44a08d);"></div>
+                    </div>
+                    <p>自然現象のモデル化、実験的アプローチ、物理法則の理解を通じて科学的思考を養います。</p>
+                    <div class="exercise-container">
+                        <div class="exercise-question">運動量保存: 質量2kgの物体が5m/sで運動している時の運動量は？</div>
+                        <button class="btn" onclick="solvePhysicsProblem()">演習を開始</button>
+                    </div>
+                </div>
+                
+                <div class="domain-card domain-logic">
+                    <div class="domain-header">
+                        <div class="domain-icon logic-icon">⊨</div>
+                        <div class="domain-title">論理的思考</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%; background: linear-gradient(90deg, #45b7d1, #3867d6);"></div>
+                    </div>
+                    <p>演繹的推論、帰納的推論、批判的思考スキルを通じて論理的な問題解決能力を構築します。</p>
+                    <div class="exercise-container">
+                        <div class="exercise-question">論理パズル: AはBより背が高く、BはCより背が高い。最も背が高いのは？</div>
+                        <button class="btn" onclick="solveLogicProblem()">演習を開始</button>
+                    </div>
+                </div>
+                
+                <div class="domain-card domain-creative">
+                    <div class="domain-header">
+                        <div class="domain-icon creative-icon">🎨</div>
+                        <div class="domain-title">創造的思考</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 43%; background: linear-gradient(90deg, #96ceb4, #79b8a3);"></div>
+                    </div>
+                    <p>アイデア生成、概念の組み合わせ、新しい視点の発見を通じて創造性を開発します。</p>
+                    <div class="exercise-container">
+                        <div class="exercise-question">創造的発想: 「時間」と「色」を組み合わせた新しいアイデアを考案してください。</div>
+                        <button class="btn" onclick="solveCreativeProblem()">演習を開始</button>
+                    </div>
+                </div>
+                
+                <div class="domain-card domain-music">
+                    <div class="domain-header">
+                        <div class="domain-icon music-icon">♪</div>
+                        <div class="domain-title">音楽的思考</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 61%; background: linear-gradient(90deg, #feca57, #ff9ff3);"></div>
+                    </div>
+                    <p>パターン認識、調和理論、リズム構造を通じて音楽的な思考パターンを理解します。</p>
+                    <div class="exercise-container">
+                        <div class="exercise-question">音楽理論: Cメジャースケールの第3音と第7音は何ですか？</div>
+                        <button class="btn" onclick="solveMusicProblem()">演習を開始</button>
+                    </div>
+                </div>
+                
+                <div class="domain-card domain-language">
+                    <div class="domain-header">
+                        <div class="domain-icon language-icon">💬</div>
+                        <div class="domain-title">言語的思考</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 71%; background: linear-gradient(90deg, #ff9ff3, #ff6b6b);"></div>
+                    </div>
+                    <p>概念整理、文脈理解、表現技法を通じて言語による思考と表現能力を向上させます。</p>
+                    <div class="exercise-container">
+                        <div class="exercise-question">語彙拡張: 「協働」の類義語を3つ以上挙げ、それぞれの微妙な違いを説明してください。</div>
+                        <button class="btn" onclick="solveLanguageProblem()">演習を開始</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercises Tab -->
+        <div id="exercises" class="tab-content">
+            <h2>統合演習</h2>
+            <p>複数の分野を組み合わせた課題で、学際的思考力を鍛えましょう。</p>
+            
+            <div class="exercise-container">
+                <h3>🔀 分野横断チャレンジ</h3>
+                <div class="exercise-question" id="integrationQuestion">
+                    統合問題を生成中...
+                </div>
+                <div class="exercise-options" id="integrationOptions">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+                <button class="btn" onclick="generateIntegrationExercise()">新しい統合問題を生成</button>
+                <button class="btn btn-success" onclick="checkIntegrationAnswer()" id="checkIntegrationBtn" style="display: none;">回答を確認</button>
+            </div>
+            
+            <div class="exercise-container">
+                <h3>📝 ケーススタディ</h3>
+                <div id="caseStudy">
+                    <h4>現在のケース: 都市交通システムの最適化</h4>
+                    <p>
+                        大都市の交通渋滞問題を解決するため、以下の観点から総合的なソリューションを考案してください：
+                    </p>
+                    <ul>
+                        <li><strong>数学的アプローチ:</strong> 交通流の数理モデル化</li>
+                        <li><strong>物理的アプローチ:</strong> 車両運動の力学的分析</li>
+                        <li><strong>論理的アプローチ:</strong> 最適ルート選択アルゴリズム</li>
+                        <li><strong>創造的アプローチ:</strong> 革新的な交通手段の提案</li>
+                        <li><strong>音楽的アプローチ:</strong> 交通リズムの調和理論</li>
+                        <li><strong>言語的アプローチ:</strong> 利用者コミュニケーション戦略</li>
+                    </ul>
+                    <textarea id="caseStudyResponse" rows="6" style="width: 100%; margin-top: 1rem; padding: 1rem; border-radius: 10px; border: 2px solid #e2e8f0;" placeholder="あなたの統合的解決策を記述してください..."></textarea>
+                    <br>
+                    <button class="btn" onclick="submitCaseStudy()">解決策を提出</button>
+                    <button class="btn" onclick="loadNewCaseStudy()">新しいケーススタディ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Map Tab -->
+        <div id="integration" class="tab-content">
+            <h2>関連性マップ</h2>
+            <p>学習分野間の関連性を視覚的に探索し、新しい知識の繋がりを発見しましょう。</p>
+            
+            <div class="integration-map" id="relationshipMap">
+                <canvas id="mapCanvas" width="100%" height="400"></canvas>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3 class="card-title">🔗 発見された関連性</h3>
+                    <div class="card-content" id="discoveredRelations">
+                        <p>数学 ↔ 音楽: フーリエ変換と音響理論</p>
+                        <p>物理 ↔ 創造: 光学現象とアート表現</p>
+                        <p>論理 ↔ 言語: 推論構造と文法体系</p>
+                        <p>創造 ↔ 数学: 黄金比と美的調和</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="card-title">💡 統合のヒント</h3>
+                    <div class="card-content" id="integrationHints">
+                        <p>• 異なる分野の概念を比喩で繋げてみましょう</p>
+                        <p>• 共通する数学的構造を探してみましょう</p>
+                        <p>• 実世界の現象を多角的に分析してみましょう</p>
+                        <p>• 抽象的概念を具体例で表現してみましょう</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Tab -->
+        <div id="progress" class="tab-content">
+            <h2>進捗分析</h2>
+            <p>学習の進捗を詳細に分析し、成長パターンを把握しましょう。</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="progressWeeklyTime">0</span>
+                    <span class="stat-label">今週の学習時間</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="progressAccuracy">0%</span>
+                    <span class="stat-label">総合正答率</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="progressStreak">0</span>
+                    <span class="stat-label">連続学習日数</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="progressLevel">1</span>
+                    <span class="stat-label">統合レベル</span>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3 class="card-title">📈 学習曲線</h3>
+                    <div class="card-content">
+                        <canvas id="progressChart" width="300" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="card-title">🎯 分野別習熟度</h3>
+                    <div class="card-content">
+                        <div>数学: <div class="progress-bar"><div class="progress-fill" style="width: 65%; background: #ff6b6b;"></div></div></div>
+                        <div>物理: <div class="progress-bar"><div class="progress-fill" style="width: 52%; background: #4ecdc4;"></div></div></div>
+                        <div>論理: <div class="progress-bar"><div class="progress-fill" style="width: 78%; background: #45b7d1;"></div></div></div>
+                        <div>創造: <div class="progress-bar"><div class="progress-fill" style="width: 43%; background: #96ceb4;"></div></div></div>
+                        <div>音楽: <div class="progress-bar"><div class="progress-fill" style="width: 61%; background: #feca57;"></div></div></div>
+                        <div>言語: <div class="progress-bar"><div class="progress-fill" style="width: 71%; background: #ff9ff3;"></div></div></div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="card-title">🏅 達成バッジ</h3>
+                    <div class="card-content" id="achievementBadges">
+                        <p>🔢 数学マスター (レベル1)</p>
+                        <p>🎼 音楽理論家 (レベル1)</p>
+                        <p>🔗 統合思考者 (レベル1)</p>
+                        <p>📚 継続学習者 (7日連続)</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="card-title">🎲 学習推奨</h3>
+                    <div class="card-content" id="learningRecommendations">
+                        <p>• 創造的思考分野の強化を推奨</p>
+                        <p>• 物理-数学の統合演習に挑戦</p>
+                        <p>• 言語表現力向上のための実践</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Tab -->
+        <div id="logs" class="tab-content">
+            <h2>学習ログ</h2>
+            <p>詳細な学習履歴とシステムの動作記録を確認できます。</p>
+            
+            <button class="btn" onclick="exportLogs()">ログをエクスポート</button>
+            <button class="btn" onclick="clearLogs()">ログをクリア</button>
+            <button class="btn btn-success" onclick="refreshLogs()">ログを更新</button>
+            
+            <div class="log-container" id="systemLogs">
+                <!-- Logs will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+    // Global variables
+    let currentTab = 'dashboard';
+    let userProgress = {
+        sessions: 0,
+        totalTime: 0,
+        integrationScore: 0,
+        completedExercises: 0,
+        todayTime: 0,
+        todayExercises: 0,
+        todayDomains: 0,
+        todayIntegration: 0,
+        weeklyTime: 0,
+        accuracy: 0,
+        streak: 0,
+        level: 1,
+        domainProgress: {
+            math: 65,
+            physics: 52,
+            logic: 78,
+            creative: 43,
+            music: 61,
+            language: 71
+        },
+        achievements: []
+    };
+    let logs = [];
+    let sessionStartTime = Date.now();
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeApp();
+        createFloatingParticles();
+        loadUserProgress();
+        updateDashboard();
+        logAction('アプリケーション開始', 'システム初期化完了');
+    });
+
+    function initializeApp() {
+        // Setup canvas for integration map
+        const canvas = document.getElementById('mapCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            drawIntegrationMap(ctx);
+        }
+        
+        // Load saved progress
+        const savedProgress = localStorage.getItem('ikipProgress');
+        if (savedProgress) {
+            userProgress = { ...userProgress, ...JSON.parse(savedProgress) };
+        }
+        
+        // Update display
+        updateAllDisplays();
+    }
+
+    function showTab(tabName) {
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Remove active class from all nav tabs
+        const navTabs = document.querySelectorAll('.nav-tab');
+        navTabs.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        
+        // Add active class to clicked nav tab
+        event.target.classList.add('active');
+        
+        currentTab = tabName;
+        logAction('タブ切り替え', `${tabName}タブを表示`);
+        
+        // Trigger specific tab initialization
+        if (tabName === 'integration') {
+            setTimeout(() => drawIntegrationMap(), 100);
+        } else if (tabName === 'progress') {
+            setTimeout(() => drawProgressChart(), 100);
+        }
+    }
+
+    function updateDashboard() {
+        document.getElementById('totalSessions').textContent = userProgress.sessions;
+        document.getElementById('totalTime').textContent = userProgress.totalTime;
+        document.getElementById('integrationScore').textContent = userProgress.integrationScore;
+        document.getElementById('completedExercises').textContent = userProgress.completedExercises;
+        
+        document.getElementById('todayTime').textContent = userProgress.todayTime;
+        document.getElementById('todayExercises').textContent = userProgress.todayExercises;
+        document.getElementById('todayDomains').textContent = userProgress.todayDomains;
+        document.getElementById('todayIntegration').textContent = userProgress.todayIntegration;
+        
+        document.getElementById('progressWeeklyTime').textContent = userProgress.weeklyTime;
+        document.getElementById('progressAccuracy').textContent = userProgress.accuracy;
+        document.getElementById('progressStreak').textContent = userProgress.streak;
+        document.getElementById('progressLevel').textContent = userProgress.level;
+        
+        // Update connection info
+        document.getElementById('strongestConnection').textContent = '数学 ↔ 音楽';
+        document.getElementById('discoveredConnections').textContent = '12';
+        document.getElementById('integrationLevel').textContent = userProgress.level >= 3 ? '上級' : userProgress.level >= 2 ? '中級' : '初級';
+    }
+
+    function updateAllDisplays() {
+        updateDashboard();
+        updateAchievements();
+        updateRecommendations();
+    }
+
+    function updateAchievements() {
+        const achievementsDiv = document.getElementById('recentAchievements');
+        const achievements = [
+            '🎯 初回統合演習完了',
+            '📊 データ分析バッジ獲得',
+            '🔗 分野間関連性発見',
+            '⭐ 学習継続7日達成'
+        ];
+        achievementsDiv.innerHTML = achievements.map(achievement => `<p>${achievement}</p>`).join('');
+    }
+
+    function updateRecommendations() {
+        const recommendationsDiv = document.getElementById('learningRecommendations');
+        const recommendations = [
+            '• 創造的思考分野の強化を推奨',
+            '• 物理-数学の統合演習に挑戦',
+            '• 言語表現力向上のための実践',
+            '• 音楽理論と数学の関連性探求'
+        ];
+        recommendationsDiv.innerHTML = recommendations.join('<br>');
+    }
+
+    function generateRecommendation() {
+        const pathDiv = document.getElementById('recommendedPath');
+        const paths = [
+            '数学基礎 → 物理応用 → 音楽理論統合',
+            '言語分析 → 論理構造 → 創造的表現',
+            '創造発想 → 数学モデル → 実装検証',
+            '音楽パターン → 物理波動 → 数学関数'
+        ];
+        const randomPath = paths[Math.floor(Math.random() * paths.length)];
+        pathDiv.innerHTML = `<p><strong>推奨学習パス:</strong></p><p>${randomPath}</p>`;
+        logAction('推奨生成', `学習パス: ${randomPath}`);
+    }
+
+    // Domain-specific exercise functions
+    function solveMathProblem() {
+        const result = prompt('f\'(x) = 3x² - 6x + 2 = 0 を解いて極値のx座標を求めてください:');
+        if (result !== null) {
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.integrationScore += 5;
+            logAction('数学演習', `回答: ${result}`);
+            alert('数学演習完了！統合スコア +5 ポイント');
+            updateDashboard();
+            saveProgress();
+        }
+    }
+
+    function solvePhysicsProblem() {
+        const result = prompt('運動量 = 質量 × 速度。2kg × 5m/s = ?');
+        if (result !== null) {
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.integrationScore += 5;
+            logAction('物理演習', `回答: ${result}`);
+            alert('物理演習完了！統合スコア +5 ポイント');
+            updateDashboard();
+            saveProgress();
+        }
+    }
+
+    function solveLogicProblem() {
+        const result = prompt('A > B > C なので、最も背が高いのは？');
+        if (result !== null) {
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.integrationScore += 5;
+            logAction('論理演習', `回答: ${result}`);
+            alert('論理演習完了！統合スコア +5 ポイント');
+            updateDashboard();
+            saveProgress();
+        }
+    }
+
+    function solveCreativeProblem() {
+        const result = prompt('「時間」と「色」を組み合わせたアイデアを入力してください:');
+        if (result !== null) {
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.integrationScore += 8;
+            logAction('創造演習', `アイデア: ${result}`);
+            alert('創造演習完了！統合スコア +8 ポイント');
+            updateDashboard();
+            saveProgress();
+        }
+    }
+
+    function solveMusicProblem() {
+        const result = prompt('Cメジャースケール: C-D-E-F-G-A-B。第3音と第7音は？');
+        if (result !== null) {
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.integrationScore += 5;
+            logAction('音楽演習', `回答: ${result}`);
+            alert('音楽演習完了！統合スコア +5 ポイント');
+            updateDashboard();
+            saveProgress();
+        }
+    }
+
+    function solveLanguageProblem() {
+        const result = prompt('「協働」の類義語を3つ以上カンマ区切りで入力してください:');
+        if (result !== null) {
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.integrationScore += 6;
+            logAction('言語演習', `類義語: ${result}`);
+            alert('言語演習完了！統合スコア +6 ポイント');
+            updateDashboard();
+            saveProgress();
+        }
+    }
+
+    // Integration exercise functions
+    function generateIntegrationExercise() {
+        const questions = [
+            {
+                question: '音楽の周波数440Hz（ラの音）を数学的に表現し、この周波数が持つ物理的特性を創造的に活用したアプリケーションを提案してください。',
+                options: [
+                    'デジタル楽器の音質改善システム',
+                    '建築音響の最適化ソリューション',
+                    '医療用音響治療装置',
+                    '環境音監視システム'
+                ],
+                correct: 0
+            },
+            {
+                question: '黄金比φ ≈ 1.618が自然界に現れる理由を物理学・数学・芸術の観点から統合的に説明し、これを言語で表現してください。',
+                options: [
+                    'エネルギー効率の最適化理論',
+                    '視覚的美感の数理構造',
+                    '成長パターンの力学的安定性',
+                    'すべての観点が相互関連している'
+                ],
+                correct: 3
+            }
+        ];
+        
+        const question = questions[Math.floor(Math.random() * questions.length)];
+        document.getElementById('integrationQuestion').textContent = question.question;
+        
+        const optionsDiv = document.getElementById('integrationOptions');
+        optionsDiv.innerHTML = '';
+        
+        question.options.forEach((option, index) => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'exercise-option';
+            optionDiv.textContent = option;
+            optionDiv.onclick = () => selectIntegrationOption(index);
+            optionDiv.dataset.index = index;
+            optionsDiv.appendChild(optionDiv);
+        });
+        
+        document.getElementById('checkIntegrationBtn').style.display = 'inline-block';
+        document.getElementById('checkIntegrationBtn').dataset.correct = question.correct;
+        
+        logAction('統合演習生成', '新しい統合問題を生成');
+    }
+
+    function selectIntegrationOption(index) {
+        const options = document.querySelectorAll('.exercise-option');
+        options.forEach(option => option.classList.remove('selected'));
+        options[index].classList.add('selected');
+        document.getElementById('checkIntegrationBtn').dataset.selected = index;
+    }
+
+    function checkIntegrationAnswer() {
+        const selected = parseInt(document.getElementById('checkIntegrationBtn').dataset.selected);
+        const correct = parseInt(document.getElementById('checkIntegrationBtn').dataset.correct);
+        
+        const options = document.querySelectorAll('.exercise-option');
+        
+        if (selected === correct) {
+            options[selected].classList.add('correct');
+            userProgress.integrationScore += 15;
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.todayIntegration += 15;
+            alert('正解！統合的思考力が向上しました。+15 ポイント');
+            logAction('統合演習', '正解 - 統合スコア +15');
+        } else {
+            options[selected].classList.add('incorrect');
+            options[correct].classList.add('correct');
+            userProgress.integrationScore += 5;
+            alert('惜しい！異なる視点からの考察で +5 ポイント');
+            logAction('統合演習', '不正解 - 学習継続 +5');
+        }
+        
+        updateDashboard();
+        saveProgress();
+        
+        setTimeout(() => {
+            options.forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            document.getElementById('checkIntegrationBtn').style.display = 'none';
+        }, 3000);
+    }
+
+    function submitCaseStudy() {
+        const response = document.getElementById('caseStudyResponse').value;
+        if (response.trim().length > 50) {
+            userProgress.integrationScore += 25;
+            userProgress.completedExercises++;
+            userProgress.todayExercises++;
+            userProgress.todayIntegration += 25;
+            logAction('ケーススタディ', `解決策提出: ${response.substring(0, 100)}...`);
+            alert('ケーススタディ完了！総合的思考力が大幅に向上しました。+25 ポイント');
+            updateDashboard();
+            saveProgress();
+        } else {
+            alert('より詳細な回答をお願いします（50文字以上）');
+        }
+    }
+
+    function loadNewCaseStudy() {
+        const cases = [
+            {
+                title: '持続可能エネルギーシステムの設計',
+                description: '再生可能エネルギーを活用した地域エネルギーシステムを、技術・経済・社会の観点から設計してください。'
+            },
+            {
+                title: '教育改革プログラムの立案',
+                description: '21世紀スキルを育成する新しい教育プログラムを、認知科学・技術・コミュニケーションの視点から提案してください。'
+            },
+            {
+                title: '都市空間の再設計',
+                description: 'コミュニティの絆を深める都市空間を、建築・心理学・社会学・アートの観点から再設計してください。'
+            }
+        ];
+        
+        const randomCase = cases[Math.floor(Math.random() * cases.length)];
+        document.getElementById('caseStudy').innerHTML = `
+            <h4>現在のケース: ${randomCase.title}</h4>
+            <p>${randomCase.description}</p>
+            <textarea id="caseStudyResponse" rows="6" style="width: 100%; margin-top: 1rem; padding: 1rem; border-radius: 10px; border: 2px solid #e2e8f0;" placeholder="あなたの統合的解決策を記述してください..."></textarea>
+            <br>
+            <button class="btn" onclick="submitCaseStudy()">解決策を提出</button>
+            <button class="btn" onclick="loadNewCaseStudy()">新しいケーススタディ</button>
+        `;
+        
+        logAction('ケーススタディ', `新しいケース読み込み: ${randomCase.title}`);
+    }
+
+    // Visualization functions
+    function drawIntegrationMap() {
+        const canvas = document.getElementById('mapCanvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 400;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw domain nodes
+        const domains = [
+            { name: '数学', x: 150, y: 100, color: '#ff6b6b' },
+            { name: '物理', x: 350, y: 80, color: '#4ecdc4' },
+            { name: '論理', x: 500, y: 150, color: '#45b7d1' },
+            { name: '創造', x: 400, y: 280, color: '#96ceb4' },
+            { name: '音楽', x: 250, y: 320, color: '#feca57' },
+            { name: '言語', x: 100, y: 250, color: '#ff9ff3' }
+        ];
+        
+        // Draw connections
+        const connections = [
+            [0, 1], [0, 4], [1, 2], [1, 3], [2, 5], [3, 4], [4, 5], [5, 0]
+        ];
+        
+        ctx.strokeStyle = '#cbd5e0';
+        ctx.lineWidth = 2;
+        connections.forEach(([i, j]) => {
+            ctx.beginPath();
+            ctx.moveTo(domains[i].x, domains[i].y);
+            ctx.lineTo(domains[j].x, domains[j].y);
+            ctx.stroke();
+        });
+        
+        // Draw nodes
+        domains.forEach(domain => {
+            ctx.beginPath();
+            ctx.arc(domain.x, domain.y, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = domain.color;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(domain.name, domain.x, domain.y + 4);
+        });
+        
+        logAction('可視化', '関連性マップを描画');
+    }
+
+    function drawProgressChart() {
+        const canvas = document.getElementById('progressChart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = 300;
+        canvas.height = 200;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Sample progress data
+        const data = [10, 25, 45, 65, 80, 95, 120];
+        const labels = ['月', '火', '水', '木', '金', '土', '日'];
+        
+        // Draw grid
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = 20 + (i * 30);
+            ctx.beginPath();
+            ctx.moveTo(40, y);
+            ctx.lineTo(280, y);
+            ctx.stroke();
+        }
+        
+        // Draw line chart
+        ctx.strokeStyle = '#4299e1';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        data.forEach((value, index) => {
+            const x = 50 + (index * 35);
+            const y = 170 - (value * 1.2);
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+        
+        // Draw points
+        data.forEach((value, index) => {
+            const x = 50 + (index * 35);
+            const y = 170 - (value * 1.2);
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, 2 * Math.PI);
+            ctx.fillStyle = '#4299e1';
+            ctx.fill();
+        });
+        
+        // Draw labels
+        ctx.fillStyle = '#718096';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        labels.forEach((label, index) => {
+            const x = 50 + (index * 35);
+            ctx.fillText(label, x, 190);
+        });
+        
+        logAction('可視化', '進捗チャートを描画');
+    }
+
+    // Utility functions
+    function createFloatingParticles() {
+        const particlesContainer = document.getElementById('particles');
+        
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = (Math.random() * 4 + 2) + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    function logAction(category, description) {
+        const timestamp = new Date().toLocaleString('ja-JP');
+        const logEntry = {
+            timestamp: timestamp,
+            category: category,
+            description: description,
+            sessionTime: Math.floor((Date.now() - sessionStartTime) / 1000)
+        };
+        
+        logs.push(logEntry);
+        
+        // Update logs display if on logs tab
+        if (currentTab === 'logs') {
+            updateLogsDisplay();
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('ikipLogs', JSON.stringify(logs.slice(-100))); // Keep last 100 entries
+    }
+
+    function updateLogsDisplay() {
+        const logsContainer = document.getElementById('systemLogs');
+        const recentLogs = logs.slice(-20).reverse(); // Show last 20 logs, newest first
+        
+        logsContainer.innerHTML = recentLogs.map(log => 
+            `<div class="log-entry">
+                <span class="log-timestamp">[${log.timestamp}]</span>
+                <strong>${log.category}:</strong> ${log.description}
+                <em>(セッション時間: ${log.sessionTime}秒)</em>
+            </div>`
+        ).join('');
+    }
+
+    function exportLogs() {
+        const logData = JSON.stringify(logs, null, 2);
+        const blob = new Blob([logData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ikip-logs-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        logAction('エクスポート', 'ログファイルをダウンロード');
+    }
+
+    function clearLogs() {
+        if (confirm('すべてのログを削除しますか？この操作は取り消せません。')) {
+            logs = [];
+            localStorage.removeItem('ikipLogs');
+            updateLogsDisplay();
+            logAction('システム', 'ログを全削除');
+        }
+    }
+
+    function refreshLogs() {
+        updateLogsDisplay();
+        logAction('システム', 'ログ表示を更新');
+    }
+
+    function loadUserProgress() {
+        const savedLogs = localStorage.getItem('ikipLogs');
+        if (savedLogs) {
+            logs = JSON.parse(savedLogs);
+        }
+        
+        // Update session count
+        userProgress.sessions++;
+        logAction('セッション', `セッション ${userProgress.sessions} 開始`);
+    }
+
+    function saveProgress() {
+        localStorage.setItem('ikipProgress', JSON.stringify(userProgress));
+        logAction('データ', '進捗状況を保存');
+    }
+
+    // Auto-save progress every minute
+    setInterval(() => {
+        userProgress.totalTime++;
+        userProgress.todayTime++;
+        userProgress.weeklyTime++;
+        saveProgress();
+        updateDashboard();
+    }, 60000);
+
+    // Initialize integration exercise on load
+    setTimeout(() => {
+        generateIntegrationExercise();
+    }, 2000);
+    </script>
+</body>
+</html>
