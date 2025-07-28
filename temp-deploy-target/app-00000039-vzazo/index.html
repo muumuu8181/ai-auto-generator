@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ルービックキューブソルバー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            align-items: center;
+        }
+
+        .cube-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #cubeCanvas {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            cursor: grab;
+        }
+
+        #cubeCanvas:active {
+            cursor: grabbing;
+        }
+
+        .controls {
+            width: 300px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .rotation-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+
+        .rotation-buttons button {
+            padding: 8px;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .stage-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .stage-info {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .stats {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .speed-control {
+            margin-top: 10px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .solving-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,165,0,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: none;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .controls {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation" id="bgAnimation"></div>
+
+    <div class="container">
+        <header>
+            <h1>🎲 ルービックキューブソルバー</h1>
+            <p>3Dキューブを回転させて解きましょう！</p>
+        </header>
+
+        <div class="main-content">
+            <div class="cube-container">
+                <canvas id="cubeCanvas" width="500" height="500"></canvas>
+                <div class="solving-indicator" id="solvingIndicator">解法計算中...</div>
+            </div>
+
+            <div class="controls">
+                <div class="control-section">
+                    <h3>ステージ選択</h3>
+                    <div class="stage-selector">
+                        <button id="prevStage">◀</button>
+                        <span id="stageDisplay">ステージ 1</span>
+                        <button id="nextStage">▶</button>
+                    </div>
+                    <div class="stage-info" id="stageInfo">シンプルなパズル</div>
+                </div>
+
+                <div class="control-section">
+                    <h3>回転操作</h3>
+                    <div class="rotation-buttons">
+                        <button onclick="rotateFace('U')">U ↻</button>
+                        <button onclick="rotateFace('F')">F ↻</button>
+                        <button onclick="rotateFace('R')">R ↻</button>
+                        <button onclick="rotateFace('D')">D ↻</button>
+                        <button onclick="rotateFace('B')">B ↻</button>
+                        <button onclick="rotateFace('L')">L ↻</button>
+                        <button onclick="rotateFace('U', true)">U' ↺</button>
+                        <button onclick="rotateFace('F', true)">F' ↺</button>
+                        <button onclick="rotateFace('R', true)">R' ↺</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <button id="shuffleBtn" style="width: 100%;">🔀 シャッフル</button>
+                    <button id="solveBtn" style="width: 100%;">🧩 自動解法</button>
+                    <button id="resetBtn" style="width: 100%;">🔄 リセット</button>
+                </div>
+
+                <div class="control-section speed-control">
+                    <h3>アニメーション速度</h3>
+                    <input type="range" id="speedSlider" min="100" max="1000" value="400">
+                    <div style="text-align: center; font-size: 14px;">
+                        <span id="speedDisplay">400ms</span>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <span>手数:</span>
+                        <span id="moveCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>状態:</span>
+                        <span id="cubeStatus">未完成</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>最小手数記録:</span>
+                        <span id="bestMoves">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Paint System - 高機能ペイントシステム</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">Advanced Paint System</h1>
+            <div class="header-controls">
+                <button class="btn btn-new" id="new-canvas">新規キャンバス</button>
+                <label class="btn btn-upload">
+                    画像をアップロード
+                    <input type="file" id="upload-image" accept="image/*" style="display: none;">
+                </label>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Toolbar -->
+            <aside class="toolbar">
+                <!-- Drawing Tools -->
+                <div class="tool-section">
+                    <h3>ツール</h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn active" data-tool="brush" title="ブラシ">
+                            <svg viewBox="0 0 24 24"><path d="M7 14c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-2 2 .92 1.22 2.49 2 4 2 2.21 0 4-1.79 4-4 0-1.66-1.34-3-3-3zm13.71-9.37l-1.34-1.34c-.39-.39-1.02-.39-1.41 0L9 12.25 11.75 15l8.96-8.96c.39-.39.39-1.02 0-1.41z"/></svg>
+                        </button>
+                        <button class="tool-btn" data-tool="eraser" title="消しゴム">
+                            <svg viewBox="0 0 24 24"><path d="M15.14 3c-.51 0-1.02.2-1.41.59L2.59 14.73c-.78.78-.78 2.05 0 2.83l3.54 3.54c.78.78 2.05.78 2.83 0L20.09 9.97c.78-.78.78-2.05 0-2.83l-3.54-3.54c-.39-.39-.9-.59-1.41-.59zM8.96 19.31L5.42 15.77l6.5-6.5 3.54 3.54-6.5 6.5z"/></svg>
+                        </button>
+                        <button class="tool-btn" data-tool="line" title="直線">
+                            <svg viewBox="0 0 24 24"><path d="M19 19L5 5m0 0v6m0-6h6"/></svg>
+                        </button>
+                        <button class="tool-btn" data-tool="rectangle" title="四角形">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                        </button>
+                        <button class="tool-btn" data-tool="circle" title="円">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                        </button>
+                        <button class="tool-btn" data-tool="fill" title="塗りつぶし">
+                            <svg viewBox="0 0 24 24"><path d="M19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5zM5.21 10L10 5.21 14.79 10m1.77-1.77L10 1.66c-.39-.39-1.02-.39-1.41 0L2 8.25c-.39.39-.39 1.02 0 1.41l5.66 5.66c.39.39 1.02.39 1.41 0l5.66-5.66c.39-.39.39-1.02 0-1.41z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Brush Settings -->
+                <div class="tool-section">
+                    <h3>ブラシ設定</h3>
+                    <div class="control-group">
+                        <label>サイズ: <span id="brush-size-value">5</span>px</label>
+                        <input type="range" id="brush-size" min="1" max="100" value="5" class="slider">
+                    </div>
+                    <div class="control-group">
+                        <label>不透明度: <span id="opacity-value">100</span>%</label>
+                        <input type="range" id="opacity" min="0" max="100" value="100" class="slider">
+                    </div>
+                </div>
+
+                <!-- Color Picker -->
+                <div class="tool-section">
+                    <h3>カラー</h3>
+                    <div class="color-picker-container">
+                        <input type="color" id="color-picker" value="#000000">
+                        <div class="color-presets">
+                            <button class="color-preset" style="background: #000000" data-color="#000000"></button>
+                            <button class="color-preset" style="background: #ffffff" data-color="#ffffff"></button>
+                            <button class="color-preset" style="background: #ff0000" data-color="#ff0000"></button>
+                            <button class="color-preset" style="background: #00ff00" data-color="#00ff00"></button>
+                            <button class="color-preset" style="background: #0000ff" data-color="#0000ff"></button>
+                            <button class="color-preset" style="background: #ffff00" data-color="#ffff00"></button>
+                            <button class="color-preset" style="background: #ff00ff" data-color="#ff00ff"></button>
+                            <button class="color-preset" style="background: #00ffff" data-color="#00ffff"></button>
+                            <button class="color-preset" style="background: #ff8800" data-color="#ff8800"></button>
+                            <button class="color-preset" style="background: #8800ff" data-color="#8800ff"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Brush -->
+                <div class="tool-section">
+                    <h3>カスタムブラシ</h3>
+                    <div class="brush-shapes">
+                        <button class="brush-shape active" data-shape="round">●</button>
+                        <button class="brush-shape" data-shape="square">■</button>
+                        <button class="brush-shape" data-shape="star">★</button>
+                        <button class="brush-shape" data-shape="heart">♥</button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="tool-section">
+                    <h3>アクション</h3>
+                    <button class="btn btn-action" id="undo">元に戻す</button>
+                    <button class="btn btn-action" id="redo">やり直し</button>
+                    <button class="btn btn-action" id="clear">クリア</button>
+                </div>
+            </aside>
+
+            <!-- Canvas Area -->
+            <div class="canvas-container">
+                <canvas id="drawing-canvas"></canvas>
+                <canvas id="preview-canvas"></canvas>
+            </div>
+
+            <!-- Layers Panel -->
+            <aside class="layers-panel">
+                <h3>レイヤー</h3>
+                <div class="layer-controls">
+                    <button class="btn-small" id="add-layer">+</button>
+                    <button class="btn-small" id="delete-layer">-</button>
+                </div>
+                <div id="layers-list" class="layers-list">
+                    <div class="layer-item active" data-layer-id="0">
+                        <input type="checkbox" checked>
+                        <span>レイヤー 1</span>
+                        <input type="range" min="0" max="100" value="100" class="layer-opacity">
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Bottom Controls -->
+        <footer class="footer">
+            <div class="footer-controls">
+                <button class="btn btn-primary" id="save-image">画像を保存</button>
+                <button class="btn btn-secondary" id="download-image">ダウンロード</button>
+                <div class="canvas-info">
+                    <span id="canvas-size">800 x 600</span>
+                    <span id="cursor-position">X: 0, Y: 0</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

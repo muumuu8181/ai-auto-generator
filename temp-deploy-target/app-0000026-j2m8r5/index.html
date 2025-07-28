@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Forest - 集中力の森を育てるポモドーロタイマー</title>
+    <meta name="description" content="ポモドーロテクニックで集中力を高めながら、美しい森を育てるタイマーアプリ">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <i class="fas fa-tree"></i>
+                    Focus Forest
+                </h1>
+                <p class="app-subtitle">集中力の森を育てよう</p>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- 森の表示エリア -->
+            <div class="forest-container" id="forest-container">
+                <div class="forest-background">
+                    <div class="sun" id="sun"></div>
+                    <div class="clouds">
+                        <div class="cloud cloud-1"></div>
+                        <div class="cloud cloud-2"></div>
+                        <div class="cloud cloud-3"></div>
+                    </div>
+                </div>
+                <div class="forest-ground">
+                    <div class="forest-trees" id="forest-trees">
+                        <!-- 動的に木が追加される -->
+                    </div>
+                </div>
+                
+                <!-- 統計情報 -->
+                <div class="forest-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-tree"></i>
+                        <span class="stat-value" id="tree-count">0</span>
+                        <span class="stat-label">本の木</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-clock"></i>
+                        <span class="stat-value" id="total-time">0</span>
+                        <span class="stat-label">分集中</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- タイマーセクション -->
+            <div class="timer-section">
+                <div class="timer-display" id="timer-display">
+                    <div class="timer-ring">
+                        <svg class="timer-svg" viewBox="0 0 300 300">
+                            <circle class="timer-background" cx="150" cy="150" r="135"/>
+                            <circle class="timer-progress" id="timer-progress" cx="150" cy="150" r="135"/>
+                        </svg>
+                        <div class="timer-content">
+                            <div class="timer-time" id="timer-time">25:00</div>
+                            <div class="timer-phase" id="timer-phase">作業時間</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- コントロールボタン -->
+                <div class="timer-controls">
+                    <button class="control-btn" id="start-btn">
+                        <i class="fas fa-play"></i>
+                        <span>開始</span>
+                    </button>
+                    <button class="control-btn" id="pause-btn" style="display: none;">
+                        <i class="fas fa-pause"></i>
+                        <span>一時停止</span>
+                    </button>
+                    <button class="control-btn secondary" id="reset-btn">
+                        <i class="fas fa-redo"></i>
+                        <span>リセット</span>
+                    </button>
+                    <button class="control-btn secondary" id="settings-btn">
+                        <i class="fas fa-cog"></i>
+                        <span>設定</span>
+                    </button>
+                </div>
+
+                <!-- セッション情報 -->
+                <div class="session-info">
+                    <div class="session-counter">
+                        <span class="session-label">今日のセッション</span>
+                        <div class="session-dots">
+                            <span class="session-dot" id="session-1"></span>
+                            <span class="session-dot" id="session-2"></span>
+                            <span class="session-dot" id="session-3"></span>
+                            <span class="session-dot" id="session-4"></span>
+                        </div>
+                    </div>
+                    <div class="current-task">
+                        <input type="text" id="task-input" placeholder="今の作業を入力..." maxlength="50">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 設定モーダル -->
+        <div class="modal-overlay" id="settings-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-cog"></i> 設定</h2>
+                    <button class="modal-close" id="close-settings">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="work-duration">作業時間（分）</label>
+                        <input type="number" id="work-duration" min="1" max="60" value="25">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="short-break">短い休憩（分）</label>
+                        <input type="number" id="short-break" min="1" max="30" value="5">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="long-break">長い休憩（分）</label>
+                        <input type="number" id="long-break" min="1" max="60" value="15">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="sessions-until-long">長い休憩までのセッション数</label>
+                        <input type="number" id="sessions-until-long" min="2" max="8" value="4">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="sound-enabled" checked>
+                            <span class="toggle-switch"></span>
+                            通知音
+                        </label>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="auto-start" checked>
+                            <span class="toggle-switch"></span>
+                            自動で次のセッションを開始
+                        </label>
+                    </div>
+                    
+                    <div class="setting-actions">
+                        <button class="action-btn" id="save-settings">保存</button>
+                        <button class="action-btn secondary" id="reset-settings">初期値に戻す</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 完了モーダル -->
+        <div class="modal-overlay" id="completion-modal">
+            <div class="modal-content celebration">
+                <div class="modal-body">
+                    <div class="celebration-icon">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h2>お疲れさまでした！</h2>
+                    <p class="completion-message" id="completion-message">新しい木が森に植えられました！</p>
+                    <div class="tree-preview" id="tree-preview">
+                        <!-- 新しい木のプレビュー -->
+                    </div>
+                    <button class="action-btn" id="continue-btn">続ける</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 統計モーダル -->
+        <div class="modal-overlay" id="stats-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-chart-bar"></i> 統計情報</h2>
+                    <button class="modal-close" id="close-stats">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-calendar-day"></i>
+                            <h3>今日</h3>
+                            <p class="stat-number" id="today-sessions">0</p>
+                            <p class="stat-description">セッション</p>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <i class="fas fa-calendar-week"></i>
+                            <h3>今週</h3>
+                            <p class="stat-number" id="week-sessions">0</p>
+                            <p class="stat-description">セッション</p>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <i class="fas fa-fire"></i>
+                            <h3>連続記録</h3>
+                            <p class="stat-number" id="streak-days">0</p>
+                            <p class="stat-description">日</p>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <i class="fas fa-trophy"></i>
+                            <h3>最高記録</h3>
+                            <p class="stat-number" id="best-day">0</p>
+                            <p class="stat-description">セッション/日</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="weekly-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <footer class="app-footer">
+            <button class="footer-btn" id="stats-btn">
+                <i class="fas fa-chart-bar"></i>
+                <span>統計</span>
+            </button>
+            <button class="footer-btn" id="forest-btn">
+                <i class="fas fa-tree"></i>
+                <span>森を見る</span>
+            </button>
+            <button class="footer-btn" id="share-btn">
+                <i class="fas fa-share-alt"></i>
+                <span>共有</span>
+            </button>
+        </footer>
+
+        <!-- 通知音 -->
+        <audio id="notification-sound" preload="auto">
+            <source src="data:audio/wav;base64,UklGRiQFAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAFAACAAAAAgAAAAIAAAACAAAAAgAAAAIAAAACAAAAA" type="audio/wav">
+        </audio>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

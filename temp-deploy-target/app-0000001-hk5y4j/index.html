@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        
+        .input-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #229954;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .summary-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-card {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .income-card {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .expense-card {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .balance-card {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .summary-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .records-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .records-header h2 {
+            color: #2c3e50;
+        }
+        
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+        }
+        
+        .records-table th,
+        .records-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .records-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .records-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .type-income {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .type-expense {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .edit-btn,
+        .delete-btn {
+            padding: 5px 12px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .records-table {
+                font-size: 14px;
+            }
+            
+            .records-table th,
+            .records-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 お金管理システム</h1>
+        
+        <!-- 入力セクション -->
+        <div class="input-section">
+            <h2>収入・支出を入力</h2>
+            <form id="moneyForm">
+                <input type="hidden" id="editId" value="">
+                <div class="form-group">
+                    <label for="type">種類</label>
+                    <select id="type" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">カテゴリ</label>
+                    <input type="text" id="category" placeholder="例: 給料、食費、交通費" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">金額</label>
+                    <input type="number" id="amount" placeholder="0" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">説明（任意）</label>
+                    <input type="text" id="description" placeholder="詳細を入力">
+                </div>
+                <div class="form-group">
+                    <label for="date">日付</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="submitBtn">記録する</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn" style="display: none;">キャンセル</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- サマリーセクション -->
+        <div class="summary-section">
+            <h2>収支サマリー</h2>
+            <div class="summary-grid">
+                <div class="summary-card income-card">
+                    <h3>総収入</h3>
+                    <div class="amount" id="totalIncome">¥0</div>
+                </div>
+                <div class="summary-card expense-card">
+                    <h3>総支出</h3>
+                    <div class="amount" id="totalExpense">¥0</div>
+                </div>
+                <div class="summary-card balance-card">
+                    <h3>残高</h3>
+                    <div class="amount" id="balance">¥0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- レコード一覧セクション -->
+        <div class="records-section">
+            <div class="records-header">
+                <h2>記録一覧</h2>
+                <button class="btn-success" id="downloadBtn">CSVダウンロード</button>
+            </div>
+            <div id="recordsContainer">
+                <p class="no-records">まだ記録がありません</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 お金管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group input, .form-group select {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid;
+        }
+
+        .income-card {
+            border-top-color: #4CAF50;
+        }
+
+        .expense-card {
+            border-top-color: #f44336;
+        }
+
+        .balance-card {
+            border-top-color: #2196F3;
+        }
+
+        .summary-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .summary-card .amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .income-card .amount {
+            color: #4CAF50;
+        }
+
+        .expense-card .amount {
+            color: #f44336;
+        }
+
+        .balance-card .amount {
+            color: #2196F3;
+        }
+
+        .transactions {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .transactions h3 {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 0;
+            border-bottom: 2px solid #eee;
+            font-size: 1.3em;
+            color: #333;
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-date {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .transaction-description {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .transaction-category {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .transaction-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .transaction-amount.income {
+            color: #4CAF50;
+        }
+
+        .transaction-amount.expense {
+            color: #f44336;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+
+        .export-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .form-group {
+                flex-direction: column;
+            }
+
+            .form-group input, .form-group select {
+                min-width: auto;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .transaction-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .transaction-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 お金管理システム</h1>
+            <p>収入と支出を簡単に記録・管理</p>
+        </div>
+
+        <div class="content">
+            <!-- 入力セクション -->
+            <div class="input-section">
+                <h3 style="margin-bottom: 20px; color: #333;">💵 新しい取引を追加</h3>
+                <div class="form-group">
+                    <input type="text" id="description" placeholder="説明 (例: 給料、食費、交通費)" />
+                    <input type="number" id="amount" placeholder="金額" step="0.01" />
+                    <select id="type">
+                        <option value="income">収入 💚</option>
+                        <option value="expense">支出 💸</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="category" placeholder="カテゴリ (例: 食費、娯楽、給料)" />
+                    <input type="date" id="date" />
+                    <button class="btn" onclick="addTransaction()">追加</button>
+                </div>
+            </div>
+
+            <!-- サマリーセクション -->
+            <div class="summary">
+                <div class="summary-card income-card">
+                    <h3>📈 総収入</h3>
+                    <div class="amount" id="totalIncome">¥0</div>
+                </div>
+                <div class="summary-card expense-card">
+                    <h3>📉 総支出</h3>
+                    <div class="amount" id="totalExpense">¥0</div>
+                </div>
+                <div class="summary-card balance-card">
+                    <h3>💼 残高</h3>
+                    <div class="amount" id="balance">¥0</div>
+                </div>
+            </div>
+
+            <!-- 取引履歴 -->
+            <div class="transactions">
+                <h3>📋 取引履歴</h3>
+                <div class="transaction-list" id="transactionList">
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        まだ取引がありません。上のフォームから追加してください。
+                    </div>
+                </div>
+            </div>
+
+            <!-- エクスポートセクション -->
+            <div class="export-section">
+                <h3 style="margin-bottom: 15px; color: #333;">📊 データエクスポート</h3>
+                <button class="btn btn-secondary" onclick="exportToCSV()">📁 CSVファイルをダウンロード</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div class="edit-modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" onclick="closeEditModal()">&times;</span>
+                <h3>✏️ 取引を編集</h3>
+            </div>
+            <div class="form-group">
+                <input type="text" id="editDescription" placeholder="説明" />
+                <input type="number" id="editAmount" placeholder="金額" step="0.01" />
+            </div>
+            <div class="form-group">
+                <select id="editType">
+                    <option value="income">収入 💚</option>
+                    <option value="expense">支出 💸</option>
+                </select>
+                <input type="text" id="editCategory" placeholder="カテゴリ" />
+            </div>
+            <div class="form-group">
+                <input type="date" id="editDate" />
+                <button class="btn" onclick="saveEdit()">保存</button>
+                <button class="btn btn-danger" onclick="closeEditModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let transactions = JSON.parse(localStorage.getItem('moneyManagerTransactions')) || [];
+        let editingIndex = -1;
+
+        // 今日の日付をデフォルトに設定
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
+        function addTransaction() {
+            const description = document.getElementById('description').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value.trim();
+            const date = document.getElementById('date').value;
+
+            if (!description || !amount || amount <= 0 || !category || !date) {
+                alert('すべてのフィールドを正しく入力してください。');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                description,
+                amount,
+                type,
+                category,
+                date,
+                timestamp: new Date().toISOString()
+            };
+
+            transactions.push(transaction);
+            saveToLocalStorage();
+            updateDisplay();
+            clearForm();
+        }
+
+        function deleteTransaction(index) {
+            if (confirm('この取引を削除しますか？')) {
+                transactions.splice(index, 1);
+                saveToLocalStorage();
+                updateDisplay();
+            }
+        }
+
+        function editTransaction(index) {
+            editingIndex = index;
+            const transaction = transactions[index];
+            
+            document.getElementById('editDescription').value = transaction.description;
+            document.getElementById('editAmount').value = transaction.amount;
+            document.getElementById('editType').value = transaction.type;
+            document.getElementById('editCategory').value = transaction.category;
+            document.getElementById('editDate').value = transaction.date;
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function saveEdit() {
+            const description = document.getElementById('editDescription').value.trim();
+            const amount = parseFloat(document.getElementById('editAmount').value);
+            const type = document.getElementById('editType').value;
+            const category = document.getElementById('editCategory').value.trim();
+            const date = document.getElementById('editDate').value;
+
+            if (!description || !amount || amount <= 0 || !category || !date) {
+                alert('すべてのフィールドを正しく入力してください。');
+                return;
+            }
+
+            transactions[editingIndex] = {
+                ...transactions[editingIndex],
+                description,
+                amount,
+                type,
+                category,
+                date
+            };
+
+            saveToLocalStorage();
+            updateDisplay();
+            closeEditModal();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            editingIndex = -1;
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('moneyManagerTransactions', JSON.stringify(transactions));
+        }
+
+        function updateDisplay() {
+            updateSummary();
+            updateTransactionList();
+        }
+
+        function updateSummary() {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalExpense = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const balance = totalIncome - totalExpense;
+
+            document.getElementById('totalIncome').textContent = `¥${totalIncome.toLocaleString()}`;
+            document.getElementById('totalExpense').textContent = `¥${totalExpense.toLocaleString()}`;
+            document.getElementById('balance').textContent = `¥${balance.toLocaleString()}`;
+        }
+
+        function updateTransactionList() {
+            const listElement = document.getElementById('transactionList');
+            
+            if (transactions.length === 0) {
+                listElement.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        まだ取引がありません。上のフォームから追加してください。
+                    </div>
+                `;
+                return;
+            }
+
+            // 日付順でソート（新しい順）
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            listElement.innerHTML = sortedTransactions.map((transaction, index) => {
+                const originalIndex = transactions.findIndex(t => t.id === transaction.id);
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-date">${new Date(transaction.date).toLocaleDateString('ja-JP')}</div>
+                            <div class="transaction-description">${transaction.description}</div>
+                            <div class="transaction-category">📁 ${transaction.category}</div>
+                        </div>
+                        <div class="transaction-amount ${transaction.type}">
+                            ${transaction.type === 'income' ? '+' : '-'}¥${transaction.amount.toLocaleString()}
+                        </div>
+                        <div class="transaction-actions">
+                            <button class="btn btn-small btn-secondary" onclick="editTransaction(${originalIndex})">編集</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteTransaction(${originalIndex})">削除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function clearForm() {
+            document.getElementById('description').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function exportToCSV() {
+            if (transactions.length === 0) {
+                alert('エクスポートするデータがありません。');
+                return;
+            }
+
+            const headers = ['日付', '説明', '種類', 'カテゴリ', '金額'];
+            const csvContent = [
+                headers.join(','),
+                ...transactions.map(t => [
+                    t.date,
+                    `"${t.description}"`,
+                    t.type === 'income' ? '収入' : '支出',
+                    `"${t.category}"`,
+                    t.amount
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `お金管理_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // モーダルクリックで閉じる
+        document.getElementById('editModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // 初期表示
+        updateDisplay();
+    </script>
+</body>
+</html>

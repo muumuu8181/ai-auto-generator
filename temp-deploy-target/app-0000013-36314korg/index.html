@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON TETRIS - めちゃくちゃ格好良いテトリス</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Particle Background -->
+    <div class="particle-container" id="particleContainer"></div>
+    
+    <!-- Main Container -->
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <h1 class="game-title">
+                <span class="neon-text">NEON</span>
+                <span class="cyber-text">TETRIS</span>
+            </h1>
+            <div class="version-badge">v1.0</div>
+        </header>
+
+        <!-- Game Stats -->
+        <div class="game-stats">
+            <div class="stat-box">
+                <div class="stat-label">SCORE</div>
+                <div class="stat-value neon-glow" id="score">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">LINES</div>
+                <div class="stat-value cyber-glow" id="lines">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">LEVEL</div>
+                <div class="stat-value level-glow" id="level">1</div>
+            </div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-area">
+            <!-- Hold Box -->
+            <div class="side-panel left-panel">
+                <div class="panel-title">HOLD</div>
+                <div class="hold-box" id="holdBox">
+                    <canvas id="holdCanvas" width="120" height="120"></canvas>
+                </div>
+                <div class="controls-info">
+                    <div class="control-item">
+                        <span class="key">C</span>
+                        <span class="action">Hold</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board -->
+            <div class="game-board-container">
+                <div class="game-board" id="gameBoard">
+                    <canvas id="gameCanvas" width="300" height="600"></canvas>
+                    <!-- Effect Layers -->
+                    <canvas id="effectCanvas" class="effect-layer" width="300" height="600"></canvas>
+                    <canvas id="particleCanvas" class="effect-layer" width="300" height="600"></canvas>
+                </div>
+                
+                <!-- Game Over Overlay -->
+                <div class="game-over-overlay" id="gameOverOverlay">
+                    <div class="game-over-content">
+                        <h2 class="game-over-title">GAME OVER</h2>
+                        <div class="final-score">
+                            <div class="score-label">FINAL SCORE</div>
+                            <div class="score-value" id="finalScore">0</div>
+                        </div>
+                        <button class="restart-btn neon-btn" id="restartBtn">
+                            <span class="btn-text">RESTART</span>
+                            <span class="btn-glow"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pause Overlay -->
+                <div class="pause-overlay" id="pauseOverlay">
+                    <div class="pause-content">
+                        <h2 class="pause-title">PAUSED</h2>
+                        <div class="pause-info">Press P to Resume</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Box -->
+            <div class="side-panel right-panel">
+                <div class="panel-title">NEXT</div>
+                <div class="next-box" id="nextBox">
+                    <canvas id="nextCanvas" width="120" height="400"></canvas>
+                </div>
+                <div class="combo-display" id="comboDisplay">
+                    <div class="combo-text">COMBO</div>
+                    <div class="combo-value">×<span id="comboValue">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="control-group">
+                <div class="control-key">
+                    <span class="key-icon">←</span>
+                    <span class="key-desc">Move Left</span>
+                </div>
+                <div class="control-key">
+                    <span class="key-icon">→</span>
+                    <span class="key-desc">Move Right</span>
+                </div>
+                <div class="control-key">
+                    <span class="key-icon">↓</span>
+                    <span class="key-desc">Soft Drop</span>
+                </div>
+                <div class="control-key">
+                    <span class="key-icon">Space</span>
+                    <span class="key-desc">Hard Drop</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="control-key">
+                    <span class="key-icon">Z</span>
+                    <span class="key-desc">Rotate Left</span>
+                </div>
+                <div class="control-key">
+                    <span class="key-icon">X/↑</span>
+                    <span class="key-desc">Rotate Right</span>
+                </div>
+                <div class="control-key">
+                    <span class="key-icon">C</span>
+                    <span class="key-desc">Hold Piece</span>
+                </div>
+                <div class="control-key">
+                    <span class="key-icon">P</span>
+                    <span class="key-desc">Pause</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sound Controls -->
+        <div class="sound-controls">
+            <button class="sound-toggle" id="soundToggle">
+                <span class="sound-icon">🔊</span>
+                <span class="sound-status">ON</span>
+            </button>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+        </div>
+
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <div class="start-content">
+                <h1 class="start-title">
+                    <span class="neon-flash">NEON</span>
+                    <span class="cyber-flash">TETRIS</span>
+                </h1>
+                <p class="start-subtitle">めちゃくちゃ格好良いテトリス</p>
+                <button class="start-btn pulse-btn" id="startBtn">
+                    <span class="btn-inner">START GAME</span>
+                    <span class="btn-pulse"></span>
+                </button>
+                <div class="start-info">
+                    <p>Press any key to start</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Effect Templates -->
+    <div class="effects-container" id="effectsContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

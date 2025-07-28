@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Forest - 習慣を育てる森</title>
+    <meta name="description" content="習慣をゲーム感覚で楽しく継続！あなたの良い習慣が美しい森を育てます。">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ===== ヘッダー ===== -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="app-title-section">
+                <h1 class="app-title">
+                    <i class="fas fa-seedling"></i>
+                    Habit Forest
+                </h1>
+                <p class="app-subtitle">習慣を育てる森</p>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-item">
+                    <i class="fas fa-fire"></i>
+                    <span class="stat-label">連続日数</span>
+                    <span class="stat-value" id="current-streak">0</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-tree"></i>
+                    <span class="stat-label">育てた植物</span>
+                    <span class="stat-value" id="total-plants">0</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="stat-label">今日の達成</span>
+                    <span class="stat-value" id="today-completion">0/0</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="icon-btn" id="stats-btn" title="統計を見る">
+                    <i class="fas fa-chart-line"></i>
+                </button>
+                <button class="icon-btn" id="settings-btn" title="設定">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== メインコンテンツ ===== -->
+    <main class="main-content">
+        <!-- サイドバー（習慣リスト） -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="fas fa-list-check"></i>
+                    今日の習慣
+                </h2>
+                <button class="toggle-sidebar" id="toggle-sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="habits-list" id="habits-list">
+                <!-- 習慣リストがここに動的に追加される -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <button class="add-habit-btn" id="add-habit-btn">
+                    <i class="fas fa-plus"></i>
+                    新しい習慣を追加
+                </button>
+            </div>
+            
+            <div class="empty-habits" id="empty-habits" style="display: none;">
+                <i class="fas fa-seed"></i>
+                <h3>習慣を追加しよう</h3>
+                <p>最初の種を植えて、<br>あなたの森を始めましょう！</p>
+            </div>
+        </aside>
+
+        <!-- 森のメインエリア -->
+        <section class="forest-area">
+            <div class="forest-background">
+                <!-- 背景要素（雲、太陽など） -->
+                <div class="sky-elements">
+                    <div class="sun" id="sun">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="clouds">
+                        <div class="cloud cloud-1"></div>
+                        <div class="cloud cloud-2"></div>
+                        <div class="cloud cloud-3"></div>
+                    </div>
+                </div>
+                
+                <!-- 森の地面 -->
+                <div class="forest-ground">
+                    <div class="grass-layer"></div>
+                </div>
+            </div>
+            
+            <!-- 植物が配置されるエリア -->
+            <div class="plants-container" id="plants-container">
+                <!-- 植物がここに動的に追加される -->
+            </div>
+            
+            <!-- 空の森の表示 -->
+            <div class="empty-forest" id="empty-forest">
+                <div class="empty-forest-content">
+                    <i class="fas fa-mountain"></i>
+                    <h2>あなたの森はまだ空です</h2>
+                    <p>習慣を追加して、最初の植物を育て始めましょう！</p>
+                    <button class="cta-btn" onclick="document.getElementById('add-habit-btn').click()">
+                        <i class="fas fa-seedling"></i>
+                        最初の習慣を植える
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== モーダル: 新しい習慣追加 ===== -->
+    <div class="modal-overlay" id="add-habit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-seedling"></i>
+                    新しい習慣を植える
+                </h3>
+                <button class="close-btn" id="close-add-habit">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="habit-form" id="habit-form">
+                <div class="form-group">
+                    <label for="habit-name">習慣の名前 *</label>
+                    <input type="text" id="habit-name" name="habit-name" required 
+                           placeholder="例：毎日30分読書する">
+                </div>
+                
+                <div class="form-group">
+                    <label for="habit-plant">植物を選ぶ *</label>
+                    <div class="plant-selector" id="plant-selector">
+                        <div class="plant-option" data-plant="sunflower">
+                            <i class="fas fa-sun"></i>
+                            <span>ひまわり</span>
+                        </div>
+                        <div class="plant-option" data-plant="tree">
+                            <i class="fas fa-tree"></i>
+                            <span>木</span>
+                        </div>
+                        <div class="plant-option" data-plant="flower">
+                            <i class="fas fa-flower"></i>
+                            <span>花</span>
+                        </div>
+                        <div class="plant-option" data-plant="cactus">
+                            <i class="fas fa-pagelines"></i>
+                            <span>サボテン</span>
+                        </div>
+                        <div class="plant-option" data-plant="cherry">
+                            <i class="fas fa-spa"></i>
+                            <span>桜</span>
+                        </div>
+                        <div class="plant-option" data-plant="bamboo">
+                            <i class="fas fa-leaf"></i>
+                            <span>竹</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="habit-color">カラーテーマ</label>
+                    <div class="color-selector" id="color-selector">
+                        <div class="color-option" data-color="green" style="background: #4caf50;"></div>
+                        <div class="color-option" data-color="blue" style="background: #2196f3;"></div>
+                        <div class="color-option" data-color="purple" style="background: #9c27b0;"></div>
+                        <div class="color-option" data-color="orange" style="background: #ff9800;"></div>
+                        <div class="color-option" data-color="pink" style="background: #e91e63;"></div>
+                        <div class="color-option" data-color="teal" style="background: #009688;"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="habit-description">説明（任意）</label>
+                    <textarea id="habit-description" name="habit-description" rows="3" 
+                              placeholder="この習慣について詳しく説明..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-habit">
+                        キャンセル
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-seedling"></i>
+                        植える
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== モーダル: 統計 ===== -->
+    <div class="modal-overlay" id="stats-modal">
+        <div class="modal-content stats-modal">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-chart-line"></i>
+                    あなたの森の統計
+                </h3>
+                <button class="close-btn" id="close-stats">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="stats-content">
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-day"></i>
+                        <h4>今日</h4>
+                        <p class="big-number" id="stats-today">0</p>
+                        <span>習慣達成</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-week"></i>
+                        <h4>今週</h4>
+                        <p class="big-number" id="stats-week">0</p>
+                        <span>習慣達成</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h4>今月</h4>
+                        <p class="big-number" id="stats-month">0</p>
+                        <span>習慣達成</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-trophy"></i>
+                        <h4>最長記録</h4>
+                        <p class="big-number" id="stats-longest">0</p>
+                        <span>日連続</span>
+                    </div>
+                </div>
+                
+                <div class="habits-stats">
+                    <h4>習慣別統計</h4>
+                    <div class="habits-stats-list" id="habits-stats-list">
+                        <!-- 習慣別統計がここに表示される -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== モーダル: 設定 ===== -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-cog"></i>
+                    設定
+                </h3>
+                <button class="close-btn" id="close-settings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="setting-section">
+                    <h4>表示設定</h4>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="auto-celebration" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">達成時のお祝いアニメーション</span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="sound-effects" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">効果音</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-section">
+                    <h4>通知設定</h4>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="daily-reminders">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">毎日のリマインダー</span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label for="reminder-time">リマインダー時刻</label>
+                        <input type="time" id="reminder-time" value="20:00">
+                    </div>
+                </div>
+                
+                <div class="setting-section">
+                    <h4>データ管理</h4>
+                    <div class="setting-actions">
+                        <button class="btn btn-secondary" id="export-data">
+                            <i class="fas fa-download"></i>
+                            データをエクスポート
+                        </button>
+                        <button class="btn btn-secondary" id="import-data">
+                            <i class="fas fa-upload"></i>
+                            データをインポート
+                        </button>
+                        <button class="btn btn-danger" id="reset-data">
+                            <i class="fas fa-trash"></i>
+                            すべてのデータをリセット
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="setting-section">
+                    <h4>アプリについて</h4>
+                    <div class="app-info">
+                        <p><strong>Habit Forest</strong> v1.0.0</p>
+                        <p>習慣を楽しく継続するためのアプリです。</p>
+                        <p>あなたの小さな努力が、美しい森を育てます。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== モーダル: 習慣達成おめでとう ===== -->
+    <div class="modal-overlay celebration-modal" id="celebration-modal">
+        <div class="modal-content celebration-content">
+            <div class="celebration-header">
+                <i class="fas fa-star celebration-icon"></i>
+                <h3>素晴らしい！</h3>
+                <p id="celebration-message">習慣を達成しました！</p>
+            </div>
+            <div class="celebration-plant" id="celebration-plant">
+                <!-- 成長した植物の表示 -->
+            </div>
+            <button class="btn btn-primary" id="close-celebration">
+                <i class="fas fa-heart"></i>
+                森に戻る
+            </button>
+        </div>
+    </div>
+
+    <!-- 隠しファイル入力（データインポート用） -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <!-- 効果音用audio要素 -->
+    <audio id="success-sound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRiQFAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAFAACAAAAAgAAAAIAAAACAAAAAgAAAAIAAAACAAAAA" type="audio/wav">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>

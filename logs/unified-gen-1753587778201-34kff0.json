@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "sessionId": "gen-1753587778201-34kff0",
+    "appId": null,
+    "workflowVersion": "v0.6",
+    "startTime": "2025-07-27T03:42:58.245Z",
+    "endTime": null,
+    "status": "active",
+    "environment": {
+      "hostname": "localhost",
+      "platform": "android",
+      "user": "u0_a191"
+    }
+  },
+  "phases": {
+    "environment_setup": {
+      "status": "active",
+      "logs": [
+        {
+          "timestamp": "2025-07-27T03:42:58.306679Z",
+          "source": "session-tracker",
+          "action": "session_start",
+          "description": "Session started for device localhost-u0a191-mdj47o1a-f1796e",
+          "level": "info",
+          "data": {
+            "sessionId": "gen-1753587778201-34kff0",
+            "deviceId": "localhost-u0a191-mdj47o1a-f1796e",
+            "environment": {
+              "hostname": "localhost",
+              "platform": "android",
+              "user": "u0_a191"
+            }
+          },
+          "hash": "960f2de45638f0da0da770f383f90211"
+        }
+      ],
+      "startTime": "2025-07-27T03:42:58.306679Z",
+      "endTime": null
+    },
+    "project_selection": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "ai_generation": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "deployment": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    },
+    "completion": {
+      "status": "pending",
+      "logs": [],
+      "startTime": null,
+      "endTime": null
+    }
+  },
+  "workMonitoring": {
+    "activities": [],
+    "trustScore": 100,
+    "liesDetected": 0,
+    "summary": {
+      "filesCreated": 0,
+      "filesModified": 0,
+      "buttonsAdded": 0,
+      "buttonsTested": 0,
+      "featuresImplemented": 0,
+      "featuresTested": 0,
+      "deploymentsAttempted": 0,
+      "deploymentsVerified": 0
+    }
+  },
+  "phaseChecks": {
+    "validations": [],
+    "tasksRegistered": [],
+    "tasksCompleted": [],
+    "criticalFailures": 0,
+    "totalChecks": 0
+  },
+  "sessionTracking": {
+    "duration": null,
+    "statistics": null
+  },
+  "artifacts": {
+    "files": [],
+    "urls": [],
+    "documents": []
+  },
+  "errors": [],
+  "warnings": []
+}

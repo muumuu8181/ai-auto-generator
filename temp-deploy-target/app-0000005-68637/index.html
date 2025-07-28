@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberTimer - 未来型砂時計タイマー</title>
+    <meta name="description" content="サイバーパンクスタイルの美しい砂時計タイマーアプリ">
+    <meta name="theme-color" content="#00ffff">
+    
+    <!-- PWA設定 -->
+    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;CyberTimer&quot;,&quot;short_name&quot;:&quot;Timer&quot;,&quot;description&quot;:&quot;未来型砂時計タイマー&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#000314&quot;,&quot;theme_color&quot;:&quot;#00ffff&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 20h60l-10 30 10 30H20l10-30z' fill='%2300ffff'/%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 20h60l-10 30 10 30H20l10-30z' fill='%2300ffff'/%3E%3C/svg%3E">
+    
+    <style>
+        @import url('data:text/css;base64,QGZvbnQtZmFjZSB7CiAgZm9udC1mYW1pbHk6ICdPcmJpdHJvbic7CiAgZm9udC13ZWlnaHQ6IDQwMDsKICBmb250LXN0eWxlOiBub3JtYWw7CiAgZm9udC1kaXNwbGF5OiBzd2FwOwogIHNyYzogdXJsKCdkYXRhOmZvbnQvd29mZjI7YmFzZTY0LGQwOWdtZ0FBQ0Y0QUFBQUFBQUE9JykgZm9ybWF0KCd3b2ZmMicpOwp9');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', 'Courier New', monospace;
+            background: linear-gradient(135deg, #000314 0%, #001122 50%, #000314 100%);
+            color: #00ffff;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* サイバーパンク背景エフェクト */
+        .cyber-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .cyber-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 98px,
+                #00ffff 100px,
+                #00ffff 102px
+            );
+            animation: scan 15s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #00ffff;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 20px #00ffff; }
+            100% { text-shadow: 0 0 30px #00ffff, 0 0 40px #0080ff; }
+        }
+        
+        .hourglass-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            margin: 20px auto;
+            perspective: 1000px;
+        }
+        
+        .hourglass {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border: 4px solid #00ffff;
+            border-radius: 20px 20px 20px 20px;
+            background: rgba(0, 255, 255, 0.05);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.5),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            overflow: hidden;
+            transform-style: preserve-3d;
+            animation: hourglassFloat 4s ease-in-out infinite;
+        }
+        
+        @keyframes hourglassFloat {
+            0%, 100% { transform: translateY(0px) rotateX(0deg); }
+            50% { transform: translateY(-10px) rotateX(5deg); }
+        }
+        
+        /* 砂のコンテナ */
+        .sand-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 上部の砂 */
+        .sand-top {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 45%;
+            background: linear-gradient(180deg, #ff6b00 0%, #ff8c00 50%, #ffa500 100%);
+            border-radius: 10px 10px 0 0;
+            transition: height 0.1s linear;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.5);
+        }
+        
+        /* 下部の砂 */
+        .sand-bottom {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            height: 0%;
+            background: linear-gradient(0deg, #ff6b00 0%, #ff8c00 50%, #ffa500 100%);
+            border-radius: 0 0 10px 10px;
+            transition: height 0.1s linear;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.5);
+        }
+        
+        /* 砂の粒子エフェクト */
+        .sand-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #ffa500;
+            border-radius: 50%;
+            animation: fallDown 2s linear infinite;
+            box-shadow: 0 0 5px #ff8c00;
+        }
+        
+        @keyframes fallDown {
+            0% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(200px);
+                opacity: 0;
+            }
+        }
+        
+        /* 中央の狭い部分 */
+        .narrow-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 30px;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 10px;
+            z-index: 10;
+        }
+        
+        /* コントロールパネル */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+        
+        .time-btn {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 128, 255, 0.1) 100%);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-family: inherit;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .time-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2) 0%, rgba(0, 128, 255, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .time-btn.active {
+            background: linear-gradient(135deg, #00ffff 0%, #0080ff 100%);
+            color: #000314;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%);
+            border: 2px solid #ff6b00;
+            color: #ff6b00;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+        
+        .control-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 140, 0, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 時間表示 */
+        .time-display {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 20px #00ffff;
+            animation: timeGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes timeGlow {
+            0% { text-shadow: 0 0 20px #00ffff; }
+            100% { text-shadow: 0 0 30px #00ffff, 0 0 40px #0080ff; }
+        }
+        
+        /* 完了エフェクト */
+        .completion-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 107, 0, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1000;
+            animation: completionPulse 2s ease-in-out;
+        }
+        
+        @keyframes completionPulse {
+            0%, 100% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .hourglass-container {
+                width: 250px;
+                height: 350px;
+            }
+            
+            .time-display {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .hourglass-container {
+                width: 200px;
+                height: 300px;
+            }
+            
+            .time-display {
+                font-size: 2rem;
+            }
+            
+            .time-btn, .control-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* カスタム設定パネル */
+        .custom-timer {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .custom-timer.active {
+            display: block;
+        }
+        
+        .custom-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            padding: 10px 15px;
+            font-size: 1rem;
+            font-family: inherit;
+            border-radius: 10px;
+            width: 80px;
+            text-align: center;
+            margin: 0 5px;
+        }
+        
+        .custom-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* 音響エフェクト視覚化 */
+        .sound-visualizer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 3px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sound-visualizer.active {
+            opacity: 1;
+        }
+        
+        .sound-bar {
+            width: 4px;
+            height: 20px;
+            background: #00ffff;
+            border-radius: 2px;
+            animation: soundPulse 1s ease-in-out infinite;
+        }
+        
+        .sound-bar:nth-child(2) { animation-delay: 0.1s; }
+        .sound-bar:nth-child(3) { animation-delay: 0.2s; }
+        .sound-bar:nth-child(4) { animation-delay: 0.3s; }
+        .sound-bar:nth-child(5) { animation-delay: 0.4s; }
+        
+        @keyframes soundPulse {
+            0%, 100% { height: 20px; }
+            50% { height: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-bg"></div>
+    
+    <div class="container">
+        <h1 class="title">CyberTimer</h1>
+        
+        <div class="hourglass-container">
+            <div class="hourglass">
+                <div class="sand-container">
+                    <div class="sand-top"></div>
+                    <div class="sand-bottom"></div>
+                    <div class="narrow-center"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="time-display">00:00</div>
+        
+        <div class="controls">
+            <button class="time-btn" data-time="30">30秒</button>
+            <button class="time-btn" data-time="60">1分</button>
+            <button class="time-btn" data-time="180">3分</button>
+            <button class="time-btn" data-time="300">5分</button>
+            <button class="time-btn" data-time="custom">カスタム</button>
+        </div>
+        
+        <div class="custom-timer">
+            <label>分: <input type="number" class="custom-input" id="minutes" min="0" max="59" value="0"></label>
+            <label>秒: <input type="number" class="custom-input" id="seconds" min="0" max="59" value="30"></label>
+            <button class="time-btn" onclick="setCustomTime()">設定</button>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" id="startBtn">開始</button>
+            <button class="control-btn" id="pauseBtn" disabled>一時停止</button>
+            <button class="control-btn" id="resetBtn">リセット</button>
+        </div>
+        
+        <div class="sound-visualizer">
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        class CyberTimer {
+            constructor() {
+                this.totalTime = 30; // デフォルト30秒
+                this.remainingTime = 30;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.interval = null;
+                this.animationFrame = null;
+                this.sandParticles = [];
+                this.audioContext = null;
+                
+                this.initElements();
+                this.initAudio();
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.registerServiceWorker();
+            }
+            
+            initElements() {
+                this.timeDisplay = document.querySelector('.time-display');
+                this.sandTop = document.querySelector('.sand-top');
+                this.sandBottom = document.querySelector('.sand-bottom');
+                this.sandContainer = document.querySelector('.sand-container');
+                this.startBtn = document.getElementById('startBtn');
+                this.pauseBtn = document.getElementById('pauseBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.customTimer = document.querySelector('.custom-timer');
+                this.soundVisualizer = document.querySelector('.sound-visualizer');
+            }
+            
+            initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Web Audio API not supported');
+                }
+            }
+            
+            setupEventListeners() {
+                // 時間選択ボタン
+                document.querySelectorAll('.time-btn[data-time]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const time = e.target.dataset.time;
+                        if (time === 'custom') {
+                            this.toggleCustomTimer();
+                        } else {
+                            this.setTime(parseInt(time));
+                            this.updateActiveButton(e.target);
+                        }
+                    });
+                });
+                
+                // コントロールボタン
+                this.startBtn.addEventListener('click', () => this.start());
+                this.pauseBtn.addEventListener('click', () => this.pause());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                
+                // キーボードショートカット
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        if (this.isRunning) {
+                            this.pause();
+                        } else {
+                            this.start();
+                        }
+                    } else if (e.code === 'Escape') {
+                        this.reset();
+                    }
+                });
+            }
+            
+            setTime(seconds) {
+                if (this.isRunning) return;
+                
+                this.totalTime = seconds;
+                this.remainingTime = seconds;
+                this.updateDisplay();
+                this.updateSandLevels();
+            }
+            
+            setCustomTime() {
+                const minutes = parseInt(document.getElementById('minutes').value) || 0;
+                const seconds = parseInt(document.getElementById('seconds').value) || 0;
+                const totalSeconds = minutes * 60 + seconds;
+                
+                if (totalSeconds > 0) {
+                    this.setTime(totalSeconds);
+                    this.customTimer.classList.remove('active');
+                    this.updateActiveButton(document.querySelector('.time-btn[data-time="custom"]'));
+                }
+            }
+            
+            toggleCustomTimer() {
+                this.customTimer.classList.toggle('active');
+                this.updateActiveButton(document.querySelector('.time-btn[data-time="custom"]'));
+            }
+            
+            updateActiveButton(activeBtn) {
+                document.querySelectorAll('.time-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                activeBtn.classList.add('active');
+            }
+            
+            start() {
+                if (this.remainingTime <= 0) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                this.startBtn.disabled = true;
+                this.pauseBtn.disabled = false;
+                this.soundVisualizer.classList.add('active');
+                
+                // オーディオコンテキストを再開
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+                
+                this.interval = setInterval(() => {
+                    this.remainingTime--;
+                    this.updateDisplay();
+                    this.updateSandLevels();
+                    this.createSandParticles();
+                    
+                    if (this.remainingTime <= 0) {
+                        this.complete();
+                    }
+                }, 1000);
+                
+                this.animateParticles();
+            }
+            
+            pause() {
+                this.isRunning = false;
+                this.isPaused = true;
+                this.startBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                this.soundVisualizer.classList.remove('active');
+                
+                clearInterval(this.interval);
+                cancelAnimationFrame(this.animationFrame);
+            }
+            
+            reset() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.remainingTime = this.totalTime;
+                this.startBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                this.soundVisualizer.classList.remove('active');
+                
+                clearInterval(this.interval);
+                cancelAnimationFrame(this.animationFrame);
+                
+                this.updateDisplay();
+                this.updateSandLevels();
+                this.clearParticles();
+            }
+            
+            complete() {
+                this.isRunning = false;
+                this.startBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                this.soundVisualizer.classList.remove('active');
+                
+                clearInterval(this.interval);
+                cancelAnimationFrame(this.animationFrame);
+                
+                this.showCompletionEffect();
+                this.playCompletionSound();
+                
+                // 5秒後に自動リセット
+                setTimeout(() => {
+                    this.reset();
+                }, 5000);
+            }
+            
+            updateDisplay() {
+                const minutes = Math.floor(this.remainingTime / 60);
+                const seconds = this.remainingTime % 60;
+                this.timeDisplay.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            updateSandLevels() {
+                const progress = 1 - (this.remainingTime / this.totalTime);
+                const topHeight = Math.max(0, (1 - progress) * 45);
+                const bottomHeight = Math.min(45, progress * 45);
+                
+                this.sandTop.style.height = `${topHeight}%`;
+                this.sandBottom.style.height = `${bottomHeight}%`;
+            }
+            
+            createSandParticles() {
+                if (!this.isRunning) return;
+                
+                // ランダムに粒子を生成
+                if (Math.random() < 0.7) {
+                    const particle = document.createElement('div');
+                    particle.className = 'sand-particle';
+                    particle.style.left = `${140 + Math.random() * 20}px`;
+                    particle.style.animationDuration = `${1.5 + Math.random() * 1}s`;
+                    particle.style.animationDelay = `${Math.random() * 0.5}s`;
+                    
+                    this.sandContainer.appendChild(particle);
+                    this.sandParticles.push(particle);
+                    
+                    // 粒子を削除
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                        const index = this.sandParticles.indexOf(particle);
+                        if (index > -1) {
+                            this.sandParticles.splice(index, 1);
+                        }
+                    }, 3000);
+                }
+            }
+            
+            animateParticles() {
+                if (this.isRunning) {
+                    this.createSandParticles();
+                    this.animationFrame = requestAnimationFrame(() => this.animateParticles());
+                }
+            }
+            
+            clearParticles() {
+                this.sandParticles.forEach(particle => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                });
+                this.sandParticles = [];
+            }
+            
+            showCompletionEffect() {
+                const effect = document.createElement('div');
+                effect.className = 'completion-effect';
+                document.body.appendChild(effect);
+                
+                setTimeout(() => {
+                    effect.remove();
+                }, 2000);
+                
+                // バイブレーション
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 200]);
+                }
+            }
+            
+            playCompletionSound() {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(1108.73, this.audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(1319.51, this.audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.5);
+            }
+            
+            registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    const swCode = `
+                        self.addEventListener('install', (e) => {
+                            e.waitUntil(
+                                caches.open('cybertimer-v1').then((cache) => {
+                                    return cache.addAll(['./', './index.html']);
+                                })
+                            );
+                        });
+                        
+                        self.addEventListener('fetch', (e) => {
+                            e.respondWith(
+                                caches.match(e.request).then((response) => {
+                                    return response || fetch(e.request);
+                                })
+                            );
+                        });
+                    `;
+                    
+                    const blob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(blob);
+                    
+                    navigator.serviceWorker.register(swUrl).then(() => {
+                        console.log('Service Worker registered');
+                    }).catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+                }
+            }
+        }
+        
+        // カスタム時間設定関数をグローバルスコープに
+        function setCustomTime() {
+            timer.setCustomTime();
+        }
+        
+        // アプリ初期化
+        let timer;
+        document.addEventListener('DOMContentLoaded', () => {
+            timer = new CyberTimer();
+        });
+        
+        // PWA インストールプロンプト
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // インストールボタンを表示（必要に応じて）
+            console.log('PWA installation available');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup System Verification Tool - バックアップシステム検証ツール</title>
+    <style>
+        :root {
+            --primary-color: #2196f3;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 20px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            animation: pulse 2s infinite;
+        }
+
+        .status-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-error {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .status-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .main-panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--primary-color));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .file-monitor {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .file-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: var(--bg-primary);
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .file-details {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .file-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-processing {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--primary-color);
+            animation: pulse 1s infinite;
+        }
+
+        .status-error {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--error-color);
+        }
+
+        .statistics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            margin: 20px 0;
+        }
+
+        .log-container {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+        }
+
+        .log-timestamp {
+            color: #888;
+        }
+
+        .log-success {
+            color: #00ff00;
+        }
+
+        .log-error {
+            color: #ff4444;
+        }
+
+        .log-warning {
+            color: #ffaa00;
+        }
+
+        .test-results {
+            display: grid;
+            gap: 10px;
+        }
+
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .test-name {
+            font-weight: 600;
+        }
+
+        .test-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .setting-group {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .statistics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .backup-generations {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .generation-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .generation-info {
+            flex: 1;
+        }
+
+        .generation-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini-btn {
+            padding: 4px 8px;
+            font-size: 0.8em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: var(--primary-color);
+            color: white;
+            transition: opacity 0.3s ease;
+        }
+
+        .mini-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🛡️ Backup Verification System</div>
+            <div class="status-indicator">
+                <div class="status-badge status-success" id="systemStatus">システム正常</div>
+                <button class="btn btn-primary" onclick="openSettings()">⚙️ 設定</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="action-buttons">
+            <button class="btn btn-success" onclick="startMonitoring()" id="startBtn">▶️ 監視開始</button>
+            <button class="btn btn-primary" onclick="runBackup()" id="backupBtn">💾 バックアップ実行</button>
+            <button class="btn btn-primary" onclick="runVerification()" id="verifyBtn">🔍 整合性確認</button>
+            <button class="btn btn-danger" onclick="runFullTest()" id="testBtn">🧪 全機能テスト</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="main-panel">
+                <div class="panel-title">リアルタイム監視ダッシュボード</div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>バックアップ進行状況</span>
+                        <span id="progressText">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="statistics-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalFiles">0</div>
+                        <div class="stat-label">監視ファイル</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="backedUpFiles">0</div>
+                        <div class="stat-label">バックアップ済み</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="errorCount">0</div>
+                        <div class="stat-label">エラー</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="successRate">100%</div>
+                        <div class="stat-label">成功率</div>
+                    </div>
+                </div>
+
+                <div class="panel-title">ファイル監視リスト</div>
+                <div class="file-monitor" id="fileMonitor">
+                    <!-- ファイル監視リストがここに表示されます -->
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel">
+                    <div class="panel-title">テスト結果</div>
+                    <div class="test-results" id="testResults">
+                        <!-- テスト結果がここに表示されます -->
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">バックアップ世代管理</div>
+                    <div class="backup-generations" id="backupGenerations">
+                        <!-- バックアップ世代がここに表示されます -->
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">システムログ</div>
+                    <div class="log-container" id="systemLog">
+                        <!-- システムログがここに表示されます -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSettings()">&times;</span>
+            <div class="modal-title">バックアップシステム設定</div>
+            
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <div class="setting-label">監視対象フォルダ</div>
+                    <input type="text" class="setting-input" id="watchFolder" value="/documents" placeholder="監視フォルダパス">
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-label">バックアップ先</div>
+                    <input type="text" class="setting-input" id="backupDestination" value="/backup" placeholder="バックアップ先パス">
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-label">除外パターン</div>
+                    <input type="text" class="setting-input" id="excludePattern" value="*.tmp,*.log,node_modules" placeholder="除外ファイルパターン">
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-label">バックアップ間隔（分）</div>
+                    <input type="number" class="setting-input" id="backupInterval" value="5" min="1" max="1440">
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-label">保持世代数</div>
+                    <input type="number" class="setting-input" id="maxGenerations" value="10" min="1" max="50">
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn btn-success" onclick="saveSettings()">✅ 設定を保存</button>
+                <button class="btn" onclick="closeSettings()" style="margin-left: 10px;">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // バックアップシステム検証ツール
+        class BackupVerificationSystem {
+            constructor() {
+                this.isMonitoring = false;
+                this.files = new Map();
+                this.backupJobs = [];
+                this.testResults = [];
+                this.logEntries = [];
+                this.statistics = {
+                    totalFiles: 0,
+                    backedUpFiles: 0,
+                    errorCount: 0,
+                    successRate: 100
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.loadSettings();
+                this.setupSampleData();
+                this.updateUI();
+                this.startLogSimulation();
+            }
+
+            setupSampleData() {
+                // サンプルファイルデータの生成
+                const sampleFiles = [
+                    { path: '/documents/project1/readme.md', size: 2048, type: 'markdown' },
+                    { path: '/documents/project1/config.json', size: 512, type: 'json' },
+                    { path: '/documents/project2/report.txt', size: 8192, type: 'text' },
+                    { path: '/documents/images/logo.png', size: 15360, type: 'binary' },
+                    { path: '/documents/data/database.db', size: 1048576, type: 'binary' }
+                ];
+
+                sampleFiles.forEach(file => {
+                    this.files.set(file.path, {
+                        ...file,
+                        lastModified: new Date(Date.now() - Math.random() * 86400000),
+                        md5: this.generateMockMD5(),
+                        status: Math.random() > 0.8 ? 'error' : 'success',
+                        backupTime: new Date(Date.now() - Math.random() * 3600000)
+                    });
+                });
+
+                this.statistics.totalFiles = this.files.size;
+                this.statistics.backedUpFiles = Array.from(this.files.values()).filter(f => f.status === 'success').length;
+                this.statistics.errorCount = Array.from(this.files.values()).filter(f => f.status === 'error').length;
+                this.statistics.successRate = Math.round((this.statistics.backedUpFiles / this.statistics.totalFiles) * 100);
+
+                // サンプルバックアップ世代
+                this.generateBackupGenerations();
+            }
+
+            generateMockMD5() {
+                return Array.from({length: 32}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+            }
+
+            generateBackupGenerations() {
+                const generations = [];
+                for (let i = 1; i <= 10; i++) {
+                    generations.push({
+                        id: i,
+                        timestamp: new Date(Date.now() - i * 3600000),
+                        size: Math.floor(Math.random() * 100) + 50 + 'MB',
+                        status: Math.random() > 0.9 ? 'corrupted' : 'valid',
+                        files: Math.floor(Math.random() * 20) + 10
+                    });
+                }
+                this.backupGenerations = generations;
+            }
+
+            startMonitoring() {
+                if (this.isMonitoring) {
+                    this.stopMonitoring();
+                    return;
+                }
+
+                this.isMonitoring = true;
+                document.getElementById('startBtn').textContent = '⏹️ 監視停止';
+                document.getElementById('systemStatus').textContent = '監視中';
+                document.getElementById('systemStatus').className = 'status-badge status-warning';
+
+                this.addLog('ファイル監視を開始しました', 'success');
+                
+                // シミュレーション: ランダムなファイル変更を検知
+                this.monitoringInterval = setInterval(() => {
+                    this.simulateFileChange();
+                }, 2000);
+
+                this.showNotification('ファイル監視を開始しました', 'success');
+            }
+
+            stopMonitoring() {
+                this.isMonitoring = false;
+                clearInterval(this.monitoringInterval);
+                
+                document.getElementById('startBtn').textContent = '▶️ 監視開始';
+                document.getElementById('systemStatus').textContent = 'システム正常';
+                document.getElementById('systemStatus').className = 'status-badge status-success';
+
+                this.addLog('ファイル監視を停止しました', 'warning');
+                this.showNotification('ファイル監視を停止しました', 'warning');
+            }
+
+            simulateFileChange() {
+                const filePaths = Array.from(this.files.keys());
+                const randomFile = filePaths[Math.floor(Math.random() * filePaths.length)];
+                const file = this.files.get(randomFile);
+                
+                file.lastModified = new Date();
+                file.status = 'processing';
+                
+                this.addLog(`ファイル変更を検知: ${randomFile}`, 'success');
+                this.updateFileMonitor();
+                
+                // シミュレーション: バックアップ処理
+                setTimeout(() => {
+                    file.status = Math.random() > 0.1 ? 'success' : 'error';
+                    if (file.status === 'success') {
+                        file.backupTime = new Date();
+                        file.md5 = this.generateMockMD5();
+                        this.statistics.backedUpFiles++;
+                    } else {
+                        this.statistics.errorCount++;
+                    }
+                    this.updateStatistics();
+                    this.updateFileMonitor();
+                    this.addLog(`バックアップ ${file.status === 'success' ? '成功' : '失敗'}: ${randomFile}`, file.status);
+                }, 1000);
+            }
+
+            runBackup() {
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                let progress = 0;
+
+                this.addLog('手動バックアップを開始します', 'success');
+                this.showNotification('バックアップを開始しました', 'success');
+
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        this.addLog('手動バックアップが完了しました', 'success');
+                        this.showNotification('バックアップが完了しました', 'success');
+                        
+                        // 統計更新
+                        this.statistics.backedUpFiles = this.statistics.totalFiles;
+                        this.statistics.errorCount = Math.floor(Math.random() * 2);
+                        this.updateStatistics();
+                    }
+                    
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                }, 200);
+            }
+
+            runVerification() {
+                this.addLog('整合性確認を開始します', 'success');
+                this.showNotification('整合性確認を開始しました', 'success');
+
+                let checkedFiles = 0;
+                const totalFiles = this.files.size;
+
+                const checkFile = () => {
+                    if (checkedFiles < totalFiles) {
+                        checkedFiles++;
+                        const progress = (checkedFiles / totalFiles) * 100;
+                        
+                        document.getElementById('progressFill').style.width = progress + '%';
+                        document.getElementById('progressText').textContent = Math.round(progress) + '%';
+                        
+                        // ランダムに整合性チェック結果をシミュレート
+                        if (Math.random() > 0.95) {
+                            this.addLog(`整合性エラーを検出: ファイル${checkedFiles}`, 'error');
+                            this.statistics.errorCount++;
+                        }
+                        
+                        setTimeout(checkFile, 100);
+                    } else {
+                        this.addLog('整合性確認が完了しました', 'success');
+                        this.showNotification('整合性確認が完了しました', 'success');
+                        this.updateStatistics();
+                    }
+                };
+
+                checkFile();
+            }
+
+            runFullTest() {
+                this.addLog('全機能テストを開始します', 'success');
+                this.showNotification('全機能テストを開始しました', 'success');
+
+                const tests = [
+                    { name: 'ファイル監視機能', duration: 1000 },
+                    { name: 'バックアップ機能', duration: 1500 },
+                    { name: 'MD5整合性確認', duration: 2000 },
+                    { name: 'Markdown解析', duration: 800 },
+                    { name: 'JSON解析', duration: 600 },
+                    { name: '復旧機能テスト', duration: 1200 },
+                    { name: 'エラーハンドリング', duration: 900 }
+                ];
+
+                this.testResults = [];
+                let testIndex = 0;
+
+                const runNextTest = () => {
+                    if (testIndex < tests.length) {
+                        const test = tests[testIndex];
+                        this.addLog(`テスト実行中: ${test.name}`, 'success');
+                        
+                        setTimeout(() => {
+                            const success = Math.random() > 0.2;
+                            const result = {
+                                name: test.name,
+                                status: success ? 'pass' : 'fail',
+                                duration: test.duration + Math.random() * 200,
+                                score: success ? Math.floor(Math.random() * 20) + 80 : Math.floor(Math.random() * 50) + 20
+                            };
+                            
+                            this.testResults.push(result);
+                            this.addLog(`テスト${success ? '成功' : '失敗'}: ${test.name} (${result.score}点)`, success ? 'success' : 'error');
+                            this.updateTestResults();
+                            
+                            testIndex++;
+                            runNextTest();
+                        }, test.duration);
+                    } else {
+                        const averageScore = this.testResults.reduce((sum, test) => sum + test.score, 0) / this.testResults.length;
+                        this.addLog(`全機能テスト完了 - 平均スコア: ${Math.round(averageScore)}点`, 'success');
+                        this.showNotification('全機能テストが完了しました', 'success');
+                    }
+                };
+
+                runNextTest();
+            }
+
+            updateUI() {
+                this.updateStatistics();
+                this.updateFileMonitor();
+                this.updateTestResults();
+                this.updateBackupGenerations();
+            }
+
+            updateStatistics() {
+                document.getElementById('totalFiles').textContent = this.statistics.totalFiles;
+                document.getElementById('backedUpFiles').textContent = this.statistics.backedUpFiles;
+                document.getElementById('errorCount').textContent = this.statistics.errorCount;
+                
+                this.statistics.successRate = this.statistics.totalFiles > 0 
+                    ? Math.round((this.statistics.backedUpFiles / this.statistics.totalFiles) * 100)
+                    : 100;
+                document.getElementById('successRate').textContent = this.statistics.successRate + '%';
+            }
+
+            updateFileMonitor() {
+                const monitor = document.getElementById('fileMonitor');
+                monitor.innerHTML = '';
+
+                this.files.forEach((file, path) => {
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    
+                    const statusClass = file.status === 'success' ? 'status-success' : 
+                                       file.status === 'processing' ? 'status-processing' : 'status-error';
+                    
+                    const statusText = file.status === 'success' ? '✅ 成功' : 
+                                      file.status === 'processing' ? '⏳ 処理中' : '❌ エラー';
+
+                    item.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-name">${path.split('/').pop()}</div>
+                            <div class="file-details">
+                                ${(file.size / 1024).toFixed(1)}KB | 
+                                最終更新: ${file.lastModified.toLocaleTimeString()} |
+                                MD5: ${file.md5.substring(0, 8)}...
+                            </div>
+                        </div>
+                        <div class="file-status ${statusClass}">${statusText}</div>
+                    `;
+                    
+                    monitor.appendChild(item);
+                });
+            }
+
+            updateTestResults() {
+                const container = document.getElementById('testResults');
+                container.innerHTML = '';
+
+                if (this.testResults.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">テスト結果がありません</div>';
+                    return;
+                }
+
+                this.testResults.forEach(test => {
+                    const item = document.createElement('div');
+                    item.className = 'test-item';
+                    
+                    const statusClass = test.status === 'pass' ? 'status-success' : 'status-error';
+                    const statusText = test.status === 'pass' ? '✅ 合格' : '❌ 不合格';
+
+                    item.innerHTML = `
+                        <div>
+                            <div class="test-name">${test.name}</div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary);">
+                                ${test.duration}ms | スコア: ${test.score}点
+                            </div>
+                        </div>
+                        <div class="test-status ${statusClass}">${statusText}</div>
+                    `;
+                    
+                    container.appendChild(item);
+                });
+            }
+
+            updateBackupGenerations() {
+                const container = document.getElementById('backupGenerations');
+                container.innerHTML = '';
+
+                this.backupGenerations.forEach(gen => {
+                    const item = document.createElement('div');
+                    item.className = 'generation-item';
+                    
+                    const statusIcon = gen.status === 'valid' ? '✅' : '⚠️';
+                    
+                    item.innerHTML = `
+                        <div class="generation-info">
+                            <div>世代 ${gen.id} ${statusIcon}</div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary);">
+                                ${gen.timestamp.toLocaleString()} | ${gen.size} | ${gen.files}ファイル
+                            </div>
+                        </div>
+                        <div class="generation-actions">
+                            <button class="mini-btn" onclick="backupSystem.restoreGeneration(${gen.id})">復元</button>
+                            <button class="mini-btn" onclick="backupSystem.deleteGeneration(${gen.id})" style="background: var(--error-color);">削除</button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(item);
+                });
+            }
+
+            restoreGeneration(id) {
+                this.addLog(`世代 ${id} からの復元を開始`, 'success');
+                this.showNotification(`世代 ${id} からの復元を開始しました`, 'success');
+                
+                setTimeout(() => {
+                    this.addLog(`世代 ${id} からの復元が完了`, 'success');
+                    this.showNotification('復元が完了しました', 'success');
+                }, 2000);
+            }
+
+            deleteGeneration(id) {
+                if (confirm(`世代 ${id} を削除しますか？`)) {
+                    this.backupGenerations = this.backupGenerations.filter(gen => gen.id !== id);
+                    this.updateBackupGenerations();
+                    this.addLog(`世代 ${id} を削除しました`, 'warning');
+                    this.showNotification('バックアップ世代を削除しました', 'warning');
+                }
+            }
+
+            addLog(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = {
+                    timestamp,
+                    message,
+                    type
+                };
+                
+                this.logEntries.unshift(logEntry);
+                if (this.logEntries.length > 100) {
+                    this.logEntries.pop();
+                }
+                
+                this.updateSystemLog();
+            }
+
+            updateSystemLog() {
+                const container = document.getElementById('systemLog');
+                container.innerHTML = '';
+
+                this.logEntries.slice(0, 20).forEach(entry => {
+                    const logDiv = document.createElement('div');
+                    logDiv.className = 'log-entry';
+                    
+                    const typeClass = entry.type === 'success' ? 'log-success' :
+                                     entry.type === 'error' ? 'log-error' :
+                                     entry.type === 'warning' ? 'log-warning' : '';
+                    
+                    logDiv.innerHTML = `<span class="log-timestamp">[${entry.timestamp}]</span> <span class="${typeClass}">${entry.message}</span>`;
+                    container.appendChild(logDiv);
+                });
+                
+                container.scrollTop = 0;
+            }
+
+            startLogSimulation() {
+                // 定期的にシステムログを生成
+                setInterval(() => {
+                    if (Math.random() > 0.7) {
+                        const messages = [
+                            'システム状態を確認中...',
+                            'メモリ使用量: 正常',
+                            'ディスク容量チェック完了',
+                            'ネットワーク接続確認'
+                        ];
+                        this.addLog(messages[Math.floor(Math.random() * messages.length)], 'info');
+                    }
+                }, 5000);
+            }
+
+            showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification status-${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            loadSettings() {
+                // 設定の読み込み（localStorage等から）
+                this.settings = {
+                    watchFolder: '/documents',
+                    backupDestination: '/backup',
+                    excludePattern: '*.tmp,*.log,node_modules',
+                    backupInterval: 5,
+                    maxGenerations: 10
+                };
+            }
+
+            saveSettings() {
+                this.settings = {
+                    watchFolder: document.getElementById('watchFolder').value,
+                    backupDestination: document.getElementById('backupDestination').value,
+                    excludePattern: document.getElementById('excludePattern').value,
+                    backupInterval: parseInt(document.getElementById('backupInterval').value),
+                    maxGenerations: parseInt(document.getElementById('maxGenerations').value)
+                };
+
+                this.addLog('設定を保存しました', 'success');
+                this.showNotification('設定を保存しました', 'success');
+                closeSettings();
+            }
+        }
+
+        // グローバル関数
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function saveSettings() {
+            backupSystem.saveSettings();
+        }
+
+        // アプリケーション初期化
+        let backupSystem;
+        document.addEventListener('DOMContentLoaded', () => {
+            backupSystem = new BackupVerificationSystem();
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'b':
+                        e.preventDefault();
+                        backupSystem.runBackup();
+                        break;
+                    case 't':
+                        e.preventDefault();
+                        backupSystem.runFullTest();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        openSettings();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

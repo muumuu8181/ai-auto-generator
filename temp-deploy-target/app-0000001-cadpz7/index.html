@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 お金管理システム</h1>
+            <div class="summary">
+                <div class="summary-item">
+                    <span>収入合計</span>
+                    <span class="amount income" id="totalIncome">¥0</span>
+                </div>
+                <div class="summary-item">
+                    <span>支出合計</span>
+                    <span class="amount expense" id="totalExpense">¥0</span>
+                </div>
+                <div class="summary-item">
+                    <span>残高</span>
+                    <span class="amount balance" id="balance">¥0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="input-section">
+            <h2>新規入力</h2>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="type">種別</label>
+                    <select id="type" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">カテゴリ</label>
+                    <input type="text" id="category" placeholder="例: 給料、食費" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">金額</label>
+                    <input type="number" id="amount" placeholder="0" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="date">日付</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="memo">メモ</label>
+                    <input type="text" id="memo" placeholder="任意">
+                </div>
+                <button type="submit" id="submitBtn">追加</button>
+            </form>
+        </div>
+
+        <div class="list-section">
+            <div class="list-header">
+                <h2>取引履歴</h2>
+                <button id="exportBtn" class="export-btn">CSVダウンロード</button>
+            </div>
+            <div id="transactionList" class="transaction-list">
+                <!-- 取引履歴がここに表示されます -->
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>取引編集</h2>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="editType">種別</label>
+                    <select id="editType" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editCategory">カテゴリ</label>
+                    <input type="text" id="editCategory" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAmount">金額</label>
+                    <input type="number" id="editAmount" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="editDate">日付</label>
+                    <input type="date" id="editDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="editMemo">メモ</label>
+                    <input type="text" id="editMemo">
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit">更新</button>
+                    <button type="button" id="cancelEdit">キャンセル</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

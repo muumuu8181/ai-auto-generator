@@ -1,0 +1,285 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    gap: 30px;
+    max-width: 1000px;
+    width: 100%;
+}
+
+.calculator {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex: 1;
+    max-width: 400px;
+}
+
+.display-section {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.history {
+    color: #888;
+    font-size: 14px;
+    min-height: 25px;
+    text-align: right;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.display {
+    color: #fff;
+    font-size: 48px;
+    font-weight: 300;
+    text-align: right;
+    min-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 400;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn.number {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.btn.operator {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    font-weight: 500;
+}
+
+.btn.function {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn.equals {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    grid-column: span 2;
+    font-weight: 600;
+}
+
+.btn.zero {
+    grid-column: span 2;
+}
+
+/* 履歴パネル */
+.history-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    flex: 1;
+    max-width: 300px;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-panel h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.history-item {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.history-item:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: translateX(5px);
+}
+
+.history-expression {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.history-result {
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.clear-history {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.clear-history:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* スクロールバーのスタイリング */
+.history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.5);
+    border-radius: 3px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.8);
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.history-item {
+    animation: fadeIn 0.3s ease;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .calculator {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .history-panel {
+        max-width: 100%;
+        width: 100%;
+        max-height: 400px;
+    }
+    
+    .btn {
+        padding: 20px;
+        font-size: 20px;
+    }
+    
+    .display {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calculator {
+        padding: 20px;
+    }
+    
+    .btn {
+        padding: 15px;
+        font-size: 18px;
+    }
+    
+    .display {
+        font-size: 32px;
+    }
+    
+    .buttons {
+        gap: 10px;
+    }
+}

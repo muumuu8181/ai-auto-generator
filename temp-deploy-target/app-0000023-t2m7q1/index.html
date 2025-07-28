@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock Pro - デジタル時計</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="clock-container">
+        <header class="controls">
+            <button id="settings-btn"><i class="fas fa-cog"></i></button>
+            <button id="fullscreen-btn"><i class="fas fa-expand"></i></button>
+        </header>
+        
+        <main class="clock-display">
+            <div class="time-display">
+                <div class="time" id="time">00:00:00</div>
+                <div class="date" id="date">2025年7月26日</div>
+                <div class="day" id="day">土曜日</div>
+            </div>
+            
+            <div class="additional-info">
+                <div class="timezone" id="timezone">JST</div>
+                <div class="ampm" id="ampm"></div>
+            </div>
+        </main>
+        
+        <div class="settings-panel" id="settings-panel">
+            <h3>設定</h3>
+            <div class="setting-group">
+                <label>24時間表示</label>
+                <input type="checkbox" id="format-24h" checked>
+            </div>
+            <div class="setting-group">
+                <label>秒表示</label>
+                <input type="checkbox" id="show-seconds" checked>
+            </div>
+            <div class="setting-group">
+                <label>カラーテーマ</label>
+                <select id="color-theme">
+                    <option value="blue">ブルー</option>
+                    <option value="green">グリーン</option>
+                    <option value="red">レッド</option>
+                    <option value="purple">パープル</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>背景</label>
+                <select id="background-style">
+                    <option value="gradient">グラデーション</option>
+                    <option value="solid">単色</option>
+                    <option value="dark">ダーク</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

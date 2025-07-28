@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythm Beat - リズムゲーム</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1><i class="fas fa-music"></i> Rhythm Beat</h1>
+            <div class="game-stats">
+                <span>スコア: <span id="score">0</span></span>
+                <span>コンボ: <span id="combo">0</span></span>
+            </div>
+        </header>
+        
+        <div class="game-area">
+            <div class="note-lanes">
+                <div class="lane" data-key="d"><div class="hit-zone"></div></div>
+                <div class="lane" data-key="f"><div class="hit-zone"></div></div>
+                <div class="lane" data-key="j"><div class="hit-zone"></div></div>
+                <div class="lane" data-key="k"><div class="hit-zone"></div></div>
+            </div>
+            
+            <div class="controls">
+                <div class="key-hint">
+                    <span>D</span><span>F</span><span>J</span><span>K</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-controls">
+            <button id="start-btn" class="btn primary">スタート</button>
+            <button id="pause-btn" class="btn secondary">ポーズ</button>
+            <select id="difficulty">
+                <option value="easy">簡単</option>
+                <option value="normal" selected>普通</option>
+                <option value="hard">難しい</option>
+            </select>
+        </div>
+        
+        <div class="result-modal" id="result-modal">
+            <div class="modal-content">
+                <h2>ゲーム終了！</h2>
+                <p>最終スコア: <span id="final-score"></span></p>
+                <p>最大コンボ: <span id="max-combo"></span></p>
+                <button onclick="location.reload()">もう一度</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

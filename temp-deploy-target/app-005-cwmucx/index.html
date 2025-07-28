@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💾 バックアップシステム検証アプリ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💾 バックアップシステム検証アプリ</h1>
+            <div class="status-info">
+                <div class="status-item">
+                    <span class="label">システム状態:</span>
+                    <span id="systemStatus" class="status ready">準備完了</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">最終テスト:</span>
+                    <span id="lastTest">未実行</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">成功率:</span>
+                    <span id="successRate">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="test-controls">
+                    <h3>🚀 テスト実行</h3>
+                    <button id="quickTestBtn" class="btn primary">クイックテスト</button>
+                    <button id="fullTestBtn" class="btn secondary">完全テスト</button>
+                    <button id="stressTestBtn" class="btn warning">ストレステスト</button>
+                    <button id="stopTestBtn" class="btn danger">停止</button>
+                </div>
+                
+                <div class="backup-controls">
+                    <h3>📁 バックアップ管理</h3>
+                    <button id="createBackupBtn" class="btn">バックアップ作成</button>
+                    <button id="restoreBtn" class="btn">復元テスト</button>
+                    <button id="verifyBtn" class="btn">整合性確認</button>
+                    <button id="cleanupBtn" class="btn">クリーンアップ</button>
+                </div>
+                
+                <div class="monitoring-controls">
+                    <h3>📊 監視設定</h3>
+                    <label>
+                        <input type="checkbox" id="realtimeToggle" checked>
+                        リアルタイム監視
+                    </label>
+                    <label>
+                        <input type="checkbox" id="autoBackupToggle" checked>
+                        自動バックアップ
+                    </label>
+                    <label>
+                        <input type="checkbox" id="alertsToggle" checked>
+                        アラート通知
+                    </label>
+                    <div class="interval-setting">
+                        <label for="intervalSlider">監視間隔:</label>
+                        <input type="range" id="intervalSlider" min="1" max="60" value="5">
+                        <span id="intervalValue">5</span>秒
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualization-area">
+                <div class="stats-dashboard">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="successCount">0</div>
+                            <div class="stat-label">成功</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">❌</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="failureCount">0</div>
+                            <div class="stat-label">失敗</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalTests">0</div>
+                            <div class="stat-label">総テスト</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="avgTime">0ms</div>
+                            <div class="stat-label">平均時間</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="statsChart" width="600" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="file-monitor">
+                <h3>📁 ファイル監視</h3>
+                <div id="fileList" class="file-list"></div>
+            </div>
+            
+            <div class="test-results">
+                <h3>📋 テスト結果</h3>
+                <div id="testResults" class="results-list"></div>
+            </div>
+            
+            <div class="backup-list">
+                <h3>💾 バックアップ一覧</h3>
+                <div id="backupList" class="backup-items"></div>
+            </div>
+        </div>
+        
+        <div class="log-section">
+            <h3>📝 システムログ</h3>
+            <div id="systemLog" class="log-container"></div>
+            <div class="log-controls">
+                <button id="clearLogBtn" class="btn small">ログクリア</button>
+                <button id="exportLogBtn" class="btn small">ログエクスポート</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

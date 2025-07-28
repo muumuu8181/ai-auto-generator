@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌠 Epic Meteor Shower - 超絶格好良い隕石落下アニメーション</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #000011, #001133, #003366);
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 星空背景 */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.8) 1px, transparent 1px),
+                radial-gradient(circle at 40% 40%, rgba(255,255,255,0.6) 1px, transparent 1px),
+                radial-gradient(circle at 60% 30%, rgba(255,255,255,0.9) 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.7) 1px, transparent 1px),
+                radial-gradient(circle at 90% 10%, rgba(255,255,255,0.5) 1px, transparent 1px);
+            background-size: 200px 200px, 150px 150px, 300px 300px, 250px 250px, 180px 180px;
+            animation: twinkle 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* メインキャンバス */
+        #meteorCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            cursor: crosshair;
+        }
+
+        /* コントロールパネル */
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(0,255,255,0.5);
+            box-shadow: 0 0 30px rgba(0,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .control-panel h2 {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            color: #ccc;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid rgba(0,255,255,0.3);
+            border-radius: 5px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.5);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6600, #ff9900);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            box-shadow: 0 0 15px rgba(255,102,0,0.5);
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255,102,0,0.8);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 統計表示 */
+        .stats {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,0,255,0.5);
+            box-shadow: 0 0 20px rgba(255,0,255,0.3);
+            backdrop-filter: blur(10px);
+            font-size: 12px;
+        }
+
+        .stats h3 {
+            color: #ff00ff;
+            text-shadow: 0 0 8px #ff00ff;
+            margin-bottom: 10px;
+        }
+
+        .stat-item {
+            margin: 5px 0;
+            color: #ccc;
+        }
+
+        .stat-value {
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .control-panel {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 15px;
+            }
+            
+            .stats {
+                top: auto;
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+            }
+            
+            .control-group {
+                margin-bottom: 10px;
+            }
+        }
+
+        /* 隕石爆発エフェクト用のオーバーレイ */
+        .explosion-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="starfield"></div>
+    
+    <canvas id="meteorCanvas"></canvas>
+    
+    <div class="explosion-overlay" id="explosionOverlay"></div>
+    
+    <div class="control-panel">
+        <h2>🌠 隕石制御システム</h2>
+        
+        <div class="control-group">
+            <label>隕石生成間隔 (ms)</label>
+            <input type="range" id="spawnRate" min="100" max="2000" value="500">
+            <span id="spawnRateValue">500ms</span>
+        </div>
+        
+        <div class="control-group">
+            <label>隕石サイズ範囲</label>
+            <input type="range" id="meteorSize" min="5" max="50" value="20">
+            <span id="meteorSizeValue">20px</span>
+        </div>
+        
+        <div class="control-group">
+            <label>隕石速度</label>
+            <input type="range" id="meteorSpeed" min="1" max="20" value="8">
+            <span id="meteorSpeedValue">8</span>
+        </div>
+        
+        <div class="control-group">
+            <label>隕石タイプ</label>
+            <select id="meteorType">
+                <option value="random">ランダム</option>
+                <option value="fire">火炎隕石</option>
+                <option value="ice">氷隕石</option>
+                <option value="electric">電気隕石</option>
+                <option value="toxic">毒隕石</option>
+                <option value="rainbow">虹隕石</option>
+            </select>
+        </div>
+        
+        <button class="btn" id="startBtn">🚀 隕石雨開始</button>
+        <button class="btn" id="stopBtn">⏹️ 停止</button>
+        <button class="btn" id="clearBtn">🧹 画面クリア</button>
+        <button class="btn" id="explosionBtn">💥 大爆発</button>
+    </div>
+    
+    <div class="stats">
+        <h3>📊 統計</h3>
+        <div class="stat-item">隕石総数: <span class="stat-value" id="meteorCount">0</span></div>
+        <div class="stat-item">爆発数: <span class="stat-value" id="explosionCount">0</span></div>
+        <div class="stat-item">FPS: <span class="stat-value" id="fpsCounter">60</span></div>
+        <div class="stat-item">アクティブ: <span class="stat-value" id="activeMeteors">0</span></div>
+    </div>
+
+    <script>
+        // グローバル変数
+        const canvas = document.getElementById('meteorCanvas');
+        const ctx = canvas.getContext('2d');
+        let meteors = [];
+        let particles = [];
+        let animationId = null;
+        let isRunning = false;
+        let lastTime = 0;
+        let frameCount = 0;
+        let fpsTime = 0;
+        
+        // 統計
+        let totalMeteors = 0;
+        let totalExplosions = 0;
+        
+        // 設定
+        let config = {
+            spawnRate: 500,
+            meteorSize: 20,
+            meteorSpeed: 8,
+            meteorType: 'random',
+            lastSpawn: 0
+        };
+        
+        // 隕石タイプ定義
+        const meteorTypes = {
+            fire: {
+                colors: ['#ff4400', '#ff8800', '#ffaa00', '#ff6600'],
+                glowColor: '#ff4400',
+                trailLength: 15,
+                sound: 'fire'
+            },
+            ice: {
+                colors: ['#00aaff', '#66ccff', '#aaeeff', '#ffffff'],
+                glowColor: '#00aaff',
+                trailLength: 20,
+                sound: 'ice'
+            },
+            electric: {
+                colors: ['#ffff00', '#ffffff', '#aaffff', '#ffff88'],
+                glowColor: '#ffff00',
+                trailLength: 25,
+                sound: 'electric'
+            },
+            toxic: {
+                colors: ['#88ff00', '#aaff44', '#66dd00', '#44bb00'],
+                glowColor: '#88ff00',
+                trailLength: 12,
+                sound: 'toxic'
+            },
+            rainbow: {
+                colors: ['#ff0088', '#ff8800', '#ffff00', '#00ff88', '#0088ff', '#8800ff'],
+                glowColor: '#ff00ff',
+                trailLength: 30,
+                sound: 'rainbow'
+            }
+        };
+        
+        // 音響システム (Web Audio API)
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type, frequency = 440, duration = 0.2) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // 隕石タイプ別の音響設定
+            switch (type) {
+                case 'fire':
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'sawtooth';
+                    break;
+                case 'ice':
+                    oscillator.frequency.value = frequency * 1.5;
+                    oscillator.type = 'sine';
+                    break;
+                case 'electric':
+                    oscillator.frequency.value = frequency * 2;
+                    oscillator.type = 'square';
+                    break;
+                case 'toxic':
+                    oscillator.frequency.value = frequency * 0.7;
+                    oscillator.type = 'triangle';
+                    break;
+                case 'rainbow':
+                    oscillator.frequency.value = frequency * 1.2;
+                    oscillator.type = 'sine';
+                    break;
+                default:
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'sine';
+            }
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // 隕石クラス
+        class Meteor {
+            constructor(x, y, size, speed, type) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.speed = speed;
+                this.type = type;
+                this.angle = Math.random() * Math.PI * 2;
+                this.rotation = 0;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+                this.trail = [];
+                this.life = 1.0;
+                this.typeData = meteorTypes[type] || meteorTypes.fire;
+                
+                // ランダムな方向ベクトル
+                this.vx = Math.cos(this.angle) * speed + (Math.random() - 0.5) * 2;
+                this.vy = Math.sin(this.angle) * speed + Math.random() * 3 + 1;
+                
+                // 音を鳴らす
+                playSound(type, 200 + Math.random() * 400, 0.1);
+            }
+            
+            update() {
+                // 軌跡記録
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.typeData.trailLength) {
+                    this.trail.shift();
+                }
+                
+                // 位置更新
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1; // 重力
+                this.rotation += this.rotationSpeed;
+                
+                // 画面外チェック
+                return this.x < -100 || this.x > canvas.width + 100 || 
+                       this.y < -100 || this.y > canvas.height + 100;
+            }
+            
+            draw(ctx) {
+                // 軌跡描画
+                if (this.trail.length > 1) {
+                    const gradient = ctx.createLinearGradient(
+                        this.trail[0].x, this.trail[0].y,
+                        this.x, this.y
+                    );
+                    gradient.addColorStop(0, 'transparent');
+                    gradient.addColorStop(1, this.typeData.glowColor + '80');
+                    
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = this.size * 0.5;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    
+                    for (let i = 0; i < this.trail.length - 1; i++) {
+                        const alpha = i / this.trail.length;
+                        if (i === 0) {
+                            ctx.moveTo(this.trail[i].x, this.trail[i].y);
+                        } else {
+                            ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+                
+                // グロー効果
+                ctx.shadowColor = this.typeData.glowColor;
+                ctx.shadowBlur = this.size;
+                
+                // 隕石本体
+                const colors = this.typeData.colors;
+                const colorIndex = Math.floor(Date.now() / 100) % colors.length;
+                const currentColor = colors[colorIndex];
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                // メイン隕石
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size);
+                gradient.addColorStop(0, currentColor);
+                gradient.addColorStop(0.7, colors[(colorIndex + 1) % colors.length]);
+                gradient.addColorStop(1, colors[(colorIndex + 2) % colors.length] + '40');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 内側のディテール
+                ctx.fillStyle = colors[(colorIndex + 3) % colors.length] + '80';
+                ctx.beginPath();
+                ctx.arc(-this.size * 0.3, -this.size * 0.2, this.size * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+                ctx.shadowBlur = 0;
+            }
+            
+            explode() {
+                totalExplosions++;
+                document.getElementById('explosionCount').textContent = totalExplosions;
+                
+                // パーティクル生成
+                const particleCount = 15 + Math.random() * 15;
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle(
+                        this.x, this.y, 
+                        this.typeData.colors,
+                        this.typeData.glowColor
+                    ));
+                }
+                
+                // 爆発音
+                playSound(this.type, 100 + Math.random() * 200, 0.5);
+                
+                // 画面フラッシュ効果
+                this.screenFlash();
+            }
+            
+            screenFlash() {
+                const overlay = document.getElementById('explosionOverlay');
+                overlay.style.background = `radial-gradient(circle at ${this.x}px ${this.y}px, ${this.typeData.glowColor}40 0%, transparent 50%)`;
+                overlay.style.opacity = '1';
+                
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    overlay.style.background = 'transparent';
+                }, 200);
+            }
+        }
+        
+        // パーティクルクラス
+        class Particle {
+            constructor(x, y, colors, glowColor) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 10;
+                this.vy = (Math.random() - 0.5) * 10 - 2;
+                this.size = Math.random() * 4 + 2;
+                this.life = 1.0;
+                this.colors = colors;
+                this.glowColor = glowColor;
+                this.gravity = 0.1;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.life -= 0.02;
+                this.size *= 0.98;
+                
+                return this.life <= 0 || this.size < 0.5;
+            }
+            
+            draw(ctx) {
+                ctx.shadowColor = this.glowColor;
+                ctx.shadowBlur = this.size * 2;
+                
+                const colorIndex = Math.floor(Math.random() * this.colors.length);
+                ctx.fillStyle = this.colors[colorIndex] + Math.floor(this.life * 255).toString(16).padStart(2, '0');
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // キャンバス初期化
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        // 隕石生成
+        function spawnMeteor() {
+            const now = Date.now();
+            if (now - config.lastSpawn < config.spawnRate) return;
+            
+            config.lastSpawn = now;
+            
+            // ランダムな開始位置（画面上部や側面から）
+            let x, y;
+            if (Math.random() < 0.8) {
+                // 上から
+                x = Math.random() * canvas.width;
+                y = -50;
+            } else {
+                // 横から
+                x = Math.random() < 0.5 ? -50 : canvas.width + 50;
+                y = Math.random() * canvas.height * 0.3;
+            }
+            
+            const size = config.meteorSize * (0.5 + Math.random() * 0.5);
+            const speed = config.meteorSpeed * (0.8 + Math.random() * 0.4);
+            
+            let type = config.meteorType;
+            if (type === 'random') {
+                const types = Object.keys(meteorTypes);
+                type = types[Math.floor(Math.random() * types.length)];
+            }
+            
+            meteors.push(new Meteor(x, y, size, speed, type));
+            totalMeteors++;
+            document.getElementById('meteorCount').textContent = totalMeteors;
+        }
+        
+        // メインアニメーションループ
+        function animate(currentTime) {
+            if (!isRunning) return;
+            
+            // FPS計算
+            frameCount++;
+            if (currentTime - fpsTime >= 1000) {
+                document.getElementById('fpsCounter').textContent = frameCount;
+                frameCount = 0;
+                fpsTime = currentTime;
+            }
+            
+            // 画面クリア
+            ctx.fillStyle = 'rgba(0, 0, 17, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 隕石生成
+            spawnMeteor();
+            
+            // 隕石更新・描画
+            meteors = meteors.filter(meteor => {
+                const shouldRemove = meteor.update();
+                if (shouldRemove && Math.random() < 0.7) {
+                    meteor.explode();
+                }
+                if (!shouldRemove) {
+                    meteor.draw(ctx);
+                }
+                return !shouldRemove;
+            });
+            
+            // パーティクル更新・描画
+            particles = particles.filter(particle => {
+                const shouldRemove = particle.update();
+                if (!shouldRemove) {
+                    particle.draw(ctx);
+                }
+                return !shouldRemove;
+            });
+            
+            // アクティブ隕石数更新
+            document.getElementById('activeMeteors').textContent = meteors.length;
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // コントロール設定
+        function setupControls() {
+            const spawnRate = document.getElementById('spawnRate');
+            const meteorSize = document.getElementById('meteorSize');
+            const meteorSpeed = document.getElementById('meteorSpeed');
+            const meteorType = document.getElementById('meteorType');
+            
+            spawnRate.addEventListener('input', (e) => {
+                config.spawnRate = parseInt(e.target.value);
+                document.getElementById('spawnRateValue').textContent = config.spawnRate + 'ms';
+            });
+            
+            meteorSize.addEventListener('input', (e) => {
+                config.meteorSize = parseInt(e.target.value);
+                document.getElementById('meteorSizeValue').textContent = config.meteorSize + 'px';
+            });
+            
+            meteorSpeed.addEventListener('input', (e) => {
+                config.meteorSpeed = parseInt(e.target.value);
+                document.getElementById('meteorSpeedValue').textContent = config.meteorSpeed;
+            });
+            
+            meteorType.addEventListener('change', (e) => {
+                config.meteorType = e.target.value;
+            });
+            
+            // ボタンイベント
+            document.getElementById('startBtn').addEventListener('click', startAnimation);
+            document.getElementById('stopBtn').addEventListener('click', stopAnimation);
+            document.getElementById('clearBtn').addEventListener('click', clearScreen);
+            document.getElementById('explosionBtn').addEventListener('click', createMassExplosion);
+            
+            // クリックで隕石生成
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                let type = config.meteorType;
+                if (type === 'random') {
+                    const types = Object.keys(meteorTypes);
+                    type = types[Math.floor(Math.random() * types.length)];
+                }
+                
+                const meteor = new Meteor(x, y, config.meteorSize, config.meteorSpeed, type);
+                meteors.push(meteor);
+                totalMeteors++;
+                document.getElementById('meteorCount').textContent = totalMeteors;
+            });
+        }
+        
+        function startAnimation() {
+            if (!isRunning) {
+                isRunning = true;
+                animate();
+                playSound('rainbow', 523, 0.3);
+            }
+        }
+        
+        function stopAnimation() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        }
+        
+        function clearScreen() {
+            meteors = [];
+            particles = [];
+            ctx.fillStyle = 'rgba(0, 0, 17, 1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function createMassExplosion() {
+            // 画面全体に大爆発
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    const types = Object.keys(meteorTypes);
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    const meteor = new Meteor(x, y, config.meteorSize * 2, 0, type);
+                    meteor.explode();
+                    
+                    playSound(type, 150 + Math.random() * 300, 0.3);
+                }, i * 100);
+            }
+        }
+        
+        // 初期化
+        window.addEventListener('load', () => {
+            initCanvas();
+            setupControls();
+            
+            // 音声コンテキスト初期化
+            document.addEventListener('click', () => {
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            });
+            
+            // 自動開始
+            setTimeout(startAnimation, 1000);
+        });
+        
+        window.addEventListener('resize', initCanvas);
+    </script>
+</body>
+</html>

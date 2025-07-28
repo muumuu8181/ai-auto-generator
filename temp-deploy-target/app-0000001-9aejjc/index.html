@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム v3.0</title>
+    <meta name="description" content="高機能な個人向け収支管理Webアプリケーション">
+    <meta name="keywords" content="家計簿,収支管理,お金,管理,PWA">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi44GK6YeR566h55CG44K344K544OG44OgIHYzLjAiLCJzaG9ydF9uYW1lIjoi44GK6YeR566h55CGIiwic3RhcnRfdXJsIjoiLi8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjNjY3ZWVhIiwidGhlbWVfY29sb3IiOiIjNjY3ZWVhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNM0o0VVEOCg9MuGI9MENGeFhJZy9UM3NYIzJVeGRieFRvSDdoUUlBQkEOV1BiTzhZTzl3U0FBUUU1OMGZjOGNiT0Q2VWJMc0NzUGZ0SEFBO09SUEUwWk90Q3RpU0FBSUhHLy8/RGVGZzBONkVNYkJEQURrcGZPd2l4aVFORGhEMCIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    <meta name="theme-color" content="#667eea">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            padding: 16px;
+            line-height: 1.6;
+            color: var(--dark-color);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-xl);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header h1 {
+            color: var(--dark-color);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success-color), #065f46);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+            padding: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .required {
+            color: var(--danger-color);
+            font-size: 16px;
+        }
+
+        input, select, textarea {
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+            font-family: inherit;
+            box-shadow: var(--shadow-sm);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .input-error {
+            border-color: var(--danger-color) !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #065f46);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray-500), var(--gray-700));
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 0 4px 4px 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1));
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .summary-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .summary-card.income {
+            background: linear-gradient(135deg, #d1fae5, #10b981);
+            color: white;
+        }
+
+        .summary-card.expense {
+            background: linear-gradient(135deg, #fee2e2, #ef4444);
+            color: white;
+        }
+
+        .summary-card.balance {
+            background: linear-gradient(135deg, #dbeafe, #3b82f6);
+            color: white;
+        }
+
+        .summary-card.budget {
+            background: linear-gradient(135deg, #fef3c7, #f59e0b);
+            color: white;
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .summary-card .amount {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .data-table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .income-row {
+            background-color: rgba(16, 185, 129, 0.05) !important;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .expense-row {
+            background-color: rgba(239, 68, 68, 0.05) !important;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .type-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .type-income {
+            background: linear-gradient(135deg, #d1fae5, #10b981);
+            color: white;
+        }
+
+        .type-expense {
+            background: linear-gradient(135deg, #fee2e2, #ef4444);
+            color: white;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .tool-card {
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid var(--gray-200);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-color);
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .tool-title {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--dark-color);
+            font-size: 16px;
+        }
+
+        .tool-description {
+            font-size: 14px;
+            color: var(--gray-600);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid var(--gray-300);
+            background: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .current-page {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 32px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gray-500);
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: var(--gray-100);
+            color: var(--dark-color);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            box-shadow: var(--shadow-xl);
+            transform: translateX(100%);
+            transition: var(--transition);
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, var(--success-color), #065f46);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+        }
+
+        .toast.info {
+            background: linear-gradient(135deg, var(--info-color), #1d4ed8);
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            z-index: 1002;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-200);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-500);
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 24px;
+        }
+
+        .budget-progress {
+            background: var(--gray-200);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .budget-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--warning-color), var(--danger-color));
+            border-radius: 6px;
+            transition: width 1s ease-out;
+            position: relative;
+        }
+
+        .budget-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progress-shimmer 2s infinite;
+        }
+
+        @keyframes progress-shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+                margin: 8px;
+            }
+            
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .filter-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* アクセシビリティ改善 */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* プリント対応 */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                background: white;
+            }
+            
+            .btn, .tools-section {
+                display: none;
+            }
+        }
+
+        /* ダークモード対応 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --light-color: #1e293b;
+                --dark-color: #f8fafc;
+                --gray-100: #334155;
+                --gray-200: #475569;
+            }
+        }
+
+        /* Reduced motion対応 */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loadingIndicator">
+        <div class="spinner"></div>
+        <div>処理中...</div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>💰 お金管理システム</h1>
+            <span class="version-badge">v3.0 Premium</span>
+        </header>
+        
+        <div class="main-grid">
+            <!-- 入力セクション -->
+            <section class="card">
+                <h2 class="section-title">
+                    <span class="section-icon">💡</span>
+                    新規入力
+                </h2>
+                
+                <form id="entryForm" novalidate>
+                    <div class="input-group">
+                        <label for="type">タイプ <span class="required">*</span></label>
+                        <select id="type" required aria-describedby="typeError">
+                            <option value="income">💵 収入</option>
+                            <option value="expense">💸 支出</option>
+                        </select>
+                        <div class="error-message" id="typeError"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="category">カテゴリ</label>
+                        <select id="category">
+                            <option value="">カテゴリを選択...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="amount">金額 <span class="required">*</span></label>
+                        <input type="number" id="amount" placeholder="金額を入力してください" 
+                               min="0" step="1" required aria-describedby="amountError">
+                        <div class="error-message" id="amountError"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="description">説明 <span class="required">*</span></label>
+                        <input type="text" id="description" placeholder="詳細説明を入力してください" 
+                               required maxlength="100" aria-describedby="descriptionError">
+                        <div class="error-message" id="descriptionError"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="date">日付 <span class="required">*</span></label>
+                        <input type="date" id="date" required aria-describedby="dateError">
+                        <div class="error-message" id="dateError"></div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" class="btn" id="submitBtn">
+                            <span>📝</span>
+                            <span id="submitBtnText">追加</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtn" style="display: none;">
+                            <span>❌</span>
+                            キャンセル
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="clearBtn">
+                            <span>🗑️</span>
+                            クリア
+                        </button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- サマリーセクション -->
+            <section class="card">
+                <h2 class="section-title">
+                    <span class="section-icon">📊</span>
+                    サマリー
+                </h2>
+                
+                <div class="summary-cards">
+                    <div class="summary-card income">
+                        <h3>総収入</h3>
+                        <div class="amount" id="totalIncome" aria-label="総収入">¥0</div>
+                    </div>
+                    <div class="summary-card expense">
+                        <h3>総支出</h3>
+                        <div class="amount" id="totalExpense" aria-label="総支出">¥0</div>
+                    </div>
+                    <div class="summary-card balance">
+                        <h3>残高</h3>
+                        <div class="amount" id="balance" aria-label="残高">¥0</div>
+                    </div>
+                    <div class="summary-card budget">
+                        <h3>予算進捗</h3>
+                        <div class="amount" id="budgetProgress" aria-label="予算進捗">0%</div>
+                    </div>
+                </div>
+                
+                <!-- 予算設定 -->
+                <div class="input-group">
+                    <label for="monthlyBudget">月予算設定</label>
+                    <input type="number" id="monthlyBudget" placeholder="月の予算を設定" min="0" step="1000">
+                    <div class="budget-progress">
+                        <div class="budget-progress-bar" id="budgetBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <span class="tool-icon">📈</span>
+                        <div class="tool-title">月次レポート</div>
+                        <div class="tool-description">月別の収支統計</div>
+                        <button class="btn btn-small" onclick="showMonthlyReport()">表示</button>
+                    </div>
+                    <div class="tool-card">
+                        <span class="tool-icon">🏷️</span>
+                        <div class="tool-title">カテゴリ分析</div>
+                        <div class="tool-description">支出カテゴリ別分析</div>
+                        <button class="btn btn-small" onclick="showCategoryAnalysis()">分析</button>
+                    </div>
+                    <div class="tool-card">
+                        <span class="tool-icon">🎯</span>
+                        <div class="tool-title">支出パターン</div>
+                        <div class="tool-description">支出傾向の分析</div>
+                        <button class="btn btn-small" onclick="showSpendingPattern()">分析</button>
+                    </div>
+                    <div class="tool-card">
+                        <span class="tool-icon">💡</span>
+                        <div class="tool-title">自動分類提案</div>
+                        <div class="tool-description">AI による分類提案</div>
+                        <button class="btn btn-small" onclick="showAutoSuggestion()">提案</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- データ表示セクション -->
+        <section class="card">
+            <h2 class="section-title">
+                <span class="section-icon">📋</span>
+                データ一覧
+            </h2>
+            
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="filterType">タイプ</label>
+                    <select id="filterType" onchange="applyFilters()">
+                        <option value="">すべて</option>
+                        <option value="income">収入のみ</option>
+                        <option value="expense">支出のみ</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterCategory">カテゴリ</label>
+                    <select id="filterCategory" onchange="applyFilters()">
+                        <option value="">すべて</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterMonth">月</label>
+                    <input type="month" id="filterMonth" onchange="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label for="searchText">検索</label>
+                    <input type="text" id="searchText" placeholder="説明で検索..." 
+                           oninput="applyFilters()" aria-label="データを検索">
+                </div>
+                <div class="filter-group">
+                    <label for="amountRange">金額範囲</label>
+                    <input type="range" id="amountRange" min="0" max="1000000" step="1000" 
+                           oninput="updateAmountFilter()" aria-label="金額フィルター">
+                    <div id="amountRangeLabel">¥0 - ¥1,000,000</div>
+                </div>
+            </div>
+            
+            <div class="data-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>タイプ</th>
+                            <th>カテゴリ</th>
+                            <th>金額</th>
+                            <th>説明</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable">
+                        <!-- データがここに表示されます -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination" id="pagination">
+                <!-- ページネーションがここに表示されます -->
+            </div>
+        </section>
+        
+        <!-- ツールセクション -->
+        <section class="card">
+            <h2 class="section-title">
+                <span class="section-icon">🛠️</span>
+                ツール
+            </h2>
+            
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <span class="tool-icon">📥</span>
+                    <div class="tool-title">CSVエクスポート</div>
+                    <div class="tool-description">データをCSV形式でダウンロード</div>
+                    <button class="btn btn-success" onclick="exportCSV()">ダウンロード</button>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-icon">📤</span>
+                    <div class="tool-title">CSVインポート</div>
+                    <div class="tool-description">CSVファイルからデータを読み込み</div>
+                    <input type="file" id="csvImportFile" accept=".csv" style="display: none;" onchange="importCSV(event)">
+                    <button class="btn btn-success" onclick="document.getElementById('csvImportFile').click()">インポート</button>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-icon">🔄</span>
+                    <div class="tool-title">データバックアップ</div>
+                    <div class="tool-description">データの完全バックアップ</div>
+                    <button class="btn btn-success" onclick="backupData()">バックアップ</button>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-icon">📊</span>
+                    <div class="tool-title">データ統計</div>
+                    <div class="tool-description">詳細な統計情報を表示</div>
+                    <button class="btn btn-warning" onclick="showDetailedStats()">統計</button>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-icon">🎨</span>
+                    <div class="tool-title">テーマ設定</div>
+                    <div class="tool-description">アプリの外観をカスタマイズ</div>
+                    <button class="btn btn-secondary" onclick="showThemeSettings()">設定</button>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-icon">🗑️</span>
+                    <div class="tool-title">全データ削除</div>
+                    <div class="tool-description">すべてのデータを削除</div>
+                    <button class="btn btn-danger" onclick="confirmClearAllData()">削除</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- モーダル -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">タイトル</div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- モーダルコンテンツ -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // アプリケーション状態
+        let moneyData = [];
+        let filteredData = [];
+        let editingIndex = -1;
+        let currentPage = 1;
+        const itemsPerPage = 15;
+        let currentBudget = 0;
+        let currentTheme = 'default';
+
+        // カテゴリ定義
+        const categories = {
+            income: ['給与', '副業', '投資収益', 'ボーナス', '年金', 'その他収入'],
+            expense: ['食費', '交通費', '光熱費', '通信費', '家賃', '医療費', '娯楽', '衣類', '教育', '保険', 'その他支出']
+        };
+
+        // 支出パターン分析用データ
+        const spendingPatterns = {
+            weekly: {},
+            monthly: {},
+            categories: {},
+            trends: []
+        };
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // 今日の日付を設定
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            // カテゴリ選択肢を初期化
+            updateCategoryOptions();
+            
+            // ローカルストレージからデータを読み込み
+            loadData();
+            
+            // 設定を読み込み
+            loadSettings();
+            
+            // 表示を更新
+            updateDisplay();
+            
+            // フォームイベントリスナーを設定
+            setupFormValidation();
+            
+            // キーボードショートカットを設定
+            setupKeyboardShortcuts();
+            
+            // 予算入力イベント
+            document.getElementById('monthlyBudget').addEventListener('input', updateBudget);
+            
+            showToast('お金管理システム v3.0 が初期化されました', 'success');
+        }
+
+        // フォームバリデーション設定
+        function setupFormValidation() {
+            const form = document.getElementById('entryForm');
+            const inputs = form.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', validateField);
+                input.addEventListener('input', clearFieldError);
+            });
+            
+            form.addEventListener('submit', handleFormSubmit);
+        }
+
+        // キーボードショートカット設定
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'n':
+                            e.preventDefault();
+                            clearForm();
+                            document.getElementById('amount').focus();
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            exportCSV();
+                            break;
+                        case '/':
+                            e.preventDefault();
+                            document.getElementById('searchText').focus();
+                            break;
+                        case 'r':
+                            e.preventDefault();
+                            showMonthlyReport();
+                            break;
+                    }
+                }
+                
+                if (e.key === 'Escape') {
+                    closeModal();
+                    cancelEdit();
+                }
+            });
+        }
+
+        // フィールドバリデーション
+        function validateField(e) {
+            const field = e.target;
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+            
+            switch(field.id) {
+                case 'amount':
+                    if (!value || parseFloat(value) <= 0) {
+                        isValid = false;
+                        errorMessage = '有効な金額を入力してください';
+                    }
+                    break;
+                case 'description':
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = '説明を入力してください';
+                    } else if (value.length > 100) {
+                        isValid = false;
+                        errorMessage = '説明は100文字以内で入力してください';
+                    }
+                    break;
+                case 'date':
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = '日付を選択してください';
+                    }
+                    break;
+            }
+            
+            showFieldError(field, isValid, errorMessage);
+            return isValid;
+        }
+
+        function showFieldError(field, isValid, errorMessage) {
+            const errorElement = document.getElementById(field.id + 'Error');
+            
+            if (isValid) {
+                field.classList.remove('input-error');
+                errorElement.style.display = 'none';
+            } else {
+                field.classList.add('input-error');
+                errorElement.textContent = errorMessage;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function clearFieldError(e) {
+            const field = e.target;
+            field.classList.remove('input-error');
+            const errorElement = document.getElementById(field.id + 'Error');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // フォーム送信処理
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            let isValid = true;
+            
+            // 全フィールドをバリデーション
+            const requiredFields = ['amount', 'description', 'date'];
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!validateField({ target: field })) {
+                    isValid = false;
+                }
+            });
+            
+            if (isValid) {
+                addEntry();
+            } else {
+                showToast('入力内容を確認してください', 'error');
+            }
+        }
+
+        // タイプ変更時のカテゴリ更新
+        document.getElementById('type').addEventListener('change', updateCategoryOptions);
+
+        function updateCategoryOptions() {
+            const type = document.getElementById('type').value;
+            const categorySelect = document.getElementById('category');
+            const filterCategorySelect = document.getElementById('filterCategory');
+            
+            // メインのカテゴリ選択を更新
+            categorySelect.innerHTML = '<option value="">カテゴリを選択...</option>';
+            categories[type].forEach(cat => {
+                categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+            
+            // フィルターのカテゴリ選択を更新
+            const currentFilter = filterCategorySelect.value;
+            filterCategorySelect.innerHTML = '<option value="">すべて</option>';
+            
+            const allCategories = [...categories.income, ...categories.expense];
+            [...new Set(allCategories)].forEach(cat => {
+                const selected = cat === currentFilter ? 'selected' : '';
+                filterCategorySelect.innerHTML += `<option value="${cat}" ${selected}>${cat}</option>`;
+            });
+        }
+
+        // データ追加・編集
+        function addEntry() {
+            showLoading(true);
+            
+            setTimeout(() => {
+                try {
+                    const type = document.getElementById('type').value;
+                    const category = document.getElementById('category').value || 'その他';
+                    const amount = parseFloat(document.getElementById('amount').value);
+                    const description = document.getElementById('description').value.trim();
+                    const date = document.getElementById('date').value;
+
+                    const entry = {
+                        id: editingIndex >= 0 ? moneyData[editingIndex].id : Date.now() + Math.random(),
+                        type: type,
+                        category: category,
+                        amount: amount,
+                        description: description,
+                        date: date,
+                        timestamp: new Date().toLocaleString('ja-JP'),
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    if (editingIndex >= 0) {
+                        // 編集モード
+                        moneyData[editingIndex] = entry;
+                        editingIndex = -1;
+                        document.getElementById('submitBtnText').textContent = '追加';
+                        document.getElementById('cancelBtn').style.display = 'none';
+                        showToast('データが更新されました', 'success');
+                    } else {
+                        // 新規追加
+                        moneyData.push(entry);
+                        showToast('データが追加されました', 'success');
+                    }
+
+                    // フォームリセット
+                    clearForm();
+                    
+                    // 表示更新
+                    updateDisplay();
+                    updateSpendingPatterns();
+                    saveData();
+                    
+                } catch (error) {
+                    console.error('データ追加エラー:', error);
+                    showToast('データの保存に失敗しました', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }, 500);
+        }
+
+        // フォームクリア
+        function clearForm() {
+            document.getElementById('entryForm').reset();
+            document.getElementById('amount').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('type').value = 'income';
+            updateCategoryOptions();
+            
+            // エラー表示をクリア
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+        }
+
+        // 編集機能
+        function editEntry(index) {
+            const entry = moneyData[index];
+            
+            document.getElementById('type').value = entry.type;
+            updateCategoryOptions();
+            document.getElementById('category').value = entry.category;
+            document.getElementById('amount').value = entry.amount;
+            document.getElementById('description').value = entry.description;
+            document.getElementById('date').value = entry.date;
+            
+            editingIndex = index;
+            document.getElementById('submitBtnText').textContent = '更新';
+            document.getElementById('cancelBtn').style.display = 'inline-flex';
+            
+            // フォームまでスクロール
+            document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('amount').focus();
+            
+            showToast('編集モードになりました', 'info');
+        }
+
+        // 編集キャンセル
+        function cancelEdit() {
+            if (editingIndex >= 0) {
+                editingIndex = -1;
+                clearForm();
+                document.getElementById('submitBtnText').textContent = '追加';
+                document.getElementById('cancelBtn').style.display = 'none';
+                showToast('編集をキャンセルしました', 'info');
+            }
+        }
+
+        // 削除機能
+        function deleteEntry(index) {
+            const entry = moneyData[index];
+            const confirmed = confirm(`「${entry.description}」(¥${entry.amount.toLocaleString()})を削除しますか？`);
+            
+            if (confirmed) {
+                moneyData.splice(index, 1);
+                updateDisplay();
+                updateSpendingPatterns();
+                saveData();
+                showToast('データが削除されました', 'info');
+            }
+        }
+
+        // 表示更新
+        function updateDisplay() {
+            updateSummary();
+            updateBudgetProgress();
+            applyFilters();
+        }
+
+        // サマリー更新
+        function updateSummary() {
+            const totalIncome = moneyData.filter(item => item.type === 'income')
+                                        .reduce((sum, item) => sum + item.amount, 0);
+            const totalExpense = moneyData.filter(item => item.type === 'expense')
+                                         .reduce((sum, item) => sum + item.amount, 0);
+            const balance = totalIncome - totalExpense;
+
+            document.getElementById('totalIncome').textContent = '¥' + totalIncome.toLocaleString();
+            document.getElementById('totalExpense').textContent = '¥' + totalExpense.toLocaleString();
+            document.getElementById('balance').textContent = '¥' + balance.toLocaleString();
+
+            // 残高の色を変更
+            const balanceElement = document.getElementById('balance');
+            balanceElement.style.color = balance >= 0 ? 'white' : '#fee2e2';
+        }
+
+        // 予算進捗更新
+        function updateBudgetProgress() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const monthlyExpense = moneyData
+                .filter(item => item.type === 'expense' && item.date.startsWith(currentMonth))
+                .reduce((sum, item) => sum + item.amount, 0);
+            
+            const budgetProgress = currentBudget > 0 ? (monthlyExpense / currentBudget) * 100 : 0;
+            document.getElementById('budgetProgress').textContent = Math.round(budgetProgress) + '%';
+            document.getElementById('budgetBar').style.width = Math.min(budgetProgress, 100) + '%';
+        }
+
+        // 予算設定
+        function updateBudget() {
+            currentBudget = parseFloat(document.getElementById('monthlyBudget').value) || 0;
+            updateBudgetProgress();
+            saveSettings();
+        }
+
+        // 金額フィルター更新
+        function updateAmountFilter() {
+            const range = document.getElementById('amountRange');
+            const label = document.getElementById('amountRangeLabel');
+            label.textContent = `¥0 - ¥${parseInt(range.value).toLocaleString()}`;
+            applyFilters();
+        }
+
+        // フィルター適用
+        function applyFilters() {
+            const typeFilter = document.getElementById('filterType').value;
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const monthFilter = document.getElementById('filterMonth').value;
+            const searchText = document.getElementById('searchText').value.toLowerCase();
+            const maxAmount = parseInt(document.getElementById('amountRange').value);
+
+            filteredData = moneyData.filter(item => {
+                const matchesType = !typeFilter || item.type === typeFilter;
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                const matchesMonth = !monthFilter || item.date.startsWith(monthFilter);
+                const matchesSearch = !searchText || item.description.toLowerCase().includes(searchText);
+                const matchesAmount = item.amount <= maxAmount;
+                
+                return matchesType && matchesCategory && matchesMonth && matchesSearch && matchesAmount;
+            });
+
+            currentPage = 1;
+            updateTable();
+            updatePagination();
+        }
+
+        // テーブル更新
+        function updateTable() {
+            const tableBody = document.getElementById('dataTable');
+            tableBody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td colspan="6" class="empty-state">
+                        <div class="icon">📊</div>
+                        <div>フィルター条件に一致するデータがありません</div>
+                    </td>
+                `;
+                return;
+            }
+
+            // 日付順でソート（新しい順）
+            const sortedData = [...filteredData].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // ページネーション
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = sortedData.slice(startIndex, endIndex);
+
+            pageData.forEach((entry, pageIndex) => {
+                const actualIndex = moneyData.indexOf(entry);
+                const row = tableBody.insertRow();
+                row.className = entry.type === 'income' ? 'income-row' : 'expense-row';
+
+                row.innerHTML = `
+                    <td>${formatDate(entry.date)}</td>
+                    <td>
+                        <span class="type-badge type-${entry.type}">
+                            ${entry.type === 'income' ? '💵 収入' : '💸 支出'}
+                        </span>
+                    </td>
+                    <td>${entry.category}</td>
+                    <td><strong>¥${entry.amount.toLocaleString()}</strong></td>
+                    <td>${entry.description}</td>
+                    <td>
+                        <button class="btn btn-small btn-success" onclick="editEntry(${actualIndex})" 
+                                aria-label="編集: ${entry.description}">編集</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteEntry(${actualIndex})"
+                                aria-label="削除: ${entry.description}">削除</button>
+                    </td>
+                `;
+            });
+        }
+
+        // ページネーション更新
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+            
+            // 前のページボタン
+            const prevDisabled = currentPage === 1 ? 'disabled' : '';
+            paginationHTML += `<button ${prevDisabled} onclick="changePage(${currentPage - 1})">« 前</button>`;
+            
+            // ページ番号
+            for (let i = 1; i <= totalPages; i++) {
+                const currentClass = i === currentPage ? 'current-page' : '';
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    paginationHTML += `<button class="${currentClass}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    paginationHTML += '<span>...</span>';
+                }
+            }
+            
+            // 次のページボタン
+            const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+            paginationHTML += `<button ${nextDisabled} onclick="changePage(${currentPage + 1})">次 »</button>`;
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                updateTable();
+                updatePagination();
+            }
+        }
+
+        // 支出パターン分析更新
+        function updateSpendingPatterns() {
+            // 週間パターン
+            spendingPatterns.weekly = {};
+            // 月間パターン
+            spendingPatterns.monthly = {};
+            // カテゴリパターン
+            spendingPatterns.categories = {};
+            
+            moneyData.filter(item => item.type === 'expense').forEach(item => {
+                const date = new Date(item.date);
+                const week = getWeek(date);
+                const month = date.toISOString().slice(0, 7);
+                
+                // 週間集計
+                spendingPatterns.weekly[week] = (spendingPatterns.weekly[week] || 0) + item.amount;
+                
+                // 月間集計
+                spendingPatterns.monthly[month] = (spendingPatterns.monthly[month] || 0) + item.amount;
+                
+                // カテゴリ集計
+                spendingPatterns.categories[item.category] = (spendingPatterns.categories[item.category] || 0) + item.amount;
+            });
+        }
+
+        function getWeek(date) {
+            const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+            const days = Math.floor((date - firstDayOfYear) / (24 * 60 * 60 * 1000));
+            return Math.ceil((days + firstDayOfYear.getDay() + 1) / 7);
+        }
+
+        // 日付フォーマット
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                weekday: 'short'
+            });
+        }
+
+        // CSVエクスポート
+        function exportCSV() {
+            if (moneyData.length === 0) {
+                showToast('エクスポートするデータがありません', 'error');
+                return;
+            }
+
+            showLoading(true);
+            
+            setTimeout(() => {
+                try {
+                    let csv = 'ID,日付,タイプ,カテゴリ,金額,説明,登録日時\n';
+                    
+                    moneyData.forEach(entry => {
+                        csv += `${entry.id},"${entry.date}","${entry.type === 'income' ? '収入' : '支出'}","${entry.category}",${entry.amount},"${entry.description}","${entry.timestamp}"\n`;
+                    });
+
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `money_data_v3_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    showToast(`CSVファイル(${moneyData.length}件)がダウンロードされました`, 'success');
+                } catch (error) {
+                    console.error('CSV出力エラー:', error);
+                    showToast('CSVエクスポートに失敗しました', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }, 500);
+        }
+
+        // CSVインポート
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n');
+                    let importCount = 0;
+                    
+                    // ヘッダー行をスキップ
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        const columns = line.split(',');
+                        if (columns.length >= 6) {
+                            const entry = {
+                                id: Date.now() + importCount + Math.random(),
+                                date: columns[1].replace(/"/g, ''),
+                                type: columns[2].replace(/"/g, '') === '収入' ? 'income' : 'expense',
+                                category: columns[3].replace(/"/g, ''),
+                                amount: parseFloat(columns[4]),
+                                description: columns[5].replace(/"/g, ''),
+                                timestamp: new Date().toLocaleString('ja-JP'),
+                                updatedAt: new Date().toISOString()
+                            };
+                            
+                            moneyData.push(entry);
+                            importCount++;
+                        }
+                    }
+                    
+                    if (importCount > 0) {
+                        updateDisplay();
+                        updateSpendingPatterns();
+                        saveData();
+                        showToast(`${importCount}件のデータをインポートしました`, 'success');
+                    } else {
+                        showToast('有効なデータが見つかりませんでした', 'error');
+                    }
+                } catch (error) {
+                    console.error('CSV読み込みエラー:', error);
+                    showToast('CSVファイルの読み込みに失敗しました', 'error');
+                }
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+            event.target.value = ''; // ファイル選択をリセット
+        }
+
+        // データバックアップ
+        function backupData() {
+            if (moneyData.length === 0) {
+                showToast('バックアップするデータがありません', 'error');
+                return;
+            }
+            
+            const backup = {
+                version: '3.0',
+                timestamp: new Date().toISOString(),
+                data: moneyData,
+                settings: {
+                    budget: currentBudget,
+                    theme: currentTheme
+                },
+                summary: {
+                    totalEntries: moneyData.length,
+                    totalIncome: moneyData.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0),
+                    totalExpense: moneyData.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0)
+                },
+                spendingPatterns: spendingPatterns
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `money_backup_v3_${new Date().toISOString().split('T')[0]}.json`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('データのバックアップが完了しました', 'success');
+        }
+
+        // 月次レポート表示
+        function showMonthlyReport() {
+            const monthlyData = {};
+            
+            moneyData.forEach(entry => {
+                const month = entry.date.substring(0, 7); // YYYY-MM
+                if (!monthlyData[month]) {
+                    monthlyData[month] = { income: 0, expense: 0 };
+                }
+                monthlyData[month][entry.type] += entry.amount;
+            });
+            
+            let reportHTML = '<h3>📈 月次レポート</h3><div style="max-height: 500px; overflow-y: auto;">';
+            reportHTML += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">';
+            reportHTML += '<tr style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;"><th style="border: 1px solid #ddd; padding: 12px;">月</th><th style="border: 1px solid #ddd; padding: 12px;">収入</th><th style="border: 1px solid #ddd; padding: 12px;">支出</th><th style="border: 1px solid #ddd; padding: 12px;">収支</th><th style="border: 1px solid #ddd; padding: 12px;">貯蓄率</th></tr>';
+            
+            Object.keys(monthlyData).sort().reverse().forEach(month => {
+                const data = monthlyData[month];
+                const balance = data.income - data.expense;
+                const savingsRate = data.income > 0 ? ((balance / data.income) * 100).toFixed(1) : 0;
+                const balanceClass = balance >= 0 ? 'color: var(--success-color)' : 'color: var(--danger-color)';
+                
+                reportHTML += `
+                    <tr style="background: rgba(255, 255, 255, 0.9);">
+                        <td style="border: 1px solid #ddd; padding: 12px; font-weight: 600;">${month}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px;">¥${data.income.toLocaleString()}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px;">¥${data.expense.toLocaleString()}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px; ${balanceClass}; font-weight: 700;">¥${balance.toLocaleString()}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px; ${balanceClass}; font-weight: 600;">${savingsRate}%</td>
+                    </tr>
+                `;
+            });
+            
+            reportHTML += '</table>';
+            
+            // グラフエリア追加
+            reportHTML += '<div style="background: var(--gray-100); padding: 20px; border-radius: 8px; margin-top: 20px;">';
+            reportHTML += '<h4>💡 インサイト</h4>';
+            
+            // 平均計算
+            const months = Object.keys(monthlyData);
+            if (months.length > 0) {
+                const avgIncome = Object.values(monthlyData).reduce((sum, m) => sum + m.income, 0) / months.length;
+                const avgExpense = Object.values(monthlyData).reduce((sum, m) => sum + m.expense, 0) / months.length;
+                
+                reportHTML += `<p>📊 月平均収入: ¥${avgIncome.toLocaleString()}</p>`;
+                reportHTML += `<p>📊 月平均支出: ¥${avgExpense.toLocaleString()}</p>`;
+                reportHTML += `<p>📊 月平均収支: ¥${(avgIncome - avgExpense).toLocaleString()}</p>`;
+            }
+            
+            reportHTML += '</div></div>';
+            showModal('月次レポート', reportHTML);
+        }
+
+        // カテゴリ分析表示
+        function showCategoryAnalysis() {
+            const categoryData = {};
+            
+            moneyData.filter(entry => entry.type === 'expense').forEach(entry => {
+                if (!categoryData[entry.category]) {
+                    categoryData[entry.category] = 0;
+                }
+                categoryData[entry.category] += entry.amount;
+            });
+            
+            const total = Object.values(categoryData).reduce((sum, amount) => sum + amount, 0);
+            
+            let analysisHTML = '<h3>🏷️ カテゴリ別支出分析</h3><div style="max-height: 500px; overflow-y: auto;">';
+            
+            if (total === 0) {
+                analysisHTML += '<p>支出データがありません</p>';
+            } else {
+                analysisHTML += '<div style="margin-bottom: 20px;">';
+                
+                Object.entries(categoryData)
+                    .sort(([,a], [,b]) => b - a)
+                    .forEach(([category, amount]) => {
+                        const percentage = ((amount / total) * 100).toFixed(1);
+                        const color = getRandomColor();
+                        analysisHTML += `
+                            <div style="margin-bottom: 15px; padding: 15px; border: 2px solid ${color}; border-radius: 12px; background: linear-gradient(135deg, ${color}20, ${color}10);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <strong style="color: var(--dark-color);">${category}</strong>
+                                    <span style="font-weight: 700; color: ${color};">¥${amount.toLocaleString()} (${percentage}%)</span>
+                                </div>
+                                <div style="background: var(--gray-200); height: 12px; border-radius: 6px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, ${color}, ${color}cc); height: 100%; width: ${percentage}%; transition: width 1s ease-out; border-radius: 6px;"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                
+                analysisHTML += '</div>';
+                
+                // 推奨事項
+                analysisHTML += '<div style="background: var(--info-color)20; padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 4px solid var(--info-color);">';
+                analysisHTML += '<h4 style="color: var(--info-color); margin-bottom: 10px;">💡 改善提案</h4>';
+                
+                const topCategory = Object.entries(categoryData).sort(([,a], [,b]) => b - a)[0];
+                if (topCategory) {
+                    const [categoryName, categoryAmount] = topCategory;
+                    const categoryPercentage = ((categoryAmount / total) * 100).toFixed(1);
+                    analysisHTML += `<p>最大支出カテゴリ「${categoryName}」が全体の${categoryPercentage}%を占めています。</p>`;
+                    
+                    if (categoryPercentage > 40) {
+                        analysisHTML += '<p>💡 このカテゴリの支出を10%削減することで、月々の支出を大幅に改善できます。</p>';
+                    }
+                }
+                
+                analysisHTML += '</div>';
+            }
+            
+            analysisHTML += '</div>';
+            showModal('カテゴリ分析', analysisHTML);
+        }
+
+        // 支出パターン分析表示
+        function showSpendingPattern() {
+            updateSpendingPatterns();
+            
+            let patternHTML = '<h3>🎯 支出パターン分析</h3><div style="max-height: 500px; overflow-y: auto;">';
+            
+            // 月間トレンド
+            patternHTML += '<div style="margin-bottom: 30px;">';
+            patternHTML += '<h4 style="color: var(--primary-color); margin-bottom: 15px;">📈 月間支出トレンド</h4>';
+            
+            const monthlyExpenses = Object.entries(spendingPatterns.monthly).sort();
+            if (monthlyExpenses.length > 1) {
+                const recent3Months = monthlyExpenses.slice(-3);
+                const trend = calculateTrend(recent3Months.map(([, amount]) => amount));
+                
+                patternHTML += `<div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">`;
+                patternHTML += `<p><strong>直近3ヶ月のトレンド:</strong> ${trend > 0 ? '📈 増加傾向' : trend < 0 ? '📉 減少傾向' : '➡️ 横ばい'}</p>`;
+                patternHTML += `<p><strong>変動率:</strong> ${Math.abs(trend).toFixed(1)}%</p>`;
+                patternHTML += `</div>`;
+            }
+            patternHTML += '</div>';
+            
+            // カテゴリ別推移
+            patternHTML += '<div style="margin-bottom: 30px;">';
+            patternHTML += '<h4 style="color: var(--secondary-color); margin-bottom: 15px;">🏷️ 主要カテゴリの支出推移</h4>';
+            
+            const topCategories = Object.entries(spendingPatterns.categories)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 3);
+            
+            topCategories.forEach(([category, amount]) => {
+                const percentage = ((amount / Object.values(spendingPatterns.categories).reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                patternHTML += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px; border-left: 4px solid var(--accent-color);">
+                        <strong>${category}:</strong> ¥${amount.toLocaleString()} (${percentage}%)
+                    </div>
+                `;
+            });
+            patternHTML += '</div>';
+            
+            // 予測と推奨
+            patternHTML += '<div style="background: var(--warning-color)20; padding: 20px; border-radius: 12px; border-left: 4px solid var(--warning-color);">';
+            patternHTML += '<h4 style="color: var(--warning-color); margin-bottom: 10px;">🔮 AI予測</h4>';
+            
+            if (monthlyExpenses.length >= 3) {
+                const recentAmounts = monthlyExpenses.slice(-3).map(([, amount]) => amount);
+                const avgExpense = recentAmounts.reduce((a, b) => a + b, 0) / recentAmounts.length;
+                const nextMonthPrediction = avgExpense * (1 + trend / 100);
+                
+                patternHTML += `<p>📊 来月の予想支出: ¥${Math.round(nextMonthPrediction).toLocaleString()}</p>`;
+                
+                if (currentBudget > 0) {
+                    const budgetDiff = currentBudget - nextMonthPrediction;
+                    if (budgetDiff < 0) {
+                        patternHTML += `<p style="color: var(--danger-color);">⚠️ 予算オーバーの可能性: ¥${Math.abs(budgetDiff).toLocaleString()}</p>`;
+                    } else {
+                        patternHTML += `<p style="color: var(--success-color);">✅ 予算内の予想: 余裕 ¥${budgetDiff.toLocaleString()}</p>`;
+                    }
+                }
+            }
+            
+            patternHTML += '</div>';
+            patternHTML += '</div>';
+            
+            showModal('支出パターン分析', patternHTML);
+        }
+
+        function calculateTrend(values) {
+            if (values.length < 2) return 0;
+            
+            const firstValue = values[0];
+            const lastValue = values[values.length - 1];
+            
+            return ((lastValue - firstValue) / firstValue) * 100;
+        }
+
+        // 自動分類提案
+        function showAutoSuggestion() {
+            let suggestionHTML = '<h3>💡 AI自動分類提案</h3><div style="max-height: 500px; overflow-y: auto;">';
+            
+            // 分類パターンの学習
+            const patterns = {};
+            moneyData.forEach(entry => {
+                const words = entry.description.toLowerCase().split(/\s+/);
+                words.forEach(word => {
+                    if (word.length > 1) {
+                        if (!patterns[word]) patterns[word] = {};
+                        if (!patterns[word][entry.category]) patterns[word][entry.category] = 0;
+                        patterns[word][entry.category]++;
+                    }
+                });
+            });
+            
+            suggestionHTML += '<div style="background: var(--info-color)10; padding: 20px; border-radius: 12px; margin-bottom: 20px;">';
+            suggestionHTML += '<h4 style="color: var(--info-color);">🤖 学習済みパターン</h4>';
+            
+            const learnedPatterns = Object.entries(patterns)
+                .filter(([word, categories]) => Object.keys(categories).length > 0)
+                .slice(0, 10);
+            
+            if (learnedPatterns.length > 0) {
+                learnedPatterns.forEach(([word, categories]) => {
+                    const topCategory = Object.entries(categories).sort(([,a], [,b]) => b - a)[0];
+                    suggestionHTML += `<p><code>${word}</code> → <strong>${topCategory[0]}</strong> (${topCategory[1]}回)</p>`;
+                });
+            } else {
+                suggestionHTML += '<p>データが不足しています。より多くのデータを入力すると、自動分類の精度が向上します。</p>';
+            }
+            
+            suggestionHTML += '</div>';
+            
+            // 改善提案
+            suggestionHTML += '<div style="background: var(--success-color)10; padding: 20px; border-radius: 12px;">';
+            suggestionHTML += '<h4 style="color: var(--success-color);">✨ 分類改善のヒント</h4>';
+            suggestionHTML += '<ul style="margin-left: 20px;">';
+            suggestionHTML += '<li>説明文にキーワードを含めると自動分類が正確になります</li>';
+            suggestionHTML += '<li>例: 「コンビニ」→食費、「電車」→交通費、「美容院」→その他</li>';
+            suggestionHTML += '<li>一貫した記述方法を使用することで、パターン学習が向上します</li>';
+            suggestionHTML += '</ul>';
+            suggestionHTML += '</div>';
+            
+            suggestionHTML += '</div>';
+            showModal('自動分類提案', suggestionHTML);
+        }
+
+        // 詳細統計表示
+        function showDetailedStats() {
+            const now = new Date();
+            const thisMonth = now.toISOString().slice(0, 7);
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 7);
+            
+            const thisMonthData = moneyData.filter(item => item.date.startsWith(thisMonth));
+            const lastMonthData = moneyData.filter(item => item.date.startsWith(lastMonth));
+            
+            let statsHTML = '<h3>📊 詳細統計レポート</h3><div style="max-height: 600px; overflow-y: auto;">';
+            
+            // 月比較
+            statsHTML += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">';
+            statsHTML += '<div style="background: var(--primary-color)10; padding: 20px; border-radius: 12px;">';
+            statsHTML += '<h4 style="color: var(--primary-color);">今月の実績</h4>';
+            
+            const thisMonthIncome = thisMonthData.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0);
+            const thisMonthExpense = thisMonthData.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0);
+            
+            statsHTML += `<p><strong>収入:</strong> ¥${thisMonthIncome.toLocaleString()}</p>`;
+            statsHTML += `<p><strong>支出:</strong> ¥${thisMonthExpense.toLocaleString()}</p>`;
+            statsHTML += `<p><strong>収支:</strong> ¥${(thisMonthIncome - thisMonthExpense).toLocaleString()}</p>`;
+            statsHTML += `<p><strong>取引数:</strong> ${thisMonthData.length}件</p>`;
+            
+            statsHTML += '</div>';
+            
+            statsHTML += '<div style="background: var(--secondary-color)10; padding: 20px; border-radius: 12px;">';
+            statsHTML += '<h4 style="color: var(--secondary-color);">先月との比較</h4>';
+            
+            const lastMonthIncome = lastMonthData.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0);
+            const lastMonthExpense = lastMonthData.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0);
+            
+            const incomeChange = thisMonthIncome - lastMonthIncome;
+            const expenseChange = thisMonthExpense - lastMonthExpense;
+            
+            statsHTML += `<p><strong>収入変化:</strong> <span style="color: ${incomeChange >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">${incomeChange >= 0 ? '+' : ''}¥${incomeChange.toLocaleString()}</span></p>`;
+            statsHTML += `<p><strong>支出変化:</strong> <span style="color: ${expenseChange <= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">${expenseChange >= 0 ? '+' : ''}¥${expenseChange.toLocaleString()}</span></p>`;
+            statsHTML += `<p><strong>取引数変化:</strong> ${thisMonthData.length - lastMonthData.length >= 0 ? '+' : ''}${thisMonthData.length - lastMonthData.length}件</p>`;
+            
+            statsHTML += '</div>';
+            statsHTML += '</div>';
+            
+            // 全期間統計
+            statsHTML += '<div style="background: white; padding: 20px; border-radius: 12px; border: 2px solid var(--gray-200); margin-bottom: 20px;">';
+            statsHTML += '<h4>📈 全期間統計</h4>';
+            
+            const totalIncome = moneyData.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0);
+            const totalExpense = moneyData.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0);
+            const avgTransactionAmount = moneyData.length > 0 ? (totalIncome + totalExpense) / moneyData.length : 0;
+            
+            const firstEntry = moneyData.length > 0 ? new Date(Math.min(...moneyData.map(item => new Date(item.date)))) : new Date();
+            const daysSinceFirst = Math.ceil((new Date() - firstEntry) / (1000 * 60 * 60 * 24));
+            
+            statsHTML += `<p><strong>総収入:</strong> ¥${totalIncome.toLocaleString()}</p>`;
+            statsHTML += `<p><strong>総支出:</strong> ¥${totalExpense.toLocaleString()}</p>`;
+            statsHTML += `<p><strong>純資産変化:</strong> ¥${(totalIncome - totalExpense).toLocaleString()}</p>`;
+            statsHTML += `<p><strong>平均取引額:</strong> ¥${Math.round(avgTransactionAmount).toLocaleString()}</p>`;
+            statsHTML += `<p><strong>利用期間:</strong> ${daysSinceFirst}日</p>`;
+            statsHTML += `<p><strong>1日平均支出:</strong> ¥${Math.round(totalExpense / Math.max(daysSinceFirst, 1)).toLocaleString()}</p>`;
+            
+            statsHTML += '</div>';
+            
+            // 目標達成度
+            if (currentBudget > 0) {
+                const budgetUsage = (thisMonthExpense / currentBudget) * 100;
+                statsHTML += '<div style="background: var(--warning-color)10; padding: 20px; border-radius: 12px; border-left: 4px solid var(--warning-color);">';
+                statsHTML += '<h4 style="color: var(--warning-color);">🎯 予算達成度</h4>';
+                statsHTML += `<p><strong>月予算:</strong> ¥${currentBudget.toLocaleString()}</p>`;
+                statsHTML += `<p><strong>使用済み:</strong> ¥${thisMonthExpense.toLocaleString()} (${budgetUsage.toFixed(1)}%)</p>`;
+                statsHTML += `<p><strong>残予算:</strong> ¥${Math.max(currentBudget - thisMonthExpense, 0).toLocaleString()}</p>`;
+                
+                if (budgetUsage > 100) {
+                    statsHTML += `<p style="color: var(--danger-color);"><strong>⚠️ 予算オーバー:</strong> ¥${(thisMonthExpense - currentBudget).toLocaleString()}</p>`;
+                } else if (budgetUsage > 80) {
+                    statsHTML += '<p style="color: var(--warning-color);"><strong>💛 注意:</strong> 予算の80%を使用済みです</p>';
+                } else {
+                    statsHTML += '<p style="color: var(--success-color);"><strong>✅ 良好:</strong> 予算内で管理できています</p>';
+                }
+                
+                statsHTML += '</div>';
+            }
+            
+            statsHTML += '</div>';
+            showModal('詳細統計', statsHTML);
+        }
+
+        // テーマ設定表示
+        function showThemeSettings() {
+            let themeHTML = '<h3>🎨 テーマ設定</h3><div style="max-height: 400px; overflow-y: auto;">';
+            
+            themeHTML += '<div style="margin-bottom: 20px;">';
+            themeHTML += '<h4>カラーテーマ選択</h4>';
+            
+            const themes = [
+                { name: 'default', label: 'デフォルト', primary: '#667eea', secondary: '#764ba2' },
+                { name: 'ocean', label: 'オーシャン', primary: '#00c9ff', secondary: '#92fe9d' },
+                { name: 'sunset', label: 'サンセット', primary: '#ff9a56', secondary: '#ffad56' },
+                { name: 'forest', label: 'フォレスト', primary: '#11998e', secondary: '#38ef7d' },
+                { name: 'royal', label: 'ロイヤル', primary: '#833ab4', secondary: '#fd1d1d' }
+            ];
+            
+            themes.forEach(theme => {
+                const isActive = currentTheme === theme.name;
+                themeHTML += `
+                    <div style="margin-bottom: 10px; padding: 15px; border: 2px solid ${isActive ? theme.primary : '#ddd'}; border-radius: 8px; cursor: pointer; background: ${isActive ? theme.primary + '20' : 'white'};" onclick="changeTheme('${theme.name}')">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, ${theme.primary}, ${theme.secondary}); border-radius: 50%;"></div>
+                            <div>
+                                <strong>${theme.label}</strong>
+                                ${isActive ? '<span style="color: ' + theme.primary + '; margin-left: 10px;">✓ 適用中</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            themeHTML += '</div>';
+            
+            themeHTML += '<div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">';
+            themeHTML += '<h4>その他の設定</h4>';
+            themeHTML += '<p>・ダークモード: システム設定に従う</p>';
+            themeHTML += '<p>・アニメーション: 有効</p>';
+            themeHTML += '<p>・音効果: 無効</p>';
+            themeHTML += '</div>';
+            
+            themeHTML += '</div>';
+            showModal('テーマ設定', themeHTML);
+        }
+
+        function changeTheme(themeName) {
+            currentTheme = themeName;
+            
+            const themes = {
+                default: { primary: '#667eea', secondary: '#764ba2', accent: '#f093fb' },
+                ocean: { primary: '#00c9ff', secondary: '#92fe9d', accent: '#00c9ff' },
+                sunset: { primary: '#ff9a56', secondary: '#ffad56', accent: '#ff6b6b' },
+                forest: { primary: '#11998e', secondary: '#38ef7d', accent: '#11998e' },
+                royal: { primary: '#833ab4', secondary: '#fd1d1d', accent: '#833ab4' }
+            };
+            
+            const theme = themes[themeName];
+            if (theme) {
+                document.documentElement.style.setProperty('--primary-color', theme.primary);
+                document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+                document.documentElement.style.setProperty('--accent-color', theme.accent);
+                
+                saveSettings();
+                showToast(`テーマ「${themeName}」を適用しました`, 'success');
+                closeModal();
+            }
+        }
+
+        function getRandomColor() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#10b981', '#ef4444', '#f59e0b', '#3b82f6'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // 全データ削除確認
+        function confirmClearAllData() {
+            const confirmed = confirm('すべてのデータを削除しますか？この操作は取り消せません。');
+            if (confirmed) {
+                const doubleConfirmed = confirm('本当にすべてのデータを削除しますか？');
+                if (doubleConfirmed) {
+                    moneyData = [];
+                    updateDisplay();
+                    updateSpendingPatterns();
+                    saveData();
+                    showToast('すべてのデータが削除されました', 'info');
+                }
+            }
+        }
+
+        // モーダル表示
+        function showModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // モーダル閉じる
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // モーダル外クリックで閉じる
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ローディング表示
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+        }
+
+        // トースト通知
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // 表示アニメーション
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // 自動削除
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // データ保存（ローカルストレージ）
+        function saveData() {
+            try {
+                const dataToSave = {
+                    version: '3.0',
+                    lastUpdated: new Date().toISOString(),
+                    data: moneyData,
+                    spendingPatterns: spendingPatterns
+                };
+                localStorage.setItem('moneyManagementData', JSON.stringify(dataToSave));
+            } catch (error) {
+                console.error('データ保存エラー:', error);
+                showToast('データの保存に失敗しました', 'error');
+            }
+        }
+
+        // 設定保存
+        function saveSettings() {
+            try {
+                const settings = {
+                    budget: currentBudget,
+                    theme: currentTheme
+                };
+                localStorage.setItem('moneyManagementSettings', JSON.stringify(settings));
+            } catch (error) {
+                console.error('設定保存エラー:', error);
+            }
+        }
+
+        // データ読み込み（ローカルストレージ）
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem('moneyManagementData');
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    moneyData = parsed.data || parsed; // v3.0形式またはv2.0以前に対応
+                    
+                    // データのマイグレーション
+                    moneyData = moneyData.map(entry => ({
+                        id: entry.id || Date.now() + Math.random(),
+                        type: entry.type,
+                        category: entry.category || (entry.type === 'income' ? 'その他収入' : 'その他支出'),
+                        amount: entry.amount,
+                        description: entry.description,
+                        date: entry.date,
+                        timestamp: entry.timestamp,
+                        updatedAt: entry.updatedAt || new Date().toISOString()
+                    }));
+
+                    // パターンデータがあれば読み込み
+                    if (parsed.spendingPatterns) {
+                        Object.assign(spendingPatterns, parsed.spendingPatterns);
+                    }
+                }
+            } catch (error) {
+                console.error('データ読み込みエラー:', error);
+                showToast('データの読み込みに失敗しました', 'error');
+                moneyData = [];
+            }
+        }
+
+        // 設定読み込み
+        function loadSettings() {
+            try {
+                const savedSettings = localStorage.getItem('moneyManagementSettings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    currentBudget = settings.budget || 0;
+                    currentTheme = settings.theme || 'default';
+                    
+                    // 予算を画面に反映
+                    document.getElementById('monthlyBudget').value = currentBudget;
+                    
+                    // テーマを適用
+                    if (currentTheme !== 'default') {
+                        changeTheme(currentTheme);
+                    }
+                }
+            } catch (error) {
+                console.error('設定読み込みエラー:', error);
+            }
+        }
+
+        // サービスワーカー登録（PWA対応）
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                const swCode = `
+                    const CACHE_NAME = 'money-manager-v3-cache';
+                    const urlsToCache = ['./', './index.html'];
+                    
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => {
+                                    if (response) {
+                                        return response;
+                                    }
+                                    return fetch(event.request);
+                                })
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // キャンセルボタンのイベントリスナー
+        document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
+        document.getElementById('clearBtn').addEventListener('click', clearForm);
+    </script>
+</body>
+</html>

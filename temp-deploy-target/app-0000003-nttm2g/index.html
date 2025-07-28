@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ペイントシステム - Digital Art Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .toolbar {
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 15px;
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        #paintCanvas {
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .brush-size-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .brush-size-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .brush-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .size-display {
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .color-btn {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-btn.active {
+            border-color: #fff;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+
+        .custom-color-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #customColor {
+            width: 60px;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .brush-shapes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .brush-shape-btn {
+            padding: 8px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .brush-shape-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .brush-shape-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .file-operations {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .toolbar-btn {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .opacity-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .opacity-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .opacity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #764ba2;
+            cursor: pointer;
+        }
+
+        .layers-panel {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .layer-item {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .layer-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .preview-canvas {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 150px;
+            height: 100px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            background: white;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+            
+            .main-canvas-area {
+                height: 60vh;
+            }
+            
+            .canvas-container {
+                padding: 10px;
+            }
+            
+            #paintCanvas {
+                max-width: 100%;
+                max-height: 100%;
+            }
+        }
+
+        .pressure-sensitivity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .gradient-preview {
+            width: 100%;
+            height: 30px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="section">
+            <h3>🎨 ブラシ設定</h3>
+            <div class="brush-size-container">
+                <label>ブラシサイズ: <span id="brushSizeDisplay">5</span>px</label>
+                <input type="range" id="brushSize" class="brush-size-slider" min="1" max="50" value="5">
+                <div class="size-display">
+                    <canvas id="brushPreview" width="50" height="50" style="border: 1px solid #ccc; border-radius: 4px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🌈 カラーパレット</h3>
+            <div class="color-palette" id="colorPalette"></div>
+            <div class="custom-color-container">
+                <input type="color" id="customColor" value="#000000">
+                <button class="btn" onclick="addCustomColor()">カスタム色追加</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>✏️ ブラシ形状</h3>
+            <div class="brush-shapes">
+                <button class="brush-shape-btn active" data-shape="round">●</button>
+                <button class="brush-shape-btn" data-shape="square">■</button>
+                <button class="brush-shape-btn" data-shape="diamond">◆</button>
+                <button class="brush-shape-btn" data-shape="star">★</button>
+                <button class="brush-shape-btn" data-shape="heart">♥</button>
+                <button class="brush-shape-btn" data-shape="triangle">▲</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🔧 詳細設定</h3>
+            <div class="opacity-container">
+                <label>透明度: <span id="opacityDisplay">100</span>%</label>
+                <input type="range" id="opacity" class="opacity-slider" min="10" max="100" value="100">
+            </div>
+            <div class="pressure-sensitivity">
+                <input type="checkbox" id="pressureSensitive" class="checkbox">
+                <label for="pressureSensitive">筆圧感知</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>💾 ファイル操作</h3>
+            <div class="file-operations">
+                <button class="btn" onclick="saveCanvas()">💾 画像を保存</button>
+                <button class="btn" onclick="downloadCanvas()">📥 画像をダウンロード</button>
+                <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="uploadImage(event)">
+                <button class="btn secondary" onclick="document.getElementById('imageUpload').click()">📤 画像をアップロード</button>
+                <button class="btn danger" onclick="clearCanvas()">🗑️ キャンバスをクリア</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-canvas-area">
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="undo()">↶ 元に戻す</button>
+            <button class="toolbar-btn" onclick="redo()">↷ やり直し</button>
+            <button class="toolbar-btn" onclick="toggleEraser()">🧽 消しゴム</button>
+            <button class="toolbar-btn" onclick="toggleFullscreen()">🖥️ フルスクリーン</button>
+            <span style="color: white; margin-left: auto;">座標: <span id="coordinates">0, 0</span></span>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="paintCanvas" width="800" height="600"></canvas>
+            <canvas id="previewCanvas" class="preview-canvas" width="150" height="100"></canvas>
+        </div>
+    </div>
+
+    <script>
+        class DigitalPaintSystem {
+            constructor() {
+                this.canvas = document.getElementById('paintCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.previewCanvas = document.getElementById('previewCanvas');
+                this.previewCtx = this.previewCanvas.getContext('2d');
+                this.brushPreview = document.getElementById('brushPreview');
+                this.brushPreviewCtx = this.brushPreview.getContext('2d');
+                
+                this.isDrawing = false;
+                this.currentTool = 'brush';
+                this.currentColor = '#000000';
+                this.currentSize = 5;
+                this.currentOpacity = 1.0;
+                this.currentShape = 'round';
+                this.pressureSensitive = false;
+                
+                this.history = [];
+                this.historyIndex = -1;
+                this.maxHistory = 50;
+                
+                this.lastX = 0;
+                this.lastY = 0;
+                
+                this.initializeCanvas();
+                this.initializeControls();
+                this.initializePalette();
+                this.saveState();
+                this.updateBrushPreview();
+            }
+
+            initializeCanvas() {
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                this.ctx.fillStyle = 'white';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // イベントリスナー
+                this.canvas.addEventListener('mousedown', this.startDrawing.bind(this));
+                this.canvas.addEventListener('mousemove', this.draw.bind(this));
+                this.canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
+                this.canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
+                this.canvas.addEventListener('mousemove', this.updateCoordinates.bind(this));
+                
+                // タッチイベント
+                this.canvas.addEventListener('touchstart', this.handleTouch.bind(this));
+                this.canvas.addEventListener('touchmove', this.handleTouch.bind(this));
+                this.canvas.addEventListener('touchend', this.stopDrawing.bind(this));
+                
+                // プレビューキャンバスの更新
+                this.updatePreview();
+            }
+
+            initializeControls() {
+                // ブラシサイズ
+                const brushSize = document.getElementById('brushSize');
+                brushSize.addEventListener('input', (e) => {
+                    this.currentSize = parseInt(e.target.value);
+                    document.getElementById('brushSizeDisplay').textContent = this.currentSize;
+                    this.updateBrushPreview();
+                });
+
+                // 透明度
+                const opacity = document.getElementById('opacity');
+                opacity.addEventListener('input', (e) => {
+                    this.currentOpacity = parseInt(e.target.value) / 100;
+                    document.getElementById('opacityDisplay').textContent = e.target.value;
+                });
+
+                // 筆圧感知
+                document.getElementById('pressureSensitive').addEventListener('change', (e) => {
+                    this.pressureSensitive = e.target.checked;
+                });
+
+                // ブラシ形状
+                const shapeButtons = document.querySelectorAll('.brush-shape-btn');
+                shapeButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        shapeButtons.forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentShape = e.target.dataset.shape;
+                        this.updateBrushPreview();
+                    });
+                });
+
+                // カスタムカラー
+                document.getElementById('customColor').addEventListener('change', (e) => {
+                    this.currentColor = e.target.value;
+                    this.updateColorSelection();
+                });
+            }
+
+            initializePalette() {
+                const colors = [
+                    '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
+                    '#FF00FF', '#00FFFF', '#FFA500', '#800080', '#FFC0CB', '#A52A2A',
+                    '#808080', '#C0C0C0', '#800000', '#008000', '#000080', '#808000',
+                    '#800080', '#008080', '#FF6347', '#4682B4', '#32CD32', '#FFD700',
+                    '#FF69B4', '#DC143C', '#00CED1', '#FF1493', '#00FA9A', '#FF4500'
+                ];
+
+                const palette = document.getElementById('colorPalette');
+                colors.forEach(color => {
+                    const colorBtn = document.createElement('div');
+                    colorBtn.className = 'color-btn';
+                    colorBtn.style.backgroundColor = color;
+                    colorBtn.addEventListener('click', () => {
+                        this.currentColor = color;
+                        this.updateColorSelection();
+                    });
+                    palette.appendChild(colorBtn);
+                });
+
+                // 最初の色をアクティブに
+                palette.firstChild.classList.add('active');
+            }
+
+            updateColorSelection() {
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.style.backgroundColor === this.rgbToHex(this.currentColor)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            updateBrushPreview() {
+                this.brushPreviewCtx.clearRect(0, 0, 50, 50);
+                this.brushPreviewCtx.fillStyle = this.currentColor;
+                this.brushPreviewCtx.globalAlpha = this.currentOpacity;
+                
+                const centerX = 25;
+                const centerY = 25;
+                const size = Math.min(this.currentSize, 20);
+                
+                switch(this.currentShape) {
+                    case 'round':
+                        this.brushPreviewCtx.beginPath();
+                        this.brushPreviewCtx.arc(centerX, centerY, size/2, 0, Math.PI * 2);
+                        this.brushPreviewCtx.fill();
+                        break;
+                    case 'square':
+                        this.brushPreviewCtx.fillRect(centerX - size/2, centerY - size/2, size, size);
+                        break;
+                    case 'diamond':
+                        this.brushPreviewCtx.beginPath();
+                        this.brushPreviewCtx.moveTo(centerX, centerY - size/2);
+                        this.brushPreviewCtx.lineTo(centerX + size/2, centerY);
+                        this.brushPreviewCtx.lineTo(centerX, centerY + size/2);
+                        this.brushPreviewCtx.lineTo(centerX - size/2, centerY);
+                        this.brushPreviewCtx.closePath();
+                        this.brushPreviewCtx.fill();
+                        break;
+                    case 'star':
+                        this.drawStar(this.brushPreviewCtx, centerX, centerY, size/2, 5);
+                        break;
+                    case 'heart':
+                        this.drawHeart(this.brushPreviewCtx, centerX, centerY, size/2);
+                        break;
+                    case 'triangle':
+                        this.brushPreviewCtx.beginPath();
+                        this.brushPreviewCtx.moveTo(centerX, centerY - size/2);
+                        this.brushPreviewCtx.lineTo(centerX - size/2, centerY + size/2);
+                        this.brushPreviewCtx.lineTo(centerX + size/2, centerY + size/2);
+                        this.brushPreviewCtx.closePath();
+                        this.brushPreviewCtx.fill();
+                        break;
+                }
+                
+                this.brushPreviewCtx.globalAlpha = 1.0;
+            }
+
+            startDrawing(e) {
+                this.isDrawing = true;
+                const rect = this.canvas.getBoundingClientRect();
+                this.lastX = e.clientX - rect.left;
+                this.lastY = e.clientY - rect.top;
+            }
+
+            draw(e) {
+                if (!this.isDrawing) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                
+                this.ctx.globalAlpha = this.currentOpacity;
+                
+                if (this.currentTool === 'eraser') {
+                    this.ctx.globalCompositeOperation = 'destination-out';
+                } else {
+                    this.ctx.globalCompositeOperation = 'source-over';
+                    this.ctx.strokeStyle = this.currentColor;
+                    this.ctx.fillStyle = this.currentColor;
+                }
+                
+                // 筆圧感知シミュレーション
+                let size = this.currentSize;
+                if (this.pressureSensitive) {
+                    const distance = Math.sqrt(Math.pow(currentX - this.lastX, 2) + Math.pow(currentY - this.lastY, 2));
+                    size = Math.max(1, this.currentSize - distance * 0.1);
+                }
+                
+                this.drawShape(currentX, currentY, size);
+                
+                // 線の描画（滑らかな線のため）
+                if (this.currentShape === 'round') {
+                    this.ctx.lineWidth = size;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.lastX, this.lastY);
+                    this.ctx.lineTo(currentX, currentY);
+                    this.ctx.stroke();
+                }
+                
+                this.lastX = currentX;
+                this.lastY = currentY;
+                
+                this.updatePreview();
+            }
+
+            drawShape(x, y, size) {
+                switch(this.currentShape) {
+                    case 'round':
+                        this.ctx.beginPath();
+                        this.ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+                    case 'square':
+                        this.ctx.fillRect(x - size/2, y - size/2, size, size);
+                        break;
+                    case 'diamond':
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(x, y - size/2);
+                        this.ctx.lineTo(x + size/2, y);
+                        this.ctx.lineTo(x, y + size/2);
+                        this.ctx.lineTo(x - size/2, y);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                        break;
+                    case 'star':
+                        this.drawStar(this.ctx, x, y, size/2, 5);
+                        break;
+                    case 'heart':
+                        this.drawHeart(this.ctx, x, y, size/2);
+                        break;
+                    case 'triangle':
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(x, y - size/2);
+                        this.ctx.lineTo(x - size/2, y + size/2);
+                        this.ctx.lineTo(x + size/2, y + size/2);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                        break;
+                }
+            }
+
+            drawStar(ctx, x, y, radius, points) {
+                const outer = radius;
+                const inner = radius * 0.5;
+                ctx.beginPath();
+                for (let i = 0; i < points * 2; i++) {
+                    const angle = (i * Math.PI) / points;
+                    const r = (i % 2 === 0) ? outer : inner;
+                    const dx = Math.cos(angle - Math.PI / 2) * r;
+                    const dy = Math.sin(angle - Math.PI / 2) * r;
+                    if (i === 0) ctx.moveTo(x + dx, y + dy);
+                    else ctx.lineTo(x + dx, y + dy);
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            drawHeart(ctx, x, y, size) {
+                ctx.beginPath();
+                ctx.moveTo(x, y + size/4);
+                ctx.bezierCurveTo(x, y - size/4, x - size/2, y - size/4, x - size/2, y);
+                ctx.bezierCurveTo(x - size/2, y + size/4, x, y + size/2, x, y + size);
+                ctx.bezierCurveTo(x, y + size/2, x + size/2, y + size/4, x + size/2, y);
+                ctx.bezierCurveTo(x + size/2, y - size/4, x, y - size/4, x, y + size/4);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            stopDrawing() {
+                if (this.isDrawing) {
+                    this.isDrawing = false;
+                    this.saveState();
+                }
+            }
+
+            handleTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                                e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                this.canvas.dispatchEvent(mouseEvent);
+            }
+
+            updateCoordinates(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = Math.round(e.clientX - rect.left);
+                const y = Math.round(e.clientY - rect.top);
+                document.getElementById('coordinates').textContent = `${x}, ${y}`;
+            }
+
+            updatePreview() {
+                this.previewCtx.clearRect(0, 0, this.previewCanvas.width, this.previewCanvas.height);
+                this.previewCtx.drawImage(this.canvas, 0, 0, this.previewCanvas.width, this.previewCanvas.height);
+            }
+
+            saveState() {
+                this.historyIndex++;
+                if (this.historyIndex < this.history.length) {
+                    this.history.length = this.historyIndex;
+                }
+                this.history.push(this.canvas.toDataURL());
+                if (this.history.length > this.maxHistory) {
+                    this.history.shift();
+                    this.historyIndex--;
+                }
+            }
+
+            undo() {
+                if (this.historyIndex > 0) {
+                    this.historyIndex--;
+                    this.loadState(this.history[this.historyIndex]);
+                }
+            }
+
+            redo() {
+                if (this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    this.loadState(this.history[this.historyIndex]);
+                }
+            }
+
+            loadState(dataURL) {
+                const img = new Image();
+                img.onload = () => {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.ctx.drawImage(img, 0, 0);
+                    this.updatePreview();
+                };
+                img.src = dataURL;
+            }
+
+            toggleEraser() {
+                this.currentTool = this.currentTool === 'eraser' ? 'brush' : 'eraser';
+                this.canvas.style.cursor = this.currentTool === 'eraser' ? 'grab' : 'crosshair';
+            }
+
+            clearCanvas() {
+                if (confirm('キャンバスをクリアしてもよろしいですか？')) {
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.saveState();
+                    this.updatePreview();
+                }
+            }
+
+            saveCanvas() {
+                const imageData = this.canvas.toDataURL();
+                localStorage.setItem('paintSystemSave', imageData);
+                alert('画像をローカルストレージに保存しました！');
+            }
+
+            downloadCanvas() {
+                const link = document.createElement('a');
+                link.download = `paint_${new Date().getTime()}.png`;
+                link.href = this.canvas.toDataURL();
+                link.click();
+            }
+
+            uploadImage(event) {
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                            this.ctx.fillStyle = 'white';
+                            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                            
+                            // 画像をキャンバスに合わせてリサイズ
+                            const scale = Math.min(this.canvas.width / img.width, this.canvas.height / img.height);
+                            const newWidth = img.width * scale;
+                            const newHeight = img.height * scale;
+                            const x = (this.canvas.width - newWidth) / 2;
+                            const y = (this.canvas.height - newHeight) / 2;
+                            
+                            this.ctx.drawImage(img, x, y, newWidth, newHeight);
+                            this.saveState();
+                            this.updatePreview();
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            rgbToHex(rgb) {
+                if (rgb.startsWith('#')) return rgb;
+                const result = rgb.match(/\d+/g);
+                return result ? `#${((1 << 24) + (parseInt(result[0]) << 16) + (parseInt(result[1]) << 8) + parseInt(result[2])).toString(16).slice(1)}` : rgb;
+            }
+        }
+
+        // グローバル関数
+        let paintSystem;
+
+        function addCustomColor() {
+            const customColor = document.getElementById('customColor').value;
+            paintSystem.currentColor = customColor;
+            
+            // カスタム色をパレットに追加
+            const palette = document.getElementById('colorPalette');
+            const colorBtn = document.createElement('div');
+            colorBtn.className = 'color-btn';
+            colorBtn.style.backgroundColor = customColor;
+            colorBtn.addEventListener('click', () => {
+                paintSystem.currentColor = customColor;
+                paintSystem.updateColorSelection();
+            });
+            palette.appendChild(colorBtn);
+            
+            paintSystem.updateColorSelection();
+        }
+
+        function undo() {
+            paintSystem.undo();
+        }
+
+        function redo() {
+            paintSystem.redo();
+        }
+
+        function toggleEraser() {
+            paintSystem.toggleEraser();
+        }
+
+        function clearCanvas() {
+            paintSystem.clearCanvas();
+        }
+
+        function saveCanvas() {
+            paintSystem.saveCanvas();
+        }
+
+        function downloadCanvas() {
+            paintSystem.downloadCanvas();
+        }
+
+        function uploadImage(event) {
+            paintSystem.uploadImage(event);
+        }
+
+        function toggleFullscreen() {
+            paintSystem.toggleFullscreen();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            paintSystem = new DigitalPaintSystem();
+            
+            // 保存された画像があれば復元
+            const savedImage = localStorage.getItem('paintSystemSave');
+            if (savedImage) {
+                const img = new Image();
+                img.onload = () => {
+                    paintSystem.ctx.drawImage(img, 0, 0);
+                    paintSystem.updatePreview();
+                };
+                img.src = savedImage;
+            }
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            redo();
+                        } else {
+                            undo();
+                        }
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        downloadCanvas();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

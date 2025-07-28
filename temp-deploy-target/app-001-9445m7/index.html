@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .balance-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-card .amount {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #4ade80;
+        }
+
+        .negative {
+            color: #f87171;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        /* Form Section */
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .type-btn.income.active {
+            background: #4ade80;
+            border-color: #4ade80;
+        }
+
+        .type-btn.expense.active {
+            background: #f87171;
+            border-color: #f87171;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Transaction List */
+        .transaction-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #16a34a;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .filter-tab.active {
+            color: #667eea;
+        }
+
+        .filter-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+        }
+
+        .transaction-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .transaction-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-category {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .transaction-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .transaction-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .transaction-amount.income {
+            color: #22c55e;
+        }
+
+        .transaction-amount.expense {
+            color: #ef4444;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .balance-card {
+                text-align: center;
+            }
+        }
+
+        /* Scrollbar */
+        .transaction-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .transaction-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .transaction-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .transaction-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Money Management System</h1>
+            <div class="header-info">
+                <div class="balance-card">
+                    <h3>総収入</h3>
+                    <div class="amount positive" id="totalIncome">¥0</div>
+                </div>
+                <div class="balance-card">
+                    <h3>総支出</h3>
+                    <div class="amount negative" id="totalExpense">¥0</div>
+                </div>
+                <div class="balance-card">
+                    <h3>残高</h3>
+                    <div class="amount" id="balance">¥0</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Input Form -->
+            <div class="form-section">
+                <h2>取引を追加</h2>
+                <form id="transactionForm">
+                    <div class="type-selector">
+                        <button type="button" class="type-btn income" onclick="setType('income')">収入</button>
+                        <button type="button" class="type-btn expense active" onclick="setType('expense')">支出</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">カテゴリー</label>
+                        <select id="category" required>
+                            <option value="">選択してください</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">金額</label>
+                        <input type="number" id="amount" min="1" required placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">日付</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="memo">メモ（任意）</label>
+                        <input type="text" id="memo" placeholder="詳細をメモ">
+                    </div>
+
+                    <button type="submit" class="btn-primary">追加する</button>
+                </form>
+            </div>
+
+            <!-- Transaction List -->
+            <div class="transaction-section">
+                <div class="section-header">
+                    <h2>取引履歴</h2>
+                    <button class="export-btn" onclick="exportToCSV()">
+                        <span>📊</span>
+                        CSVダウンロード
+                    </button>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterTransactions('all')">すべて</button>
+                    <button class="filter-tab" onclick="filterTransactions('income')">収入</button>
+                    <button class="filter-tab" onclick="filterTransactions('expense')">支出</button>
+                </div>
+
+                <div class="transaction-list" id="transactionList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>まだ取引がありません</p>
+                        <p>左のフォームから追加してください</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>取引を編集</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                
+                <div class="type-selector">
+                    <button type="button" class="type-btn income" onclick="setEditType('income')">収入</button>
+                    <button type="button" class="type-btn expense" onclick="setEditType('expense')">支出</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="editCategory">カテゴリー</label>
+                    <select id="editCategory" required>
+                        <option value="">選択してください</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editAmount">金額</label>
+                    <input type="number" id="editAmount" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDate">日付</label>
+                    <input type="date" id="editDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editMemo">メモ（任意）</label>
+                    <input type="text" id="editMemo">
+                </div>
+
+                <button type="submit" class="btn-primary">更新する</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Categories
+        const categories = {
+            income: ['給料', 'ボーナス', '副業', '投資', 'その他収入'],
+            expense: ['食費', '住居費', '交通費', '娯楽費', '医療費', '教育費', '通信費', 'その他支出']
+        };
+
+        // Data storage
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let currentType = 'expense';
+        let currentFilter = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            // Update categories
+            updateCategories();
+            
+            // Render transactions
+            renderTransactions();
+            
+            // Update totals
+            updateTotals();
+        });
+
+        // Form submission
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const transaction = {
+                id: Date.now(),
+                type: currentType,
+                category: document.getElementById('category').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                date: document.getElementById('date').value,
+                memo: document.getElementById('memo').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            transactions.push(transaction);
+            saveTransactions();
+            
+            // Reset form
+            this.reset();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            // Update UI
+            renderTransactions();
+            updateTotals();
+            
+            // Show success animation
+            showSuccess();
+        });
+
+        // Edit form submission
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('editId').value);
+            const index = transactions.findIndex(t => t.id === id);
+            
+            if (index !== -1) {
+                transactions[index] = {
+                    ...transactions[index],
+                    type: document.querySelector('#editModal .type-btn.active').classList.contains('income') ? 'income' : 'expense',
+                    category: document.getElementById('editCategory').value,
+                    amount: parseFloat(document.getElementById('editAmount').value),
+                    date: document.getElementById('editDate').value,
+                    memo: document.getElementById('editMemo').value,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                saveTransactions();
+                renderTransactions();
+                updateTotals();
+                closeModal();
+            }
+        });
+
+        // Set transaction type
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.type-selector .type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateCategories();
+        }
+
+        function setEditType(type) {
+            document.querySelectorAll('#editModal .type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateEditCategories(type);
+        }
+
+        // Update categories
+        function updateCategories() {
+            const select = document.getElementById('category');
+            select.innerHTML = '<option value="">選択してください</option>';
+            
+            categories[currentType].forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+        }
+
+        function updateEditCategories(type) {
+            const select = document.getElementById('editCategory');
+            select.innerHTML = '<option value="">選択してください</option>';
+            
+            categories[type].forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+        }
+
+        // Filter transactions
+        function filterTransactions(filter) {
+            currentFilter = filter;
+            
+            // Update tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderTransactions();
+        }
+
+        // Render transactions
+        function renderTransactions() {
+            const container = document.getElementById('transactionList');
+            
+            // Filter transactions
+            let filtered = transactions;
+            if (currentFilter !== 'all') {
+                filtered = transactions.filter(t => t.type === currentFilter);
+            }
+            
+            // Sort by date (newest first)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>取引がありません</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filtered.map(transaction => `
+                <div class="transaction-item" data-id="${transaction.id}">
+                    <div class="transaction-info">
+                        <div class="transaction-category">${transaction.category}</div>
+                        <div class="transaction-date">${formatDate(transaction.date)}${transaction.memo ? ' - ' + transaction.memo : ''}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.type}">
+                        ${transaction.type === 'income' ? '+' : '-'}¥${transaction.amount.toLocaleString()}
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="btn-small btn-edit" onclick="editTransaction(${transaction.id})">編集</button>
+                        <button class="btn-small btn-delete" onclick="deleteTransaction(${transaction.id})">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update totals
+        function updateTotals() {
+            const income = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const expense = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const balance = income - expense;
+            
+            document.getElementById('totalIncome').textContent = `¥${income.toLocaleString()}`;
+            document.getElementById('totalExpense').textContent = `¥${expense.toLocaleString()}`;
+            document.getElementById('balance').textContent = `¥${balance.toLocaleString()}`;
+            
+            // Update balance color
+            const balanceElement = document.getElementById('balance');
+            balanceElement.className = 'amount';
+            if (balance > 0) {
+                balanceElement.classList.add('positive');
+            } else if (balance < 0) {
+                balanceElement.classList.add('negative');
+            }
+        }
+
+        // Edit transaction
+        function editTransaction(id) {
+            const transaction = transactions.find(t => t.id === id);
+            if (!transaction) return;
+            
+            // Set form values
+            document.getElementById('editId').value = transaction.id;
+            document.getElementById('editAmount').value = transaction.amount;
+            document.getElementById('editDate').value = transaction.date;
+            document.getElementById('editMemo').value = transaction.memo || '';
+            
+            // Set type
+            document.querySelectorAll('#editModal .type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#editModal .type-btn.${transaction.type}`).classList.add('active');
+            
+            // Update categories and set value
+            updateEditCategories(transaction.type);
+            setTimeout(() => {
+                document.getElementById('editCategory').value = transaction.category;
+            }, 0);
+            
+            // Show modal
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Delete transaction
+        function deleteTransaction(id) {
+            if (confirm('この取引を削除しますか？')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveTransactions();
+                renderTransactions();
+                updateTotals();
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Save transactions
+        function saveTransactions() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (transactions.length === 0) {
+                alert('エクスポートする取引がありません');
+                return;
+            }
+            
+            // Create CSV content
+            const headers = ['日付', 'タイプ', 'カテゴリー', '金額', 'メモ'];
+            const rows = transactions.map(t => [
+                t.date,
+                t.type === 'income' ? '収入' : '支出',
+                t.category,
+                t.amount,
+                t.memo || ''
+            ]);
+            
+            let csvContent = '\uFEFF'; // BOM for Excel
+            csvContent += headers.join(',') + '\n';
+            csvContent += rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            
+            // Download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `money_management_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            const weekday = weekdays[date.getDay()];
+            
+            return `${year}年${month}月${day}日(${weekday})`;
+        }
+
+        // Show success animation
+        function showSuccess() {
+            // Simple feedback - could be enhanced with animation
+            const form = document.querySelector('.form-section');
+            form.style.animation = 'pulse 0.5s ease';
+            setTimeout(() => {
+                form.style.animation = '';
+            }, 500);
+        }
+
+        // Modal click outside to close
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Add pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.02); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

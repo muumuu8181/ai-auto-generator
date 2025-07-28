@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超絶格好良い隕石落下アニメーション生成</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e);
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #meteorCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            cursor: crosshair;
+        }
+
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #64b5f6;
+            font-weight: bold;
+        }
+
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 12px;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(100, 181, 246, 0.5);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #4dabf7, #339af0);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(77, 171, 247, 0.4);
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats h3 {
+            color: #64b5f6;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            animation: pulse 1s infinite;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .title {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 24px;
+            font-weight: bold;
+            color: #64b5f6;
+            text-shadow: 0 0 20px rgba(100, 181, 246, 0.5);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                width: calc(100% - 40px);
+                max-width: 300px;
+            }
+            
+            .stats {
+                width: calc(50% - 30px);
+                min-width: 150px;
+            }
+            
+            .title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="meteorCanvas"></canvas>
+        
+        <div class="control-panel">
+            <div class="control-group">
+                <label>隕石タイプ</label>
+                <select id="meteorType">
+                    <option value="classic">クラシック</option>
+                    <option value="fire">炎の隕石</option>
+                    <option value="ice">氷の隕石</option>
+                    <option value="metal">金属隕石</option>
+                    <option value="rainbow">虹の隕石</option>
+                    <option value="dark">暗黒隕石</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>隕石サイズ</label>
+                <input type="range" id="meteorSize" min="10" max="100" value="30">
+            </div>
+            
+            <div class="control-group">
+                <label>降下速度</label>
+                <input type="range" id="fallSpeed" min="1" max="20" value="8">
+            </div>
+            
+            <div class="control-group">
+                <label>隕石密度</label>
+                <input type="range" id="meteorDensity" min="1" max="50" value="15">
+            </div>
+            
+            <button class="btn" onclick="startMeteorShower()">隕石シャワー開始</button>
+            <button class="btn btn-secondary" onclick="clearScreen()">画面クリア</button>
+            <button class="btn btn-secondary" onclick="toggleSound()">音響ON/OFF</button>
+        </div>
+        
+        <div class="stats">
+            <h3>📊 統計情報</h3>
+            <div class="stat-item">
+                <span>隕石数:</span>
+                <span id="meteorCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span>爆発数:</span>
+                <span id="explosionCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span>FPS:</span>
+                <span id="fpsCounter">60</span>
+            </div>
+            <div class="stat-item">
+                <span>音響:</span>
+                <span id="soundStatus">ON</span>
+            </div>
+        </div>
+        
+        <div class="warning" id="impactWarning">
+            🚨 大隕石接近中! 🚨
+        </div>
+        
+        <div class="title">
+            🌠 超絶格好良い隕石落下シミュレーター 🌠
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム v1.0</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 お金管理システム</h1>
+            <div class="summary">
+                <div class="summary-item">
+                    <span class="label">総収入</span>
+                    <span class="value income-total" id="totalIncome">¥0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">総支出</span>
+                    <span class="value expense-total" id="totalExpense">¥0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">残高</span>
+                    <span class="value balance-total" id="balance">¥0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="input-section">
+            <h2>新規入力</h2>
+            <form id="moneyForm">
+                <div class="form-group">
+                    <label for="type">種別</label>
+                    <select id="type" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">カテゴリー</label>
+                    <input type="text" id="category" placeholder="例: 給料、食費" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">金額</label>
+                    <input type="number" id="amount" placeholder="0" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">日付</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="memo">メモ</label>
+                    <input type="text" id="memo" placeholder="任意">
+                </div>
+                <button type="submit" class="btn btn-primary">追加</button>
+            </form>
+        </div>
+
+        <div class="records-section">
+            <div class="records-header">
+                <h2>記録一覧</h2>
+                <button id="downloadBtn" class="btn btn-secondary">📥 CSVダウンロード</button>
+            </div>
+            <div class="table-container">
+                <table id="recordsTable">
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>種別</th>
+                            <th>カテゴリー</th>
+                            <th>金額</th>
+                            <th>メモ</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsBody">
+                        <!-- 動的に追加 -->
+                    </tbody>
+                </table>
+                <div id="noRecords" class="no-records">記録がありません</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>記録を編集</h2>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="editType">種別</label>
+                    <select id="editType" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editCategory">カテゴリー</label>
+                    <input type="text" id="editCategory" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAmount">金額</label>
+                    <input type="number" id="editAmount" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDate">日付</label>
+                    <input type="date" id="editDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="editMemo">メモ</label>
+                    <input type="text" id="editMemo">
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn btn-primary">更新</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEdit">キャンセル</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

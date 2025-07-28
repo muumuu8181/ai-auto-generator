@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Paint System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: #2a2a2a;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 15px;
+            color: #00ffcc;
+            font-size: 1.2em;
+        }
+
+        .tool-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #333;
+            border-radius: 10px;
+        }
+
+        /* Canvas Area */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #drawingCanvas {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+            cursor: crosshair;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(42, 42, 42, 0.9);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .top-bar button {
+            margin: 0 5px;
+            padding: 8px 16px;
+            background: #00ffcc;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .top-bar button:hover {
+            background: #00ccaa;
+            transform: translateY(-2px);
+        }
+
+        /* Color Picker */
+        .color-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.active {
+            border-color: #00ffcc;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        #customColor {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Sliders */
+        .slider-container {
+            margin-bottom: 20px;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 10px;
+            color: #00ffcc;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            background: #444;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #00ffcc;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Brush Types */
+        .brush-types {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .brush-type {
+            padding: 10px;
+            background: #444;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .brush-type:hover {
+            background: #555;
+        }
+
+        .brush-type.active {
+            border-color: #00ffcc;
+            background: #00ffcc22;
+        }
+
+        /* Custom Brush Preview */
+        .brush-preview {
+            width: 100%;
+            height: 100px;
+            background: #333;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #brushPreview {
+            background: white;
+            border-radius: 5px;
+        }
+
+        /* History */
+        .history-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .history-item {
+            min-width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            border-color: #00ffcc;
+        }
+
+        /* Layers */
+        .layers-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .layer-item {
+            padding: 10px;
+            background: #444;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .layer-item.active {
+            background: #00ffcc22;
+            border: 1px solid #00ffcc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 20;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: block;
+                position: absolute;
+                top: 70px;
+                left: 10px;
+                z-index: 21;
+                padding: 10px;
+                background: #00ffcc;
+                color: #000;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+        }
+
+        /* Loading overlay */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #00ffcc;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button onclick="clearCanvas()">クリア</button>
+        <button onclick="undo()">元に戻す</button>
+        <button onclick="redo()">やり直し</button>
+        <button onclick="saveImage()">画像を保存</button>
+        <button onclick="downloadImage()">ダウンロード</button>
+        <button onclick="document.getElementById('imageUpload').click()">画像をアップロード</button>
+        <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="uploadImage(event)">
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()">メニュー</button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>ペイントツール</h2>
+
+        <!-- Color Selection -->
+        <div class="tool-section">
+            <h2>色の選択</h2>
+            <div class="color-picker">
+                <div class="color-option active" style="background: #000000" onclick="setColor('#000000')"></div>
+                <div class="color-option" style="background: #FF0000" onclick="setColor('#FF0000')"></div>
+                <div class="color-option" style="background: #00FF00" onclick="setColor('#00FF00')"></div>
+                <div class="color-option" style="background: #0000FF" onclick="setColor('#0000FF')"></div>
+                <div class="color-option" style="background: #FFFF00" onclick="setColor('#FFFF00')"></div>
+                <div class="color-option" style="background: #FF00FF" onclick="setColor('#FF00FF')"></div>
+                <div class="color-option" style="background: #00FFFF" onclick="setColor('#00FFFF')"></div>
+                <div class="color-option" style="background: #FFFFFF" onclick="setColor('#FFFFFF')"></div>
+            </div>
+            <input type="color" id="customColor" value="#000000" onchange="setColor(this.value)">
+        </div>
+
+        <!-- Brush Settings -->
+        <div class="tool-section">
+            <h2>ブラシ設定</h2>
+            <div class="slider-container">
+                <label>太さ: <span class="value-display" id="sizeValue">5</span></label>
+                <input type="range" id="brushSize" min="1" max="100" value="5" onchange="updateBrushSize()">
+            </div>
+            <div class="slider-container">
+                <label>透明度: <span class="value-display" id="opacityValue">100%</span></label>
+                <input type="range" id="brushOpacity" min="0" max="100" value="100" onchange="updateOpacity()">
+            </div>
+        </div>
+
+        <!-- Brush Types -->
+        <div class="tool-section">
+            <h2>ブラシタイプ</h2>
+            <div class="brush-types">
+                <div class="brush-type active" onclick="setBrushType('round')">円形</div>
+                <div class="brush-type" onclick="setBrushType('square')">四角</div>
+                <div class="brush-type" onclick="setBrushType('spray')">スプレー</div>
+                <div class="brush-type" onclick="setBrushType('calligraphy')">カリグラフィー</div>
+                <div class="brush-type" onclick="setBrushType('marker')">マーカー</div>
+                <div class="brush-type" onclick="setBrushType('eraser')">消しゴム</div>
+            </div>
+        </div>
+
+        <!-- Custom Brush Preview -->
+        <div class="tool-section">
+            <h2>ブラシプレビュー</h2>
+            <div class="brush-preview">
+                <canvas id="brushPreview" width="100" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="tool-section">
+            <h2>履歴</h2>
+            <div class="history-container" id="historyContainer"></div>
+        </div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+        <canvas id="drawingCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const brushPreview = document.getElementById('brushPreview');
+        const previewCtx = brushPreview.getContext('2d');
+
+        // Drawing state
+        let isDrawing = false;
+        let currentColor = '#000000';
+        let currentSize = 5;
+        let currentOpacity = 1;
+        let currentBrushType = 'round';
+        let lastX = 0;
+        let lastY = 0;
+
+        // History management
+        let history = [];
+        let historyStep = -1;
+        const maxHistory = 50;
+
+        // Initialize
+        function init() {
+            // Set canvas background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Save initial state
+            saveHistory();
+            
+            // Update brush preview
+            updateBrushPreview();
+            
+            // Set up touch events for mobile
+            setupTouchEvents();
+        }
+
+        // Touch events for mobile
+        function setupTouchEvents() {
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            startDrawing({ offsetX: x, offsetY: y });
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            draw({ offsetX: x, offsetY: y });
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            stopDrawing();
+        }
+
+        // Mouse events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            ctx.globalAlpha = currentOpacity;
+            
+            switch(currentBrushType) {
+                case 'round':
+                    drawRound(e);
+                    break;
+                case 'square':
+                    drawSquare(e);
+                    break;
+                case 'spray':
+                    drawSpray(e);
+                    break;
+                case 'calligraphy':
+                    drawCalligraphy(e);
+                    break;
+                case 'marker':
+                    drawMarker(e);
+                    break;
+                case 'eraser':
+                    drawEraser(e);
+                    break;
+            }
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                saveHistory();
+            }
+        }
+
+        // Brush types
+        function drawRound(e) {
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        }
+
+        function drawSquare(e) {
+            ctx.fillStyle = currentColor;
+            ctx.fillRect(
+                e.offsetX - currentSize/2, 
+                e.offsetY - currentSize/2, 
+                currentSize, 
+                currentSize
+            );
+        }
+
+        function drawSpray(e) {
+            const density = currentSize * 2;
+            for (let i = 0; i < density; i++) {
+                const offsetX = (Math.random() - 0.5) * currentSize * 2;
+                const offsetY = (Math.random() - 0.5) * currentSize * 2;
+                const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+                
+                if (distance <= currentSize) {
+                    ctx.fillStyle = currentColor;
+                    ctx.globalAlpha = currentOpacity * (1 - distance / currentSize) * 0.5;
+                    ctx.fillRect(e.offsetX + offsetX, e.offsetY + offsetY, 1, 1);
+                }
+            }
+            ctx.globalAlpha = currentOpacity;
+        }
+
+        function drawCalligraphy(e) {
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            ctx.lineCap = 'square';
+            
+            // Angle-based width variation
+            const angle = Math.atan2(e.offsetY - lastY, e.offsetX - lastX);
+            ctx.lineWidth = currentSize * (1 + Math.abs(Math.sin(angle)) * 0.5);
+            
+            ctx.stroke();
+        }
+
+        function drawMarker(e) {
+            ctx.globalAlpha = currentOpacity * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize * 2;
+            ctx.lineCap = 'square';
+            ctx.lineJoin = 'bevel';
+            ctx.stroke();
+            ctx.globalAlpha = currentOpacity;
+        }
+
+        function drawEraser(e) {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.lineWidth = currentSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        // Color and brush settings
+        function setColor(color) {
+            currentColor = color;
+            document.getElementById('customColor').value = color;
+            
+            // Update active color indicator
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.style.background === color || 
+                    option.style.background.includes(color.substring(1))) {
+                    option.classList.add('active');
+                }
+            });
+            
+            updateBrushPreview();
+        }
+
+        function updateBrushSize() {
+            currentSize = document.getElementById('brushSize').value;
+            document.getElementById('sizeValue').textContent = currentSize;
+            updateBrushPreview();
+        }
+
+        function updateOpacity() {
+            const opacity = document.getElementById('brushOpacity').value;
+            currentOpacity = opacity / 100;
+            document.getElementById('opacityValue').textContent = opacity + '%';
+            updateBrushPreview();
+        }
+
+        function setBrushType(type) {
+            currentBrushType = type;
+            
+            // Update active brush indicator
+            document.querySelectorAll('.brush-type').forEach(brush => {
+                brush.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateBrushPreview();
+        }
+
+        // Brush preview
+        function updateBrushPreview() {
+            previewCtx.clearRect(0, 0, brushPreview.width, brushPreview.height);
+            previewCtx.globalAlpha = currentOpacity;
+            
+            const centerX = brushPreview.width / 2;
+            const centerY = brushPreview.height / 2;
+            
+            switch(currentBrushType) {
+                case 'round':
+                    previewCtx.beginPath();
+                    previewCtx.arc(centerX, centerY, Math.min(currentSize/2, 40), 0, 2 * Math.PI);
+                    previewCtx.fillStyle = currentColor;
+                    previewCtx.fill();
+                    break;
+                case 'square':
+                    const size = Math.min(currentSize, 80);
+                    previewCtx.fillStyle = currentColor;
+                    previewCtx.fillRect(centerX - size/2, centerY - size/2, size, size);
+                    break;
+                case 'spray':
+                    const spraySize = Math.min(currentSize, 40);
+                    for (let i = 0; i < 100; i++) {
+                        const angle = Math.random() * 2 * Math.PI;
+                        const radius = Math.random() * spraySize;
+                        const x = centerX + radius * Math.cos(angle);
+                        const y = centerY + radius * Math.sin(angle);
+                        previewCtx.fillStyle = currentColor;
+                        previewCtx.globalAlpha = currentOpacity * (1 - radius / spraySize) * 0.5;
+                        previewCtx.fillRect(x, y, 1, 1);
+                    }
+                    break;
+                default:
+                    previewCtx.beginPath();
+                    previewCtx.moveTo(20, centerY);
+                    previewCtx.lineTo(80, centerY);
+                    previewCtx.strokeStyle = currentColor;
+                    previewCtx.lineWidth = Math.min(currentSize, 20);
+                    previewCtx.lineCap = 'round';
+                    previewCtx.stroke();
+            }
+        }
+
+        // Canvas operations
+        function clearCanvas() {
+            if (confirm('キャンバスをクリアしますか？')) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                saveHistory();
+            }
+        }
+
+        // History management
+        function saveHistory() {
+            historyStep++;
+            if (historyStep < history.length) {
+                history.length = historyStep;
+            }
+            history.push(canvas.toDataURL());
+            
+            // Limit history size
+            if (history.length > maxHistory) {
+                history.shift();
+                historyStep--;
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                restoreCanvas(history[historyStep]);
+            }
+        }
+
+        function redo() {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                restoreCanvas(history[historyStep]);
+            }
+        }
+
+        function restoreCanvas(dataUrl) {
+            const img = new Image();
+            img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = dataUrl;
+        }
+
+        function updateHistoryDisplay() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '';
+            
+            history.slice(-10).forEach((dataUrl, index) => {
+                const item = document.createElement('canvas');
+                item.className = 'history-item';
+                item.width = 60;
+                item.height = 60;
+                const itemCtx = item.getContext('2d');
+                
+                const img = new Image();
+                img.onload = function() {
+                    itemCtx.drawImage(img, 0, 0, 60, 60);
+                };
+                img.src = dataUrl;
+                
+                item.onclick = () => {
+                    historyStep = history.indexOf(dataUrl);
+                    restoreCanvas(dataUrl);
+                };
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Save and load functions
+        function saveImage() {
+            const name = prompt('ファイル名を入力してください:', 'my-painting');
+            if (name) {
+                localStorage.setItem('painting_' + name, canvas.toDataURL());
+                alert('画像を保存しました: ' + name);
+            }
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'painting-' + Date.now() + '.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function uploadImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    saveHistory();
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Mobile menu toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>

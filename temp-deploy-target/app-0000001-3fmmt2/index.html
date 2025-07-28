@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-section {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+            min-width: 80px;
+        }
+
+        input, select {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .data-section {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .summary-item {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.3);
+            min-width: 150px;
+        }
+
+        .summary-item.income {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .summary-item.expense {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .summary-item h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .summary-item .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .data-table {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 3px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .csv-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .csv-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+
+        .income-row {
+            background-color: rgba(40, 167, 69, 0.1) !important;
+        }
+
+        .expense-row {
+            background-color: rgba(220, 53, 69, 0.1) !important;
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .summary {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 お金管理システム</h1>
+        
+        <!-- 入力セクション -->
+        <div class="input-section">
+            <h2>💡 新規入力</h2>
+            <div class="input-group">
+                <label for="type">タイプ:</label>
+                <select id="type">
+                    <option value="income">収入 💵</option>
+                    <option value="expense">支出 💸</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="amount">金額:</label>
+                <input type="number" id="amount" placeholder="金額を入力してください" min="0" step="1">
+                <span>円</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="description">説明:</label>
+                <input type="text" id="description" placeholder="詳細説明を入力してください">
+            </div>
+            
+            <div class="input-group">
+                <label for="date">日付:</label>
+                <input type="date" id="date">
+            </div>
+            
+            <div class="input-group">
+                <button onclick="addEntry()" id="addBtn">追加</button>
+                <button onclick="cancelEdit()" id="cancelBtn" style="display: none; background: #6c757d;">キャンセル</button>
+            </div>
+        </div>
+        
+        <!-- サマリーセクション -->
+        <div class="data-section">
+            <h2>📊 サマリー</h2>
+            <div class="summary">
+                <div class="summary-item income">
+                    <h3>総収入</h3>
+                    <div class="amount" id="totalIncome">¥0</div>
+                </div>
+                <div class="summary-item expense">
+                    <h3>総支出</h3>
+                    <div class="amount" id="totalExpense">¥0</div>
+                </div>
+                <div class="summary-item">
+                    <h3>残高</h3>
+                    <div class="amount" id="balance">¥0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- データ表示セクション -->
+        <div class="data-section">
+            <h2>📋 データ一覧</h2>
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>タイプ</th>
+                            <th>金額</th>
+                            <th>説明</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable">
+                        <!-- データがここに表示されます -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- CSVエクスポートセクション -->
+        <div class="csv-section">
+            <button onclick="exportCSV()" class="csv-btn">📥 CSVダウンロード</button>
+        </div>
+    </div>
+
+    <script>
+        // データストレージ
+        let moneyData = [];
+        let editingIndex = -1;
+
+        // ページ読み込み時の初期化
+        window.onload = function() {
+            // 今日の日付を設定
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            // ローカルストレージからデータを読み込み
+            loadData();
+            updateDisplay();
+        };
+
+        // データ追加・編集
+        function addEntry() {
+            const type = document.getElementById('type').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const description = document.getElementById('description').value;
+            const date = document.getElementById('date').value;
+
+            // バリデーション
+            if (!amount || amount <= 0) {
+                alert('有効な金額を入力してください');
+                return;
+            }
+            if (!description.trim()) {
+                alert('説明を入力してください');
+                return;
+            }
+            if (!date) {
+                alert('日付を選択してください');
+                return;
+            }
+
+            const entry = {
+                id: editingIndex >= 0 ? moneyData[editingIndex].id : Date.now(),
+                type: type,
+                amount: amount,
+                description: description.trim(),
+                date: date,
+                timestamp: new Date().toLocaleString('ja-JP')
+            };
+
+            if (editingIndex >= 0) {
+                // 編集モード
+                moneyData[editingIndex] = entry;
+                editingIndex = -1;
+                document.getElementById('addBtn').textContent = '追加';
+                document.getElementById('cancelBtn').style.display = 'none';
+            } else {
+                // 新規追加
+                moneyData.push(entry);
+            }
+
+            // フォームリセット
+            clearForm();
+            
+            // 表示更新
+            updateDisplay();
+            saveData();
+            
+            // 成功メッセージ
+            showMessage('データが正常に保存されました！', 'success');
+        }
+
+        // フォームクリア
+        function clearForm() {
+            document.getElementById('amount').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('type').value = 'income';
+        }
+
+        // 編集機能
+        function editEntry(index) {
+            const entry = moneyData[index];
+            
+            document.getElementById('type').value = entry.type;
+            document.getElementById('amount').value = entry.amount;
+            document.getElementById('description').value = entry.description;
+            document.getElementById('date').value = entry.date;
+            
+            editingIndex = index;
+            document.getElementById('addBtn').textContent = '更新';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            
+            // フォームまでスクロール
+            document.querySelector('.input-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 編集キャンセル
+        function cancelEdit() {
+            editingIndex = -1;
+            clearForm();
+            document.getElementById('addBtn').textContent = '追加';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        // 削除機能
+        function deleteEntry(index) {
+            if (confirm('このデータを削除しますか？')) {
+                moneyData.splice(index, 1);
+                updateDisplay();
+                saveData();
+                showMessage('データが削除されました', 'info');
+            }
+        }
+
+        // 表示更新
+        function updateDisplay() {
+            updateSummary();
+            updateTable();
+        }
+
+        // サマリー更新
+        function updateSummary() {
+            const totalIncome = moneyData.filter(item => item.type === 'income')
+                                        .reduce((sum, item) => sum + item.amount, 0);
+            const totalExpense = moneyData.filter(item => item.type === 'expense')
+                                         .reduce((sum, item) => sum + item.amount, 0);
+            const balance = totalIncome - totalExpense;
+
+            document.getElementById('totalIncome').textContent = '¥' + totalIncome.toLocaleString();
+            document.getElementById('totalExpense').textContent = '¥' + totalExpense.toLocaleString();
+            document.getElementById('balance').textContent = '¥' + balance.toLocaleString();
+
+            // 残高の色を変更
+            const balanceElement = document.getElementById('balance');
+            if (balance > 0) {
+                balanceElement.style.color = '#28a745';
+            } else if (balance < 0) {
+                balanceElement.style.color = '#dc3545';
+            } else {
+                balanceElement.style.color = '#333';
+            }
+        }
+
+        // テーブル更新
+        function updateTable() {
+            const tableBody = document.getElementById('dataTable');
+            tableBody.innerHTML = '';
+
+            // 日付順でソート（新しい順）
+            const sortedData = [...moneyData].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedData.forEach((entry, originalIndex) => {
+                const actualIndex = moneyData.indexOf(entry);
+                const row = tableBody.insertRow();
+                row.className = entry.type === 'income' ? 'income-row' : 'expense-row';
+
+                row.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${entry.type === 'income' ? '💵 収入' : '💸 支出'}</td>
+                    <td>¥${entry.amount.toLocaleString()}</td>
+                    <td>${entry.description}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editEntry(${actualIndex})">編集</button>
+                        <button class="delete-btn" onclick="deleteEntry(${actualIndex})">削除</button>
+                    </td>
+                `;
+            });
+
+            if (moneyData.length === 0) {
+                const row = tableBody.insertRow();
+                row.innerHTML = '<td colspan="5" style="text-align: center; color: #666;">データがありません</td>';
+            }
+        }
+
+        // CSVエクスポート
+        function exportCSV() {
+            if (moneyData.length === 0) {
+                alert('エクスポートするデータがありません');
+                return;
+            }
+
+            let csv = 'ID,日付,タイプ,金額,説明,登録日時\n';
+            
+            moneyData.forEach(entry => {
+                csv += `${entry.id},"${entry.date}","${entry.type === 'income' ? '収入' : '支出'}",${entry.amount},"${entry.description}","${entry.timestamp}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `money_data_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showMessage('CSVファイルがダウンロードされました！', 'success');
+        }
+
+        // データ保存（ローカルストレージ）
+        function saveData() {
+            localStorage.setItem('moneyManagementData', JSON.stringify(moneyData));
+        }
+
+        // データ読み込み（ローカルストレージ）
+        function loadData() {
+            const savedData = localStorage.getItem('moneyManagementData');
+            if (savedData) {
+                moneyData = JSON.parse(savedData);
+            }
+        }
+
+        // メッセージ表示
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.innerHTML = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 10px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                animation: slideIn 0.5s ease;
+            `;
+            
+            switch(type) {
+                case 'success':
+                    messageDiv.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                    break;
+                case 'error':
+                    messageDiv.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+                    break;
+                default:
+                    messageDiv.style.background = 'linear-gradient(135deg, #17a2b8, #6610f2)';
+            }
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'slideOut 0.5s ease';
+                setTimeout(() => {
+                    document.body.removeChild(messageDiv);
+                }, 500);
+            }, 3000);
+        }
+
+        // アニメーションCSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

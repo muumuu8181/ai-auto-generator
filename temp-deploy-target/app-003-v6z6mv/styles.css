@@ -1,0 +1,390 @@
+/* リセットCSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CSS変数でテーマ管理 */
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --bg-button: #2a2a2a;
+    --bg-button-hover: #3a3a3a;
+    --bg-operator: #ff9500;
+    --bg-operator-hover: #ffb143;
+    --bg-equals: #4cd964;
+    --bg-equals-hover: #5de873;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --border-radius: 20px;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 基本スタイル */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 2.5em;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.app-id {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+/* 電卓コンテナ */
+.calculator {
+    max-width: 400px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    box-shadow: var(--box-shadow);
+}
+
+/* ディスプレイ */
+.display-section {
+    background: var(--bg-primary);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.history-display {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    min-height: 20px;
+    margin-bottom: 10px;
+    text-align: right;
+}
+
+.main-display {
+    text-align: right;
+}
+
+.expression {
+    font-size: 1.2em;
+    color: var(--text-secondary);
+    min-height: 25px;
+    margin-bottom: 5px;
+}
+
+.result {
+    font-size: 3em;
+    font-weight: 300;
+    color: var(--text-primary);
+    line-height: 1;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* ボタングリッド */
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* ボタン基本スタイル */
+.btn {
+    background: var(--bg-button);
+    border: none;
+    border-radius: 15px;
+    color: var(--text-primary);
+    font-size: 1.5em;
+    padding: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.btn:active:before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn:hover {
+    background: var(--bg-button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 数字ボタン */
+.number-btn {
+    font-weight: 400;
+}
+
+.zero {
+    grid-column: span 2;
+}
+
+/* 演算子ボタン */
+.operator-btn {
+    background: var(--bg-operator);
+    font-weight: 500;
+}
+
+.operator-btn:hover {
+    background: var(--bg-operator-hover);
+}
+
+/* イコールボタン */
+.equals-btn {
+    background: var(--bg-equals);
+    font-weight: 500;
+}
+
+.equals-btn:hover {
+    background: var(--bg-equals-hover);
+}
+
+/* 機能ボタン */
+.function-btn {
+    color: var(--bg-operator);
+    font-weight: 500;
+}
+
+/* 履歴パネル */
+.history-panel {
+    background: var(--bg-primary);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.history-header h2 {
+    font-size: 1.2em;
+    font-weight: 400;
+}
+
+.clear-history-btn {
+    background: transparent;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-secondary);
+    padding: 5px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: var(--transition);
+}
+
+.clear-history-btn:hover {
+    background: var(--text-secondary);
+    color: var(--bg-primary);
+}
+
+.history-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.history-expression {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.history-result {
+    font-size: 1.1em;
+    color: var(--text-primary);
+    margin-top: 5px;
+}
+
+/* テーマ切り替え */
+.theme-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.theme-btn {
+    background: transparent;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-secondary);
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.theme-btn:hover,
+.theme-btn.active {
+    background: var(--bg-operator);
+    color: var(--text-primary);
+    border-color: var(--bg-operator);
+}
+
+/* ライトテーマ */
+body.theme-light {
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-button: #e0e0e0;
+    --bg-button-hover: #d0d0d0;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ネオンテーマ */
+body.theme-neon {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-button: #1a1a1a;
+    --bg-button-hover: #2a2a2a;
+    --bg-operator: #00ffff;
+    --bg-operator-hover: #33ffff;
+    --bg-equals: #ff00ff;
+    --bg-equals-hover: #ff33ff;
+}
+
+body.theme-neon .btn {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+body.theme-neon .operator-btn {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+body.theme-neon .equals-btn {
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+}
+
+/* グラステーマ */
+body.theme-glass {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.theme-glass .calculator {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.theme-glass .btn {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.theme-glass .btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* レスポンシブ */
+@media (max-width: 480px) {
+    .calculator {
+        padding: 20px;
+    }
+    
+    .btn {
+        padding: 15px;
+        font-size: 1.3em;
+    }
+    
+    .result {
+        font-size: 2.5em;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+}
+
+/* アニメーション */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.btn:active {
+    animation: pulse 0.3s ease-in-out;
+}
+
+/* スクロールバー */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-primary);
+}

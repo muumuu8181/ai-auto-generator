@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電卓</title>
+    <style>
+        :root {
+            --bg-color: #333;
+            --text-color: #eee;
+            --button-bg: #333;
+            --shadow-light: rgba(255, 255, 255, 0.05);
+            --shadow-dark: rgba(0, 0, 0, 0.5);
+            --accent-color: #ff9800;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .calculator-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .calculator {
+            background: var(--bg-color);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 
+                10px 10px 20px rgba(0,0,0,0.25),
+                -10px -10px 20px rgba(255,255,255,0.04);
+        }
+
+        .display {
+            background: var(--bg-color);
+            box-shadow: 
+                inset 5px 5px 10px rgba(0,0,0,0.5),
+                inset -5px -5px 10px rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: right;
+            margin-bottom: 20px;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+
+        .display-main {
+            font-size: 2.5rem;
+            min-height: 40px;
+            color: var(--text-color);
+        }
+
+        .display-sub {
+            font-size: 1.2rem;
+            color: #aaa;
+            min-height: 24px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            background: var(--button-bg);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.1s ease-in-out;
+            box-shadow: 
+                5px 5px 10px rgba(0,0,0,0.25),
+                -5px -5px 10px rgba(255,255,255,0.04);
+        }
+
+        .btn:active, .btn.active {
+            box-shadow: 
+                inset 5px 5px 10px rgba(0,0,0,0.25),
+                inset -5px -5px 10px rgba(255,255,255,0.04);
+            transform: scale(0.98);
+        }
+
+        .btn.operator {
+            color: var(--accent-color);
+        }
+
+        .btn.clear, .btn.equals {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .btn.zero {
+            grid-column: span 2;
+        }
+
+        .history-container {
+            background: var(--bg-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 
+                inset 5px 5px 10px rgba(0,0,0,0.25),
+                inset -5px -5px 10px rgba(255,255,255,0.04);
+            height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: right;
+        }
+
+        .history-item {
+            padding: 5px 0;
+            color: #ccc;
+            border-bottom: 1px solid #444;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-container">
+    <div class="calculator">
+        <div class="display">
+            <div class="display-sub" id="displaySub"></div>
+            <div class="display-main" id="displayMain">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn clear" data-action="clear">C</button>
+            <button class="btn" data-action="delete">DEL</button>
+            <button class="btn operator" data-action="divide">÷</button>
+            <button class="btn operator" data-action="multiply">×</button>
+
+            <button class="btn" data-action="7">7</button>
+            <button class="btn" data-action="8">8</button>
+            <button class="btn" data-action="9">9</button>
+            <button class="btn operator" data-action="subtract">-</button>
+
+            <button class="btn" data-action="4">4</button>
+            <button class="btn" data-action="5">5</button>
+            <button class="btn" data-action="6">6</button>
+            <button class="btn operator" data-action="add">+</button>
+
+            <button class="btn" data-action="1">1</button>
+            <button class="btn" data-action="2">2</button>
+            <button class="btn" data-action="3">3</button>
+            <button class="btn equals" data-action="calculate">=</button>
+
+            <button class="btn zero" data-action="0">0</button>
+            <button class="btn" data-action="decimal">.</button>
+        </div>
+    </div>
+    <div class="history-container">
+        <h2 class="history-title">History</h2>
+        <ul id="historyList"></ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const displayMain = document.getElementById('displayMain');
+    const displaySub = document.getElementById('displaySub');
+    const historyList = document.getElementById('historyList');
+    const buttons = document.querySelector('.buttons');
+
+    let currentInput = '0';
+    let previousInput = '';
+    let operator = null;
+    let shouldResetDisplay = false;
+
+    buttons.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!target.matches('button')) return;
+
+        const action = target.dataset.action;
+        const value = target.textContent;
+
+        handleAction(action, value);
+        updateDisplay();
+    });
+
+    function handleAction(action, value) {
+        switch (action) {
+            case 'clear':
+                clear();
+                break;
+            case 'delete':
+                deleteLastChar();
+                break;
+            case 'calculate':
+                calculate();
+                break;
+            case 'add':
+            case 'subtract':
+            case 'multiply':
+            case 'divide':
+                handleOperator(action);
+                break;
+            case 'decimal':
+                inputDecimal();
+                break;
+            default:
+                if (!isNaN(parseInt(action))) {
+                    inputNumber(action);
+                }
+                break;
+        }
+    }
+
+    function inputNumber(number) {
+        if (currentInput === '0' || shouldResetDisplay) {
+            currentInput = number;
+            shouldResetDisplay = false;
+        } else {
+            currentInput += number;
+        }
+    }
+
+    function inputDecimal() {
+        if (shouldResetDisplay) {
+            currentInput = '0.';
+            shouldResetDisplay = false;
+            return;
+        }
+        if (!currentInput.includes('.')) {
+            currentInput += '.';
+        }
+    }
+
+    function handleOperator(nextOperator) {
+        const inputValue = parseFloat(currentInput);
+
+        if (operator && !shouldResetDisplay) {
+            calculate();
+        }
+
+        previousInput = currentInput;
+        operator = nextOperator;
+        shouldResetDisplay = true;
+    }
+
+    function calculate() {
+        if (operator === null || shouldResetDisplay) return;
+        if (operator === 'divide' && currentInput === '0') {
+            alert("Cannot divide by zero");
+            return;
+        }
+
+        const prev = parseFloat(previousInput);
+        const current = parseFloat(currentInput);
+        let result;
+
+        switch (operator) {
+            case 'add': result = prev + current; break;
+            case 'subtract': result = prev - current; break;
+            case 'multiply': result = prev * current; break;
+            case 'divide': result = prev / current; break;
+            default: return;
+        }
+
+        addToHistory(`${previousInput} ${getOperatorSymbol(operator)} ${currentInput} = ${result}`);
+        currentInput = result.toString();
+        operator = null;
+        shouldResetDisplay = true;
+    }
+
+    function clear() {
+        currentInput = '0';
+        previousInput = '';
+        operator = null;
+        shouldResetDisplay = false;
+        updateDisplay();
+    }
+
+    function deleteLastChar() {
+        if (currentInput.length > 1) {
+            currentInput = currentInput.slice(0, -1);
+        } else {
+            currentInput = '0';
+        }
+    }
+
+    function updateDisplay() {
+        displayMain.textContent = currentInput;
+        if (operator !== null) {
+            displaySub.textContent = `${previousInput} ${getOperatorSymbol(operator)}`;
+        } else {
+            displaySub.textContent = '';
+        }
+    }
+
+    function getOperatorSymbol(op) {
+        switch (op) {
+            case 'add': return '+';
+            case 'subtract': return '-';
+            case 'multiply': return '×';
+            case 'divide': return '÷';
+            default: return '';
+        }
+    }
+
+    function addToHistory(entry) {
+        const li = document.createElement('li');
+        li.textContent = entry;
+        historyList.prepend(li);
+        if (historyList.children.length > 10) {
+            historyList.removeChild(historyList.lastChild);
+        }
+    }
+});
+</script>
+
+</body>
+</html>

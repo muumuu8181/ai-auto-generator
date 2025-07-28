@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Topography - 感情の地形図</title>
+    <meta name="description" content="日々の感情を美しい地形図として視覚化し、あなたの心の風景を記録しましょう。">
+    <meta name="keywords" content="感情,記録,可視化,メンタルヘルス,心理,地形図">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-mountain" aria-hidden="true"></i>
+                <h1>Emotion Topography</h1>
+                <p class="tagline">感情の地形図</p>
+            </div>
+            <nav class="nav-controls">
+                <button id="view-toggle-btn" class="control-btn" title="表示モードを切り替え" aria-label="表示モードを切り替え">
+                    <i class="fas fa-chart-area"></i>
+                    <span>地形図</span>
+                </button>
+                <button id="export-btn" class="control-btn" title="データをエクスポート" aria-label="データをエクスポート">
+                    <i class="fas fa-download"></i>
+                    <span>エクスポート</span>
+                </button>
+                <button id="settings-btn" class="control-btn" title="設定を開く" aria-label="設定を開く">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- 感情入力パネル -->
+        <aside class="emotion-panel" id="emotion-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-heart" aria-hidden="true"></i> 今の気持ち</h2>
+                <button id="panel-toggle" class="panel-toggle" aria-label="パネルを折りたたむ">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <form id="emotion-form" class="emotion-form">
+                <div class="form-group">
+                    <label for="emotion-select">感情の種類</label>
+                    <select id="emotion-select" required aria-describedby="emotion-help">
+                        <option value="">感情を選択してください</option>
+                        <optgroup label="ポジティブ">
+                            <option value="joy">喜び</option>
+                            <option value="excitement">興奮</option>
+                            <option value="love">愛</option>
+                            <option value="gratitude">感謝</option>
+                            <option value="hope">希望</option>
+                            <option value="peace">平和</option>
+                            <option value="confidence">自信</option>
+                        </optgroup>
+                        <optgroup label="ニュートラル">
+                            <option value="calm">穏やか</option>
+                            <option value="focused">集中</option>
+                            <option value="thoughtful">思考的</option>
+                        </optgroup>
+                        <optgroup label="ネガティブ">
+                            <option value="sadness">悲しみ</option>
+                            <option value="anger">怒り</option>
+                            <option value="fear">恐れ</option>
+                            <option value="anxiety">不安</option>
+                            <option value="frustration">イライラ</option>
+                            <option value="loneliness">孤独</option>
+                            <option value="stress">ストレス</option>
+                        </optgroup>
+                    </select>
+                    <small id="emotion-help" class="help-text">あなたの今の気持ちに最も近いものを選んでください</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="intensity-slider">強さ <span id="intensity-value">5</span>/10</label>
+                    <input type="range" id="intensity-slider" min="1" max="10" value="5" 
+                           class="intensity-slider" aria-describedby="intensity-help">
+                    <small id="intensity-help" class="help-text">1: とても弱い ←→ 10: とても強い</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="emotion-note">メモ（任意）</label>
+                    <textarea id="emotion-note" placeholder="何があったか、どう感じたかを自由に記録してください..." 
+                              rows="3" aria-describedby="note-help"></textarea>
+                    <small id="note-help" class="help-text">後で振り返る時に役立つメモを残せます</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="emotion-tags">タグ（任意）</label>
+                    <input type="text" id="emotion-tags" placeholder="仕事, 人間関係, 健康..." 
+                           aria-describedby="tags-help">
+                    <small id="tags-help" class="help-text">カンマ区切りでタグを追加できます</small>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    感情を記録
+                </button>
+            </form>
+        </aside>
+
+        <!-- 地形図表示エリア -->
+        <section class="topography-container">
+            <div class="controls-bar">
+                <div class="time-controls">
+                    <button id="period-week" class="period-btn active" data-period="week">1週間</button>
+                    <button id="period-month" class="period-btn" data-period="month">1ヶ月</button>
+                    <button id="period-quarter" class="period-btn" data-period="quarter">3ヶ月</button>
+                    <button id="period-year" class="period-btn" data-period="year">1年</button>
+                </div>
+                <div class="view-controls">
+                    <button id="view-3d" class="view-btn active" data-view="3d" title="3D表示">
+                        <i class="fas fa-cube"></i>
+                    </button>
+                    <button id="view-heatmap" class="view-btn" data-view="heatmap" title="ヒートマップ表示">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button id="view-timeline" class="view-btn" data-view="timeline" title="タイムライン表示">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 地形図キャンバス -->
+            <div class="visualization-area" id="visualization-area">
+                <canvas id="topography-canvas" width="800" height="600" aria-label="感情の地形図表示"></canvas>
+                
+                <!-- 地形図の凡例 -->
+                <div class="legend">
+                    <h3>感情の高度</h3>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <div class="color-swatch positive"></div>
+                            <span>ポジティブ</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-swatch neutral"></div>
+                            <span>ニュートラル</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-swatch negative"></div>
+                            <span>ネガティブ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 空状態のメッセージ -->
+                <div id="empty-state" class="empty-state">
+                    <i class="fas fa-mountain fa-3x"></i>
+                    <h3>あなたの感情の地形図を作り始めましょう</h3>
+                    <p>左のパネルから感情を記録すると、美しい地形図が生成されます</p>
+                    <button id="start-recording" class="start-btn">
+                        <i class="fas fa-play"></i>
+                        記録を開始
+                    </button>
+                </div>
+            </div>
+
+            <!-- 統計情報 -->
+            <div class="stats-panel" id="stats-panel">
+                <h3><i class="fas fa-chart-bar"></i> 統計</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-entries">0</span>
+                        <span class="stat-label">記録数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="avg-mood">-</span>
+                        <span class="stat-label">平均気分</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="streak-days">0</span>
+                        <span class="stat-label">連続記録日数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="most-common">-</span>
+                        <span class="stat-label">よくある感情</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 設定モーダル -->
+    <div id="settings-modal" class="modal-overlay" role="dialog" aria-labelledby="settings-title" aria-hidden="true">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="settings-title"><i class="fas fa-cog"></i> 設定</h2>
+                <button id="close-settings" class="close-btn" aria-label="設定を閉じる">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            
+            <div class="modal-body">
+                <div class="setting-group">
+                    <h3>表示設定</h3>
+                    <label class="setting-item">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="setting-text">ダークモード</span>
+                        <span class="toggle-switch"></span>
+                    </label>
+                    <label class="setting-item">
+                        <input type="checkbox" id="animations-toggle" checked>
+                        <span class="setting-text">アニメーション効果</span>
+                        <span class="toggle-switch"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>通知設定</h3>
+                    <label class="setting-item">
+                        <input type="checkbox" id="reminder-toggle">
+                        <span class="setting-text">記録リマインダー</span>
+                        <span class="toggle-switch"></span>
+                    </label>
+                    <div class="setting-detail">
+                        <label for="reminder-time">リマインダー時刻</label>
+                        <input type="time" id="reminder-time" value="20:00">
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>データ管理</h3>
+                    <button id="export-data-btn" class="action-btn">
+                        <i class="fas fa-download"></i>
+                        データをエクスポート
+                    </button>
+                    <button id="import-data-btn" class="action-btn">
+                        <i class="fas fa-upload"></i>
+                        データをインポート
+                    </button>
+                    <button id="clear-data-btn" class="action-btn danger">
+                        <i class="fas fa-trash"></i>
+                        全データを削除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 詳細表示モーダル -->
+    <div id="detail-modal" class="modal-overlay" role="dialog" aria-labelledby="detail-title" aria-hidden="true">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="detail-title">感情の詳細</h2>
+                <button id="close-detail" class="close-btn" aria-label="詳細を閉じる">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            
+            <div class="modal-body" id="detail-content">
+                <!-- 動的にコンテンツが挿入されます -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ファイル入力（非表示） -->
+    <input type="file" id="import-file-input" accept=".json" style="display: none;">
+
+    <!-- ローディング表示 -->
+    <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-spinner">
+            <i class="fas fa-mountain fa-spin"></i>
+            <p>地形図を生成中...</p>
+        </div>
+    </div>
+
+    <!-- スクリプトファイル -->
+    <script src="script.js"></script>
+</body>
+</html>

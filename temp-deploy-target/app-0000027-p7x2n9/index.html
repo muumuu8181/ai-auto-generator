@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock-Pal - 家の在庫管理パートナー</title>
+    <meta name="description" content="シンプルで直感的な家庭用在庫管理アプリ。食材や日用品の管理、買い物リスト作成が簡単にできます。">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- ===== ヘッダー ===== -->
+    <header class="app-header">
+        <div class="header-content">
+            <h1 class="app-title">
+                <i class="fas fa-cubes"></i> 
+                Stock-Pal
+            </h1>
+            <p class="app-subtitle">家の在庫管理パートナー</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- ===== タブメニュー ===== -->
+        <nav class="tab-menu">
+            <button class="tab-btn active" data-tab="inventory">
+                <i class="fas fa-boxes-stacked"></i> 
+                在庫一覧
+            </button>
+            <button class="tab-btn" data-tab="shopping-list">
+                <i class="fas fa-cart-shopping"></i> 
+                買い物リスト
+                <span class="notification-badge" id="shopping-badge" style="display: none;">0</span>
+            </button>
+            <button class="tab-btn" data-tab="settings">
+                <i class="fas fa-gear"></i> 
+                設定
+            </button>
+        </nav>
+
+        <!-- ===== 在庫管理セクション ===== -->
+        <section id="inventory" class="tab-content active">
+            <div class="section-header">
+                <h2>在庫一覧</h2>
+                <button class="add-btn" id="add-item-btn" aria-label="新しいアイテムを追加">
+                    <i class="fas fa-plus"></i> 新規追加
+                </button>
+            </div>
+
+            <div class="search-filter">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="アイテムを検索...">
+                </div>
+                <select id="category-filter">
+                    <option value="">すべてのカテゴリ</option>
+                    <option value="冷蔵庫">冷蔵庫</option>
+                    <option value="冷凍庫">冷凍庫</option>
+                    <option value="パントリー">パントリー</option>
+                    <option value="日用品">日用品</option>
+                    <option value="その他">その他</option>
+                </select>
+            </div>
+
+            <div id="inventory-list" class="inventory-container">
+                <!-- 在庫アイテムがここに動的に追加される -->
+            </div>
+
+            <div class="empty-state" id="empty-inventory" style="display: none;">
+                <i class="fas fa-box-open"></i>
+                <h3>在庫がまだありません</h3>
+                <p>「新規追加」ボタンから最初のアイテムを追加してみましょう！</p>
+            </div>
+        </section>
+
+        <!-- ===== 買い物リストセクション ===== -->
+        <section id="shopping-list" class="tab-content">
+            <div class="section-header">
+                <h2>買い物リスト</h2>
+                <button class="clear-btn" id="clear-completed-btn">
+                    <i class="fas fa-check-double"></i> 完了済みを削除
+                </button>
+            </div>
+
+            <div id="shopping-list-container" class="shopping-container">
+                <!-- 買い物リストがここに動的に追加される -->
+            </div>
+
+            <div class="empty-state" id="empty-shopping" style="display: none;">
+                <i class="fas fa-cart-plus"></i>
+                <h3>買い物リストは空です</h3>
+                <p>在庫が0になったアイテムが自動的にここに表示されます</p>
+            </div>
+        </section>
+
+        <!-- ===== 設定セクション ===== -->
+        <section id="settings" class="tab-content">
+            <div class="section-header">
+                <h2>設定</h2>
+            </div>
+
+            <div class="settings-container">
+                <div class="setting-group">
+                    <h3>表示設定</h3>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">ダークモード</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>通知設定</h3>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="expiry-notifications" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">消費期限アラート</span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label for="alert-days">アラート日数</label>
+                        <select id="alert-days">
+                            <option value="1">1日前</option>
+                            <option value="3" selected>3日前</option>
+                            <option value="7">7日前</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>データ管理</h3>
+                    <div class="setting-actions">
+                        <button class="btn btn-secondary" id="export-data-btn">
+                            <i class="fas fa-download"></i> データをエクスポート
+                        </button>
+                        <button class="btn btn-secondary" id="import-data-btn">
+                            <i class="fas fa-upload"></i> データをインポート
+                        </button>
+                        <button class="btn btn-danger" id="clear-all-data-btn">
+                            <i class="fas fa-trash"></i> すべてのデータを削除
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>アプリ情報</h3>
+                    <div class="app-info">
+                        <p><strong>バージョン:</strong> 1.0.0</p>
+                        <p><strong>作成者:</strong> Stock-Pal Team</p>
+                        <p><strong>説明:</strong> 家庭の在庫管理をシンプルに</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== アイテム追加・編集モーダル ===== -->
+    <div id="item-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">アイテムを追加</h3>
+                <button class="close-btn" id="close-modal" aria-label="閉じる">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="modal-form" id="item-form">
+                <div class="form-group">
+                    <label for="item-name">アイテム名 *</label>
+                    <input type="text" id="item-name" name="item-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="item-category">カテゴリ</label>
+                    <select id="item-category" name="item-category">
+                        <option value="冷蔵庫">冷蔵庫</option>
+                        <option value="冷凍庫">冷凍庫</option>
+                        <option value="パントリー">パントリー</option>
+                        <option value="日用品">日用品</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="item-quantity">数量</label>
+                    <input type="number" id="item-quantity" name="item-quantity" min="0" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="item-expiry">消費期限（任意）</label>
+                    <input type="date" id="item-expiry" name="item-expiry">
+                </div>
+                <div class="form-group">
+                    <label for="item-memo">メモ（任意）</label>
+                    <textarea id="item-memo" name="item-memo" rows="3" placeholder="特記事項があれば..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 隠しファイル入力 -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <script src="script.js"></script>
+</body>
+</html>

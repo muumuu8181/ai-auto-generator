@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金管理システム v6.0 | 究極の家計簿アプリ</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi44GK6YeR566h55CG44K344K544OG44OgIHY2LjAiLCJzaG9ydF9uYW1lIjoi5a625oiI566h55CGdjYuMCIsImRlc2NyaXB0aW9uIjoi6Z2p5paw55qE44Gq5a625oiI566h55CG44Ki44OX44OquOOAguato+eoidOHr+e0qOOAgeOCteODvOODk+OCueODr+ODvOOCq+ODvOWvvuW/nOOAgeOCteODj+OCpOODs+OAvueCrOOCr+WyqeWLnEluYWRpbmcgUFdB44CC44CCIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qVXlJaUJvWldsbmFIUTlJakl4TlRJaUlIWnBaWGRDYjNnOUlqQWdNQ0F5TlRJZ01qVXlJaUJtYVd4c1BTSXViMjVsSWlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpUGp4eVpXTjBJSGRwWkhSb1BTSXlOVElpSUdobGFXZG9kRDBpTWpVeUlpQnllRDBpTXprNElpQm1hV3hzUFNJak1qVTJNMlZpSWk4K1BIUmxlSFFnZUQwaU1USTJJaUI1UFNJbU9UWWlJR1p2Ym5RdGMybDZaVDBpT0RaaUlpQm1hV3hzUFNKM2FHbDBaU0lnZEdWNGRDMWhibU5vYjNJOUltMXBaR1JzWlNJK1FUQThMM1JsZUhRK1BDOXpkbWMrIiwic2l6ZXMiOiIyNTZ4MjU2IiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV0sImRpc3BsYXkiOiJzdGFuZGFsb25lIiwidGhlbWVfY29sb3IiOiIjMjU2M2ViIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmOGZhZmMiLCJzdGFydF91cmwiOiIuLyIsInNjb3BlIjoiLi8ifQ==">
+    
+    <!-- Theme and Icons -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="お金管理v6.0">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUyIiBoZWlnaHQ9IjI1MiIgdmlld0JveD0iMCAwIDI1MiAyNTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjI1MiIgaGVpZ2h0PSIyNTIiIHJ4PSIzOCIgZmlsbD0iIzI1NjNlYiIvPjx0ZXh0IHg9IjEyNiIgeT0iOTYiIGZvbnQtc2l6ZT0iODYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7imIE8L3RleHQ+PC9zdmc+">
+    
+    <!-- Meta Tags for SEO and Sharing -->
+    <meta name="description" content="革新的な家計簿アプリ v6.0。収支管理、予算設定、目標達成、データ分析、サブスクリプション管理など、あらゆる家計管理機能を搭載。">
+    <meta property="og:title" content="お金管理システム v6.0">
+    <meta property="og:description" content="革新的な家計簿アプリ。PWA対応、オフライン動作、高度な分析機能付き。">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <style>
+        :root {
+            /* Primary Color System */
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --primary-alpha: rgba(37, 99, 235, 0.1);
+            
+            --secondary: #059669;
+            --secondary-dark: #047857;
+            --secondary-light: #d1fae5;
+            
+            --accent: #7c3aed;
+            --accent-dark: #6d28d9;
+            --accent-light: #e9d5ff;
+            
+            --tertiary: #f59e0b;
+            --tertiary-dark: #d97706;
+            --tertiary-light: #fef3c7;
+            
+            /* Status Colors */
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --warning: #d97706;
+            --warning-light: #fef3c7;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --info: #0891b2;
+            --info-light: #cffafe;
+            
+            /* Grayscale Palette */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* Layout System */
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 20px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.15s ease;
+            
+            /* Typography */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            
+            /* Advanced Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #f093fb 70%, #f5576c 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-accent: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --gradient-success: linear-gradient(135deg, #d299c2 0%, #fef9d3 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--gradient-primary);
+            min-height: 100vh;
+            color: var(--gray-800);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* Header with Glass Effect */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent), var(--tertiary));
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .header .subtitle {
+            color: var(--gray-600);
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .header-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .header-stat {
+            text-align: center;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+        }
+
+        .header-stat:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .header-stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-stat-label {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            font-weight: 600;
+        }
+
+        /* Enhanced Card System */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1));
+            border-radius: 50%;
+            transform: translate(50px, -50px);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card h2 .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        /* Grid Layouts */
+        .main-grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Enhanced Summary Statistics */
+        .summary-section {
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-left: 6px solid var(--primary);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15));
+            border-radius: 50%;
+            transform: translate(40px, -40px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-card.income {
+            border-left-color: var(--secondary);
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(209, 250, 229, 0.4) 100%);
+        }
+
+        .stat-card.expense {
+            border-left-color: var(--danger);
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(254, 226, 226, 0.4) 100%);
+        }
+
+        .stat-card.balance-positive {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(220, 252, 231, 0.4) 100%);
+        }
+
+        .stat-card.balance-negative {
+            border-left-color: var(--warning);
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(254, 243, 199, 0.4) 100%);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .stat-value {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+        }
+
+        .stat-value.income {
+            color: var(--secondary);
+        }
+
+        .stat-value.expense {
+            color: var(--danger);
+        }
+
+        .stat-value.balance-positive {
+            color: var(--success);
+        }
+
+        .stat-value.balance-negative {
+            color: var(--warning);
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 1rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced Progress Bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        /* Enhanced Form System */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required {
+            color: var(--danger);
+            font-size: 0.8rem;
+        }
+
+        input, select, textarea {
+            padding: 1.25rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.9);
+            font-family: inherit;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-alpha);
+            transform: translateY(-1px);
+            background: white;
+        }
+
+        input:invalid:not(:focus) {
+            border-color: var(--danger);
+            background: rgba(254, 226, 226, 0.5);
+        }
+
+        input:valid:not(:focus) {
+            border-color: var(--success);
+            background: rgba(220, 252, 231, 0.3);
+        }
+
+        /* Enhanced Button System */
+        .btn {
+            padding: 1.25rem 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            min-height: 52px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(5, 150, 105, 0.4);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-tertiary {
+            background: linear-gradient(135deg, var(--tertiary), var(--tertiary-dark));
+            color: white;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-tertiary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Enhanced Table System */
+        .records-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            border-radius: var(--border-radius);
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-300) transparent;
+        }
+
+        .records-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .records-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .records-container::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 5px;
+        }
+
+        .records-container::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .records-table th {
+            background: linear-gradient(135deg, rgba(249, 250, 251, 0.95), rgba(243, 244, 246, 0.95));
+            padding: 1.5rem 1rem;
+            text-align: left;
+            font-weight: 700;
+            color: var(--gray-700);
+            border-bottom: 2px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+
+        .records-table td {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--gray-100);
+            transition: var(--transition-fast);
+        }
+
+        .records-table tr:hover {
+            background: rgba(249, 250, 251, 0.6);
+            transform: scale(1.005);
+        }
+
+        .amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+            font-family: var(--font-mono);
+        }
+
+        .amount.income {
+            color: var(--secondary);
+        }
+
+        .amount.expense {
+            color: var(--danger);
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: var(--border-radius-xl);
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            transition: var(--transition-fast);
+        }
+
+        .category-tag:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            transition: var(--transition-fast);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .action-btn.edit {
+            background: var(--info-light);
+            color: var(--info);
+            border: 1px solid rgba(8, 145, 178, 0.2);
+        }
+
+        .action-btn.delete {
+            background: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: var(--shadow);
+        }
+
+        /* Enhanced Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray-500);
+        }
+
+        .empty-state h3 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--gray-700);
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Enhanced Toast System */
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 1.25rem 1.75rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            max-width: 450px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        .toast.info {
+            background: var(--info);
+        }
+
+        /* Goal Cards */
+        .goal-card {
+            background: linear-gradient(135deg, var(--accent-light), rgba(255,255,255,0.9));
+            border: 2px solid var(--accent);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .goal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .goal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-dark);
+        }
+
+        .goal-amount {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2.25rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .records-table {
+                font-size: 0.875rem;
+            }
+
+            .records-table th,
+            .records-table td {
+                padding: 1rem 0.75rem;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .toast {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+                transform: translateY(-100%);
+                max-width: none;
+            }
+
+            .toast.show {
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .stat-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .btn {
+                padding: 1rem 1.5rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Accessibility Enhancements */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --gray-800: #f9fafb;
+                --gray-700: #f3f4f6;
+                --gray-600: #e5e7eb;
+                --gray-500: #d1d5db;
+                --gray-400: #9ca3af;
+                --gray-300: #6b7280;
+                --gray-200: #4b5563;
+                --gray-100: #374151;
+                --gray-50: #1f2937;
+            }
+        }
+
+        @media (prefers-contrast: high) {
+            :root {
+                --primary: #1e3a8a;
+                --secondary: #14532d;
+                --danger: #991b1b;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .header, .card {
+                background: white;
+                box-shadow: none;
+                border: 1px solid var(--gray-300);
+            }
+            
+            .btn, .action-btn {
+                display: none;
+            }
+        }
+
+        /* Advanced Features */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .subscription-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.75rem;
+            transition: var(--transition-fast);
+        }
+
+        .subscription-item:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateX(5px);
+        }
+
+        .subscription-name {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .subscription-amount {
+            font-weight: 700;
+            color: var(--danger);
+            font-family: var(--font-mono);
+        }
+
+        .budget-progress {
+            margin-top: 1rem;
+        }
+
+        .budget-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gray-900);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            animation: fadeInUp 0.2s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="header fade-in">
+            <h1>💰 お金管理システム v6.0</h1>
+            <p class="subtitle">革新的な家計簿アプリ - AI搭載、データ分析、目標達成支援、サブスク管理</p>
+            <div class="header-stats">
+                <div class="header-stat tooltip" data-tooltip="全期間の記録数">
+                    <div class="header-stat-value" id="headerRecordCount">0</div>
+                    <div class="header-stat-label">総記録数</div>
+                </div>
+                <div class="header-stat tooltip" data-tooltip="今月の日平均収支">
+                    <div class="header-stat-value" id="headerAvgDaily">¥0</div>
+                    <div class="header-stat-label">日平均</div>
+                </div>
+                <div class="header-stat tooltip" data-tooltip="連続記録日数">
+                    <div class="header-stat-value" id="headerStreak">0日</div>
+                    <div class="header-stat-label">継続日数</div>
+                </div>
+                <div class="header-stat tooltip" data-tooltip="今月の目標達成率">
+                    <div class="header-stat-value" id="headerGoalProgress">0%</div>
+                    <div class="header-stat-label">目標達成率</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- サマリー統計 -->
+        <section class="summary-section fade-in full-width">
+            <div class="stats-grid">
+                <div class="stat-card income">
+                    <span class="stat-icon">💰</span>
+                    <div class="stat-value income" id="totalIncome">¥0</div>
+                    <div class="stat-label">総収入</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="incomeProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card expense">
+                    <span class="stat-icon">💸</span>
+                    <div class="stat-value expense" id="totalExpense">¥0</div>
+                    <div class="stat-label">総支出</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="expenseProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card" id="balanceCard">
+                    <span class="stat-icon" id="balanceIcon">⚖️</span>
+                    <div class="stat-value" id="balance">¥0</div>
+                    <div class="stat-label">現在の残高</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="balanceProgress" style="width: 50%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📊</span>
+                    <div class="stat-value" id="recordCount">0</div>
+                    <div class="stat-label">今月の記録数</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="recordProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="main-grid">
+            <!-- 入力フォーム -->
+            <section class="card fade-in">
+                <h2>
+                    <span class="icon">📝</span>
+                    収支を記録
+                </h2>
+                <form id="moneyForm" role="form" aria-label="収支記録フォーム">
+                    <input type="hidden" id="editId" value="">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="type">
+                                種類 <span class="required">*</span>
+                            </label>
+                            <select id="type" required aria-describedby="type-help">
+                                <option value="income">💰 収入</option>
+                                <option value="expense">💸 支出</option>
+                            </select>
+                            <small id="type-help" style="color: var(--gray-500); margin-top: 0.5rem;">収入または支出を選択してください</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount">
+                                金額 <span class="required">*</span>
+                            </label>
+                            <input type="number" id="amount" placeholder="10000" required min="1" step="1" aria-describedby="amount-help">
+                            <small id="amount-help" style="color: var(--gray-500); margin-top: 0.5rem;">1円以上の金額を入力してください</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category">
+                                カテゴリー <span class="required">*</span>
+                            </label>
+                            <input type="text" id="category" placeholder="食費、給料など" required maxlength="50" aria-describedby="category-help" list="categoryList">
+                            <datalist id="categoryList">
+                                <option value="食費">
+                                <option value="交通費">
+                                <option value="光熱費">
+                                <option value="家賃">
+                                <option value="通信費">
+                                <option value="保険">
+                                <option value="医療費">
+                                <option value="教育費">
+                                <option value="娯楽">
+                                <option value="衣服">
+                                <option value="美容">
+                                <option value="給料">
+                                <option value="副業">
+                                <option value="投資">
+                                <option value="ボーナス">
+                                <option value="その他">
+                            </datalist>
+                            <small id="category-help" style="color: var(--gray-500); margin-top: 0.5rem;">50文字以内で入力してください</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">
+                                日付 <span class="required">*</span>
+                            </label>
+                            <input type="date" id="date" required aria-describedby="date-help">
+                            <small id="date-help" style="color: var(--gray-500); margin-top: 0.5rem;">記録する日付を選択してください</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memo">メモ（任意）</label>
+                        <textarea id="memo" rows="3" placeholder="詳細を記録..." maxlength="200" aria-describedby="memo-help"></textarea>
+                        <small id="memo-help" style="color: var(--gray-500); margin-top: 0.5rem;">200文字以内で詳細情報を記録できます</small>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary tooltip" data-tooltip="Ctrl+S">
+                            <span id="submitIcon">✅</span>
+                            <span id="submitText">記録する</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary tooltip" onclick="exportCSV()" aria-label="データをCSV形式でエクスポート" data-tooltip="Ctrl+E">
+                            📊 CSV出力
+                        </button>
+                        <button type="button" class="btn btn-accent" onclick="generateReport()" aria-label="レポートを生成">
+                            📈 レポート生成
+                        </button>
+                        <button type="button" class="btn btn-outline" onclick="clearForm()" aria-label="フォームをクリア">
+                            🗑️ クリア
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 目標設定とサブスク管理 -->
+            <section class="card fade-in">
+                <h2>
+                    <span class="icon">🎯</span>
+                    目標設定
+                </h2>
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <div class="goal-title">月間貯金目標</div>
+                        <div class="goal-amount" id="savingsGoal">¥50,000</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="savingsProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="goalAmount">目標金額を設定</label>
+                    <input type="number" id="goalAmount" placeholder="50000" min="1000" step="1000">
+                </div>
+                <button class="btn btn-accent" onclick="setGoal()">
+                    🎯 目標を設定
+                </button>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--gray-700);">
+                    <span class="icon">🔄</span>
+                    サブスクリプション管理
+                </h3>
+                <div id="subscriptionList">
+                    <!-- サブスクリプション一覧がここに表示される -->
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="subName">サービス名</label>
+                    <input type="text" id="subName" placeholder="Netflix, Spotify など">
+                </div>
+                <div class="form-group">
+                    <label for="subAmount">月額料金</label>
+                    <input type="number" id="subAmount" placeholder="1000" min="1">
+                </div>
+                <button class="btn btn-tertiary" onclick="addSubscription()">
+                    ➕ サブスク追加
+                </button>
+            </section>
+        </div>
+
+        <!-- フィルター・検索 -->
+        <section class="card filter-section fade-in full-width">
+            <h2>
+                <span class="icon">🔍</span>
+                フィルター・検索
+            </h2>
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label for="searchInput">検索</label>
+                    <input type="text" id="searchInput" placeholder="カテゴリーやメモで検索..." onkeyup="filterRecords()" aria-label="記録を検索" data-tooltip="Ctrl+/でフォーカス">
+                </div>
+                <div class="form-group">
+                    <label for="typeFilter">種類</label>
+                    <select id="typeFilter" onchange="filterRecords()" aria-label="記録の種類でフィルター">
+                        <option value="">すべて</option>
+                        <option value="income">収入のみ</option>
+                        <option value="expense">支出のみ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="monthFilter">月</label>
+                    <select id="monthFilter" onchange="filterRecords()" aria-label="月でフィルター">
+                        <option value="">すべて</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="categoryFilter">カテゴリー</label>
+                    <select id="categoryFilter" onchange="filterRecords()" aria-label="カテゴリーでフィルター">
+                        <option value="">すべて</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-outline" onclick="clearFilters()" aria-label="すべてのフィルターをクリア">
+                        🔄 フィルタークリア
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 記録一覧 -->
+        <section class="card fade-in full-width">
+            <h2>
+                <span class="icon">📋</span>
+                記録一覧
+                <span style="font-size: 0.875rem; color: var(--gray-500); margin-left: auto;" id="filterInfo"></span>
+            </h2>
+            <div class="records-container">
+                <div id="recordsContainer">
+                    <div class="empty-state">
+                        <h3>まだ記録がありません</h3>
+                        <p>最初の収支を記録して、家計管理を始めましょう</p>
+                        <button class="btn btn-primary" onclick="document.getElementById('amount').focus()">
+                            📝 今すぐ記録する
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+    <script>
+        // 高度なアプリケーション状態管理システム
+        class AdvancedMoneyManagerApp {
+            constructor() {
+                this.records = JSON.parse(localStorage.getItem('moneyRecordsV6') || '[]');
+                this.filteredRecords = [...this.records];
+                this.goals = JSON.parse(localStorage.getItem('moneyGoalsV6') || '{"savings": 50000}');
+                this.subscriptions = JSON.parse(localStorage.getItem('subscriptionsV6') || '[]');
+                this.settings = JSON.parse(localStorage.getItem('moneySettingsV6') || '{"autoSave": true, "notifications": true, "currency": "JPY"}');
+                this.budgets = JSON.parse(localStorage.getItem('budgetsV6') || '{}');
+                
+                this.init();
+            }
+
+            init() {
+                // 初期設定
+                this.setupEventListeners();
+                this.setupKeyboardShortcuts();
+                this.setupAutoSave();
+                this.setTodayDate();
+                
+                // データ移行
+                this.migrateData();
+                
+                // 初期表示
+                this.populateFilters();
+                this.renderRecords();
+                this.updateSummary();
+                this.updateHeaderStats();
+                this.renderSubscriptions();
+                
+                // PWA設定
+                this.setupPWA();
+                
+                // 定期処理
+                this.setupPeriodicTasks();
+                
+                console.log('💰 お金管理システム v6.0 初期化完了');
+                this.showToast('✨ お金管理システム v6.0 へようこそ！', 'info');
+            }
+
+            setupEventListeners() {
+                // フォーム送信
+                document.getElementById('moneyForm').addEventListener('submit', (e) => this.handleFormSubmit(e));
+                
+                // リアルタイムバリデーション
+                ['amount', 'category', 'date'].forEach(id => {
+                    const element = document.getElementById(id);
+                    element.addEventListener('input', (e) => this.validateField(e.target));
+                });
+
+                // モバイル対応のタッチイベント
+                if ('ontouchstart' in window) {
+                    document.addEventListener('touchstart', this.handleTouchStart.bind(this), false);
+                    document.addEventListener('touchend', this.handleTouchEnd.bind(this), false);
+                }
+            }
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch(e.key) {
+                            case 's':
+                                e.preventDefault();
+                                document.getElementById('moneyForm').requestSubmit();
+                                break;
+                            case 'e':
+                                e.preventDefault();
+                                this.exportCSV();
+                                break;
+                            case '/':
+                                e.preventDefault();
+                                document.getElementById('searchInput').focus();
+                                break;
+                            case 'r':
+                                e.preventDefault();
+                                this.generateReport();
+                                break;
+                            case 'n':
+                                e.preventDefault();
+                                this.clearForm();
+                                document.getElementById('amount').focus();
+                                break;
+                        }
+                    }
+                    
+                    if (e.key === 'Escape') {
+                        this.clearForm();
+                        this.clearFilters();
+                    }
+                });
+            }
+
+            setupAutoSave() {
+                const inputs = ['amount', 'category', 'memo'];
+                inputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    input.addEventListener('input', this.debounce(() => {
+                        if (this.settings.autoSave) {
+                            this.saveDraft();
+                        }
+                    }, 1000));
+                });
+            }
+
+            setupPWA() {
+                // Service Worker登録
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register(this.generateServiceWorker())
+                        .then(() => console.log('Service Worker registered'))
+                        .catch(err => console.log('Service Worker registration failed'));
+                }
+
+                // インストール促進
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    this.showInstallPromotion();
+                });
+
+                // オンライン/オフライン状態の監視
+                window.addEventListener('online', () => this.showToast('🌐 オンラインに復帰しました', 'info'));
+                window.addEventListener('offline', () => this.showToast('📴 オフラインモードで動作中', 'warning'));
+            }
+
+            setupPeriodicTasks() {
+                // 1分ごとにデータのバックアップ
+                setInterval(() => {
+                    this.backupData();
+                }, 60000);
+
+                // 5分ごとに統計を更新
+                setInterval(() => {
+                    this.updateHeaderStats();
+                }, 300000);
+            }
+
+            generateServiceWorker() {
+                const swCode = `
+                    const CACHE_NAME = 'money-manager-v6.0';
+                    const urlsToCache = ['./', './index.html'];
+                    
+                    self.addEventListener('install', (event) => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then((cache) => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', (event) => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then((response) => response || fetch(event.request))
+                        );
+                    });
+                `;
+                return URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}));
+            }
+
+            setTodayDate() {
+                const today = new Date();
+                document.getElementById('date').value = today.toISOString().split('T')[0];
+            }
+
+            migrateData() {
+                const oldVersions = ['moneyRecordsV5', 'moneyRecordsV4', 'moneyRecordsV3', 'moneyRecordsV2', 'moneyRecords'];
+                for (const version of oldVersions) {
+                    const oldData = localStorage.getItem(version);
+                    if (oldData && this.records.length === 0) {
+                        try {
+                            const migrated = JSON.parse(oldData);
+                            this.records = migrated.map(record => ({
+                                ...record,
+                                id: record.id || this.generateId(),
+                                updatedAt: record.updatedAt || record.createdAt || new Date().toISOString(),
+                                version: '6.0'
+                            }));
+                            this.saveRecords();
+                            this.showToast(`📦 ${version} からデータを移行しました`, 'success');
+                            break;
+                        } catch {}
+                    }
+                }
+            }
+
+            validateField(field) {
+                const value = field.value.trim();
+                let isValid = true;
+                let message = '';
+
+                switch (field.id) {
+                    case 'amount':
+                        isValid = value && parseFloat(value) > 0;
+                        message = isValid ? '✅ 有効な金額です' : '❌ 1円以上の金額を入力してください';
+                        break;
+                    case 'category':
+                        isValid = value.length > 0 && value.length <= 50;
+                        message = isValid ? '✅ 有効なカテゴリーです' : '❌ 1-50文字で入力してください';
+                        break;
+                    case 'date':
+                        const today = new Date().toISOString().split('T')[0];
+                        isValid = value <= today;
+                        message = isValid ? '✅ 有効な日付です' : '❌ 未来の日付は選択できません';
+                        break;
+                }
+
+                // リアルタイムフィードバック
+                const helpElement = document.getElementById(field.id + '-help');
+                if (helpElement) {
+                    helpElement.textContent = message;
+                    helpElement.style.color = isValid ? 'var(--success)' : 'var(--danger)';
+                }
+
+                field.style.borderColor = isValid ? 'var(--success)' : 'var(--danger)';
+                return isValid;
+            }
+
+            async handleFormSubmit(e) {
+                e.preventDefault();
+                
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const submitText = document.getElementById('submitText');
+                const submitIcon = document.getElementById('submitIcon');
+                const originalText = submitText.textContent;
+                const originalIcon = submitIcon.textContent;
+                
+                // バリデーション
+                if (!e.target.checkValidity()) {
+                    this.showToast('❌ 入力内容を確認してください', 'error');
+                    return;
+                }
+                
+                // ローディング状態
+                submitText.innerHTML = '<span class="loading"></span> 保存中...';
+                submitIcon.textContent = '';
+                submitBtn.disabled = true;
+                
+                try {
+                    const editId = document.getElementById('editId').value;
+                    const formData = {
+                        id: editId || this.generateId(),
+                        type: document.getElementById('type').value,
+                        amount: parseInt(document.getElementById('amount').value),
+                        category: document.getElementById('category').value.trim(),
+                        date: document.getElementById('date').value,
+                        memo: document.getElementById('memo').value.trim(),
+                        createdAt: editId ? (this.records.find(r => r.id === editId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        version: '6.0'
+                    };
+
+                    // データ保存
+                    if (editId) {
+                        this.records = this.records.map(record => 
+                            record.id === editId ? formData : record
+                        );
+                        this.showToast(`✅ ${formData.category} の記録を更新しました`, 'success');
+                    } else {
+                        this.records.push(formData);
+                        this.showToast(`✅ ${formData.category} を記録しました（¥${formData.amount.toLocaleString()}）`, 'success');
+                    }
+
+                    // アニメーション遅延
+                    await new Promise(resolve => setTimeout(resolve, 600));
+
+                    this.saveRecords();
+                    this.clearForm();
+                    this.populateFilters();
+                    this.filterRecords();
+                    this.updateSummary();
+                    this.updateHeaderStats();
+                    
+                    // ドラフト削除
+                    localStorage.removeItem('moneyFormDraftV6');
+                    
+                    // 統計更新
+                    this.updateGoalProgress();
+                    this.checkAchievements();
+                    
+                } catch (error) {
+                    this.showToast('⚠️ エラーが発生しました', 'error');
+                    console.error('Save error:', error);
+                } finally {
+                    submitText.textContent = originalText;
+                    submitIcon.textContent = originalIcon;
+                    submitBtn.disabled = false;
+                }
+            }
+
+            generateId() {
+                return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            }
+
+            populateFilters() {
+                this.populateMonthFilter();
+                this.populateCategoryFilter();
+            }
+
+            populateMonthFilter() {
+                const monthFilter = document.getElementById('monthFilter');
+                const months = new Set();
+                
+                // 既存オプションをクリア
+                const options = Array.from(monthFilter.options);
+                options.slice(1).forEach(option => option.remove());
+                
+                this.records.forEach(record => {
+                    const date = new Date(record.date);
+                    const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                    months.add(monthKey);
+                });
+                
+                // 月でソート（新しい順）
+                Array.from(months).sort().reverse().forEach(month => {
+                    const option = document.createElement('option');
+                    option.value = month;
+                    option.textContent = `${month.replace('-', '年')}月`;
+                    monthFilter.appendChild(option);
+                });
+            }
+
+            populateCategoryFilter() {
+                const categoryFilter = document.getElementById('categoryFilter');
+                const categories = new Set();
+                
+                // 既存オプションをクリア
+                const options = Array.from(categoryFilter.options);
+                options.slice(1).forEach(option => option.remove());
+                
+                this.records.forEach(record => {
+                    categories.add(record.category);
+                });
+                
+                // カテゴリーでソート
+                Array.from(categories).sort().forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categoryFilter.appendChild(option);
+                });
+            }
+
+            updateHeaderStats() {
+                const recordCount = this.records.length;
+                const now = new Date();
+                const thisMonth = this.records.filter(r => {
+                    const recordDate = new Date(r.date);
+                    return recordDate.getMonth() === now.getMonth() && 
+                           recordDate.getFullYear() === now.getFullYear();
+                });
+
+                document.getElementById('headerRecordCount').textContent = recordCount;
+                
+                // 日平均計算（今月）
+                if (thisMonth.length > 0) {
+                    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                    const totalAmount = thisMonth.reduce((sum, r) => 
+                        sum + (r.type === 'income' ? r.amount : -r.amount), 0);
+                    const avgDaily = totalAmount / daysInMonth;
+                    
+                    document.getElementById('headerAvgDaily').textContent = 
+                        `¥${Math.abs(avgDaily).toLocaleString()}${avgDaily < 0 ? ' 支出' : ''}`;
+                } else {
+                    document.getElementById('headerAvgDaily').textContent = '¥0';
+                }
+                
+                // 継続日数計算
+                const streak = this.calculateStreak();
+                document.getElementById('headerStreak').textContent = `${streak}日`;
+                
+                // 目標達成率
+                const goalProgress = this.calculateGoalProgress();
+                document.getElementById('headerGoalProgress').textContent = `${goalProgress}%`;
+            }
+
+            calculateStreak() {
+                if (this.records.length === 0) return 0;
+                
+                const sortedDates = [...new Set(this.records.map(r => r.date))].sort().reverse();
+                let streak = 0;
+                const today = new Date().toISOString().split('T')[0];
+                let currentDate = today;
+                
+                for (const date of sortedDates) {
+                    if (date === currentDate) {
+                        streak++;
+                        const prev = new Date(currentDate);
+                        prev.setDate(prev.getDate() - 1);
+                        currentDate = prev.toISOString().split('T')[0];
+                    } else {
+                        break;
+                    }
+                }
+                
+                return streak;
+            }
+
+            calculateGoalProgress() {
+                const now = new Date();
+                const thisMonth = this.records.filter(r => {
+                    const recordDate = new Date(r.date);
+                    return recordDate.getMonth() === now.getMonth() && 
+                           recordDate.getFullYear() === now.getFullYear();
+                });
+                
+                const monthlyIncome = thisMonth.filter(r => r.type === 'income').reduce((sum, r) => sum + r.amount, 0);
+                const monthlyExpense = thisMonth.filter(r => r.type === 'expense').reduce((sum, r) => sum + r.amount, 0);
+                const monthlySavings = monthlyIncome - monthlyExpense;
+                
+                const goalAmount = this.goals.savings || 50000;
+                const progress = Math.min(100, Math.max(0, (monthlySavings / goalAmount) * 100));
+                
+                return Math.round(progress);
+            }
+
+            renderRecords() {
+                const container = document.getElementById('recordsContainer');
+                const filterInfo = document.getElementById('filterInfo');
+                
+                if (this.filteredRecords.length === 0) {
+                    const hasRecords = this.records.length > 0;
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>${hasRecords ? '条件に合う記録がありません' : 'まだ記録がありません'}</h3>
+                            <p>${hasRecords ? 'フィルターを変更するか、新しい記録を追加してください' : '最初の収支を記録して、家計管理を始めましょう'}</p>
+                            ${!hasRecords ? '<button class="btn btn-primary" onclick="document.getElementById(\'amount\').focus()">📝 今すぐ記録する</button>' : ''}
+                        </div>
+                    `;
+                    filterInfo.textContent = '';
+                    return;
+                }
+
+                // フィルター情報表示
+                if (this.filteredRecords.length !== this.records.length) {
+                    filterInfo.textContent = `${this.filteredRecords.length}/${this.records.length}件表示`;
+                } else {
+                    filterInfo.textContent = `${this.records.length}件`;
+                }
+
+                // 日付でソート（新しい順）
+                const sortedRecords = [...this.filteredRecords].sort((a, b) => 
+                    new Date(b.date) - new Date(a.date)
+                );
+
+                const table = `
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>日付</th>
+                                <th>種類</th>
+                                <th>カテゴリー</th>
+                                <th>金額</th>
+                                <th>メモ</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sortedRecords.map((record, index) => `
+                                <tr class="slide-in" style="animation-delay: ${index * 0.05}s">
+                                    <td>${this.formatDate(record.date)}</td>
+                                    <td>${record.type === 'income' ? '💰 収入' : '💸 支出'}</td>
+                                    <td><span class="category-tag">${this.escapeHtml(record.category)}</span></td>
+                                    <td class="amount ${record.type}">¥${record.amount.toLocaleString()}</td>
+                                    <td title="${this.escapeHtml(record.memo || '')}">${this.escapeHtml(this.truncateText(record.memo || '-', 20))}</td>
+                                    <td>
+                                        <button class="action-btn edit" onclick="app.editRecord('${record.id}')" 
+                                                aria-label="記録を編集" title="編集">
+                                            ✏️ 編集
+                                        </button>
+                                        <button class="action-btn delete" onclick="app.deleteRecord('${record.id}')" 
+                                                aria-label="記録を削除" title="削除">
+                                            🗑️ 削除
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = table;
+            }
+
+            updateSummary() {
+                const totalIncome = this.records
+                    .filter(r => r.type === 'income')
+                    .reduce((sum, r) => sum + r.amount, 0);
+                
+                const totalExpense = this.records
+                    .filter(r => r.type === 'expense')
+                    .reduce((sum, r) => sum + r.amount, 0);
+                
+                const balance = totalIncome - totalExpense;
+                const maxAmount = Math.max(totalIncome, totalExpense, Math.abs(balance));
+
+                // 値の更新
+                document.getElementById('totalIncome').textContent = `¥${totalIncome.toLocaleString()}`;
+                document.getElementById('totalExpense').textContent = `¥${totalExpense.toLocaleString()}`;
+                document.getElementById('balance').textContent = `¥${balance.toLocaleString()}`;
+                
+                // 今月の記録数
+                const now = new Date();
+                const thisMonthCount = this.records.filter(r => {
+                    const recordDate = new Date(r.date);
+                    return recordDate.getMonth() === now.getMonth() && 
+                           recordDate.getFullYear() === now.getFullYear();
+                }).length;
+                document.getElementById('recordCount').textContent = thisMonthCount;
+                
+                // プログレスバーの更新
+                if (maxAmount > 0) {
+                    document.getElementById('incomeProgress').style.width = `${(totalIncome / maxAmount) * 100}%`;
+                    document.getElementById('expenseProgress').style.width = `${(totalExpense / maxAmount) * 100}%`;
+                    document.getElementById('balanceProgress').style.width = `${Math.abs(balance / maxAmount) * 100}%`;
+                }
+                
+                // 記録数プログレス（目標30件/月）
+                document.getElementById('recordProgress').style.width = `${Math.min(100, (thisMonthCount / 30) * 100)}%`;
+                
+                // 残高カードの色を更新
+                const balanceCard = document.getElementById('balanceCard');
+                const balanceElement = document.getElementById('balance');
+                const balanceIcon = document.getElementById('balanceIcon');
+                
+                balanceCard.className = 'stat-card';
+                balanceElement.className = 'stat-value';
+                
+                if (balance > 0) {
+                    balanceCard.classList.add('balance-positive');
+                    balanceElement.classList.add('balance-positive');
+                    balanceIcon.textContent = '📈';
+                } else if (balance < 0) {
+                    balanceCard.classList.add('balance-negative');
+                    balanceElement.classList.add('balance-negative');
+                    balanceIcon.textContent = '📉';
+                } else {
+                    balanceIcon.textContent = '⚖️';
+                }
+            }
+
+            filterRecords() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const typeFilter = document.getElementById('typeFilter').value;
+                const monthFilter = document.getElementById('monthFilter').value;
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                
+                this.filteredRecords = this.records.filter(record => {
+                    // テキスト検索
+                    const matchesSearch = !searchTerm || 
+                        record.category.toLowerCase().includes(searchTerm) ||
+                        (record.memo && record.memo.toLowerCase().includes(searchTerm));
+                    
+                    // 種類フィルター
+                    const matchesType = !typeFilter || record.type === typeFilter;
+                    
+                    // 月フィルター
+                    const matchesMonth = !monthFilter || 
+                        record.date.startsWith(monthFilter);
+                    
+                    // カテゴリーフィルター
+                    const matchesCategory = !categoryFilter || record.category === categoryFilter;
+                    
+                    return matchesSearch && matchesType && matchesMonth && matchesCategory;
+                });
+                
+                this.renderRecords();
+            }
+
+            clearFilters() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('typeFilter').value = '';
+                document.getElementById('monthFilter').value = '';
+                document.getElementById('categoryFilter').value = '';
+                this.filteredRecords = [...this.records];
+                this.renderRecords();
+                this.showToast('🔄 フィルターをクリアしました', 'success');
+            }
+
+            editRecord(id) {
+                const record = this.records.find(r => r.id === id);
+                if (!record) return;
+
+                document.getElementById('editId').value = record.id;
+                document.getElementById('type').value = record.type;
+                document.getElementById('amount').value = record.amount;
+                document.getElementById('category').value = record.category;
+                document.getElementById('date').value = record.date;
+                document.getElementById('memo').value = record.memo || '';
+                document.getElementById('submitText').textContent = '更新する';
+                document.getElementById('submitIcon').textContent = '🔄';
+                
+                // フォームまでスクロール
+                document.querySelector('.card').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // フォーカス
+                setTimeout(() => {
+                    document.getElementById('amount').focus();
+                    document.getElementById('amount').select();
+                }, 500);
+            }
+
+            deleteRecord(id) {
+                const record = this.records.find(r => r.id === id);
+                if (!record) return;
+                
+                if (!confirm(`「${record.category}」の記録を削除しますか？\n\n金額: ¥${record.amount.toLocaleString()}\n日付: ${this.formatDate(record.date)}\n\n※この操作は取り消せません`)) {
+                    return;
+                }
+                
+                this.records = this.records.filter(r => r.id !== id);
+                this.saveRecords();
+                this.populateFilters();
+                this.filterRecords();
+                this.updateSummary();
+                this.updateHeaderStats();
+                this.showToast(`🗑️ ${record.category} の記録を削除しました`, 'success');
+            }
+
+            exportCSV() {
+                if (this.records.length === 0) {
+                    this.showToast('📊 エクスポートするデータがありません', 'error');
+                    return;
+                }
+
+                const headers = ['日付', '種類', 'カテゴリー', '金額', 'メモ', '作成日時', '更新日時', 'バージョン'];
+                const rows = this.records
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .map(r => [
+                        r.date,
+                        r.type === 'income' ? '収入' : '支出',
+                        r.category,
+                        r.amount,
+                        r.memo || '',
+                        r.createdAt || '',
+                        r.updatedAt || '',
+                        r.version || '6.0'
+                    ]);
+
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+                ].join('\n');
+
+                const fileName = `お金管理_v6.0_${new Date().toISOString().split('T')[0]}.csv`;
+                this.downloadFile(csvContent, fileName, 'text/csv');
+                this.showToast(`📊 ${fileName} をダウンロードしました（${this.records.length}件）`, 'success');
+            }
+
+            generateReport() {
+                // 高度なレポート生成機能
+                const now = new Date();
+                const thisMonth = this.records.filter(r => {
+                    const recordDate = new Date(r.date);
+                    return recordDate.getMonth() === now.getMonth() && 
+                           recordDate.getFullYear() === now.getFullYear();
+                });
+
+                const totalIncome = thisMonth.filter(r => r.type === 'income').reduce((sum, r) => sum + r.amount, 0);
+                const totalExpense = thisMonth.filter(r => r.type === 'expense').reduce((sum, r) => sum + r.amount, 0);
+                const balance = totalIncome - totalExpense;
+
+                // カテゴリー別集計
+                const categoryStats = {};
+                thisMonth.forEach(r => {
+                    if (!categoryStats[r.category]) {
+                        categoryStats[r.category] = { income: 0, expense: 0, count: 0 };
+                    }
+                    categoryStats[r.category][r.type] += r.amount;
+                    categoryStats[r.category].count++;
+                });
+
+                // サブスクリプション分析
+                const monthlySubTotal = this.subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
+                const subPercentage = totalExpense > 0 ? ((monthlySubTotal / totalExpense) * 100).toFixed(1) : 0;
+
+                let report = `# 💰 家計レポート ${now.getFullYear()}年${now.getMonth() + 1}月\n\n`;
+                report += `## 📊 収支サマリー\n`;
+                report += `- 💰 総収入: ¥${totalIncome.toLocaleString()}\n`;
+                report += `- 💸 総支出: ¥${totalExpense.toLocaleString()}\n`;
+                report += `- ⚖️ 収支: ¥${balance.toLocaleString()}\n`;
+                report += `- 📋 記録数: ${thisMonth.length}件\n`;
+                report += `- 🎯 目標達成率: ${this.calculateGoalProgress()}%\n\n`;
+
+                report += `## 🔄 サブスクリプション分析\n`;
+                report += `- 📱 月額サブスク総額: ¥${monthlySubTotal.toLocaleString()}\n`;
+                report += `- 📊 支出に占める割合: ${subPercentage}%\n`;
+                this.subscriptions.forEach(sub => {
+                    report += `  - ${sub.name}: ¥${sub.amount.toLocaleString()}\n`;
+                });
+                report += `\n`;
+
+                report += `## 📈 カテゴリー別詳細\n`;
+                Object.entries(categoryStats)
+                    .sort(([,a], [,b]) => (b.income + b.expense) - (a.income + a.expense))
+                    .forEach(([category, stats]) => {
+                        const total = stats.income + stats.expense;
+                        const avg = Math.round(total / stats.count);
+                        report += `- ${category}: ¥${total.toLocaleString()} (平均: ¥${avg.toLocaleString()}/回, ${stats.count}回)`;
+                        if (stats.income > 0 && stats.expense > 0) {
+                            report += ` [収入: ¥${stats.income.toLocaleString()}, 支出: ¥${stats.expense.toLocaleString()}]`;
+                        }
+                        report += `\n`;
+                    });
+
+                report += `\n## 📊 パフォーマンス指標\n`;
+                report += `- 🔥 継続記録日数: ${this.calculateStreak()}日\n`;
+                report += `- 📅 日平均記録: ${(thisMonth.length / now.getDate()).toFixed(1)}件/日\n`;
+                report += `- 💡 推奨改善点: ${this.generateRecommendations()}\n`;
+
+                report += `\n---\n📅 生成日時: ${new Date().toLocaleString()}\n💰 お金管理システム v6.0`;
+
+                this.downloadFile(report, `家計レポート_v6.0_${now.getFullYear()}年${now.getMonth() + 1}月.md`, 'text/markdown');
+                this.showToast('📈 詳細レポートを生成しました', 'success');
+            }
+
+            generateRecommendations() {
+                const now = new Date();
+                const thisMonth = this.records.filter(r => {
+                    const recordDate = new Date(r.date);
+                    return recordDate.getMonth() === now.getMonth() && 
+                           recordDate.getFullYear() === now.getFullYear();
+                });
+
+                const recommendations = [];
+                
+                // 支出が多いカテゴリーを特定
+                const expenseCategories = {};
+                thisMonth.filter(r => r.type === 'expense').forEach(r => {
+                    expenseCategories[r.category] = (expenseCategories[r.category] || 0) + r.amount;
+                });
+                
+                const sortedExpenses = Object.entries(expenseCategories).sort(([,a], [,b]) => b - a);
+                if (sortedExpenses.length > 0) {
+                    recommendations.push(`最大支出カテゴリー「${sortedExpenses[0][0]}」の見直し`);
+                }
+
+                // サブスク比率が高い場合
+                const monthlySubTotal = this.subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
+                const totalExpense = thisMonth.filter(r => r.type === 'expense').reduce((sum, r) => sum + r.amount, 0);
+                if (totalExpense > 0 && (monthlySubTotal / totalExpense) > 0.3) {
+                    recommendations.push('サブスクリプションの整理');
+                }
+
+                return recommendations.length > 0 ? recommendations.join(', ') : '特になし';
+            }
+
+            setGoal() {
+                const goalAmount = parseInt(document.getElementById('goalAmount').value);
+                if (!goalAmount || goalAmount < 1000) {
+                    this.showToast('❌ 1,000円以上の目標金額を設定してください', 'error');
+                    return;
+                }
+
+                this.goals.savings = goalAmount;
+                this.saveGoals();
+                
+                document.getElementById('savingsGoal').textContent = `¥${goalAmount.toLocaleString()}`;
+                document.getElementById('goalAmount').value = '';
+                
+                this.updateGoalProgress();
+                this.showToast(`🎯 月間貯金目標を¥${goalAmount.toLocaleString()}に設定しました`, 'success');
+            }
+
+            updateGoalProgress() {
+                const progress = this.calculateGoalProgress();
+                document.getElementById('savingsProgress').style.width = `${progress}%`;
+                
+                // 目標達成チェック
+                if (progress >= 100) {
+                    this.showToast('🎉 月間貯金目標を達成しました！おめでとうございます！', 'success');
+                }
+            }
+
+            addSubscription() {
+                const name = document.getElementById('subName').value.trim();
+                const amount = parseInt(document.getElementById('subAmount').value);
+
+                if (!name || !amount || amount < 1) {
+                    this.showToast('❌ サービス名と料金を正しく入力してください', 'error');
+                    return;
+                }
+
+                const subscription = {
+                    id: this.generateId(),
+                    name: name,
+                    amount: amount,
+                    createdAt: new Date().toISOString()
+                };
+
+                this.subscriptions.push(subscription);
+                this.saveSubscriptions();
+                this.renderSubscriptions();
+
+                document.getElementById('subName').value = '';
+                document.getElementById('subAmount').value = '';
+
+                this.showToast(`➕ ${name} を追加しました（¥${amount.toLocaleString()}/月）`, 'success');
+            }
+
+            removeSubscription(id) {
+                const subscription = this.subscriptions.find(s => s.id === id);
+                if (!subscription) return;
+
+                if (!confirm(`${subscription.name} を削除しますか？`)) return;
+
+                this.subscriptions = this.subscriptions.filter(s => s.id !== id);
+                this.saveSubscriptions();
+                this.renderSubscriptions();
+                this.showToast(`🗑️ ${subscription.name} を削除しました`, 'success');
+            }
+
+            renderSubscriptions() {
+                const container = document.getElementById('subscriptionList');
+                
+                if (this.subscriptions.length === 0) {
+                    container.innerHTML = '<p style="color: var(--gray-500); text-align: center;">サブスクリプションが登録されていません</p>';
+                    return;
+                }
+
+                const totalMonthly = this.subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
+                
+                container.innerHTML = `
+                    <div class="subscription-item" style="background: var(--tertiary-light); font-weight: 700;">
+                        <span>月額合計</span>
+                        <span style="color: var(--tertiary-dark);">¥${totalMonthly.toLocaleString()}</span>
+                    </div>
+                    ${this.subscriptions.map(sub => `
+                        <div class="subscription-item">
+                            <span class="subscription-name">${this.escapeHtml(sub.name)}</span>
+                            <div>
+                                <span class="subscription-amount">¥${sub.amount.toLocaleString()}</span>
+                                <button class="action-btn delete" onclick="app.removeSubscription('${sub.id}')" style="margin-left: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+
+            checkAchievements() {
+                const recordCount = this.records.length;
+                const streak = this.calculateStreak();
+                
+                // 実績チェック
+                if (recordCount === 1) {
+                    this.showToast('🎉 初回記録達成！家計管理の第一歩です', 'success');
+                } else if (recordCount === 10) {
+                    this.showToast('🏆 10件記録達成！継続が力になります', 'success');
+                } else if (recordCount === 50) {
+                    this.showToast('🌟 50件記録達成！家計管理のプロです', 'success');
+                } else if (recordCount === 100) {
+                    this.showToast('👑 100件記録達成！マスターレベルです', 'success');
+                }
+
+                if (streak === 7) {
+                    this.showToast('🔥 7日連続記録達成！素晴らしい継続力です', 'success');
+                } else if (streak === 30) {
+                    this.showToast('💪 30日連続記録達成！習慣化成功です', 'success');
+                }
+            }
+
+            clearForm() {
+                document.getElementById('editId').value = '';
+                document.getElementById('moneyForm').reset();
+                this.setTodayDate();
+                document.getElementById('submitText').textContent = '記録する';
+                document.getElementById('submitIcon').textContent = '✅';
+                
+                // ドラフト復元
+                this.restoreDraft();
+            }
+
+            saveDraft() {
+                const draftData = {
+                    type: document.getElementById('type').value,
+                    amount: document.getElementById('amount').value,
+                    category: document.getElementById('category').value,
+                    date: document.getElementById('date').value,
+                    memo: document.getElementById('memo').value,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('moneyFormDraftV6', JSON.stringify(draftData));
+            }
+
+            restoreDraft() {
+                const draft = localStorage.getItem('moneyFormDraftV6');
+                if (draft && !document.getElementById('editId').value) {
+                    try {
+                        const draftData = JSON.parse(draft);
+                        const draftAge = new Date() - new Date(draftData.timestamp);
+                        
+                        // 24時間以内のドラフトのみ復元
+                        if (draftAge < 24 * 60 * 60 * 1000) {
+                            if (draftData.amount || draftData.category) {
+                                Object.keys(draftData).forEach(key => {
+                                    const element = document.getElementById(key);
+                                    if (element && draftData[key]) {
+                                        element.value = draftData[key];
+                                    }
+                                });
+                                this.showToast('💾 下書きを復元しました', 'info');
+                            }
+                        } else {
+                            localStorage.removeItem('moneyFormDraftV6');
+                        }
+                    } catch {}
+                }
+            }
+
+            backupData() {
+                try {
+                    const backup = {
+                        records: this.records,
+                        goals: this.goals,
+                        subscriptions: this.subscriptions,
+                        settings: this.settings,
+                        timestamp: new Date().toISOString(),
+                        version: '6.0'
+                    };
+                    localStorage.setItem('moneyBackupV6', JSON.stringify(backup));
+                } catch (error) {
+                    console.error('Backup failed:', error);
+                }
+            }
+
+            saveRecords() {
+                try {
+                    localStorage.setItem('moneyRecordsV6', JSON.stringify(this.records));
+                } catch (error) {
+                    console.error('Save error:', error);
+                    this.showToast('⚠️ データの保存に失敗しました', 'error');
+                }
+            }
+
+            saveGoals() {
+                localStorage.setItem('moneyGoalsV6', JSON.stringify(this.goals));
+            }
+
+            saveSubscriptions() {
+                localStorage.setItem('subscriptionsV6', JSON.stringify(this.subscriptions));
+            }
+
+            showInstallPromotion() {
+                const installBtn = document.createElement('button');
+                installBtn.textContent = '📱 アプリをインストール';
+                installBtn.className = 'btn btn-accent';
+                installBtn.onclick = () => {
+                    if (this.deferredPrompt) {
+                        this.deferredPrompt.prompt();
+                        this.deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                this.showToast('✨ インストールありがとうございます！', 'success');
+                            }
+                            this.deferredPrompt = null;
+                        });
+                    }
+                };
+                
+                // ヘッダーに一時的に追加
+                const header = document.querySelector('.header');
+                header.appendChild(installBtn);
+                
+                setTimeout(() => {
+                    if (installBtn.parentNode) {
+                        installBtn.remove();
+                    }
+                }, 10000); // 10秒後に削除
+            }
+
+            handleTouchStart(e) {
+                this.touchStartX = e.touches[0].clientX;
+                this.touchStartY = e.touches[0].clientY;
+            }
+
+            handleTouchEnd(e) {
+                if (!this.touchStartX || !this.touchStartY) return;
+
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                const diffX = this.touchStartX - touchEndX;
+                const diffY = this.touchStartY - touchEndY;
+
+                // スワイプジェスチャーの検出
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    if (diffX > 0) {
+                        // 左スワイプ - 次の機能
+                        this.showToast('👈 左スワイプ検出', 'info');
+                    } else {
+                        // 右スワイプ - 前の機能
+                        this.showToast('👉 右スワイプ検出', 'info');
+                    }
+                }
+
+                this.touchStartX = null;
+                this.touchStartY = null;
+            }
+
+            // ユーティリティメソッド
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            formatDate(dateStr) {
+                const date = new Date(dateStr);
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+                const weekday = weekdays[date.getDay()];
+                
+                return `${year}/${month}/${day} (${weekday})`;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            truncateText(text, maxLength) {
+                return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+            }
+
+            downloadFile(content, filename, type) {
+                const blob = new Blob(['\uFEFF' + content], { type: type + ';charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url);
+            }
+
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+                
+                toast.innerHTML = `
+                    <span>${icons[type] || icons.success}</span>
+                    <span>${message}</span>
+                `;
+                
+                toast.className = `toast show ${type}`;
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+        }
+
+        // グローバル関数（HTML内のonclick用）
+        function filterRecords() {
+            app.filterRecords();
+        }
+
+        function clearFilters() {
+            app.clearFilters();
+        }
+
+        function exportCSV() {
+            app.exportCSV();
+        }
+
+        function generateReport() {
+            app.generateReport();
+        }
+
+        function clearForm() {
+            app.clearForm();
+        }
+
+        function setGoal() {
+            app.setGoal();
+        }
+
+        function addSubscription() {
+            app.addSubscription();
+        }
+
+        // アプリケーション初期化
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new AdvancedMoneyManagerApp();
+        });
+
+        // エラーハンドリング
+        window.addEventListener('error', (e) => {
+            console.error('Application error:', e);
+            if (app) {
+                app.showToast('⚠️ アプリケーションエラーが発生しました', 'error');
+            }
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Unhandled promise rejection:', e);
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="見た目が超格好良い時計 v4.0 - 美しいアナログ・デジタル時計アプリ">
+    <meta name="theme-color" content="#6366F1">
+    <title>Ultra Clock v4.0 - 見た目が超格好良い時計</title>
+    
+    <!-- PWA対応 -->
+    <link rel="manifest" href="data:application/json,{%22name%22:%22Ultra Clock%22,%22short_name%22:%22UltraClock%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22theme_color%22:%22%236366F1%22,%22background_color%22:%22%23000000%22}">
+    
+    <style>
+        /* CSS変数 */
+        :root {
+            /* カラーパレット */
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --secondary: #14B8A6;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            
+            /* ダーク系カラー */
+            --dark: #000000;
+            --dark-800: #1F2937;
+            --dark-700: #374151;
+            --dark-600: #4B5563;
+            --dark-500: #6B7280;
+            --dark-400: #9CA3AF;
+            --dark-300: #D1D5DB;
+            --dark-200: #E5E7EB;
+            --dark-100: #F3F4F6;
+            --white: #FFFFFF;
+            
+            /* エフェクト */
+            --glow-primary: 0 0 20px rgba(99, 102, 241, 0.5);
+            --glow-secondary: 0 0 20px rgba(20, 184, 166, 0.5);
+            --glow-accent: 0 0 20px rgba(245, 158, 11, 0.5);
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+            
+            /* アニメーション */
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            
+            /* サイズ */
+            --clock-size: min(80vw, 80vh, 600px);
+            --border-radius: 1rem;
+        }
+
+        /* リセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ベーススタイル */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            color: var(--white);
+        }
+
+        /* 背景星空エフェクト */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: var(--white);
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 背景動的グラデーション */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg at 50% 50%,
+                rgba(99, 102, 241, 0.1) 0deg,
+                rgba(20, 184, 166, 0.1) 120deg,
+                rgba(245, 158, 11, 0.1) 240deg,
+                rgba(99, 102, 241, 0.1) 360deg
+            );
+            animation: rotate 20s linear infinite;
+            z-index: -2;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* メインコンテナ */
+        .clock-container {
+            display: grid;
+            grid-template-areas: 
+                "header header"
+                "analog digital"
+                "controls controls";
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            height: 100vh;
+            max-height: 800px;
+        }
+
+        /* ヘッダー */
+        .header {
+            grid-area: header;
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            text-shadow: var(--glow-primary);
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--dark-300);
+            font-weight: 500;
+        }
+
+        /* アナログ時計 */
+        .analog-clock {
+            grid-area: analog;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analog-clock::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .clock-face {
+            width: var(--clock-size);
+            height: var(--clock-size);
+            max-width: 400px;
+            max-height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.4));
+            box-shadow: 
+                var(--shadow),
+                inset 0 0 50px rgba(255, 255, 255, 0.1),
+                inset 0 0 100px rgba(0, 0, 0, 0.3);
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* 時計の数字 */
+        .clock-numbers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .number {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            text-shadow: var(--glow-primary);
+            transform-origin: center;
+        }
+
+        /* 時計の中心点 */
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: var(--glow-primary);
+            z-index: 10;
+        }
+
+        /* 時計の針 */
+        .clock-hand {
+            position: absolute;
+            background: linear-gradient(to top, var(--primary), var(--white));
+            transform-origin: bottom center;
+            border-radius: 4px;
+            box-shadow: var(--glow-primary);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hour-hand {
+            width: 6px;
+            height: 25%;
+            top: 25%;
+            left: calc(50% - 3px);
+            background: linear-gradient(to top, var(--primary), var(--accent));
+        }
+
+        .minute-hand {
+            width: 4px;
+            height: 35%;
+            top: 15%;
+            left: calc(50% - 2px);
+            background: linear-gradient(to top, var(--secondary), var(--white));
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 40%;
+            top: 10%;
+            left: calc(50% - 1px);
+            background: linear-gradient(to top, var(--danger), var(--accent));
+            animation: tick 60s steps(60) infinite;
+        }
+
+        @keyframes tick {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* デジタル時計 */
+        .digital-clock {
+            grid-area: digital;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            gap: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .digital-clock::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(20, 184, 166, 0.05) 0%, 
+                transparent 50%, 
+                rgba(245, 158, 11, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .digital-time {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            color: var(--white);
+            text-shadow: var(--glow-secondary);
+            letter-spacing: 0.1em;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: var(--glow-secondary); }
+            to { text-shadow: var(--glow-accent); }
+        }
+
+        .digital-date {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-300);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .digital-seconds {
+            font-family: 'Courier New', monospace;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--primary);
+            text-shadow: var(--glow-primary);
+        }
+
+        /* コントロールパネル */
+        .controls {
+            grid-area: controls;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        /* ボタンスタイル */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: var(--glow-primary);
+            border-color: var(--primary);
+        }
+
+        /* テーマセレクター */
+        .theme-selector {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--white);
+        }
+
+        .theme-btn.active {
+            border-color: var(--white);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .theme-purple { background: linear-gradient(135deg, #6366F1, #8B5CF6); }
+        .theme-teal { background: linear-gradient(135deg, #14B8A6, #06B6D4); }
+        .theme-orange { background: linear-gradient(135deg, #F59E0B, #EF4444); }
+        .theme-green { background: linear-gradient(135deg, #10B981, #059669); }
+
+        /* タイマー・ストップウォッチ */
+        .timer-display {
+            display: none;
+            font-family: 'Courier New', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: var(--glow-accent);
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .timer-controls {
+            display: none;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .timer-input {
+            width: 60px;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            backdrop-filter: blur(10px);
+        }
+
+        .timer-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .clock-container {
+                grid-template-areas: 
+                    "header"
+                    "analog"
+                    "digital"
+                    "controls";
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .clock-face {
+                max-width: 300px;
+                max-height: 300px;
+            }
+
+            .digital-time {
+                font-size: 2.5rem;
+            }
+
+            .digital-date {
+                font-size: 1.25rem;
+            }
+
+            .controls {
+                padding: 1rem;
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* アクセシビリティ */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* フォーカス */
+        .btn:focus-visible,
+        .theme-btn:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* プリント対応 */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .controls {
+                display: none;
+            }
+
+            .clock-container {
+                height: auto;
+            }
+        }
+
+        /* 特殊エフェクト */
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: sparkle 1s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 1;
+                transform: scale(0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) rotate(180deg);
+            }
+        }
+
+        /* ロード画面 */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- ロード画面 -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- メインコンテナ -->
+    <div class="clock-container">
+        <!-- ヘッダー -->
+        <div class="header">
+            <h1>🕐 Ultra Clock</h1>
+            <p>見た目が超格好良い時計 v4.0</p>
+        </div>
+
+        <!-- アナログ時計 -->
+        <div class="analog-clock">
+            <div class="clock-face">
+                <div class="clock-numbers" id="clockNumbers"></div>
+                <div class="clock-hand hour-hand" id="hourHand"></div>
+                <div class="clock-hand minute-hand" id="minuteHand"></div>
+                <div class="clock-hand second-hand" id="secondHand"></div>
+                <div class="clock-center"></div>
+            </div>
+        </div>
+
+        <!-- デジタル時計 -->
+        <div class="digital-clock">
+            <div class="digital-time" id="digitalTime">00:00:00</div>
+            <div class="digital-date" id="digitalDate">Loading...</div>
+            <div class="digital-seconds" id="digitalSeconds">00</div>
+            
+            <!-- タイマー表示 -->
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-controls" id="timerControls">
+                <input type="number" class="timer-input" id="timerHours" placeholder="時" min="0" max="23" value="0">
+                <input type="number" class="timer-input" id="timerMinutes" placeholder="分" min="0" max="59" value="5">
+                <input type="number" class="timer-input" id="timerSeconds" placeholder="秒" min="0" max="59" value="0">
+                <button class="btn" onclick="startTimer()">開始</button>
+                <button class="btn" onclick="pauseTimer()">一時停止</button>
+                <button class="btn" onclick="resetTimer()">リセット</button>
+            </div>
+        </div>
+
+        <!-- コントロールパネル -->
+        <div class="controls">
+            <button class="btn active" onclick="showClock()">🕐 時計</button>
+            <button class="btn" onclick="showTimer()">⏰ タイマー</button>
+            <button class="btn" onclick="showStopwatch()">⏱️ ストップウォッチ</button>
+            
+            <div class="theme-selector">
+                <span style="margin-right: 0.5rem; font-weight: 600;">テーマ:</span>
+                <div class="theme-btn theme-purple active" onclick="setTheme('purple')" title="パープル"></div>
+                <div class="theme-btn theme-teal" onclick="setTheme('teal')" title="ティール"></div>
+                <div class="theme-btn theme-orange" onclick="setTheme('orange')" title="オレンジ"></div>
+                <div class="theme-btn theme-green" onclick="setTheme('green')" title="グリーン"></div>
+            </div>
+
+            <button class="btn" onclick="toggleFullscreen()">🔳 フルスクリーン</button>
+            <button class="btn" onclick="speakTime()">🔊 時刻読み上げ</button>
+        </div>
+    </div>
+
+    <script>
+        // ウルトラクロック
+        class UltraClock {
+            constructor() {
+                this.currentMode = 'clock';
+                this.currentTheme = 'purple';
+                this.timerInterval = null;
+                this.timerTime = 0;
+                this.timerRunning = false;
+                this.stopwatchInterval = null;
+                this.stopwatchTime = 0;
+                this.stopwatchRunning = false;
+                
+                this.themes = {
+                    purple: { primary: '#6366F1', secondary: '#8B5CF6', accent: '#F59E0B' },
+                    teal: { primary: '#14B8A6', secondary: '#06B6D4', accent: '#10B981' },
+                    orange: { primary: '#F59E0B', secondary: '#EF4444', accent: '#EC4899' },
+                    green: { primary: '#10B981', secondary: '#059669', accent: '#06B6D4' }
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.createStars();
+                this.setupClockNumbers();
+                this.startClock();
+                this.setupEventListeners();
+                this.hideLoading();
+                
+                // 初期表示
+                this.showClock();
+                
+                console.log('🕐 Ultra Clock v4.0 initialized');
+            }
+
+            createStars() {
+                const starsContainer = document.getElementById('stars');
+                const starCount = 100;
+
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.width = Math.random() * 3 + 1 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            setupClockNumbers() {
+                const numbersContainer = document.getElementById('clockNumbers');
+                for (let i = 1; i <= 12; i++) {
+                    const number = document.createElement('div');
+                    number.className = 'number';
+                    number.textContent = i;
+                    
+                    const angle = (i * 30 - 90) * (Math.PI / 180);
+                    const radius = 45;
+                    const x = 50 + radius * Math.cos(angle);
+                    const y = 50 + radius * Math.sin(angle);
+                    
+                    number.style.left = x + '%';
+                    number.style.top = y + '%';
+                    number.style.transform = 'translate(-50%, -50%)';
+                    
+                    numbersContainer.appendChild(number);
+                }
+            }
+
+            startClock() {
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
+            }
+
+            updateClock() {
+                const now = new Date();
+                
+                // アナログ時計
+                this.updateAnalogClock(now);
+                
+                // デジタル時計
+                this.updateDigitalClock(now);
+            }
+
+            updateAnalogClock(now) {
+                const hours = now.getHours() % 12;
+                const minutes = now.getMinutes();
+                const seconds = now.getSeconds();
+
+                const hourAngle = (hours * 30) + (minutes * 0.5);
+                const minuteAngle = minutes * 6;
+                const secondAngle = seconds * 6;
+
+                document.getElementById('hourHand').style.transform = `rotate(${hourAngle}deg)`;
+                document.getElementById('minuteHand').style.transform = `rotate(${minuteAngle}deg)`;
+                document.getElementById('secondHand').style.transform = `rotate(${secondAngle}deg)`;
+            }
+
+            updateDigitalClock(now) {
+                const timeString = now.toLocaleTimeString('ja-JP', { 
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const dateString = now.toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
+
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+
+                document.getElementById('digitalTime').textContent = timeString;
+                document.getElementById('digitalDate').textContent = dateString;
+                document.getElementById('digitalSeconds').textContent = seconds;
+            }
+
+            setupEventListeners() {
+                // キーボードショートカット
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case '1':
+                            this.showClock();
+                            break;
+                        case '2':
+                            this.showTimer();
+                            break;
+                        case '3':
+                            this.showStopwatch();
+                            break;
+                        case 'f':
+                        case 'F':
+                            this.toggleFullscreen();
+                            break;
+                        case 's':
+                        case 'S':
+                            this.speakTime();
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            if (this.currentMode === 'timer' && this.timerTime > 0) {
+                                this.timerRunning ? this.pauseTimer() : this.startTimer();
+                            } else if (this.currentMode === 'stopwatch') {
+                                this.stopwatchRunning ? this.pauseStopwatch() : this.startStopwatch();
+                            }
+                            break;
+                    }
+                });
+
+                // クリックエフェクト
+                document.addEventListener('click', (e) => {
+                    this.createSparkle(e.clientX, e.clientY);
+                });
+            }
+
+            showClock() {
+                this.currentMode = 'clock';
+                this.updateModeUI();
+                document.getElementById('timerDisplay').style.display = 'none';
+                document.getElementById('timerControls').style.display = 'none';
+                document.getElementById('digitalTime').style.display = 'block';
+                document.getElementById('digitalDate').style.display = 'block';
+                document.getElementById('digitalSeconds').style.display = 'block';
+            }
+
+            showTimer() {
+                this.currentMode = 'timer';
+                this.updateModeUI();
+                document.getElementById('digitalTime').style.display = 'none';
+                document.getElementById('digitalDate').style.display = 'none';
+                document.getElementById('digitalSeconds').style.display = 'none';
+                document.getElementById('timerDisplay').style.display = 'block';
+                document.getElementById('timerControls').style.display = 'flex';
+                this.updateTimerDisplay();
+            }
+
+            showStopwatch() {
+                this.currentMode = 'stopwatch';
+                this.updateModeUI();
+                document.getElementById('digitalTime').style.display = 'none';
+                document.getElementById('digitalDate').style.display = 'none';
+                document.getElementById('digitalSeconds').style.display = 'none';
+                document.getElementById('timerDisplay').style.display = 'block';
+                document.getElementById('timerControls').innerHTML = `
+                    <button class="btn" onclick="clock.startStopwatch()">開始</button>
+                    <button class="btn" onclick="clock.pauseStopwatch()">一時停止</button>
+                    <button class="btn" onclick="clock.resetStopwatch()">リセット</button>
+                    <button class="btn" onclick="clock.lapStopwatch()">ラップ</button>
+                `;
+                document.getElementById('timerControls').style.display = 'flex';
+                this.updateStopwatchDisplay();
+            }
+
+            updateModeUI() {
+                document.querySelectorAll('.controls .btn').forEach((btn, index) => {
+                    if (index < 3) { // 最初の3つのボタン（モード切り替え）のみ
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                const modeIndex = { clock: 0, timer: 1, stopwatch: 2 };
+                document.querySelectorAll('.controls .btn')[modeIndex[this.currentMode]].classList.add('active');
+            }
+
+            // タイマー機能
+            startTimer() {
+                if (this.timerTime === 0) {
+                    const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                    const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+                    const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+                    this.timerTime = hours * 3600 + minutes * 60 + seconds;
+                }
+
+                if (this.timerTime > 0 && !this.timerRunning) {
+                    this.timerRunning = true;
+                    this.timerInterval = setInterval(() => {
+                        this.timerTime--;
+                        this.updateTimerDisplay();
+                        
+                        if (this.timerTime <= 0) {
+                            this.timerComplete();
+                        }
+                    }, 1000);
+                }
+            }
+
+            pauseTimer() {
+                this.timerRunning = false;
+                clearInterval(this.timerInterval);
+            }
+
+            resetTimer() {
+                this.timerRunning = false;
+                clearInterval(this.timerInterval);
+                this.timerTime = 0;
+                this.updateTimerDisplay();
+            }
+
+            timerComplete() {
+                this.pauseTimer();
+                this.showNotification('⏰ タイマー終了！');
+                this.playNotificationSound();
+            }
+
+            updateTimerDisplay() {
+                const hours = Math.floor(this.timerTime / 3600);
+                const minutes = Math.floor((this.timerTime % 3600) / 60);
+                const seconds = this.timerTime % 60;
+                
+                const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timerDisplay').textContent = timeString;
+            }
+
+            // ストップウォッチ機能
+            startStopwatch() {
+                if (!this.stopwatchRunning) {
+                    this.stopwatchRunning = true;
+                    this.stopwatchInterval = setInterval(() => {
+                        this.stopwatchTime++;
+                        this.updateStopwatchDisplay();
+                    }, 10);
+                }
+            }
+
+            pauseStopwatch() {
+                this.stopwatchRunning = false;
+                clearInterval(this.stopwatchInterval);
+            }
+
+            resetStopwatch() {
+                this.stopwatchRunning = false;
+                clearInterval(this.stopwatchInterval);
+                this.stopwatchTime = 0;
+                this.updateStopwatchDisplay();
+            }
+
+            lapStopwatch() {
+                if (this.stopwatchRunning) {
+                    const lapTime = this.formatStopwatchTime(this.stopwatchTime);
+                    this.showNotification(`ラップタイム: ${lapTime}`);
+                }
+            }
+
+            updateStopwatchDisplay() {
+                const timeString = this.formatStopwatchTime(this.stopwatchTime);
+                document.getElementById('timerDisplay').textContent = timeString;
+            }
+
+            formatStopwatchTime(centiseconds) {
+                const hours = Math.floor(centiseconds / 360000);
+                const minutes = Math.floor((centiseconds % 360000) / 6000);
+                const seconds = Math.floor((centiseconds % 6000) / 100);
+                const cs = centiseconds % 100;
+                
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${cs.toString().padStart(2, '0')}`;
+            }
+
+            // テーマ変更
+            setTheme(theme) {
+                this.currentTheme = theme;
+                const colors = this.themes[theme];
+                
+                document.documentElement.style.setProperty('--primary', colors.primary);
+                document.documentElement.style.setProperty('--secondary', colors.secondary);
+                document.documentElement.style.setProperty('--accent', colors.accent);
+                
+                document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`.theme-${theme}`).classList.add('active');
+                
+                this.showNotification(`テーマを${theme}に変更しました`);
+            }
+
+            // フルスクリーン
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {
+                        this.showNotification('フルスクリーンにできませんでした', 'error');
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            // 音声読み上げ
+            speakTime() {
+                if ('speechSynthesis' in window) {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString('ja-JP', { 
+                        hour12: false,
+                        hour: 'numeric',
+                        minute: 'numeric'
+                    });
+                    
+                    const utterance = new SpeechSynthesisUtterance(`現在の時刻は${timeString}です`);
+                    utterance.lang = 'ja-JP';
+                    speechSynthesis.speak(utterance);
+                } else {
+                    this.showNotification('音声読み上げに対応していません', 'error');
+                }
+            }
+
+            // エフェクト
+            createSparkle(x, y) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = x + 'px';
+                sparkle.style.top = y + 'px';
+                sparkle.style.color = this.themes[this.currentTheme].primary;
+                sparkle.textContent = '✨';
+                
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1000);
+            }
+
+            showNotification(message, type = 'success') {
+                // 簡易トースト通知
+                const toast = document.createElement('div');
+                toast.textContent = message;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 2rem;
+                    right: 2rem;
+                    background: ${type === 'error' ? '#EF4444' : '#10B981'};
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 0.5rem;
+                    z-index: 1000;
+                    opacity: 0;
+                    transform: translateX(100%);
+                    transition: all 0.3s ease;
+                    max-width: 300px;
+                `;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translateX(0)';
+                }, 100);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            playNotificationSound() {
+                // Web Audio APIで音を生成
+                if ('AudioContext' in window || 'webkitAudioContext' in window) {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                }
+            }
+
+            hideLoading() {
+                setTimeout(() => {
+                    document.getElementById('loading').classList.add('hidden');
+                }, 1000);
+            }
+        }
+
+        // グローバル関数
+        let clock;
+
+        function showClock() {
+            clock.showClock();
+        }
+
+        function showTimer() {
+            clock.showTimer();
+        }
+
+        function showStopwatch() {
+            clock.showStopwatch();
+        }
+
+        function setTheme(theme) {
+            clock.setTheme(theme);
+        }
+
+        function toggleFullscreen() {
+            clock.toggleFullscreen();
+        }
+
+        function speakTime() {
+            clock.speakTime();
+        }
+
+        function startTimer() {
+            clock.startTimer();
+        }
+
+        function pauseTimer() {
+            clock.pauseTimer();
+        }
+
+        function resetTimer() {
+            clock.resetTimer();
+        }
+
+        // PWA Service Worker（インライン）
+        const swContent = `
+            self.addEventListener('install', event => {
+                self.skipWaiting();
+            });
+
+            self.addEventListener('activate', event => {
+                event.waitUntil(clients.claim());
+            });
+
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    fetch(event.request).catch(() => {
+                        return new Response('オフラインです', {
+                            status: 503,
+                            statusText: 'Service Unavailable',
+                            headers: new Headers({
+                                'Content-Type': 'text/plain'
+                            })
+                        });
+                    })
+                );
+            });
+        `;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            clock = new UltraClock();
+            
+            // Service Worker登録
+            if ('serviceWorker' in navigator && location.protocol === 'https:') {
+                const blob = new Blob([swContent], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            }
+        });
+    </script>
+</body>
+</html>

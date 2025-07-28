@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkBot AI - 思考プロセスを可視化するAIアシスタント</title>
+    <meta name="description" content="AIの思考プロセスを見ながら対話できる、新しいタイプのチャットアシスタント">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i> 思考プロセス</h2>
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="thinking-panel" id="thinking-panel">
+                <div class="thinking-header">
+                    <span class="thinking-status" id="thinking-status">
+                        <i class="fas fa-circle"></i> 待機中
+                    </span>
+                </div>
+                
+                <div class="thinking-content" id="thinking-content">
+                    <div class="thinking-placeholder">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>ここにAIの思考プロセスが表示されます</p>
+                        <ul>
+                            <li>情報の収集と整理</li>
+                            <li>関連性の分析</li>
+                            <li>回答の構築</li>
+                            <li>最適化と調整</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="thinking-metrics">
+                    <div class="metric">
+                        <span class="metric-label">処理時間</span>
+                        <span class="metric-value" id="process-time">0.0s</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">信頼度</span>
+                        <span class="metric-value" id="confidence">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">トークン数</span>
+                        <span class="metric-value" id="token-count">0</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- ヘッダー -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="menu-btn" id="menu-btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="app-title">
+                        <i class="fas fa-robot"></i>
+                        ThinkBot AI
+                    </h1>
+                </div>
+                
+                <div class="header-right">
+                    <button class="header-btn" id="new-chat-btn" title="新しいチャット">
+                        <i class="fas fa-plus"></i>
+                        <span>新規チャット</span>
+                    </button>
+                    <button class="header-btn" id="settings-btn" title="設定">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- チャットエリア -->
+            <div class="chat-container" id="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <!-- ウェルカムメッセージ -->
+                    <div class="welcome-message">
+                        <div class="welcome-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h2>ThinkBot AIへようこそ！</h2>
+                        <p>私は思考プロセスを可視化するAIアシスタントです。</p>
+                        <p>何でもお聞きください。私の考え方も一緒にお見せします。</p>
+                        
+                        <div class="starter-prompts">
+                            <button class="prompt-chip" data-prompt="プログラミングの勉強方法を教えて">
+                                <i class="fas fa-code"></i> プログラミング学習
+                            </button>
+                            <button class="prompt-chip" data-prompt="効果的な時間管理の方法は？">
+                                <i class="fas fa-clock"></i> 時間管理
+                            </button>
+                            <button class="prompt-chip" data-prompt="健康的な生活習慣について">
+                                <i class="fas fa-heart"></i> 健康習慣
+                            </button>
+                            <button class="prompt-chip" data-prompt="創造性を高める方法">
+                                <i class="fas fa-palette"></i> 創造性向上
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 入力エリア -->
+                <div class="chat-input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            class="chat-input" 
+                            id="chat-input" 
+                            placeholder="メッセージを入力してください..."
+                            rows="1"
+                        ></textarea>
+                        
+                        <div class="input-actions">
+                            <button class="input-btn" id="voice-input-btn" title="音声入力">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="input-btn" id="attach-btn" title="ファイル添付">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="send-btn" id="send-btn" title="送信">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-info">
+                        <span id="char-count">0</span> / 2000文字
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 設定モーダル -->
+        <div class="modal-overlay" id="settings-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-cog"></i> 設定</h3>
+                    <button class="modal-close" id="close-settings">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <!-- AIモデル設定 -->
+                    <div class="settings-section">
+                        <h4>AIモデル</h4>
+                        <div class="setting-item">
+                            <label for="ai-model">モデル選択</label>
+                            <select id="ai-model">
+                                <option value="balanced">バランス型（推奨）</option>
+                                <option value="creative">クリエイティブ型</option>
+                                <option value="precise">精密型</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="response-speed">応答速度</label>
+                            <input type="range" id="response-speed" min="0" max="100" value="50">
+                            <span class="range-value">標準</span>
+                        </div>
+                    </div>
+
+                    <!-- 表示設定 -->
+                    <div class="settings-section">
+                        <h4>表示設定</h4>
+                        <div class="setting-item">
+                            <label class="switch-label">
+                                <input type="checkbox" id="show-thinking" checked>
+                                <span class="switch"></span>
+                                思考プロセスを表示
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label class="switch-label">
+                                <input type="checkbox" id="dark-mode">
+                                <span class="switch"></span>
+                                ダークモード
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="font-size">文字サイズ</label>
+                            <select id="font-size">
+                                <option value="small">小</option>
+                                <option value="medium" selected>中</option>
+                                <option value="large">大</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- データ管理 -->
+                    <div class="settings-section">
+                        <h4>データ管理</h4>
+                        <button class="action-btn" id="export-chat">
+                            <i class="fas fa-download"></i> チャット履歴をエクスポート
+                        </button>
+                        <button class="action-btn danger" id="clear-history">
+                            <i class="fas fa-trash"></i> 履歴をクリア
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ローディングインジケーター -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>AIが考えています...</p>
+            </div>
+        </div>
+
+        <!-- トースト通知 -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <!-- 隠しファイル入力 -->
+    <input type="file" id="file-input" accept="image/*,.pdf,.txt,.doc,.docx" style="display: none;">
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Pet Paradise - バーチャルペット育成</title>
+    <meta name="description" content="可愛いバーチャルペットを育てよう！餌をあげて、遊んで、お世話をしてペットを幸せにしよう。">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- ヘッダー -->
+        <header class="game-header">
+            <div class="header-content">
+                <h1 class="game-title">
+                    <i class="fas fa-paw"></i>
+                    Virtual Pet Paradise
+                </h1>
+                <div class="pet-name-display">
+                    <span id="pet-name">プチ</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- メイン画面 -->
+        <main class="pet-world">
+            <!-- ペット表示エリア -->
+            <div class="pet-area">
+                <div class="pet-container" id="pet-container">
+                    <div class="pet-character" id="pet-character">
+                        <div class="pet-body">
+                            <div class="pet-face">
+                                <div class="eyes">
+                                    <div class="eye left-eye">
+                                        <div class="pupil"></div>
+                                    </div>
+                                    <div class="eye right-eye">
+                                        <div class="pupil"></div>
+                                    </div>
+                                </div>
+                                <div class="mouth" id="pet-mouth">
+                                    <div class="smile"></div>
+                                </div>
+                            </div>
+                            <div class="pet-ears">
+                                <div class="ear left-ear"></div>
+                                <div class="ear right-ear"></div>
+                            </div>
+                        </div>
+                        <div class="pet-shadow"></div>
+                    </div>
+                    
+                    <!-- エフェクト表示 -->
+                    <div class="effects-container" id="effects-container">
+                        <!-- 動的に生成される -->
+                    </div>
+                </div>
+
+                <!-- ステータス表示 -->
+                <div class="status-bars">
+                    <div class="status-item">
+                        <i class="fas fa-heart" style="color: #ff6b9d;"></i>
+                        <div class="status-bar">
+                            <div class="status-fill happiness-fill" id="happiness-bar"></div>
+                        </div>
+                        <span class="status-label">幸せ</span>
+                        <span class="status-value" id="happiness-value">100</span>
+                    </div>
+                    
+                    <div class="status-item">
+                        <i class="fas fa-drumstick-bite" style="color: #4ecdc4;"></i>
+                        <div class="status-bar">
+                            <div class="status-fill hunger-fill" id="hunger-bar"></div>
+                        </div>
+                        <span class="status-label">満腹</span>
+                        <span class="status-value" id="hunger-value">100</span>
+                    </div>
+                    
+                    <div class="status-item">
+                        <i class="fas fa-running" style="color: #45b7d1;"></i>
+                        <div class="status-bar">
+                            <div class="status-fill energy-fill" id="energy-bar"></div>
+                        </div>
+                        <span class="status-label">元気</span>
+                        <span class="status-value" id="energy-value">100</span>
+                    </div>
+                    
+                    <div class="status-item">
+                        <i class="fas fa-bed" style="color: #96ceb4;"></i>
+                        <div class="status-bar">
+                            <div class="status-fill sleep-fill" id="sleep-bar"></div>
+                        </div>
+                        <span class="status-label">眠気</span>
+                        <span class="status-value" id="sleep-value">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- アクションボタン -->
+            <div class="action-buttons">
+                <button class="action-btn feed-btn" id="feed-btn" data-action="feed">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>エサをあげる</span>
+                    <div class="btn-cost">💰 10</div>
+                </button>
+                
+                <button class="action-btn play-btn" id="play-btn" data-action="play">
+                    <i class="fas fa-tennis-ball"></i>
+                    <span>遊ぶ</span>
+                    <div class="btn-cost">💪 消費</div>
+                </button>
+                
+                <button class="action-btn sleep-btn" id="sleep-btn" data-action="sleep">
+                    <i class="fas fa-bed"></i>
+                    <span>寝かせる</span>
+                    <div class="btn-cost">⏰ 5分</div>
+                </button>
+                
+                <button class="action-btn clean-btn" id="clean-btn" data-action="clean">
+                    <i class="fas fa-soap"></i>
+                    <span>お風呂</span>
+                    <div class="btn-cost">💰 5</div>
+                </button>
+            </div>
+
+            <!-- ゲーム情報 -->
+            <div class="game-info">
+                <div class="info-item">
+                    <i class="fas fa-coins"></i>
+                    <span>コイン: <span id="coins">100</span></span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-star"></i>
+                    <span>レベル: <span id="pet-level">1</span></span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>年齢: <span id="pet-age">0</span>日</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- ミニゲームモーダル -->
+        <div class="modal-overlay" id="minigame-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>ミニゲーム - キャッチボール</h3>
+                    <button class="close-btn" id="close-minigame">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="minigame-area" id="minigame-area">
+                    <div class="game-ball" id="game-ball"></div>
+                    <div class="game-instructions">
+                        ボールをタップしてキャッチしよう！
+                    </div>
+                    <div class="game-score">
+                        スコア: <span id="minigame-score">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定モーダル -->
+        <div class="modal-overlay" id="settings-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>設定</h3>
+                    <button class="close-btn" id="close-settings">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="settings-content">
+                    <div class="setting-group">
+                        <label for="pet-name-input">ペットの名前</label>
+                        <input type="text" id="pet-name-input" maxlength="10" placeholder="名前を入力">
+                        <button id="save-name-btn">保存</button>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>ペットの色</label>
+                        <div class="color-options">
+                            <button class="color-option" data-color="default" style="background: linear-gradient(45deg, #ff9a9e, #fecfef);"></button>
+                            <button class="color-option" data-color="blue" style="background: linear-gradient(45deg, #a8edea, #fed6e3);"></button>
+                            <button class="color-option" data-color="green" style="background: linear-gradient(45deg, #d299c2, #fef9d7);"></button>
+                            <button class="color-option" data-color="orange" style="background: linear-gradient(45deg, #fad0c4, #ffd1ff);"></button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>音量</label>
+                        <input type="range" id="volume-slider" min="0" max="100" value="50">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <button id="reset-pet-btn" class="danger-btn">ペットをリセット</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- メニューボタン -->
+        <div class="menu-buttons">
+            <button class="menu-btn" id="settings-btn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="menu-btn" id="shop-btn">
+                <i class="fas fa-shopping-cart"></i>
+            </button>
+        </div>
+
+        <!-- 通知システム -->
+        <div class="notification-container" id="notification-container">
+            <!-- 動的に生成される -->
+        </div>
+
+        <!-- ローディング画面 -->
+        <div class="loading-screen" id="loading-screen">
+            <div class="loading-content">
+                <div class="loading-pet">
+                    <div class="loading-bounce"></div>
+                </div>
+                <p>ペットを準備中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

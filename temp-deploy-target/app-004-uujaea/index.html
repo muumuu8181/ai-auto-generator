@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バックアップシステム検証アプリ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔒 バックアップシステム検証アプリ</h1>
+            <p class="subtitle">リアルタイム監視とMD5整合性確認システム</p>
+        </header>
+
+        <div class="control-panel">
+            <button id="startTest" class="btn btn-primary">🚀 ワンクリックテスト実行</button>
+            <button id="stopTest" class="btn btn-secondary">⏹️ 停止</button>
+            <button id="clearLogs" class="btn btn-danger">🗑️ ログクリア</button>
+        </div>
+
+        <div class="dashboard">
+            <div class="status-cards">
+                <div class="status-card success">
+                    <div class="status-icon">✅</div>
+                    <div class="status-info">
+                        <h3>成功</h3>
+                        <span id="successCount">0</span>
+                    </div>
+                </div>
+                <div class="status-card failure">
+                    <div class="status-icon">❌</div>
+                    <div class="status-info">
+                        <h3>失敗</h3>
+                        <span id="failureCount">0</span>
+                    </div>
+                </div>
+                <div class="status-card processing">
+                    <div class="status-icon">⚡</div>
+                    <div class="status-info">
+                        <h3>処理中</h3>
+                        <span id="processingCount">0</span>
+                    </div>
+                </div>
+                <div class="status-card total">
+                    <div class="status-icon">📊</div>
+                    <div class="status-info">
+                        <h3>合計</h3>
+                        <span id="totalCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h3>💾 バックアップ進行状況</h3>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <span id="progressText">0%</span>
+            </div>
+
+            <div class="charts-section">
+                <div class="chart-container">
+                    <h3>📈 成功率グラフ</h3>
+                    <canvas id="successChart" width="300" height="200"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>⏱️ 処理時間分析</h3>
+                    <canvas id="timeChart" width="300" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-sections">
+            <div class="test-section">
+                <h3>🔍 リアルタイムファイル監視</h3>
+                <div class="test-items" id="fileMonitor">
+                    <div class="test-item pending">
+                        <span class="test-name">config.json 監視</span>
+                        <span class="test-status">待機中</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">data.md 監視</span>
+                        <span class="test-status">待機中</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">logs/ 監視</span>
+                        <span class="test-status">待機中</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>🔐 MD5整合性確認</h3>
+                <div class="test-items" id="md5Check">
+                    <div class="test-item pending">
+                        <span class="test-name">バックアップ1.zip</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">MD5: 未計算</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">バックアップ2.zip</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">MD5: 未計算</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">バックアップ3.zip</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">MD5: 未計算</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>📝 形式解析テスト</h3>
+                <div class="test-items" id="formatAnalysis">
+                    <div class="test-item pending">
+                        <span class="test-name">Markdown解析</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">README.md</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">JSON解析</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">config.json</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">自然言語解析</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">メモ.txt</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>🔄 自動復旧機能テスト</h3>
+                <div class="test-items" id="recoveryTest">
+                    <div class="test-item pending">
+                        <span class="test-name">部分復旧</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">失われたファイル: 0個</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">完全復旧</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">復旧時間: 未測定</span>
+                    </div>
+                    <div class="test-item pending">
+                        <span class="test-name">整合性復旧</span>
+                        <span class="test-status">待機中</span>
+                        <span class="test-detail">MD5チェック結果</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="backup-list">
+            <h3>📂 バックアップ一覧</h3>
+            <div class="backup-table-container">
+                <table id="backupTable" class="backup-table">
+                    <thead>
+                        <tr>
+                            <th>📅 日時</th>
+                            <th>📄 ファイル名</th>
+                            <th>📊 サイズ</th>
+                            <th>🔐 MD5</th>
+                            <th>✅ 状態</th>
+                            <th>🔧 操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backupTableBody">
+                        <!-- データは動的に追加 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="logs-section">
+            <h3>📋 リアルタイムログ</h3>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry info">
+                    <span class="log-time">2025-07-26 08:18:00</span>
+                    <span class="log-level">INFO</span>
+                    <span class="log-message">バックアップシステム検証アプリが起動しました</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

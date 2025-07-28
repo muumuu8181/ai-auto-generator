@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 ペイントシステム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .paint-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .toolbar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-group label {
+            font-weight: bold;
+            color: #333;
+            margin-right: 5px;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-btn.active {
+            border-color: #333;
+            box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.3);
+        }
+
+        .size-slider {
+            width: 150px;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #FF6B6B, #4ECDC4);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .brush-preview {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .brush-dot {
+            background: #333;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .brush-type {
+            padding: 8px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .brush-type:hover, .brush-type.active {
+            border-color: #4ECDC4;
+            background: #4ECDC4;
+            color: white;
+        }
+
+        .canvas-area {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+        }
+
+        #paintCanvas {
+            border: 3px solid #333;
+            border-radius: 10px;
+            background: white;
+            cursor: crosshair;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-buttons {
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #FF6B6B, #FF5252);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95A5A6, #7F8C8D);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            padding: 12px 25px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #9B59B6, #8E44AD);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .custom-brush-panel {
+            background: white;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-brush-panel h3 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .brush-shapes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .shape-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .shape-btn:hover, .shape-btn.active {
+            border-color: #FF6B6B;
+            background: #FF6B6B;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .tool-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            #paintCanvas {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        .opacity-slider {
+            width: 120px;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, transparent, #333);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .status-bar {
+            background: #e9ecef;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="paint-container">
+        <div class="header">
+            <h1>🎨 ペイントシステム</h1>
+            <p>プロフェッショナル描画ツール</p>
+        </div>
+
+        <div class="toolbar">
+            <!-- 色選択 -->
+            <div class="tool-group">
+                <label>🎨 色:</label>
+                <div class="color-palette">
+                    <div class="color-btn active" style="background: #000000" data-color="#000000"></div>
+                    <div class="color-btn" style="background: #FF0000" data-color="#FF0000"></div>
+                    <div class="color-btn" style="background: #00FF00" data-color="#00FF00"></div>
+                    <div class="color-btn" style="background: #0000FF" data-color="#0000FF"></div>
+                    <div class="color-btn" style="background: #FFFF00" data-color="#FFFF00"></div>
+                    <div class="color-btn" style="background: #FF00FF" data-color="#FF00FF"></div>
+                    <div class="color-btn" style="background: #00FFFF" data-color="#00FFFF"></div>
+                    <div class="color-btn" style="background: #FFA500" data-color="#FFA500"></div>
+                    <div class="color-btn" style="background: #800080" data-color="#800080"></div>
+                    <div class="color-btn" style="background: #FFC0CB" data-color="#FFC0CB"></div>
+                </div>
+                <input type="color" id="customColor" value="#000000">
+            </div>
+
+            <!-- ブラシサイズ -->
+            <div class="tool-group">
+                <label>🖌️ サイズ:</label>
+                <input type="range" id="brushSize" class="size-slider" min="1" max="50" value="5">
+                <div class="brush-preview">
+                    <div class="brush-dot" id="brushPreview"></div>
+                </div>
+            </div>
+
+            <!-- 透明度 -->
+            <div class="tool-group">
+                <label>👻 透明度:</label>
+                <input type="range" id="opacity" class="opacity-slider" min="0" max="100" value="100">
+                <span id="opacityValue">100%</span>
+            </div>
+
+            <!-- ブラシタイプ -->
+            <div class="tool-group">
+                <label>✏️ ブラシ:</label>
+                <div class="brush-type active" data-type="round">丸</div>
+                <div class="brush-type" data-type="square">四角</div>
+                <div class="brush-type" data-type="line">線</div>
+            </div>
+        </div>
+
+        <!-- カスタムブラシパネル -->
+        <div class="custom-brush-panel">
+            <h3>🎭 カスタムブラシ形状</h3>
+            <div class="brush-shapes">
+                <div class="shape-btn active" data-shape="circle">●</div>
+                <div class="shape-btn" data-shape="star">★</div>
+                <div class="shape-btn" data-shape="heart">♥</div>
+                <div class="shape-btn" data-shape="triangle">▲</div>
+                <div class="shape-btn" data-shape="diamond">♦</div>
+                <div class="shape-btn" data-shape="cross">✚</div>
+                <div class="shape-btn" data-shape="flower">❀</div>
+                <div class="shape-btn" data-shape="lightning">⚡</div>
+            </div>
+        </div>
+
+        <div class="canvas-area">
+            <canvas id="paintCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-danger" onclick="clearCanvas()">🗑️ キャンバスクリア</button>
+            <button class="btn btn-secondary" onclick="undo()">↶ 戻る</button>
+            <button class="btn btn-secondary" onclick="redo()">↷ 進む</button>
+            <button class="btn btn-primary" onclick="downloadImage()">💾 画像保存</button>
+            <label for="imageUpload" class="file-label">📁 画像読込</label>
+            <input type="file" id="imageUpload" class="file-input" accept="image/*">
+        </div>
+
+        <div class="status-bar">
+            <span id="statusText">準備完了 - お絵描きを始めましょう！</span>
+        </div>
+    </div>
+
+    <script>
+        // キャンバス設定
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let currentColor = '#000000';
+        let currentSize = 5;
+        let currentOpacity = 1;
+        let currentBrushType = 'round';
+        let currentShape = 'circle';
+        let undoStack = [];
+        let redoStack = [];
+
+        // 初期設定
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        updateBrushPreview();
+        saveState();
+
+        // 色選択
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.color-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                currentColor = btn.dataset.color;
+                document.getElementById('customColor').value = currentColor;
+                updateStatus(`色を変更: ${currentColor}`);
+            });
+        });
+
+        // カスタムカラー
+        document.getElementById('customColor').addEventListener('change', (e) => {
+            currentColor = e.target.value;
+            document.querySelector('.color-btn.active').classList.remove('active');
+            updateStatus(`カスタム色: ${currentColor}`);
+        });
+
+        // ブラシサイズ
+        document.getElementById('brushSize').addEventListener('input', (e) => {
+            currentSize = e.target.value;
+            updateBrushPreview();
+            updateStatus(`ブラシサイズ: ${currentSize}px`);
+        });
+
+        // 透明度
+        document.getElementById('opacity').addEventListener('input', (e) => {
+            currentOpacity = e.target.value / 100;
+            document.getElementById('opacityValue').textContent = e.target.value + '%';
+            updateStatus(`透明度: ${e.target.value}%`);
+        });
+
+        // ブラシタイプ
+        document.querySelectorAll('.brush-type').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.brush-type.active').classList.remove('active');
+                btn.classList.add('active');
+                currentBrushType = btn.dataset.type;
+                updateStatus(`ブラシタイプ: ${btn.textContent}`);
+            });
+        });
+
+        // カスタム形状
+        document.querySelectorAll('.shape-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.shape-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                currentShape = btn.dataset.shape;
+                updateStatus(`ブラシ形状: ${btn.textContent}`);
+            });
+        });
+
+        // ブラシプレビュー更新
+        function updateBrushPreview() {
+            const preview = document.getElementById('brushPreview');
+            const size = Math.min(Math.max(currentSize, 2), 30);
+            preview.style.width = size + 'px';
+            preview.style.height = size + 'px';
+            preview.style.background = currentColor;
+        }
+
+        // 描画開始
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // タッチイベント（モバイル対応）
+        canvas.addEventListener('touchstart', handleTouch, { passive: false });
+        canvas.addEventListener('touchmove', handleTouch, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing, { passive: false });
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            if (e.type === 'touchstart') {
+                startDrawing({ offsetX: x, offsetY: y });
+            } else if (e.type === 'touchmove') {
+                draw({ offsetX: x, offsetY: y });
+            }
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            ctx.globalAlpha = currentOpacity;
+            ctx.strokeStyle = currentColor;
+            ctx.fillStyle = currentColor;
+            ctx.lineWidth = currentSize;
+
+            if (currentBrushType === 'round') {
+                drawWithShape(e.offsetX, e.offsetY);
+            } else if (currentBrushType === 'square') {
+                drawSquare(e.offsetX, e.offsetY);
+            } else if (currentBrushType === 'line') {
+                drawLine(e.offsetX, e.offsetY);
+            }
+        }
+
+        function drawWithShape(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            switch (currentShape) {
+                case 'circle':
+                    ctx.beginPath();
+                    ctx.arc(0, 0, currentSize / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'star':
+                    drawStar(currentSize / 2);
+                    break;
+                case 'heart':
+                    drawHeart(currentSize / 2);
+                    break;
+                case 'triangle':
+                    drawTriangle(currentSize / 2);
+                    break;
+                case 'diamond':
+                    drawDiamond(currentSize / 2);
+                    break;
+                case 'cross':
+                    drawCross(currentSize / 2);
+                    break;
+                case 'flower':
+                    drawFlower(currentSize / 2);
+                    break;
+                case 'lightning':
+                    drawLightning(currentSize / 2);
+                    break;
+            }
+
+            ctx.restore();
+        }
+
+        function drawSquare(x, y) {
+            ctx.fillRect(x - currentSize / 2, y - currentSize / 2, currentSize, currentSize);
+        }
+
+        function drawLine(x, y) {
+            ctx.beginPath();
+            ctx.moveTo(x - currentSize / 2, y);
+            ctx.lineTo(x + currentSize / 2, y);
+            ctx.stroke();
+        }
+
+        // カスタム形状描画関数
+        function drawStar(size) {
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+                const x = Math.cos(angle) * size;
+                const y = Math.sin(angle) * size;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+
+                const innerAngle = ((i + 0.5) * Math.PI * 2) / 5 - Math.PI / 2;
+                const innerX = Math.cos(innerAngle) * (size * 0.4);
+                const innerY = Math.sin(innerAngle) * (size * 0.4);
+                ctx.lineTo(innerX, innerY);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawHeart(size) {
+            ctx.beginPath();
+            ctx.moveTo(0, size * 0.3);
+            ctx.bezierCurveTo(-size * 0.5, -size * 0.3, -size, 0, 0, size);
+            ctx.bezierCurveTo(size, 0, size * 0.5, -size * 0.3, 0, size * 0.3);
+            ctx.fill();
+        }
+
+        function drawTriangle(size) {
+            ctx.beginPath();
+            ctx.moveTo(0, -size);
+            ctx.lineTo(-size, size);
+            ctx.lineTo(size, size);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawDiamond(size) {
+            ctx.beginPath();
+            ctx.moveTo(0, -size);
+            ctx.lineTo(size, 0);
+            ctx.lineTo(0, size);
+            ctx.lineTo(-size, 0);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawCross(size) {
+            const thickness = size * 0.3;
+            ctx.fillRect(-thickness, -size, thickness * 2, size * 2);
+            ctx.fillRect(-size, -thickness, size * 2, thickness * 2);
+        }
+
+        function drawFlower(size) {
+            for (let i = 0; i < 6; i++) {
+                ctx.save();
+                ctx.rotate((i * Math.PI) / 3);
+                ctx.beginPath();
+                ctx.ellipse(0, -size * 0.5, size * 0.3, size * 0.6, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function drawLightning(size) {
+            ctx.beginPath();
+            ctx.moveTo(-size * 0.3, -size);
+            ctx.lineTo(size * 0.3, -size * 0.2);
+            ctx.lineTo(-size * 0.1, -size * 0.2);
+            ctx.lineTo(size * 0.3, size);
+            ctx.lineTo(-size * 0.3, size * 0.2);
+            ctx.lineTo(size * 0.1, size * 0.2);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                saveState();
+            }
+        }
+
+        // 状態保存（Undo/Redo用）
+        function saveState() {
+            undoStack.push(canvas.toDataURL());
+            if (undoStack.length > 20) {
+                undoStack.shift();
+            }
+            redoStack = [];
+        }
+
+        function undo() {
+            if (undoStack.length > 1) {
+                redoStack.push(undoStack.pop());
+                const imageData = undoStack[undoStack.length - 1];
+                restoreCanvas(imageData);
+                updateStatus('操作を元に戻しました');
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                const imageData = redoStack.pop();
+                undoStack.push(imageData);
+                restoreCanvas(imageData);
+                updateStatus('操作をやり直しました');
+            }
+        }
+
+        function restoreCanvas(imageData) {
+            const img = new Image();
+            img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = imageData;
+        }
+
+        // キャンバスクリア
+        function clearCanvas() {
+            if (confirm('キャンバスをクリアしますか？')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                saveState();
+                updateStatus('キャンバスをクリアしました');
+            }
+        }
+
+        // 画像保存
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = `paint_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            updateStatus('画像を保存しました');
+        }
+
+        // 画像読み込み
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        saveState();
+                        updateStatus('画像を読み込みました');
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ステータス更新
+        function updateStatus(message) {
+            document.getElementById('statusText').textContent = message;
+            setTimeout(() => {
+                document.getElementById('statusText').textContent = '準備完了 - お絵描きを始めましょう！';
+            }, 3000);
+        }
+
+        // キーボードショートカット
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) redo();
+                        else undo();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        downloadImage();
+                        break;
+                }
+            }
+        });
+
+        // レスポンシブ対応
+        window.addEventListener('resize', function() {
+            // キャンバスサイズ調整（必要に応じて）
+        });
+
+        updateStatus('ペイントシステムが初期化されました！');
+    </script>
+</body>
+</html>

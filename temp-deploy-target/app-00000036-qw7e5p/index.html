@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗号解読パズルゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: #00ff41;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #00ff41;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #00ff41; }
+            to { text-shadow: 0 0 30px #00ff41, 0 0 40px #00ff41; }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .main-game {
+            background: rgba(0, 255, 65, 0.05);
+            border: 2px solid rgba(0, 255, 65, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+        }
+
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 10px;
+        }
+
+        .stage-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+        }
+
+        .cipher-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 65, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            letter-spacing: 2px;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cipher-text {
+            animation: typewriter 3s steps(40) forwards;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #00ff41;
+        }
+
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .input-section {
+            margin: 20px 0;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00ff41;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(0, 255, 65, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff41;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+        }
+
+        textarea {
+            min-height: 80px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff41, #00cc33);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 255, 65, 0.5);
+        }
+
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .sidebar {
+            background: rgba(0, 255, 65, 0.05);
+            border: 2px solid rgba(0, 255, 65, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 10px;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 0 0 15px #ffff00;
+        }
+
+        .hints-section {
+            margin-bottom: 25px;
+        }
+
+        .hints-section h3 {
+            margin-bottom: 15px;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .hint-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .hint-item.revealed {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .stage-progress {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 3px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #00ff41, #ffff00);
+            border-radius: 8px;
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progress-shine 2s infinite;
+        }
+
+        @keyframes progress-shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .stage-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .stage-btn {
+            padding: 8px;
+            font-size: 12px;
+            border-radius: 5px;
+            background: rgba(0, 255, 65, 0.2);
+        }
+
+        .stage-btn.completed {
+            background: linear-gradient(135deg, #00ff41, #00cc33);
+            color: #000;
+        }
+
+        .stage-btn.current {
+            background: linear-gradient(135deg, #ffff00, #ff8800);
+            color: #000;
+        }
+
+        .visualization {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .cipher-wheel {
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            border: 3px solid #00ff41;
+            border-radius: 50%;
+            position: relative;
+            margin: 10px;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cipher-wheel::before {
+            content: 'A';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .feedback {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.success {
+            background: rgba(0, 255, 65, 0.2);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+        }
+
+        .feedback.error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .cipher-display {
+                font-size: 1rem;
+                letter-spacing: 1px;
+            }
+
+            .stage-selector {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+
+    <div class="container">
+        <header>
+            <h1>🔐 暗号解読パズルゲーム</h1>
+            <p class="subtitle">古典暗号の世界へようこそ - 20のレベルで暗号解読スキルを磨こう</p>
+        </header>
+
+        <div class="game-area">
+            <div class="main-game">
+                <div class="stage-info">
+                    <div class="stage-title" id="stageTitle">ステージ 1: シーザー暗号 - 基本</div>
+                    <div class="timer" id="timer">05:00</div>
+                </div>
+
+                <div class="cipher-display" id="cipherDisplay">
+                    <div class="cipher-text" id="cipherText">
+                        暗号が表示されます...
+                    </div>
+                </div>
+
+                <div class="visualization" id="visualization">
+                    <div class="cipher-wheel"></div>
+                    <p>暗号ホイールが回転しています...</p>
+                </div>
+
+                <div class="input-section">
+                    <label for="keyInput">暗号キー（シーザー暗号の場合は数字）:</label>
+                    <input type="text" id="keyInput" placeholder="例: 3 または KEYWORD">
+                </div>
+
+                <div class="input-section">
+                    <label for="answerInput">解読した平文:</label>
+                    <textarea id="answerInput" placeholder="ここに解読した文章を入力してください..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="submitAnswer()">🔓 解答提出</button>
+                    <button onclick="getHint()">💡 ヒント</button>
+                    <button onclick="skipStage()" id="skipBtn">⏭ スキップ</button>
+                    <button onclick="resetStage()">🔄 リセット</button>
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="sidebar">
+                <div class="score-display">
+                    <div>スコア</div>
+                    <div class="score-value" id="scoreValue">0</div>
+                </div>
+
+                <div class="progress-section">
+                    <h3>進捗</h3>
+                    <div class="stage-progress">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <p><span id="completedStages">0</span> / 20 ステージ完了</p>
+                </div>
+
+                <div class="stage-selector" id="stageSelector">
+                    <!-- ステージボタンが動的に生成される -->
+                </div>
+
+                <div class="hints-section">
+                    <h3>ヒント</h3>
+                    <div id="hintsContainer">
+                        <div class="hint-item">ヒントを使用すると、スコアが減少します</div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <h3>統計</h3>
+                    <div style="font-size: 12px; line-height: 1.6;">
+                        <div>平均解答時間: <span id="avgTime">--:--</span></div>
+                        <div>使用ヒント数: <span id="hintsUsed">0</span></div>
+                        <div>正解率: <span id="accuracy">100%</span></div>
+                        <div>最高スコア: <span id="bestScore">0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

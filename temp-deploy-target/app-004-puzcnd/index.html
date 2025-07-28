@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube URL抽出システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #FF0000, #CC0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #FF0000;
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #FF0000, #CC0000);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(45deg, #CC0000, #990000);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .search-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .api-key-container {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 235, 59, 0.1);
+            border-radius: 12px;
+            border: 2px solid #FFD54F;
+        }
+
+        .api-key-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #FFD54F;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .api-notice {
+            font-size: 14px;
+            color: #F57F17;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .demo-mode {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #FF0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            margin-top: 30px;
+        }
+
+        .result-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .video-info {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .thumbnail {
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        .video-details h3 {
+            color: #FF0000;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            line-height: 1.4;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .video-details h3:hover {
+            text-decoration: underline;
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .channel-name {
+            font-weight: 600;
+            color: #333;
+            margin-right: 15px;
+        }
+
+        .subscriber-count {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .url-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .url-text {
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            color: #0066cc;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .copy-btn.copied {
+            background: #6c757d;
+            cursor: default;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid #f44336;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            margin: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                min-width: auto;
+            }
+
+            .video-info {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .video-stats {
+                gap: 15px;
+            }
+
+            .stat-item {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 YouTube URL抽出システム</h1>
+        
+        <div class="api-key-container">
+            <input type="password" id="apiKey" class="api-key-input" placeholder="YouTube Data API v3キーを入力してください">
+            <div class="api-notice">
+                ⚠️ APIキーが必要です。<a href="https://console.developers.google.com/" target="_blank">Google Cloud Console</a>でYouTube Data API v3を有効にし、APIキーを取得してください。
+                <br>APIキーを入力しない場合、デモデータが表示されます。
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="検索キーワードを入力してください" maxlength="100">
+            <button id="searchBtn" class="search-btn">🔍 検索</button>
+        </div>
+
+        <div id="loadingDiv" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            動画を検索中...
+        </div>
+
+        <div id="resultsContainer" class="results-container"></div>
+    </div>
+
+    <script>
+        class YouTubeExtractor {
+            constructor() {
+                this.apiKey = '';
+                this.searchInput = document.getElementById('searchInput');
+                this.searchBtn = document.getElementById('searchBtn');
+                this.apiKeyInput = document.getElementById('apiKey');
+                this.loadingDiv = document.getElementById('loadingDiv');
+                this.resultsContainer = document.getElementById('resultsContainer');
+                
+                this.init();
+            }
+
+            init() {
+                this.searchBtn.addEventListener('click', () => this.performSearch());
+                this.searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.performSearch();
+                });
+                
+                this.apiKeyInput.addEventListener('input', (e) => {
+                    this.apiKey = e.target.value.trim();
+                });
+
+                // デモモード表示
+                this.showDemoMode();
+            }
+
+            showDemoMode() {
+                const demoDiv = document.createElement('div');
+                demoDiv.className = 'demo-mode';
+                demoDiv.innerHTML = `
+                    📊 デモモード：APIキー未設定のため、サンプルデータを表示しています。
+                    実際のYouTube検索を行うには、上記にAPIキーを入力してください。
+                `;
+                this.resultsContainer.appendChild(demoDiv);
+                
+                // デモデータを表示
+                this.displayDemoData();
+            }
+
+            async performSearch() {
+                const query = this.searchInput.value.trim();
+                if (!query) {
+                    alert('検索キーワードを入力してください');
+                    return;
+                }
+
+                if (!this.apiKey) {
+                    this.displayDemoData(query);
+                    return;
+                }
+
+                this.showLoading(true);
+                this.searchBtn.disabled = true;
+
+                try {
+                    const videos = await this.searchVideos(query);
+                    await this.displayResults(videos);
+                } catch (error) {
+                    this.showError(`検索エラー: ${error.message}`);
+                } finally {
+                    this.showLoading(false);
+                    this.searchBtn.disabled = false;
+                }
+            }
+
+            async searchVideos(query) {
+                const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${this.apiKey}`;
+                
+                const response = await fetch(searchUrl);
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // チャンネル情報と統計情報を取得
+                const videoIds = data.items.map(item => item.id.videoId).join(',');
+                const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${this.apiKey}`;
+                
+                const detailsResponse = await fetch(videoDetailsUrl);
+                const detailsData = await detailsResponse.json();
+                
+                // チャンネル情報を取得
+                const channelIds = [...new Set(detailsData.items.map(item => item.snippet.channelId))].join(',');
+                const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelIds}&key=${this.apiKey}`;
+                
+                const channelResponse = await fetch(channelUrl);
+                const channelData = await channelResponse.json();
+                
+                // データを結合
+                return detailsData.items.map(video => {
+                    const channel = channelData.items.find(ch => ch.id === video.snippet.channelId);
+                    return {
+                        ...video,
+                        channelInfo: channel
+                    };
+                });
+            }
+
+            displayDemoData(query = 'サンプル検索') {
+                const demoVideos = [
+                    {
+                        id: 'dQw4w9WgXcQ',
+                        snippet: {
+                            title: `${query}に関する動画 - プログラミング入門`,
+                            channelTitle: 'Tech Channel',
+                            publishedAt: '2024-01-15T10:30:00Z',
+                            thumbnails: {
+                                medium: {
+                                    url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDMyMCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRkYwMDAwIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iOTAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCI+8J+OtTwvdGV4dD4KPC9zdmc+'
+                                }
+                            }
+                        },
+                        statistics: {
+                            viewCount: '1234567',
+                            likeCount: '12345'
+                        },
+                        channelInfo: {
+                            snippet: {
+                                title: 'Tech Channel'
+                            },
+                            statistics: {
+                                subscriberCount: '100000'
+                            }
+                        }
+                    },
+                    {
+                        id: 'abc123def',
+                        snippet: {
+                            title: `${query}の詳細解説 - 実践編`,
+                            channelTitle: 'Learning Hub',
+                            publishedAt: '2024-01-10T15:45:00Z',
+                            thumbnails: {
+                                medium: {
+                                    url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDMyMCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMTgwIiBmaWxsPSIjNDI4NUY0Ii8+Cjx0ZXh0IHg9IjE2MCIgeT0iOTAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCI+8J+TmiA8L3RleHQ+Cjwvc3ZnPg=='
+                                }
+                            }
+                        },
+                        statistics: {
+                            viewCount: '987654',
+                            likeCount: '9876'
+                        },
+                        channelInfo: {
+                            snippet: {
+                                title: 'Learning Hub'
+                            },
+                            statistics: {
+                                subscriberCount: '50000'
+                            }
+                        }
+                    }
+                ];
+
+                this.resultsContainer.innerHTML = '';
+                this.displayResults(demoVideos);
+            }
+
+            async displayResults(videos) {
+                this.resultsContainer.innerHTML = '';
+
+                if (!videos || videos.length === 0) {
+                    this.resultsContainer.innerHTML = '<div class="no-results">検索結果が見つかりませんでした</div>';
+                    return;
+                }
+
+                videos.forEach(video => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result-item';
+                    
+                    const publishDate = new Date(video.snippet.publishedAt).toLocaleDateString('ja-JP');
+                    const viewCount = this.formatNumber(video.statistics.viewCount);
+                    const subscriberCount = this.formatNumber(video.channelInfo.statistics.subscriberCount);
+                    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="video-info">
+                            <img src="${video.snippet.thumbnails.medium.url}" alt="サムネイル" class="thumbnail" onclick="window.open('${videoUrl}', '_blank')">
+                            <div class="video-details">
+                                <h3 onclick="window.open('${videoUrl}', '_blank')">${this.escapeHtml(video.snippet.title)}</h3>
+                                <div class="channel-info">
+                                    <span class="channel-name">${this.escapeHtml(video.channelInfo.snippet.title)}</span>
+                                    <span class="subscriber-count">登録者数: ${subscriberCount}人</span>
+                                </div>
+                                <div class="video-stats">
+                                    <div class="stat-item">
+                                        <span>📅</span>
+                                        <span>投稿日: ${publishDate}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>👁️</span>
+                                        <span>視聴回数: ${viewCount}回</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>👍</span>
+                                        <span>${this.formatNumber(video.statistics.likeCount)}いいね</span>
+                                    </div>
+                                </div>
+                                <div class="url-container">
+                                    <div class="url-text">${videoUrl}</div>
+                                    <button class="copy-btn" onclick="this.parentElement.parentElement.parentElement.parentElement.parentElement.copyUrl('${videoUrl}', this)">📋 URLをコピー</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    this.resultsContainer.appendChild(resultDiv);
+                });
+            }
+
+            copyUrl(url, button) {
+                navigator.clipboard.writeText(url).then(() => {
+                    const originalText = button.textContent;
+                    button.textContent = '✅ コピー完了';
+                    button.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    alert('コピーに失敗しました: ' + err.message);
+                });
+            }
+
+            formatNumber(num) {
+                if (!num) return '0';
+                if (num >= 1000000) {
+                    return (num / 1000000).toFixed(1) + 'M';
+                } else if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
+                }
+                return num.toLocaleString();
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            showLoading(show) {
+                this.loadingDiv.style.display = show ? 'block' : 'none';
+            }
+
+            showError(message) {
+                this.resultsContainer.innerHTML = `<div class="error">${message}</div>`;
+            }
+        }
+
+        // アプリケーション初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.youtubeExtractor = new YouTubeExtractor();
+            
+            // グローバル関数として登録
+            window.copyUrl = (url, button) => {
+                window.youtubeExtractor.copyUrl(url, button);
+            };
+        });
+    </script>
+</body>
+</html>

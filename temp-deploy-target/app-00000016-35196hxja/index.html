@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Hourglass - めちゃくちゃ格好良い砂時計</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Particles -->
+    <div class="particle-background" id="particles"></div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">
+                <span class="title-icon">⧗</span>
+                Cosmic Hourglass
+                <span class="version">v1.0</span>
+            </h1>
+            <p class="subtitle">究極に美しい時間計測体験</p>
+        </header>
+
+        <!-- Main Hourglass Section -->
+        <section class="hourglass-section">
+            <!-- Time Input Controls -->
+            <div class="time-controls">
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-minutes="1">1分</button>
+                    <button class="preset-btn active" data-minutes="3">3分</button>
+                    <button class="preset-btn" data-minutes="5">5分</button>
+                    <button class="preset-btn" data-minutes="10">10分</button>
+                </div>
+                
+                <div class="custom-time">
+                    <label for="custom-minutes">カスタム:</label>
+                    <input type="number" id="custom-minutes" min="1" max="60" placeholder="分">
+                    <button class="set-custom-btn">設定</button>
+                </div>
+            </div>
+
+            <!-- Hourglass Visualization -->
+            <div class="hourglass-container">
+                <!-- Digital Time Display -->
+                <div class="time-display">
+                    <div class="time-remaining" id="timeRemaining">03:00</div>
+                    <div class="time-label">残り時間</div>
+                </div>
+
+                <!-- Hourglass Main Body -->
+                <div class="hourglass" id="hourglass">
+                    <!-- Top Chamber -->
+                    <div class="chamber top-chamber">
+                        <div class="sand-container top-sand" id="topSand">
+                            <canvas class="sand-canvas" id="topSandCanvas"></canvas>
+                        </div>
+                        <div class="chamber-glow top-glow"></div>
+                    </div>
+                    
+                    <!-- Middle Neck -->
+                    <div class="neck">
+                        <div class="sand-stream" id="sandStream"></div>
+                        <div class="neck-glow"></div>
+                    </div>
+                    
+                    <!-- Bottom Chamber -->
+                    <div class="chamber bottom-chamber">
+                        <div class="sand-container bottom-sand" id="bottomSand">
+                            <canvas class="sand-canvas" id="bottomSandCanvas"></canvas>
+                        </div>
+                        <div class="chamber-glow bottom-glow"></div>
+                    </div>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="progress-indicator">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button class="control-btn start-btn" id="startBtn">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">開始</span>
+                </button>
+                <button class="control-btn pause-btn" id="pauseBtn" disabled>
+                    <span class="btn-icon">⏸</span>
+                    <span class="btn-text">一時停止</span>
+                </button>
+                <button class="control-btn reset-btn" id="resetBtn">
+                    <span class="btn-icon">⟲</span>
+                    <span class="btn-text">リセット</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Status Panel -->
+        <section class="status-panel">
+            <div class="status-item">
+                <div class="status-label">設定時間</div>
+                <div class="status-value" id="totalTime">3分</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">経過時間</div>
+                <div class="status-value" id="elapsedTime">0秒</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">状態</div>
+                <div class="status-value" id="timerStatus">待機中</div>
+            </div>
+        </section>
+
+        <!-- Sound Controls -->
+        <section class="sound-controls">
+            <div class="sound-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="soundEnabled" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text">サウンド効果</span>
+                </label>
+            </div>
+            <div class="volume-control">
+                <label for="volumeSlider">音量:</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                <span id="volumeValue">50%</span>
+            </div>
+        </section>
+
+        <!-- Completion Notification -->
+        <div class="completion-notification" id="completionNotification">
+            <div class="notification-content">
+                <div class="notification-icon">⏰</div>
+                <div class="notification-text">
+                    <h3>時間終了！</h3>
+                    <p>設定した時間が経過しました</p>
+                </div>
+                <button class="notification-close" id="notificationClose">×</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

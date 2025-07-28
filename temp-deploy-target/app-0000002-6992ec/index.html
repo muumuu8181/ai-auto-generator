@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="格好良い電卓 v2.0 - スタイリッシュでモダンな計算機">
+    <meta name="theme-color" content="#1F2937">
+    <title>格好良い電卓 v2.0 - Ultra Calculator</title>
+    
+    <!-- PWA対応 -->
+    <link rel="manifest" href="data:application/json,{%22name%22:%22格好良い電卓%22,%22short_name%22:%22Calculator%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22theme_color%22:%22%231F2937%22,%22background_color%22:%22%23111827%22}">
+    
+    <style>
+        /* CSS変数 */
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --dark: #111827;
+            --gray-900: #1F2937;
+            --gray-800: #374151;
+            --gray-700: #4B5563;
+            --gray-600: #6B7280;
+            --gray-300: #D1D5DB;
+            --gray-100: #F3F4F6;
+            --white: #FFFFFF;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-calculator: linear-gradient(145deg, #1F2937 0%, #374151 100%);
+            --gradient-display: linear-gradient(135deg, #111827 0%, #1F2937 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-radius: 1rem;
+        }
+
+        /* リセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ベーススタイル */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--gradient-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景エフェクト */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.1;
+            z-index: -1;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: #667eea;
+            top: -300px;
+            right: -300px;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 400px;
+            height: 400px;
+            background: #764ba2;
+            bottom: -200px;
+            left: -200px;
+            animation-delay: 7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            25% { transform: translate(-30px, 30px) rotate(90deg) scale(1.1); }
+            50% { transform: translate(30px, -30px) rotate(180deg) scale(0.9); }
+            75% { transform: translate(-30px, -30px) rotate(270deg) scale(1.05); }
+        }
+
+        /* メインコンテナ */
+        .calculator-container {
+            background: var(--gradient-calculator);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-700);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(50px) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .calculator-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ヘッダー */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: var(--gray-300);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* ディスプレイ */
+        .display-container {
+            background: var(--gradient-display);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-700);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .display {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            font-size: 3rem;
+            font-weight: 300;
+            text-align: right;
+            width: 100%;
+            padding: 0;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.05em;
+            caret-color: transparent;
+            user-select: none;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .display::placeholder {
+            color: var(--gray-600);
+        }
+
+        .history {
+            color: var(--gray-600);
+            font-size: 1rem;
+            text-align: right;
+            margin-bottom: 0.5rem;
+            min-height: 1.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ボタングリッド */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        /* ボタンベース */
+        .btn {
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            height: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* ボタンタイプ別スタイル */
+        .btn-number {
+            background: linear-gradient(145deg, var(--gray-800) 0%, var(--gray-700) 100%);
+            color: var(--white);
+            border: 1px solid var(--gray-600);
+        }
+
+        .btn-number:hover {
+            background: linear-gradient(145deg, var(--gray-700) 0%, var(--gray-600) 100%);
+        }
+
+        .btn-operator {
+            background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-operator:hover {
+            background: linear-gradient(145deg, var(--primary-dark) 0%, #1D4ED8 100%);
+        }
+
+        .btn-function {
+            background: linear-gradient(145deg, var(--gray-700) 0%, var(--gray-600) 100%);
+            color: var(--gray-100);
+            border: 1px solid var(--gray-500);
+        }
+
+        .btn-function:hover {
+            background: linear-gradient(145deg, var(--gray-600) 0%, var(--gray-500) 100%);
+        }
+
+        .btn-equals {
+            background: linear-gradient(145deg, var(--secondary) 0%, #059669 100%);
+            color: var(--white);
+            border: 1px solid var(--secondary);
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: linear-gradient(145deg, #059669 0%, #047857 100%);
+        }
+
+        .btn-clear {
+            background: linear-gradient(145deg, var(--danger) 0%, #DC2626 100%);
+            color: var(--white);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(145deg, #DC2626 0%, #B91C1C 100%);
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        /* 履歴セクション */
+        .history-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.75rem;
+            border: 1px solid var(--gray-700);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-section h3 {
+            color: var(--gray-300);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            color: var(--gray-300);
+            font-family: 'Courier New', monospace;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .history-empty {
+            color: var(--gray-600);
+            text-align: center;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* スクロールバー */
+        .history-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-section::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .history-section::-webkit-scrollbar-thumb {
+            background: var(--gray-600);
+            border-radius: 3px;
+        }
+
+        .history-section::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-500);
+        }
+
+        /* 設定ボタン */
+        .settings-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--gray-600);
+            border-radius: 0.5rem;
+            color: var(--gray-300);
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+        }
+
+        /* トースト通知 */
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: var(--transition);
+            max-width: 300px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, var(--danger) 0%, #DC2626 100%);
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 480px) {
+            .calculator-container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .display {
+                font-size: 2.5rem;
+            }
+
+            .btn {
+                height: 3.5rem;
+                font-size: 1.25rem;
+            }
+
+            .button-grid {
+                gap: 0.75rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* キーボードフォーカス */
+        .btn:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* ダークモード対応 */
+        @media (prefers-color-scheme: dark) {
+            /* 既にダークテーマなので変更なし */
+        }
+
+        /* アニメーション無効化対応 */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* プリント対応 */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .calculator-container {
+                box-shadow: none;
+                background: white;
+                color: black;
+            }
+
+            .display, .history {
+                color: black;
+            }
+
+            .btn {
+                border: 1px solid black;
+                color: black;
+                background: white;
+            }
+        }
+
+        /* 高コントラストモード */
+        @media (prefers-contrast: high) {
+            .btn {
+                border-width: 2px;
+            }
+
+            .display-container {
+                border-width: 2px;
+            }
+        }
+
+        /* エラー状態 */
+        .display.error {
+            color: var(--danger);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* 成功アニメーション */
+        .display.success {
+            animation: glow 0.8s ease-in-out;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { text-shadow: 0 0 30px rgba(16, 185, 129, 0.8); }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <button class="settings-btn" onclick="clearHistory()" title="履歴をクリア">
+            🗑️
+        </button>
+
+        <div class="header">
+            <h1>🧮 Ultra Calculator</h1>
+            <p>格好良い電卓 v2.0</p>
+        </div>
+
+        <div class="display-container">
+            <div class="history" id="calculationHistory"></div>
+            <input type="text" class="display" id="display" value="0" readonly>
+        </div>
+
+        <div class="button-grid">
+            <!-- Row 1 -->
+            <button class="btn btn-clear" onclick="clearAll()">AC</button>
+            <button class="btn btn-function" onclick="clearEntry()">CE</button>
+            <button class="btn btn-function" onclick="backspace()">⌫</button>
+            <button class="btn btn-operator" onclick="inputOperator('/')">÷</button>
+
+            <!-- Row 2 -->
+            <button class="btn btn-number" onclick="inputNumber('7')">7</button>
+            <button class="btn btn-number" onclick="inputNumber('8')">8</button>
+            <button class="btn btn-number" onclick="inputNumber('9')">9</button>
+            <button class="btn btn-operator" onclick="inputOperator('*')">×</button>
+
+            <!-- Row 3 -->
+            <button class="btn btn-number" onclick="inputNumber('4')">4</button>
+            <button class="btn btn-number" onclick="inputNumber('5')">5</button>
+            <button class="btn btn-number" onclick="inputNumber('6')">6</button>
+            <button class="btn btn-operator" onclick="inputOperator('-')">−</button>
+
+            <!-- Row 4 -->
+            <button class="btn btn-number" onclick="inputNumber('1')">1</button>
+            <button class="btn btn-number" onclick="inputNumber('2')">2</button>
+            <button class="btn btn-number" onclick="inputNumber('3')">3</button>
+            <button class="btn btn-operator" onclick="inputOperator('+')">+</button>
+
+            <!-- Row 5 -->
+            <button class="btn btn-number btn-zero" onclick="inputNumber('0')">0</button>
+            <button class="btn btn-number" onclick="inputDecimal()">.</button>
+            <button class="btn btn-equals" onclick="calculate()">=</button>
+        </div>
+
+        <div class="history-section">
+            <h3>📊 計算履歴</h3>
+            <div id="historyList">
+                <div class="history-empty">履歴はまだありません</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // 電卓クラス
+        class UltraCalculator {
+            constructor() {
+                this.display = document.getElementById('display');
+                this.historyDisplay = document.getElementById('calculationHistory');
+                this.historyList = document.getElementById('historyList');
+                
+                this.currentInput = '0';
+                this.previousInput = '';
+                this.operator = '';
+                this.shouldResetDisplay = false;
+                this.history = this.loadHistory();
+                
+                this.init();
+            }
+
+            init() {
+                this.updateDisplay();
+                this.renderHistory();
+                this.setupKeyboardListeners();
+                console.log('🧮 Ultra Calculator v2.0 initialized');
+            }
+
+            setupKeyboardListeners() {
+                document.addEventListener('keydown', (e) => {
+                    e.preventDefault();
+                    
+                    if (e.key >= '0' && e.key <= '9') {
+                        this.inputNumber(e.key);
+                    } else if (e.key === '.') {
+                        this.inputDecimal();
+                    } else if (['+', '-', '*', '/'].includes(e.key)) {
+                        this.inputOperator(e.key);
+                    } else if (e.key === 'Enter' || e.key === '=') {
+                        this.calculate();
+                    } else if (e.key === 'Escape') {
+                        this.clearAll();
+                    } else if (e.key === 'Backspace') {
+                        this.backspace();
+                    } else if (e.key === 'Delete') {
+                        this.clearEntry();
+                    }
+                });
+            }
+
+            inputNumber(num) {
+                if (this.shouldResetDisplay || this.currentInput === '0') {
+                    this.currentInput = num;
+                    this.shouldResetDisplay = false;
+                } else {
+                    this.currentInput += num;
+                }
+                this.updateDisplay();
+            }
+
+            inputDecimal() {
+                if (this.shouldResetDisplay) {
+                    this.currentInput = '0';
+                    this.shouldResetDisplay = false;
+                }
+                
+                if (!this.currentInput.includes('.')) {
+                    this.currentInput += '.';
+                    this.updateDisplay();
+                }
+            }
+
+            inputOperator(op) {
+                if (this.operator && !this.shouldResetDisplay) {
+                    this.calculate();
+                }
+                
+                this.previousInput = this.currentInput;
+                this.operator = op;
+                this.shouldResetDisplay = true;
+                
+                const operatorSymbol = this.getOperatorSymbol(op);
+                this.historyDisplay.textContent = `${this.currentInput} ${operatorSymbol}`;
+            }
+
+            calculate() {
+                if (!this.operator || this.shouldResetDisplay) return;
+                
+                const prev = parseFloat(this.previousInput);
+                const current = parseFloat(this.currentInput);
+                
+                if (isNaN(prev) || isNaN(current)) {
+                    this.showError('無効な入力です');
+                    return;
+                }
+                
+                let result;
+                const operatorSymbol = this.getOperatorSymbol(this.operator);
+                const calculation = `${this.previousInput} ${operatorSymbol} ${this.currentInput}`;
+                
+                try {
+                    switch (this.operator) {
+                        case '+':
+                            result = prev + current;
+                            break;
+                        case '-':
+                            result = prev - current;
+                            break;
+                        case '*':
+                            result = prev * current;
+                            break;
+                        case '/':
+                            if (current === 0) {
+                                throw new Error('ゼロで割ることはできません');
+                            }
+                            result = prev / current;
+                            break;
+                        default:
+                            throw new Error('無効な演算子です');
+                    }
+                    
+                    // 結果の精度調整
+                    if (Math.abs(result) > 1e15 || Math.abs(result) < 1e-15) {
+                        result = result.toExponential(10);
+                    } else {
+                        result = Math.round(result * 1e12) / 1e12; // 12桁精度
+                    }
+                    
+                    this.currentInput = result.toString();
+                    this.operator = '';
+                    this.previousInput = '';
+                    this.shouldResetDisplay = true;
+                    
+                    // 履歴に追加
+                    this.addToHistory(`${calculation} = ${result}`);
+                    
+                    this.historyDisplay.textContent = `${calculation} =`;
+                    this.updateDisplay();
+                    this.showSuccess();
+                    
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            clearAll() {
+                this.currentInput = '0';
+                this.previousInput = '';
+                this.operator = '';
+                this.shouldResetDisplay = false;
+                this.historyDisplay.textContent = '';
+                this.updateDisplay();
+                this.showToast('すべてクリアしました', 'success');
+            }
+
+            clearEntry() {
+                this.currentInput = '0';
+                this.updateDisplay();
+            }
+
+            backspace() {
+                if (this.currentInput.length > 1) {
+                    this.currentInput = this.currentInput.slice(0, -1);
+                } else {
+                    this.currentInput = '0';
+                }
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                this.display.value = this.formatNumber(this.currentInput);
+            }
+
+            formatNumber(num) {
+                const numStr = num.toString();
+                if (numStr.includes('e')) return numStr; // 指数表記はそのまま
+                
+                const parts = numStr.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return parts.join('.');
+            }
+
+            getOperatorSymbol(op) {
+                const symbols = {
+                    '+': '+',
+                    '-': '−',
+                    '*': '×',
+                    '/': '÷'
+                };
+                return symbols[op] || op;
+            }
+
+            showError(message) {
+                this.display.classList.add('error');
+                this.showToast(message, 'error');
+                
+                setTimeout(() => {
+                    this.display.classList.remove('error');
+                    this.clearAll();
+                }, 2000);
+            }
+
+            showSuccess() {
+                this.display.classList.add('success');
+                setTimeout(() => {
+                    this.display.classList.remove('success');
+                }, 800);
+            }
+
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `toast ${type === 'error' ? 'error' : ''} show`;
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            addToHistory(calculation) {
+                this.history.unshift({
+                    calculation,
+                    timestamp: new Date().toLocaleString('ja-JP')
+                });
+                
+                // 履歴を最大50件に制限
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                
+                this.saveHistory();
+                this.renderHistory();
+            }
+
+            renderHistory() {
+                if (this.history.length === 0) {
+                    this.historyList.innerHTML = '<div class="history-empty">履歴はまだありません</div>';
+                    return;
+                }
+                
+                const historyHTML = this.history.map(item => `
+                    <div class="history-item" onclick="calculator.useHistoryResult('${item.calculation}')" title="${item.timestamp}">
+                        ${item.calculation}
+                    </div>
+                `).join('');
+                
+                this.historyList.innerHTML = historyHTML;
+            }
+
+            useHistoryResult(calculation) {
+                const result = calculation.split(' = ')[1];
+                if (result) {
+                    this.currentInput = result.replace(/,/g, ''); // カンマを除去
+                    this.operator = '';
+                    this.previousInput = '';
+                    this.shouldResetDisplay = true;
+                    this.historyDisplay.textContent = '';
+                    this.updateDisplay();
+                    this.showToast('履歴から値を設定しました', 'success');
+                }
+            }
+
+            clearHistory() {
+                if (this.history.length === 0) {
+                    this.showToast('履歴は既に空です', 'error');
+                    return;
+                }
+                
+                if (confirm('計算履歴をすべて削除しますか？')) {
+                    this.history = [];
+                    this.saveHistory();
+                    this.renderHistory();
+                    this.showToast('履歴をクリアしました', 'success');
+                }
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('calculatorHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.error('履歴の保存に失敗しました:', error);
+                }
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('calculatorHistory');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (error) {
+                    console.error('履歴の読み込みに失敗しました:', error);
+                    return [];
+                }
+            }
+        }
+
+        // グローバル関数
+        let calculator;
+
+        function inputNumber(num) {
+            calculator.inputNumber(num);
+        }
+
+        function inputOperator(op) {
+            calculator.inputOperator(op);
+        }
+
+        function inputDecimal() {
+            calculator.inputDecimal();
+        }
+
+        function calculate() {
+            calculator.calculate();
+        }
+
+        function clearAll() {
+            calculator.clearAll();
+        }
+
+        function clearEntry() {
+            calculator.clearEntry();
+        }
+
+        function backspace() {
+            calculator.backspace();
+        }
+
+        function clearHistory() {
+            calculator.clearHistory();
+        }
+
+        // PWA Service Worker（インライン）
+        const swContent = `
+            self.addEventListener('install', event => {
+                self.skipWaiting();
+            });
+
+            self.addEventListener('activate', event => {
+                event.waitUntil(clients.claim());
+            });
+
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    fetch(event.request).catch(() => {
+                        return new Response('オフラインです', {
+                            status: 503,
+                            statusText: 'Service Unavailable',
+                            headers: new Headers({
+                                'Content-Type': 'text/plain'
+                            })
+                        });
+                    })
+                );
+            });
+        `;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            calculator = new UltraCalculator();
+            
+            // Service Worker登録
+            if ('serviceWorker' in navigator && location.protocol === 'https:') {
+                const blob = new Blob([swContent], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            }
+        });
+    </script>
+</body>
+</html>

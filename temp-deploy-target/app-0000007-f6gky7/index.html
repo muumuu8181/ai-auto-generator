@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💱 リアルタイム為替レート監視システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f3460 0%, #0f3460 35%, #16537e 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #00d4ff, #ffd700, #00ff88);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .last-update {
+            color: #00d4ff;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .auto-refresh-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-container {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-container input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #00d4ff;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel h3 {
+            margin-bottom: 20px;
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        /* 為替レートカード */
+        .rates-container {
+            grid-column: span 3;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .rate-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .rate-card.major {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .rate-card.trending-up {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .rate-card.trending-down {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .currency-pair {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .flag {
+            font-size: 1.2em;
+        }
+
+        .exchange-rate {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .rate-change {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .change-positive {
+            color: #00ff88;
+        }
+
+        .change-negative {
+            color: #ff6b6b;
+        }
+
+        .change-neutral {
+            color: #ccc;
+        }
+
+        .rate-details {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .detail-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+        }
+
+        /* 統計パネル */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* アラート設定 */
+        .alert-form {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 100px;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .form-input {
+            padding: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .form-select {
+            padding: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        .add-alert-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-alert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* アラートリスト */
+        .alert-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-info {
+            flex: 1;
+        }
+
+        .alert-pair {
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .alert-condition {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .remove-alert {
+            background: #ff6b6b;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* チャートエリア */
+        .chart-container {
+            height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .chart-line {
+            stroke: #00d4ff;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .chart-area {
+            fill: url(#gradient);
+            opacity: 0.3;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .rates-container {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rates-container {
+                grid-column: span 1;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        /* アニメーション */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .flash-green {
+            animation: flashGreen 1s ease-out;
+        }
+
+        .flash-red {
+            animation: flashRed 1s ease-out;
+        }
+
+        @keyframes flashGreen {
+            0% { background-color: rgba(0, 255, 136, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        @keyframes flashRed {
+            0% { background-color: rgba(255, 107, 107, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00d4ff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💱 リアルタイム為替レート監視システム</h1>
+            <div class="last-update" id="lastUpdate">最終更新: --:--:--</div>
+            <div class="auto-refresh-toggle">
+                <span>自動更新:</span>
+                <label class="toggle-container">
+                    <input type="checkbox" id="autoRefresh" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span id="refreshStatus">有効</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- 統計パネル -->
+            <div class="panel">
+                <h3>📊 市場統計</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPairs">8</div>
+                        <div class="stat-label">監視ペア</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="upTrend">0</div>
+                        <div class="stat-label">上昇中</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="downTrend">0</div>
+                        <div class="stat-label">下降中</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="alertCount">0</div>
+                        <div class="stat-label">アラート</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- アラート設定 -->
+            <div class="panel">
+                <h3>🚨 レートアラート設定</h3>
+                <div class="alert-form">
+                    <div class="form-row">
+                        <select class="form-select" id="alertPair">
+                            <option value="USD/JPY">USD/JPY</option>
+                            <option value="EUR/JPY">EUR/JPY</option>
+                            <option value="GBP/JPY">GBP/JPY</option>
+                            <option value="AUD/JPY">AUD/JPY</option>
+                            <option value="EUR/USD">EUR/USD</option>
+                            <option value="GBP/USD">GBP/USD</option>
+                            <option value="USD/CHF">USD/CHF</option>
+                            <option value="USD/CAD">USD/CAD</option>
+                        </select>
+                        <input type="number" class="form-input" id="alertRate" placeholder="レート" step="0.001">
+                        <button class="add-alert-btn" onclick="addAlert()">追加</button>
+                    </div>
+                    <div class="form-row">
+                        <select class="form-select" id="alertCondition">
+                            <option value="above">以上になったら</option>
+                            <option value="below">以下になったら</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="alert-list" id="alertList">
+                    <div style="text-align: center; opacity: 0.7; padding: 20px;">
+                        アラートが設定されていません
+                    </div>
+                </div>
+            </div>
+
+            <!-- チャート -->
+            <div class="panel">
+                <h3>📈 レートチャート (USD/JPY)</h3>
+                <div class="chart-container">
+                    <svg class="chart-canvas" id="chartCanvas" viewBox="0 0 400 200">
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        <path class="chart-area" id="chartArea"></path>
+                        <path class="chart-line" id="chartLine"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 為替レート表示 -->
+        <div class="panel rates-container">
+            <h3>💰 主要為替レート</h3>
+            <div id="ratesGrid" class="loading">
+                <div class="spinner"></div>
+                <div>為替レートを取得中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let exchangeRates = {};
+        let alertsList = JSON.parse(localStorage.getItem('exchangeAlerts') || '[]');
+        let chartData = [];
+        let autoRefreshEnabled = true;
+        let refreshInterval;
+
+        // 為替ペアの設定
+        const currencyPairs = [
+            { pair: 'USD/JPY', flag1: '🇺🇸', flag2: '🇯🇵', isMajor: true },
+            { pair: 'EUR/JPY', flag1: '🇪🇺', flag2: '🇯🇵', isMajor: true },
+            { pair: 'GBP/JPY', flag1: '🇬🇧', flag2: '🇯🇵', isMajor: true },
+            { pair: 'AUD/JPY', flag1: '🇦🇺', flag2: '🇯🇵', isMajor: false },
+            { pair: 'EUR/USD', flag1: '🇪🇺', flag2: '🇺🇸', isMajor: true },
+            { pair: 'GBP/USD', flag1: '🇬🇧', flag2: '🇺🇸', isMajor: true },
+            { pair: 'USD/CHF', flag1: '🇺🇸', flag2: '🇨🇭', isMajor: false },
+            { pair: 'USD/CAD', flag1: '🇺🇸', flag2: '🇨🇦', isMajor: false }
+        ];
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRates();
+            renderAlertList();
+            updateStats();
+            startAutoRefresh();
+
+            // 自動更新トグル
+            document.getElementById('autoRefresh').addEventListener('change', function() {
+                autoRefreshEnabled = this.checked;
+                document.getElementById('refreshStatus').textContent = autoRefreshEnabled ? '有効' : '無効';
+                
+                if (autoRefreshEnabled) {
+                    startAutoRefresh();
+                } else {
+                    stopAutoRefresh();
+                }
+            });
+        });
+
+        function initializeRates() {
+            // シミュレーションデータで初期化
+            const baseRates = {
+                'USD/JPY': 150.25,
+                'EUR/JPY': 162.80,
+                'GBP/JPY': 190.45,
+                'AUD/JPY': 98.75,
+                'EUR/USD': 1.0840,
+                'GBP/USD': 1.2680,
+                'USD/CHF': 0.8920,
+                'USD/CAD': 1.3580
+            };
+
+            currencyPairs.forEach(config => {
+                exchangeRates[config.pair] = {
+                    current: baseRates[config.pair],
+                    previous: baseRates[config.pair],
+                    change: 0,
+                    changePercent: 0,
+                    high: baseRates[config.pair] * 1.02,
+                    low: baseRates[config.pair] * 0.98,
+                    trend: 'neutral'
+                };
+            });
+
+            // USD/JPYのチャートデータを初期化
+            for (let i = 0; i < 20; i++) {
+                chartData.push(150.25 + (Math.random() - 0.5) * 2);
+            }
+
+            renderRates();
+            updateChart();
+        }
+
+        function simulateRateUpdate() {
+            let updatedCount = 0;
+
+            currencyPairs.forEach(config => {
+                const rate = exchangeRates[config.pair];
+                const previousRate = rate.current;
+                
+                // ランダムな変動（-0.5% ～ +0.5%）
+                const changePercent = (Math.random() - 0.5) * 1.0;
+                const newRate = previousRate * (1 + changePercent / 100);
+                
+                rate.previous = previousRate;
+                rate.current = parseFloat(newRate.toFixed(4));
+                rate.change = rate.current - rate.previous;
+                rate.changePercent = ((rate.current - rate.previous) / rate.previous * 100);
+                
+                // 高値・安値の更新
+                rate.high = Math.max(rate.high, rate.current);
+                rate.low = Math.min(rate.low, rate.current);
+                
+                // トレンド判定
+                if (rate.change > 0.001) {
+                    rate.trend = 'up';
+                } else if (rate.change < -0.001) {
+                    rate.trend = 'down';
+                } else {
+                    rate.trend = 'neutral';
+                }
+
+                if (Math.abs(rate.change) > 0.001) {
+                    updatedCount++;
+                }
+
+                // アラートチェック
+                checkAlerts(config.pair, rate.current);
+            });
+
+            // USD/JPYチャートデータ更新
+            chartData.push(exchangeRates['USD/JPY'].current);
+            if (chartData.length > 50) {
+                chartData.shift();
+            }
+
+            renderRates();
+            updateChart();
+            updateStats();
+            
+            // 最終更新時刻を表示
+            document.getElementById('lastUpdate').textContent = 
+                `最終更新: ${new Date().toLocaleTimeString('ja-JP')}`;
+
+            return updatedCount;
+        }
+
+        function renderRates() {
+            const container = document.getElementById('ratesGrid');
+            
+            container.innerHTML = currencyPairs.map(config => {
+                const rate = exchangeRates[config.pair];
+                const changeClass = rate.trend === 'up' ? 'change-positive' : 
+                                   rate.trend === 'down' ? 'change-negative' : 'change-neutral';
+                const cardClass = rate.isMajor ? 'major' : 
+                                 rate.trend === 'up' ? 'trending-up' : 
+                                 rate.trend === 'down' ? 'trending-down' : '';
+                
+                return `
+                    <div class="rate-card ${cardClass}" id="card-${config.pair.replace('/', '-')}">
+                        <div class="currency-pair">
+                            <span class="flag">${config.flag1}</span>
+                            ${config.pair}
+                            <span class="flag">${config.flag2}</span>
+                        </div>
+                        <div class="exchange-rate">${rate.current.toFixed(4)}</div>
+                        <div class="rate-change ${changeClass}">
+                            ${rate.change >= 0 ? '▲' : '▼'} 
+                            ${Math.abs(rate.change).toFixed(4)} 
+                            (${rate.changePercent >= 0 ? '+' : ''}${rate.changePercent.toFixed(2)}%)
+                        </div>
+                        <div class="rate-details">
+                            <div class="detail-item">
+                                <div class="detail-label">高値</div>
+                                <div class="detail-value">${rate.high.toFixed(4)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">安値</div>
+                                <div class="detail-value">${rate.low.toFixed(4)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateChart() {
+            if (chartData.length < 2) return;
+
+            const maxRate = Math.max(...chartData);
+            const minRate = Math.min(...chartData);
+            const range = maxRate - minRate || 1;
+            
+            const width = 400;
+            const height = 200;
+            const padding = 20;
+            
+            // ラインパス生成
+            let linePath = '';
+            let areaPath = '';
+            
+            chartData.forEach((rate, index) => {
+                const x = padding + (index / (chartData.length - 1)) * (width - 2 * padding);
+                const y = padding + (1 - (rate - minRate) / range) * (height - 2 * padding);
+                
+                if (index === 0) {
+                    linePath += `M ${x} ${y}`;
+                    areaPath += `M ${x} ${height - padding} L ${x} ${y}`;
+                } else {
+                    linePath += ` L ${x} ${y}`;
+                    areaPath += ` L ${x} ${y}`;
+                }
+            });
+            
+            areaPath += ` L ${width - padding} ${height - padding} Z`;
+            
+            document.getElementById('chartLine').setAttribute('d', linePath);
+            document.getElementById('chartArea').setAttribute('d', areaPath);
+        }
+
+        function addAlert() {
+            const pair = document.getElementById('alertPair').value;
+            const rate = parseFloat(document.getElementById('alertRate').value);
+            const condition = document.getElementById('alertCondition').value;
+
+            if (!rate || rate <= 0) {
+                alert('有効なレートを入力してください');
+                return;
+            }
+
+            const alert = {
+                id: Date.now(),
+                pair: pair,
+                rate: rate,
+                condition: condition,
+                created: new Date().toLocaleString('ja-JP')
+            };
+
+            alertsList.push(alert);
+            localStorage.setItem('exchangeAlerts', JSON.stringify(alertsList));
+            
+            document.getElementById('alertRate').value = '';
+            renderAlertList();
+            updateStats();
+        }
+
+        function removeAlert(id) {
+            alertsList = alertsList.filter(alert => alert.id !== id);
+            localStorage.setItem('exchangeAlerts', JSON.stringify(alertsList));
+            renderAlertList();
+            updateStats();
+        }
+
+        function renderAlertList() {
+            const container = document.getElementById('alertList');
+            
+            if (alertsList.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; opacity: 0.7; padding: 20px;">
+                        アラートが設定されていません
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = alertsList.map(alert => `
+                <div class="alert-item">
+                    <div class="alert-info">
+                        <div class="alert-pair">${alert.pair}</div>
+                        <div class="alert-condition">
+                            ${alert.rate.toFixed(4)} ${alert.condition === 'above' ? '以上' : '以下'}になったら通知
+                        </div>
+                    </div>
+                    <button class="remove-alert" onclick="removeAlert(${alert.id})">削除</button>
+                </div>
+            `).join('');
+        }
+
+        function checkAlerts(pair, currentRate) {
+            alertsList.forEach(alert => {
+                if (alert.pair !== pair) return;
+
+                const shouldTrigger = 
+                    (alert.condition === 'above' && currentRate >= alert.rate) ||
+                    (alert.condition === 'below' && currentRate <= alert.rate);
+
+                if (shouldTrigger && !alert.triggered) {
+                    alert.triggered = true;
+                    showAlertNotification(alert, currentRate);
+                    
+                    // カードを点滅させる
+                    const cardId = `card-${pair.replace('/', '-')}`;
+                    const card = document.getElementById(cardId);
+                    if (card) {
+                        card.classList.add('pulse');
+                        setTimeout(() => card.classList.remove('pulse'), 3000);
+                    }
+                }
+
+                // 条件を外れた場合はリセット
+                if (!shouldTrigger && alert.triggered) {
+                    alert.triggered = false;
+                }
+            });
+        }
+
+        function showAlertNotification(alert, currentRate) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #ff6b6b, #ffd700);
+                color: white;
+                padding: 20px;
+                border-radius: 15px;
+                z-index: 1000;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                max-width: 300px;
+                animation: slideIn 0.5s ease;
+            `;
+            
+            notification.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px;">🚨 レートアラート</div>
+                <div style="margin-bottom: 5px;">${alert.pair}: ${currentRate.toFixed(4)}</div>
+                <div style="font-size: 0.9em; opacity: 0.9;">
+                    ${alert.rate.toFixed(4)} ${alert.condition === 'above' ? '以上' : '以下'}になりました
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 5000);
+        }
+
+        function updateStats() {
+            const upCount = Object.values(exchangeRates).filter(rate => rate.trend === 'up').length;
+            const downCount = Object.values(exchangeRates).filter(rate => rate.trend === 'down').length;
+            
+            document.getElementById('upTrend').textContent = upCount;
+            document.getElementById('downTrend').textContent = downCount;
+            document.getElementById('alertCount').textContent = alertsList.length;
+        }
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            
+            refreshInterval = setInterval(() => {
+                if (autoRefreshEnabled) {
+                    simulateRateUpdate();
+                }
+            }, 3000); // 3秒ごとに更新
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        // 初回データ生成
+        setTimeout(() => {
+            simulateRateUpdate();
+        }, 1000);
+
+        // CSS for slideIn animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

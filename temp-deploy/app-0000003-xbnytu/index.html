@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Paint Studio - プロフェッショナルペイントシステム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #2c2c3e;
+            --bg-secondary: #3a3a52;
+            --bg-tertiary: #4a4a66;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8d0;
+            --accent-primary: #6c63ff;
+            --accent-secondary: #ff6b6b;
+            --border-color: #5a5a7a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-areas: 
+                "toolbar toolbar toolbar"
+                "tools canvas properties"
+                "footer footer footer";
+            grid-template-rows: 60px 1fr 40px;
+            grid-template-columns: 80px 1fr 300px;
+            height: 100vh;
+        }
+
+        .toolbar {
+            grid-area: toolbar;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 10px;
+            margin-right: 30px;
+        }
+
+        .toolbar-button {
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+
+        .toolbar-button:hover {
+            background: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        .toolbar-button.active {
+            background: var(--accent-primary);
+        }
+
+        .tools-panel {
+            grid-area: tools;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            gap: 15px;
+        }
+
+        .tool-button {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .tool-button:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .tool-button.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .canvas-container {
+            grid-area: canvas;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #paintCanvas {
+            border: 2px solid var(--border-color);
+            background: white;
+            cursor: crosshair;
+            box-shadow: var(--shadow);
+        }
+
+        .properties-panel {
+            grid-area: properties;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .property-group {
+            margin-bottom: 25px;
+        }
+
+        .property-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-tertiary);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-picker-container {
+            margin-bottom: 20px;
+        }
+
+        .color-picker {
+            width: 100%;
+            height: 60px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: var(--bg-tertiary);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .color-swatch {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+            border-color: white;
+        }
+
+        .color-swatch.active {
+            border-color: var(--accent-primary);
+            border-width: 3px;
+        }
+
+        .brush-shapes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .brush-shape {
+            aspect-ratio: 1;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.2s ease;
+        }
+
+        .brush-shape:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .brush-shape.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .layers-panel {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .layer-item {
+            background: var(--bg-primary);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .layer-item.active {
+            background: var(--accent-primary);
+        }
+
+        .footer {
+            grid-area: footer;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .status-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s ease;
+        }
+
+        .modal-button.primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .modal-button.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .modal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-areas: 
+                    "toolbar toolbar"
+                    "canvas canvas"
+                    "tools properties";
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 60px 1fr 200px;
+            }
+
+            .properties-panel {
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .tools-panel {
+                border-right: none;
+                border-top: 1px solid var(--border-color);
+                flex-direction: row;
+                padding: 10px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .tool-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+        }
+
+        .brush-preview {
+            width: 60px;
+            height: 60px;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            margin: 15px auto;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brush-preview-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: var(--accent-primary);
+            transition: all 0.2s ease;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            color: var(--accent-primary);
+            font-size: 2em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button class="toolbar-button" onclick="newCanvas()">新規</button>
+                <button class="toolbar-button" onclick="openFile()">開く</button>
+                <button class="toolbar-button" onclick="saveCanvas()">保存</button>
+                <button class="toolbar-button" onclick="exportImage()">書き出し</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="toolbar-button" onclick="undo()">戻る</button>
+                <button class="toolbar-button" onclick="redo()">進む</button>
+                <button class="toolbar-button" onclick="clearCanvas()">クリア</button>
+            </div>
+            <div class="toolbar-group">
+                <span style="color: var(--text-secondary);">Digital Paint Studio v1.0</span>
+            </div>
+        </div>
+
+        <div class="tools-panel">
+            <div class="tool-button active" data-tool="brush" data-tooltip="ブラシ">🖌️</div>
+            <div class="tool-button" data-tool="pen" data-tooltip="ペン">✏️</div>
+            <div class="tool-button" data-tool="eraser" data-tooltip="消しゴム">🧽</div>
+            <div class="tool-button" data-tool="line" data-tooltip="直線">📏</div>
+            <div class="tool-button" data-tool="rectangle" data-tooltip="四角形">⬜</div>
+            <div class="tool-button" data-tool="circle" data-tooltip="円">⭕</div>
+            <div class="tool-button" data-tool="fill" data-tooltip="塗りつぶし">🪣</div>
+            <div class="tool-button" data-tool="eyedropper" data-tooltip="スポイト">💧</div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="paintCanvas" width="800" height="600"></canvas>
+            <div class="loading" id="loading">⏳</div>
+        </div>
+
+        <div class="properties-panel">
+            <div class="property-group">
+                <div class="property-title">カラー</div>
+                <div class="color-picker-container">
+                    <input type="color" class="color-picker" id="colorPicker" value="#6c63ff">
+                </div>
+                <div class="color-palette" id="colorPalette"></div>
+            </div>
+
+            <div class="property-group">
+                <div class="property-title">ブラシ設定</div>
+                <div class="brush-preview">
+                    <div class="brush-preview-dot" id="brushPreview"></div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>サイズ</span>
+                        <span id="brushSizeValue">20</span>
+                    </div>
+                    <input type="range" class="slider" id="brushSize" min="1" max="100" value="20">
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>不透明度</span>
+                        <span id="opacityValue">100%</span>
+                    </div>
+                    <input type="range" class="slider" id="opacity" min="0" max="100" value="100">
+                </div>
+                <div class="brush-shapes">
+                    <div class="brush-shape active" data-shape="circle">●</div>
+                    <div class="brush-shape" data-shape="square">■</div>
+                    <div class="brush-shape" data-shape="star">★</div>
+                    <div class="brush-shape" data-shape="heart">♥</div>
+                    <div class="brush-shape" data-shape="diamond">♦</div>
+                    <div class="brush-shape" data-shape="triangle">▲</div>
+                </div>
+            </div>
+
+            <div class="property-group">
+                <div class="property-title">レイヤー</div>
+                <div class="layers-panel">
+                    <div class="layer-item active">
+                        <span>レイヤー 1</span>
+                        <span>👁️</span>
+                    </div>
+                    <button class="toolbar-button" onclick="addLayer()" style="width: 100%; margin-top: 10px;">＋ レイヤー追加</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="status-info">
+                <span>ツール: <span id="currentTool">ブラシ</span></span>
+                <span>座標: <span id="mousePos">0, 0</span></span>
+                <span>サイズ: 800 x 600</span>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" class="file-input" id="fileInput" accept="image/*,.json">
+
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-title">画像を書き出し</div>
+            <div class="property-group">
+                <label>ファイル形式:</label>
+                <select id="exportFormat" style="width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                    <option value="png">PNG</option>
+                    <option value="jpeg">JPEG</option>
+                    <option value="webp">WebP</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button primary" onclick="confirmExport()">ダウンロード</button>
+                <button class="modal-button secondary" onclick="closeModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // キャンバス初期化
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 状態管理
+        let isDrawing = false;
+        let currentTool = 'brush';
+        let currentColor = '#6c63ff';
+        let brushSize = 20;
+        let opacity = 1;
+        let brushShape = 'circle';
+        let startX, startY;
+        
+        // 履歴管理
+        let history = [];
+        let historyIndex = -1;
+        const maxHistory = 50;
+        
+        // レイヤー管理
+        let layers = [{ name: 'レイヤー 1', visible: true, opacity: 1 }];
+        let currentLayer = 0;
+
+        // カラーパレット初期化
+        const colorPalette = document.getElementById('colorPalette');
+        const defaultColors = [
+            '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00',
+            '#ff00ff', '#00ffff', '#ff8000', '#8000ff', '#0080ff', '#80ff00',
+            '#ff0080', '#0080ff', '#808080', '#400000', '#004000', '#000040',
+            '#404000', '#400040', '#004040', '#202020', '#606060', '#a0a0a0'
+        ];
+
+        defaultColors.forEach(color => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.addEventListener('click', () => selectColor(color));
+            colorPalette.appendChild(swatch);
+        });
+
+        // イベントリスナー設定
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('mousemove', updateMousePosition);
+
+        // タッチイベント
+        canvas.addEventListener('touchstart', handleTouch);
+        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // ツール選択
+        document.querySelectorAll('.tool-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTool = btn.dataset.tool;
+                document.getElementById('currentTool').textContent = getToolName(currentTool);
+                updateCursor();
+            });
+        });
+
+        // ブラシ設定
+        document.getElementById('brushSize').addEventListener('input', (e) => {
+            brushSize = e.target.value;
+            document.getElementById('brushSizeValue').textContent = brushSize;
+            updateBrushPreview();
+        });
+
+        document.getElementById('opacity').addEventListener('input', (e) => {
+            opacity = e.target.value / 100;
+            document.getElementById('opacityValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('colorPicker').addEventListener('change', (e) => {
+            selectColor(e.target.value);
+        });
+
+        // ブラシ形状選択
+        document.querySelectorAll('.brush-shape').forEach(shape => {
+            shape.addEventListener('click', (e) => {
+                document.querySelectorAll('.brush-shape').forEach(s => s.classList.remove('active'));
+                shape.classList.add('active');
+                brushShape = shape.dataset.shape;
+                updateBrushPreview();
+            });
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) redo(); else undo();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveCanvas();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        newCanvas();
+                        break;
+                }
+            }
+        });
+
+        // 描画関数
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+
+            if (currentTool === 'brush' || currentTool === 'pen') {
+                ctx.globalAlpha = opacity;
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = currentColor;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+            } else if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+            }
+            
+            saveState();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+
+            if (currentTool === 'brush' || currentTool === 'pen' || currentTool === 'eraser') {
+                if (brushShape === 'circle') {
+                    ctx.lineTo(currentX, currentY);
+                    ctx.stroke();
+                } else {
+                    drawCustomBrush(currentX, currentY);
+                }
+            }
+        }
+
+        function stopDrawing(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+
+            const rect = canvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+
+            if (currentTool === 'line') {
+                drawLine(startX, startY, endX, endY);
+            } else if (currentTool === 'rectangle') {
+                drawRectangle(startX, startY, endX, endY);
+            } else if (currentTool === 'circle') {
+                drawCircle(startX, startY, endX, endY);
+            } else if (currentTool === 'fill') {
+                floodFill(endX, endY);
+            }
+
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = 1;
+        }
+
+        function drawCustomBrush(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            switch(brushShape) {
+                case 'square':
+                    ctx.fillRect(-brushSize/2, -brushSize/2, brushSize, brushSize);
+                    break;
+                case 'star':
+                    drawStar(0, 0, brushSize/2);
+                    break;
+                case 'heart':
+                    drawHeart(0, 0, brushSize/2);
+                    break;
+                case 'diamond':
+                    drawDiamond(0, 0, brushSize/2);
+                    break;
+                case 'triangle':
+                    drawTriangle(0, 0, brushSize/2);
+                    break;
+            }
+            
+            ctx.restore();
+        }
+
+        function drawStar(x, y, radius) {
+            ctx.beginPath();
+            for (let i = 0; i < 10; i++) {
+                const angle = (i * Math.PI) / 5;
+                const r = i % 2 === 0 ? radius : radius / 2;
+                const px = Math.cos(angle) * r;
+                const py = Math.sin(angle) * r;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fillStyle = currentColor;
+            ctx.fill();
+        }
+
+        function drawHeart(x, y, radius) {
+            ctx.beginPath();
+            ctx.fillStyle = currentColor;
+            const width = radius;
+            const height = radius;
+            ctx.moveTo(x, y + height/4);
+            ctx.bezierCurveTo(x, y, x - width/2, y, x - width/2, y + height/4);
+            ctx.bezierCurveTo(x - width/2, y + height/2, x, y + height/2, x, y + height);
+            ctx.bezierCurveTo(x, y + height/2, x + width/2, y + height/2, x + width/2, y + height/4);
+            ctx.bezierCurveTo(x + width/2, y, x, y, x, y + height/4);
+            ctx.fill();
+        }
+
+        function drawDiamond(x, y, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - radius);
+            ctx.lineTo(x + radius, y);
+            ctx.lineTo(x, y + radius);
+            ctx.lineTo(x - radius, y);
+            ctx.closePath();
+            ctx.fillStyle = currentColor;
+            ctx.fill();
+        }
+
+        function drawTriangle(x, y, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - radius);
+            ctx.lineTo(x - radius, y + radius);
+            ctx.lineTo(x + radius, y + radius);
+            ctx.closePath();
+            ctx.fillStyle = currentColor;
+            ctx.fill();
+        }
+
+        function drawLine(x1, y1, x2, y2) {
+            ctx.globalAlpha = opacity;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        function drawRectangle(x1, y1, x2, y2) {
+            ctx.globalAlpha = opacity;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        }
+
+        function drawCircle(x1, y1, x2, y2) {
+            const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            ctx.globalAlpha = opacity;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            ctx.beginPath();
+            ctx.arc(x1, y1, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+
+        function floodFill(x, y) {
+            // 簡易的な塗りつぶし実装
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = currentColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // ユーティリティ関数
+        function selectColor(color) {
+            currentColor = color;
+            document.getElementById('colorPicker').value = color;
+            document.querySelectorAll('.color-swatch').forEach(swatch => {
+                swatch.classList.remove('active');
+                if (swatch.style.backgroundColor === color) {
+                    swatch.classList.add('active');
+                }
+            });
+            updateBrushPreview();
+        }
+
+        function updateBrushPreview() {
+            const preview = document.getElementById('brushPreview');
+            const size = Math.min(brushSize * 2, 50);
+            preview.style.width = size + 'px';
+            preview.style.height = size + 'px';
+            preview.style.backgroundColor = currentColor;
+            preview.style.opacity = opacity;
+            
+            if (brushShape !== 'circle') {
+                preview.style.borderRadius = brushShape === 'square' ? '0' : '50%';
+            }
+        }
+
+        function updateCursor() {
+            canvas.style.cursor = currentTool === 'eyedropper' ? 'copy' : 'crosshair';
+        }
+
+        function updateMousePosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.round(e.clientX - rect.left);
+            const y = Math.round(e.clientY - rect.top);
+            document.getElementById('mousePos').textContent = `${x}, ${y}`;
+        }
+
+        function getToolName(tool) {
+            const names = {
+                brush: 'ブラシ',
+                pen: 'ペン',
+                eraser: '消しゴム',
+                line: '直線',
+                rectangle: '四角形',
+                circle: '円',
+                fill: '塗りつぶし',
+                eyedropper: 'スポイト'
+            };
+            return names[tool] || tool;
+        }
+
+        // ファイル操作
+        function newCanvas() {
+            if (confirm('新しいキャンバスを作成しますか？現在の作業は失われます。')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                history = [];
+                historyIndex = -1;
+                saveState();
+            }
+        }
+
+        function openFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = 'painting.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function exportImage() {
+            document.getElementById('exportModal').style.display = 'flex';
+        }
+
+        function confirmExport() {
+            const format = document.getElementById('exportFormat').value;
+            const link = document.createElement('a');
+            link.download = `painting.${format}`;
+            
+            let mimeType = 'image/png';
+            if (format === 'jpeg') mimeType = 'image/jpeg';
+            else if (format === 'webp') mimeType = 'image/webp';
+            
+            link.href = canvas.toDataURL(mimeType, 0.9);
+            link.click();
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+
+        function clearCanvas() {
+            if (confirm('キャンバスをクリアしますか？')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                saveState();
+            }
+        }
+
+        // 履歴管理
+        function saveState() {
+            historyIndex++;
+            if (historyIndex < history.length) {
+                history.length = historyIndex;
+            }
+            history.push(canvas.toDataURL());
+            if (history.length > maxHistory) {
+                history.shift();
+                historyIndex--;
+            }
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState(history[historyIndex]);
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                restoreState(history[historyIndex]);
+            }
+        }
+
+        function restoreState(dataURL) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = dataURL;
+        }
+
+        // タッチ対応
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                               e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        // ファイル読み込み
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        saveState();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // レイヤー管理
+        function addLayer() {
+            layers.push({
+                name: `レイヤー ${layers.length + 1}`,
+                visible: true,
+                opacity: 1
+            });
+            // 簡易実装：実際のレイヤー機能は省略
+            alert('レイヤー機能は簡易実装です');
+        }
+
+        // 初期化
+        updateBrushPreview();
+        updateCursor();
+        saveState();
+
+        // ツールチップ
+        document.querySelectorAll('[data-tooltip]').forEach(element => {
+            element.addEventListener('mouseenter', showTooltip);
+            element.addEventListener('mouseleave', hideTooltip);
+        });
+
+        function showTooltip(e) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.textContent = e.target.dataset.tooltip;
+            tooltip.style.left = e.pageX + 10 + 'px';
+            tooltip.style.top = e.pageY - 30 + 'px';
+            tooltip.classList.add('show');
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+    </script>
+</body>
+</html>

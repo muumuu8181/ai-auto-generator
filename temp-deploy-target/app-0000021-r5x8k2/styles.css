@@ -1,0 +1,22 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; height: 100vh; overflow: hidden; }
+.game-container { height: 100vh; display: flex; flex-direction: column; }
+.game-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.3); }
+.game-area { flex: 1; position: relative; }
+.note-lanes { display: flex; height: 100%; }
+.lane { flex: 1; border-right: 2px solid rgba(255,255,255,0.3); position: relative; background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.1) 90%, rgba(255,255,255,0.3) 100%); }
+.hit-zone { position: absolute; bottom: 100px; height: 80px; width: 100%; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 10px; }
+.note { position: absolute; width: 80%; left: 10%; height: 60px; background: linear-gradient(45deg, #ff6b6b, #feca57); border-radius: 30px; border: 2px solid white; animation: fall linear; }
+@keyframes fall { from { top: -60px; } to { top: 100vh; } }
+.controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; }
+.key-hint { display: flex; gap: 1rem; }
+.key-hint span { background: rgba(255,255,255,0.9); color: #333; padding: 1rem; border-radius: 10px; font-weight: bold; font-size: 1.2rem; min-width: 50px; text-align: center; }
+.game-controls { padding: 1rem; background: rgba(0,0,0,0.3); display: flex; gap: 1rem; justify-content: center; align-items: center; }
+.btn { padding: 0.75rem 1.5rem; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+.btn.primary { background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; }
+.btn.secondary { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+select { padding: 0.5rem; border-radius: 5px; border: none; background: white; }
+.result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; }
+.modal-content { background: white; color: #333; padding: 2rem; border-radius: 20px; text-align: center; }
+.modal-content button { margin-top: 1rem; padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 25px; cursor: pointer; }

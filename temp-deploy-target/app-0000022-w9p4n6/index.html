@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Station - 天気ステーション</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="weather-app">
+        <header>
+            <h1><i class="fas fa-cloud-sun"></i> Weather Station</h1>
+            <div class="search-box">
+                <input type="text" id="city-input" placeholder="都市名を入力">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </header>
+        
+        <main class="weather-dashboard">
+            <section class="current-weather">
+                <div class="weather-icon">
+                    <i class="fas fa-sun" id="weather-icon"></i>
+                </div>
+                <div class="weather-info">
+                    <h2 id="city-name">東京</h2>
+                    <div class="temperature">
+                        <span id="temp">25</span>°C
+                    </div>
+                    <p id="description">晴れ</p>
+                </div>
+                <div class="weather-details">
+                    <div class="detail">
+                        <i class="fas fa-eye"></i>
+                        <span>視界</span>
+                        <span id="visibility">10km</span>
+                    </div>
+                    <div class="detail">
+                        <i class="fas fa-tint"></i>
+                        <span>湿度</span>
+                        <span id="humidity">65%</span>
+                    </div>
+                    <div class="detail">
+                        <i class="fas fa-wind"></i>
+                        <span>風速</span>
+                        <span id="wind-speed">5m/s</span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="forecast">
+                <h3>7日間予報</h3>
+                <div class="forecast-container" id="forecast-container">
+                    <!-- 動的に生成 -->
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
