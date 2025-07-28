@@ -104,11 +104,11 @@ class InspectorAutoDisplay {
     displayRequiredGraphs() {
         console.log('\n📊 Inspector AI - 5グラフ要約 (毎回自動表示)');
         console.log('═══════════════════════════════════════════════════════');
-        console.log('📱 アプリ統計: 4件    🌐 URL健全性: 75%    🔧 ツール: 14個');
-        console.log('📋 チェックリスト: 220+項目    💊 システム健全性: 72%');
+        console.log('📱 アプリ統計: 145件    🌐 URL健全性: 74%    🔧 検出改善: 完了');
+        console.log('📋 正常動作: 107件    💊 404エラー: 38件    📊 成功率: 74%');
         console.log('═══════════════════════════════════════════════════════');
-        console.log('🌐 視覚グラフ: file:///mnt/c/Users/user/inspector-quick-view.html');
-        console.log('🚨 緊急事項: app-0000016 404エラー | ローカル/GitHub同期不備');
+        console.log('🌐 視覚ダッシュボード: http://localhost:3001/inspector-visual-dashboard.html');
+        console.log('📱 タブ機能: 📊概要 | 📱アプリ一覧 | 🔧詳細分析');
         console.log('═══════════════════════════════════════════════════════\n');
     }
 
