@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI倫理・応用倫理シミュレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #495057;
+            border-bottom: 3px solid #6f42c1;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            min-height: 700px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .theory-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid #6f42c1;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .theory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .theory-card h3 {
+            color: #6f42c1;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .theory-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .theory-card .key-concept {
+            background: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1565c0;
+            display: inline-block;
+            margin: 5px 5px 5px 0;
+        }
+
+        .dilemma-container {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .dilemma-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .dilemma-scenario {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #495057;
+        }
+
+        .choice-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .choice-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .choice-option:hover {
+            border-color: #6f42c1;
+            box-shadow: 0 4px 8px rgba(111, 66, 193, 0.1);
+        }
+
+        .choice-option.selected {
+            border-color: #6f42c1;
+            background: #f8f5ff;
+        }
+
+        .choice-option h4 {
+            color: #6f42c1;
+            margin-bottom: 10px;
+        }
+
+        .ethical-analysis {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .analysis-section {
+            margin-bottom: 15px;
+        }
+
+        .analysis-section h4 {
+            color: #155724;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .analysis-section p {
+            color: #155724;
+            line-height: 1.5;
+        }
+
+        .stakeholder-map {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stakeholder-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stakeholder-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .stakeholder-impact {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .impact-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .impact-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .impact-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .slider-group label {
+            min-width: 150px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .slider-group input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #6f42c1;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #6f42c1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #5a2d91;
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn.success {
+            background: #28a745;
+        }
+
+        .btn.success:hover {
+            background: #218838;
+        }
+
+        .btn.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn.warning:hover {
+            background: #e0a800;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 12px;
+        }
+
+        .control-group input, .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #6f42c1;
+        }
+
+        .learning-path {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .path-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .path-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 20px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #6f42c1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 600;
+        }
+
+        .step-number.completed {
+            background: #28a745;
+        }
+
+        .step-number.current {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .case-study {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .case-study h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+
+        .case-details {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .discussion-board {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .discussion-post {
+            border-bottom: 1px solid #e9ecef;
+            padding: 15px 0;
+        }
+
+        .discussion-post:last-child {
+            border-bottom: none;
+        }
+
+        .post-author {
+            font-weight: 600;
+            color: #6f42c1;
+            margin-bottom: 5px;
+        }
+
+        .post-content {
+            color: #495057;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .value-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .value-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .value-card h4 {
+            color: #6f42c1;
+            margin-bottom: 10px;
+        }
+
+        .value-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .value-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6f42c1, #9c27b0);
+            transition: width 0.5s ease;
+        }
+
+        .tutorial {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tutorial h4 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .tutorial p {
+            color: #155724;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .progress-indicator {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #6f42c1, #28a745);
+            transition: width 0.3s ease;
+        }
+
+        .ai-assistant {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #6f42c1;
+            border-radius: 50%;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px;
+            background: #6f42c1;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            font-weight: 600;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .chat-input input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .theory-grid, .choice-options, .stakeholder-map, .value-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .learning-path {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .path-step:not(:last-child)::after {
+                content: '↓';
+                position: static;
+                margin: 10px 0;
+            }
+
+            .chat-window {
+                width: 300px;
+                right: 10px;
+            }
+        }
+
+        .ethics-meter {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .meter-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .meter-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #28a745 0deg,
+                #ffc107 120deg,
+                #dc3545 240deg,
+                #28a745 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+
+        .meter-inner {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .meter-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #6f42c1;
+        }
+
+        .meter-label {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .debate-arena {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .debate-sides {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .debate-side {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .side-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .side-pro {
+            border-left: 4px solid #28a745;
+        }
+
+        .side-pro .side-title {
+            color: #28a745;
+        }
+
+        .side-con {
+            border-left: 4px solid #dc3545;
+        }
+
+        .side-con .side-title {
+            color: #dc3545;
+        }
+
+        .debate-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #6c757d;
+        }
+
+        .scenario-builder {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .builder-step {
+            margin-bottom: 20px;
+        }
+
+        .builder-step h4 {
+            color: #6f42c1;
+            margin-bottom: 10px;
+        }
+
+        .builder-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .builder-option {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .builder-option:hover {
+            border-color: #6f42c1;
+        }
+
+        .builder-option.selected {
+            background: #6f42c1;
+            color: white;
+            border-color: #6f42c1;
+        }
+
+        .timeline {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #6f42c1;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 70px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: #6f42c1;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #6f42c1;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI倫理・応用倫理シミュレーター</h1>
+            <p>人工知能時代の倫理的判断力を養成する包括的学習プラットフォーム</p>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" data-tab="overview">概要</button>
+                <button class="tab" data-tab="theories">倫理理論</button>
+                <button class="tab" data-tab="dilemmas">ジレンマ</button>
+                <button class="tab" data-tab="ai-ethics">AI倫理</button>
+                <button class="tab" data-tab="cases">ケーススタディ</button>
+                <button class="tab" data-tab="builder">シナリオ構築</button>
+                <button class="tab" data-tab="discussion">議論</button>
+                <button class="tab" data-tab="learning">学習進捗</button>
+            </div>
+
+            <!-- 概要タブ -->
+            <div class="tab-content active" id="overview">
+                <div class="tutorial">
+                    <h4>🎓 AI倫理・応用倫理シミュレーターへようこそ</h4>
+                    <p>このプラットフォームでは、古典的な道徳哲学から最新のAI倫理まで、実践的な倫理判断力を段階的に学習できます。理論学習、ジレンマシミュレーション、ケーススタディを通じて、複雑な倫理的問題に対する洞察力を深めましょう。</p>
+                </div>
+
+                <div class="learning-path">
+                    <div class="path-step">
+                        <div class="step-number completed">1</div>
+                        <div class="step-title">基礎理論</div>
+                    </div>
+                    <div class="path-step">
+                        <div class="step-number current">2</div>
+                        <div class="step-title">ジレンマ分析</div>
+                    </div>
+                    <div class="path-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">実践応用</div>
+                    </div>
+                    <div class="path-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">専門深化</div>
+                    </div>
+                </div>
+
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3>🎯 学習目標</h3>
+                        <p>多様な倫理理論を理解し、実際の状況で適切な判断ができる倫理的思考力を養成します。</p>
+                        <div class="key-concept">批判的思考</div>
+                        <div class="key-concept">多元的視点</div>
+                        <div class="key-concept">実践的判断</div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🚀 技術の進歩と倫理</h3>
+                        <p>AI、バイオテクノロジー、IoTなど、急速に発展する技術が社会に与える倫理的影響を考察します。</p>
+                        <div class="key-concept">技術的影響</div>
+                        <div class="key-concept">社会的責任</div>
+                        <div class="key-concept">未来予測</div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🌍 グローバル倫理</h3>
+                        <p>文化や宗教の違いを超えて、人類共通の倫理的価値を探求し、国際協力の基盤を構築します。</p>
+                        <div class="key-concept">文化多様性</div>
+                        <div class="key-concept">普遍的価値</div>
+                        <div class="key-concept">国際協力</div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>💼 職業倫理</h3>
+                        <p>各専門分野における倫理的責任と、職業人としての使命を具体的な事例を通じて学習します。</p>
+                        <div class="key-concept">専門職責任</div>
+                        <div class="key-concept">利益相反</div>
+                        <div class="key-concept">社会貢献</div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3>🛠️ 学習設定</h3>
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>学習レベル</label>
+                            <select id="learningLevel">
+                                <option value="beginner">初級 - 基本概念</option>
+                                <option value="intermediate" selected>中級 - 応用問題</option>
+                                <option value="advanced">上級 - 専門深化</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>専門分野</label>
+                            <select id="specialization">
+                                <option value="general" selected>一般教養</option>
+                                <option value="ai">AI・IT</option>
+                                <option value="medical">医療・生命科学</option>
+                                <option value="business">ビジネス・経営</option>
+                                <option value="law">法律・政策</option>
+                                <option value="environment">環境・持続可能性</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>学習スタイル</label>
+                            <select id="learningStyle">
+                                <option value="theoretical">理論重視</option>
+                                <option value="practical" selected>実践重視</option>
+                                <option value="collaborative">協働学習</option>
+                                <option value="individual">個人学習</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="updateLearningSettings()">設定を適用</button>
+                    </div>
+                </div>
+
+                <div class="ethics-meter">
+                    <h3>🧭 倫理判断レーダー</h3>
+                    <div class="meter-display">
+                        <div class="meter-circle">
+                            <div class="meter-inner">
+                                <div class="meter-value">75</div>
+                                <div class="meter-label">総合スコア</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="value-comparison">
+                        <div class="value-card">
+                            <h4>功利主義的判断</h4>
+                            <div class="value-bar">
+                                <div class="value-fill" style="width: 80%"></div>
+                            </div>
+                            <p>80% - 結果重視の判断力</p>
+                        </div>
+                        <div class="value-card">
+                            <h4>義務論的判断</h4>
+                            <div class="value-bar">
+                                <div class="value-fill" style="width: 70%"></div>
+                            </div>
+                            <p>70% - 原則重視の判断力</p>
+                        </div>
+                        <div class="value-card">
+                            <h4>徳倫理的判断</h4>
+                            <div class="value-bar">
+                                <div class="value-fill" style="width: 75%"></div>
+                            </div>
+                            <p>75% - 品格重視の判断力</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 倫理理論タブ -->
+            <div class="tab-content" id="theories">
+                <div class="tutorial">
+                    <h4>📚 倫理理論の学習</h4>
+                    <p>古典的な倫理理論から現代の応用倫理まで、体系的に学習します。各理論の核心を理解し、実際の問題に適用する力を養います。</p>
+                </div>
+
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3>⚖️ 功利主義 (Utilitarianism)</h3>
+                        <p><strong>ベンサム・ミル</strong>によって体系化された理論。行為の結果として最大多数に最大の幸福をもたらすことを善とします。</p>
+                        <div class="key-concept">最大多数の最大幸福</div>
+                        <div class="key-concept">結果主義</div>
+                        <div class="key-concept">量的快楽主義</div>
+                        <p><strong>核心原理:</strong> U = Σ(快楽 - 苦痛) for all affected individuals</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>📏 義務論 (Deontology)</h3>
+                        <p><strong>カント</strong>の定言命法に基づく理論。行為の動機と普遍化可能性を重視し、人格の尊厳を最高価値とします。</p>
+                        <div class="key-concept">定言命法</div>
+                        <div class="key-concept">人格の尊厳</div>
+                        <div class="key-concept">義務の純粋性</div>
+                        <p><strong>定言命法:</strong> 「汝の意図の格律が、同時に普遍的法則となることを意図せよ」</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🏛️ 徳倫理学 (Virtue Ethics)</h3>
+                        <p><strong>アリストテレス</strong>に起源を持つ理論。品格と実践的知恵を重視し、共同体における善い生き方を追求します。</p>
+                        <div class="key-concept">実践的知恵</div>
+                        <div class="key-concept">品格の卓越</div>
+                        <div class="key-concept">共同体の善</div>
+                        <p><strong>中庸の徳:</strong> 極端を避け、状況に応じた適切な行為を選択する智恵</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🤝 契約論・正義論 (Contractualism)</h3>
+                        <p><strong>ロールズ</strong>の「無知のヴェール」理論。公正な社会制度の原理を、利害を知らない原初状態で決定します。</p>
+                        <div class="key-concept">無知のヴェール</div>
+                        <div class="key-concept">格差原理</div>
+                        <div class="key-concept">機会の公正平等</div>
+                        <p><strong>正義の二原理:</strong> 1) 基本的自由の平等、2) 格差は最も不利な人々の利益になる場合のみ許容</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>💝 ケア倫理学 (Care Ethics)</h3>
+                        <p><strong>ギリガン・ノディングス</strong>らが提唱。抽象的正義より関係性と共感を重視し、文脈的判断を行います。</p>
+                        <div class="key-concept">関係性の重視</div>
+                        <div class="key-concept">文脈的判断</div>
+                        <div class="key-concept">責任の倫理</div>
+                        <p><strong>ケアの循環:</strong> 関心 → 責任 → 能力 → 応答性 → 信頼関係の構築</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🌱 環境倫理学 (Environmental Ethics)</h3>
+                        <p>自然界の<strong>内在的価値</strong>を認め、人間中心主義を超えた倫理体系を構築。持続可能な発展を目指します。</p>
+                        <div class="key-concept">内在的価値</div>
+                        <div class="key-concept">世代間正義</div>
+                        <div class="key-concept">生態系の保全</div>
+                        <p><strong>持続可能性:</strong> 将来世代のニーズを損なうことなく現在のニーズを満たす発展</p>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3>🎛️ 理論比較ツール</h3>
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>比較する理論</label>
+                            <select id="theory1">
+                                <option value="utilitarian">功利主義</option>
+                                <option value="deontological">義務論</option>
+                                <option value="virtue">徳倫理学</option>
+                                <option value="contractual">契約論</option>
+                                <option value="care">ケア倫理学</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>対比する理論</label>
+                            <select id="theory2">
+                                <option value="deontological">義務論</option>
+                                <option value="utilitarian">功利主義</option>
+                                <option value="virtue">徳倫理学</option>
+                                <option value="contractual">契約論</option>
+                                <option value="care">ケア倫理学</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="compareTheories()">理論比較</button>
+                        <button class="btn secondary" onclick="showTheoryTimeline()">歴史的発展</button>
+                    </div>
+                </div>
+
+                <div class="debate-arena">
+                    <h3>⚔️ 理論対決アリーナ</h3>
+                    <div class="debate-sides">
+                        <div class="debate-side side-pro">
+                            <div class="side-title">功利主義の立場</div>
+                            <p>「最大多数の最大幸福」という明確な基準により、客観的で計算可能な倫理判断が可能です。社会全体の福祉を最大化する合理的アプローチです。</p>
+                            <ul>
+                                <li>定量的評価が可能</li>
+                                <li>社会政策に適用しやすい</li>
+                                <li>実践的で現実的</li>
+                            </ul>
+                        </div>
+                        <div class="debate-vs">VS</div>
+                        <div class="debate-side side-con">
+                            <div class="side-title">義務論の立場</div>
+                            <p>人間の尊厳と権利は計算の対象ではありません。普遍的な道徳法則に従うことで、一貫した倫理的行動が保証されます。</p>
+                            <ul>
+                                <li>人格の尊厳を保護</li>
+                                <li>普遍的な道徳原理</li>
+                                <li>動機の純粋性を重視</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn" onclick="joinDebate('pro')">功利主義を支持</button>
+                        <button class="btn secondary" onclick="joinDebate('con')">義務論を支持</button>
+                        <button class="btn warning" onclick="seekSynthesis()">統合案を模索</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ジレンマタブ -->
+            <div class="tab-content" id="dilemmas">
+                <div class="tutorial">
+                    <h4>🚂 倫理的ジレンマの分析</h4>
+                    <p>古典的な思考実験から現代的な問題まで、様々な倫理的ジレンマを分析します。複数の理論的視点から問題を検討し、自分なりの判断を形成しましょう。</p>
+                </div>
+
+                <div class="dilemma-container">
+                    <div class="dilemma-title">🚂 トロッコ問題 (Trolley Problem)</div>
+                    <div class="dilemma-scenario">
+                        制御不能になったトロッコが5人の作業員に向かって突進しています。あなたはレバーを引いて別の線路に切り替えることができますが、そこには1人の作業員がいます。
+                        <br><br>
+                        <strong>あなたならどうしますか？</strong>
+                    </div>
+
+                    <div class="choice-options">
+                        <div class="choice-option" onclick="selectChoice(this, 'lever')">
+                            <h4>🔄 レバーを引く</h4>
+                            <p>1人を犠牲にして5人を救う。数の論理により、より多くの生命を守ることを優先する。</p>
+                            <div class="key-concept">功利主義的判断</div>
+                        </div>
+                        <div class="choice-option" onclick="selectChoice(this, 'no-lever')">
+                            <h4>🚫 レバーを引かない</h4>
+                            <p>積極的に人を殺すことはしない。意図的な殺人と結果として生じる死を区別する。</p>
+                            <div class="key-concept">義務論的判断</div>
+                        </div>
+                        <div class="choice-option" onclick="selectChoice(this, 'alternative')">
+                            <h4>🔍 第三の選択肢を探す</h4>
+                            <p>警告を発する、緊急停止装置を探すなど、他の可能性を検討する。</p>
+                            <div class="key-concept">創造的問題解決</div>
+                        </div>
+                    </div>
+
+                    <div class="ethical-analysis" id="analysisResult" style="display: none;">
+                        <h3>📊 倫理的分析結果</h3>
+                        <div class="analysis-section">
+                            <h4>功利主義的視点</h4>
+                            <p id="utilitarianAnalysis">5人の生命 > 1人の生命　∴ レバーを引くべき</p>
+                        </div>
+                        <div class="analysis-section">
+                            <h4>義務論的視点</h4>
+                            <p id="deontologicalAnalysis">意図的殺人は普遍化不可能　∴ レバーを引くべきでない</p>
+                        </div>
+                        <div class="analysis-section">
+                            <h4>徳倫理学的視点</h4>
+                            <p id="virtueAnalysis">実践的知恵による状況判断が必要。単純な規則適用では不十分</p>
+                        </div>
+                        <div class="analysis-section">
+                            <h4>あなたの判断の特徴</h4>
+                            <p id="personalAnalysis">選択に基づいた分析がここに表示されます</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3>🎯 ジレンマ設定</h3>
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>ジレンマの種類</label>
+                            <select id="dilemmaType" onchange="loadDilemma()">
+                                <option value="trolley">トロッコ問題</option>
+                                <option value="lifeboat">救命ボート問題</option>
+                                <option value="cave">洞窟の例</option>
+                                <option value="transplant">臓器移植問題</option>
+                                <option value="ai-car">自動運転車の判断</option>
+                                <option value="privacy">プライバシーvsセキュリティ</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>複雑さレベル</label>
+                            <select id="complexityLevel">
+                                <option value="simple">基本版</option>
+                                <option value="moderate" selected>標準版</option>
+                                <option value="complex">複雑版</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>文化的背景</label>
+                            <select id="culturalContext">
+                                <option value="universal">普遍的</option>
+                                <option value="western">西洋文化</option>
+                                <option value="eastern">東洋文化</option>
+                                <option value="indigenous">先住民文化</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="generateCustomDilemma()">カスタムジレンマ生成</button>
+                    </div>
+                </div>
+
+                <div class="stakeholder-map">
+                    <h3>👥 利害関係者マッピング</h3>
+                    <div class="stakeholder-card">
+                        <h4>👷 作業員5人</h4>
+                        <div class="stakeholder-impact impact-high">高: 生死に関わる</div>
+                        <p>直接的な被害者。家族への影響も大</p>
+                    </div>
+                    <div class="stakeholder-card">
+                        <h4>👷 作業員1人</h4>
+                        <div class="stakeholder-impact impact-high">高: 生死に関わる</div>
+                        <p>代替案での被害者。同等の価値を持つ</p>
+                    </div>
+                    <div class="stakeholder-card">
+                        <h4>🤔 意思決定者</h4>
+                        <div class="stakeholder-impact impact-medium">中: 心理的負担</div>
+                        <p>判断の責任を負う。トラウマのリスク</p>
+                    </div>
+                    <div class="stakeholder-card">
+                        <h4>👨‍👩‍👧‍👦 家族・遺族</h4>
+                        <div class="stakeholder-impact impact-high">高: 感情的影響</div>
+                        <p>愛する人を失う悲しみ。経済的影響も</p>
+                    </div>
+                    <div class="stakeholder-card">
+                        <h4>🏢 会社・組織</h4>
+                        <div class="stakeholder-impact impact-medium">中: 責任問題</div>
+                        <p>安全管理責任。法的・財政的影響</p>
+                    </div>
+                    <div class="stakeholder-card">
+                        <h4>🌍 社会全体</h4>
+                        <div class="stakeholder-impact impact-low">低: 道徳規範</div>
+                        <p>道徳的先例の設定。社会的価値観への影響</p>
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <h3>⚖️ 価値の重み付け</h3>
+                    <div class="slider-group">
+                        <label>生命の数量的価値</label>
+                        <input type="range" id="quantityValue" min="0" max="100" value="70" oninput="updateValueWeight()">
+                        <div class="slider-value" id="quantityValueDisplay">70</div>
+                    </div>
+                    <div class="slider-group">
+                        <label>行為の意図</label>
+                        <input type="range" id="intentionValue" min="0" max="100" value="50" oninput="updateValueWeight()">
+                        <div class="slider-value" id="intentionValueDisplay">50</div>
+                    </div>
+                    <div class="slider-group">
+                        <label>個人の尊厳</label>
+                        <input type="range" id="dignityValue" min="0" max="100" value="80" oninput="updateValueWeight()">
+                        <div class="slider-value" id="dignityValueDisplay">80</div>
+                    </div>
+                    <div class="slider-group">
+                        <label>社会的結果</label>
+                        <input type="range" id="consequenceValue" min="0" max="100" value="60" oninput="updateValueWeight()">
+                        <div class="slider-value" id="consequenceValueDisplay">60</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" onclick="analyzeDecision()">判断を分析</button>
+                    <button class="btn secondary" onclick="compareWithExperts()">専門家の見解と比較</button>
+                    <button class="btn warning" onclick="saveReflection()">考察を保存</button>
+                </div>
+            </div>
+
+            <!-- AI倫理タブ -->
+            <div class="tab-content" id="ai-ethics">
+                <div class="tutorial">
+                    <h4>🤖 AI倫理の実践的学習</h4>
+                    <p>人工知能の発展に伴う新しい倫理的課題を学習します。アルゴリズムの公正性、説明可能性、プライバシー保護など、AI時代特有の問題を探求します。</p>
+                </div>
+
+                <div class="case-study">
+                    <h3>🏥 AI医療診断システムの倫理的課題</h3>
+                    <div class="case-details">
+                        <p><strong>状況:</strong> あなたの病院では、画像診断を支援するAIシステムを導入しようとしています。このシステムは95%の精度を誇りますが、高齢者や特定の民族グループでは精度が85%に低下することが判明しました。</p>
+                        
+                        <p><strong>課題:</strong> システムを導入すべきか？導入する場合、どのような配慮が必要か？</p>
+                    </div>
+
+                    <div class="stakeholder-map">
+                        <div class="stakeholder-card">
+                            <h4>👨‍⚕️ 医師</h4>
+                            <div class="stakeholder-impact impact-medium">診断支援の恩恵 vs 判断責任</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>🏥 患者</h4>
+                            <div class="stakeholder-impact impact-high">診断精度向上 vs 格差拡大リスク</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>🏢 病院経営</h4>
+                            <div class="stakeholder-impact impact-medium">効率化 vs 導入コスト・リスク</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>⚖️ 規制当局</h4>
+                            <div class="stakeholder-impact impact-medium">安全性確保 vs イノベーション促進</div>
+                        </div>
+                    </div>
+
+                    <div class="choice-options">
+                        <div class="choice-option" onclick="selectAIChoice(this, 'deploy')">
+                            <h4>✅ そのまま導入</h4>
+                            <p>全体的な診断精度の向上を優先。不完全でも現状より良い。</p>
+                        </div>
+                        <div class="choice-option" onclick="selectAIChoice(this, 'improve')">
+                            <h4>🔧 改良してから導入</h4>
+                            <p>格差問題を解決するまで導入を延期。追加データ収集・アルゴリズム改良。</p>
+                        </div>
+                        <div class="choice-option" onclick="selectAIChoice(this, 'conditional')">
+                            <h4>⚠️ 条件付き導入</h4>
+                            <p>制限を設けて導入。特定グループでは人間医師の判断を重視。</p>
+                        </div>
+                        <div class="choice-option" onclick="selectAIChoice(this, 'reject')">
+                            <h4>❌ 導入を見送り</h4>
+                            <p>格差を生む可能性があるシステムは倫理的に問題。代替手段を模索。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3>⚖️ アルゴリズミック・フェアネス</h3>
+                        <p>AIシステムが特定のグループに対して不平等な結果をもたらさないよう配慮する原則。</p>
+                        <div class="key-concept">統計的平等</div>
+                        <div class="key-concept">機会の均等</div>
+                        <div class="key-concept">結果の公平性</div>
+                        <p><strong>測定指標:</strong> True Positive Rate, False Positive Rate, Calibration</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🔍 説明可能AI (XAI)</h3>
+                        <p>AIの判断過程を人間が理解できる形で説明する技術と義務。透明性の確保。</p>
+                        <div class="key-concept">透明性</div>
+                        <div class="key-concept">解釈可能性</div>
+                        <div class="key-concept">説明責任</div>
+                        <p><strong>手法例:</strong> LIME, SHAP, Attention Mechanism, Decision Trees</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🔒 プライバシー保護</h3>
+                        <p>個人データの収集・利用における適切な配慮。データ最小化と目的制限の原則。</p>
+                        <div class="key-concept">差分プライバシー</div>
+                        <div class="key-concept">連合学習</div>
+                        <div class="key-concept">同意の取得</div>
+                        <p><strong>技術的保護:</strong> k-匿名化, l-多様性, 準同型暗号</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🛡️ AI安全性</h3>
+                        <p>AIシステムが意図しない有害な結果をもたらさないよう制御する技術と原則。</p>
+                        <div class="key-concept">価値アライメント</div>
+                        <div class="key-concept">堅牢性</div>
+                        <div class="key-concept">制御可能性</div>
+                        <p><strong>アプローチ:</strong> 報酬設計, 制約条件, 人間フィードバック学習</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>👥 人間中心AI</h3>
+                        <p>人間の価値、尊厳、自律性を最優先とするAI開発・運用の原則。</p>
+                        <div class="key-concept">人間の主体性</div>
+                        <div class="key-concept">意思決定支援</div>
+                        <div class="key-concept">社会的価値</div>
+                        <p><strong>設計原則:</strong> 人間との協働, 増強型AI, 最終判断権の保持</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🌍 AI ガバナンス</h3>
+                        <p>AI技術の社会実装における適切な統治体制。多様な利害関係者の参加。</p>
+                        <div class="key-concept">マルチステークホルダー</div>
+                        <div class="key-concept">適応的規制</div>
+                        <div class="key-concept">国際協調</div>
+                        <p><strong>枠組:</strong> 倫理審査委員会, 影響評価, 継続的監視</p>
+                    </div>
+                </div>
+
+                <div class="scenario-builder">
+                    <h3>🔧 AIシナリオビルダー</h3>
+                    <div class="builder-step">
+                        <h4>1. AI技術の選択</h4>
+                        <div class="builder-options">
+                            <div class="builder-option" onclick="selectBuilder(this, 'tech', 'ml')">機械学習</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'tech', 'nlp')">自然言語処理</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'tech', 'cv')">コンピュータビジョン</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'tech', 'robotics')">ロボティクス</div>
+                        </div>
+                    </div>
+                    <div class="builder-step">
+                        <h4>2. 応用分野</h4>
+                        <div class="builder-options">
+                            <div class="builder-option" onclick="selectBuilder(this, 'domain', 'healthcare')">医療</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'domain', 'finance')">金融</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'domain', 'education')">教育</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'domain', 'transport')">交通</div>
+                        </div>
+                    </div>
+                    <div class="builder-step">
+                        <h4>3. 倫理的課題</h4>
+                        <div class="builder-options">
+                            <div class="builder-option" onclick="selectBuilder(this, 'issue', 'bias')">バイアス・差別</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'issue', 'privacy')">プライバシー</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'issue', 'transparency')">透明性</div>
+                            <div class="builder-option" onclick="selectBuilder(this, 'issue', 'autonomy')">自律性</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generateAIScenario()">シナリオ生成</button>
+                </div>
+            </div>
+
+            <!-- ケーススタディタブ -->
+            <div class="tab-content" id="cases">
+                <div class="tutorial">
+                    <h4>📋 実践的ケーススタディ</h4>
+                    <p>実際に起こった倫理的問題や、現実的な状況設定を通じて、理論を実践に活かす力を養います。</p>
+                </div>
+
+                <div class="timeline">
+                    <h3>📚 歴史的ケーススタディ</h3>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">1947年</div>
+                            <div class="timeline-title">ニュルンベルク綱領</div>
+                            <p>人体実験における被験者の同意に関する国際的基準の確立。医療研究倫理の出発点。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">1979年</div>
+                            <div class="timeline-title">スリーマイル島原発事故</div>
+                            <p>技術的安全性と社会的受容性の関係。専門家と市民の信頼関係の重要性。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">1997年</div>
+                            <div class="timeline-title">ドリー羊のクローン</div>
+                            <p>生命操作技術の倫理的境界。科学の自由と社会的責任の調和。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2016年</div>
+                            <div class="timeline-title">Microsoft Tay事件</div>
+                            <p>AI学習における偏見の問題。オンライン環境での責任範囲の議論。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2018年</div>
+                            <div class="timeline-title">Cambridge Analytica事件</div>
+                            <p>個人データの政治利用。プライバシー権と表現の自由の緊張関係。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h3>🏢 現代企業の倫理的課題</h3>
+                    <div class="case-details">
+                        <p><strong>企業:</strong> グローバルIT企業 TechCorp</p>
+                        <p><strong>状況:</strong> 新しいAI製品の開発において、以下の課題が同時に発生</p>
+                        <ul>
+                            <li>訓練データに潜在的な人種・性別バイアスが発見される</li>
+                            <li>競合他社が類似製品を先行リリース予定</li>
+                            <li>投資家からの早期収益化圧力</li>
+                            <li>規制当局からの安全性確認要求</li>
+                            <li>社内エンジニアからの倫理的懸念</li>
+                        </ul>
+                    </div>
+
+                    <div class="stakeholder-map">
+                        <div class="stakeholder-card">
+                            <h4>👨‍💼 経営陣</h4>
+                            <div class="stakeholder-impact impact-high">事業成功責任・株主利益</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>👨‍💻 エンジニア</h4>
+                            <div class="stakeholder-impact impact-medium">技術的品質・職業倫理</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>👥 ユーザー</h4>
+                            <div class="stakeholder-impact impact-high">サービス品質・公平性</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>📈 投資家</h4>
+                            <div class="stakeholder-impact impact-medium">投資収益・リスク管理</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>⚖️ 規制当局</h4>
+                            <div class="stakeholder-impact impact-medium">公共安全・市場秩序</div>
+                        </div>
+                        <div class="stakeholder-card">
+                            <h4>🌍 社会全体</h4>
+                            <div class="stakeholder-impact impact-high">技術の社会的影響</div>
+                        </div>
+                    </div>
+
+                    <div class="choice-options">
+                        <div class="choice-option" onclick="selectCaseChoice(this, 'delay')">
+                            <h4>⏳ 発売延期・改善優先</h4>
+                            <p>バイアス問題の完全解決まで発売を延期。短期的損失を受け入れて長期的信頼を重視。</p>
+                        </div>
+                        <div class="choice-option" onclick="selectCaseChoice(this, 'launch')">
+                            <h4>🚀 予定通り発売・段階改善</h4>
+                            <p>市場投入を優先し、リリース後に継続的改善。透明な情報開示とアップデート計画を併用。</p>
+                        </div>
+                        <div class="choice-option" onclick="selectCaseChoice(this, 'limited')">
+                            <h4>🎯 限定的リリース</h4>
+                            <p>特定市場・用途に限定してリリース。段階的な展開により問題の早期発見・対処を図る。</p>
+                        </div>
+                        <div class="choice-option" onclick="selectCaseChoice(this, 'partnership')">
+                            <h4>🤝 業界協調・基準策定</h4>
+                            <p>競合他社・学術機関と協力し、業界全体の倫理基準策定を提案。長期的な共存共栄を目指す。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3>🎛️ ケース分析ツール</h3>
+                    <div class="control-row">
+                        <button class="btn" onclick="showStakeholderAnalysis()">利害関係者分析</button>
+                        <button class="btn" onclick="showRiskAssessment()">リスク評価</button>
+                        <button class="btn" onclick="showEthicalFramework()">倫理的枠組適用</button>
+                        <button class="btn secondary" onclick="generateAlternatives()">代替案生成</button>
+                        <button class="btn warning" onclick="exportCaseReport()">分析レポート出力</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 他のタブ内容は省略（シナリオ構築、議論、学習進捗） -->
+            <div class="tab-content" id="builder">
+                <div class="tutorial">
+                    <h4>🔧 カスタムシナリオ構築</h4>
+                    <p>あなた独自の倫理的ジレンマを作成し、他の学習者と共有できます。</p>
+                </div>
+                <p>シナリオ構築機能（実装予定）</p>
+            </div>
+
+            <div class="tab-content" id="discussion">
+                <div class="tutorial">
+                    <h4>💬 議論・討論フォーラム</h4>
+                    <p>他の学習者や専門家との議論を通じて、多様な視点を学びます。</p>
+                </div>
+                <p>議論フォーラム（実装予定）</p>
+            </div>
+
+            <div class="tab-content" id="learning">
+                <div class="tutorial">
+                    <h4>📊 学習進捗・成長記録</h4>
+                    <p>あなたの倫理的思考力の成長を可視化し、個別化された学習提案を受けられます。</p>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar" style="width: 65%"></div>
+                </div>
+                <p>総合進捗: 65% 完了</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI アシスタント -->
+    <button class="ai-assistant" onclick="toggleChat()">🤖</button>
+    
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            AI倫理アシスタント
+        </div>
+        <div class="chat-body" id="chatBody">
+            <p>こんにちは！倫理的な問題について何でもお聞きください。</p>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="質問を入力..." onkeypress="handleChatInput(event)">
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentScenarioData = {
+            selectedChoice: null,
+            userValues: {
+                quantity: 70,
+                intention: 50,
+                dignity: 80,
+                consequence: 60
+            },
+            analysisHistory: []
+        };
+
+        let learningProgress = {
+            theoriesStudied: new Set(),
+            dilemmasSolved: 0,
+            reflectionsWritten: 0,
+            discussionsParticipated: 0
+        };
+
+        let aiScenarioBuilder = {
+            selectedTech: null,
+            selectedDomain: null,
+            selectedIssue: null
+        };
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTabs();
+            loadUserProgress();
+            initializeEthicsComponents();
+        });
+
+        // タブ機能
+        function initializeTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                    
+                    // タブ切り替え時の処理
+                    onTabChange(tab.dataset.tab);
+                });
+            });
+        }
+
+        function onTabChange(tabId) {
+            switch(tabId) {
+                case 'theories':
+                    updateTheoryComparison();
+                    break;
+                case 'dilemmas':
+                    loadDilemma();
+                    break;
+                case 'ai-ethics':
+                    updateAIEthicsScenario();
+                    break;
+                case 'learning':
+                    updateLearningProgress();
+                    break;
+            }
+        }
+
+        // 選択肢選択機能
+        function selectChoice(element, choice) {
+            document.querySelectorAll('.choice-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            currentScenarioData.selectedChoice = choice;
+            
+            // 分析結果表示
+            setTimeout(() => {
+                showAnalysisResult(choice);
+            }, 500);
+        }
+
+        function showAnalysisResult(choice) {
+            const analysisDiv = document.getElementById('analysisResult');
+            const personalAnalysis = document.getElementById('personalAnalysis');
+            
+            let analysis = '';
+            switch(choice) {
+                case 'lever':
+                    analysis = '功利主義的判断を選択しました。全体の幸福を最大化する結果主義的アプローチです。';
+                    break;
+                case 'no-lever':
+                    analysis = '義務論的判断を選択しました。道徳的義務と人格の尊厳を重視するアプローチです。';
+                    break;
+                case 'alternative':
+                    analysis = '創造的問題解決を選択しました。既存の枠組みを超えた第三の道を模索するアプローチです。';
+                    break;
+            }
+            
+            personalAnalysis.textContent = analysis;
+            analysisDiv.style.display = 'block';
+            
+            // 学習進捗更新
+            learningProgress.dilemmasSolved++;
+            updateLearningMetrics();
+        }
+
+        // 価値の重み付け機能
+        function updateValueWeight() {
+            const quantity = document.getElementById('quantityValue').value;
+            const intention = document.getElementById('intentionValue').value;
+            const dignity = document.getElementById('dignityValue').value;
+            const consequence = document.getElementById('consequenceValue').value;
+            
+            document.getElementById('quantityValueDisplay').textContent = quantity;
+            document.getElementById('intentionValueDisplay').textContent = intention;
+            document.getElementById('dignityValueDisplay').textContent = dignity;
+            document.getElementById('consequenceValueDisplay').textContent = consequence;
+            
+            currentScenarioData.userValues = {
+                quantity: parseInt(quantity),
+                intention: parseInt(intention),
+                dignity: parseInt(dignity),
+                consequence: parseInt(consequence)
+            };
+            
+            // リアルタイム分析更新
+            if (currentScenarioData.selectedChoice) {
+                updateAnalysisBasedOnValues();
+            }
+        }
+
+        function updateAnalysisBasedOnValues() {
+            const values = currentScenarioData.userValues;
+            let dominantValue = 'quantity';
+            let maxValue = values.quantity;
+            
+            Object.keys(values).forEach(key => {
+                if (values[key] > maxValue) {
+                    maxValue = values[key];
+                    dominantValue = key;
+                }
+            });
+            
+            const analysisElement = document.getElementById('personalAnalysis');
+            let newAnalysis = '';
+            
+            switch(dominantValue) {
+                case 'quantity':
+                    newAnalysis = 'あなたは数量的価値を最も重視しています。多くの人を救うことを優先する功利主義的傾向があります。';
+                    break;
+                case 'intention':
+                    newAnalysis = 'あなたは行為の意図を最も重視しています。善意に基づく行為を重要視する動機主義的傾向があります。';
+                    break;
+                case 'dignity':
+                    newAnalysis = 'あなたは個人の尊厳を最も重視しています。人格の不可侵性を重要視する義務論的傾向があります。';
+                    break;
+                case 'consequence':
+                    newAnalysis = 'あなたは社会的結果を最も重視しています。長期的な社会的影響を考慮する結果主義的傾向があります。';
+                    break;
+            }
+            
+            analysisElement.textContent = newAnalysis;
+        }
+
+        // AI倫理シナリオ機能
+        function selectAIChoice(element, choice) {
+            document.querySelectorAll('#ai-ethics .choice-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            showAIAnalysis(choice);
+        }
+
+        function showAIAnalysis(choice) {
+            let message = '';
+            switch(choice) {
+                case 'deploy':
+                    message = '効率性を優先した判断です。ただし、公正性の課題は残ります。';
+                    break;
+                case 'improve':
+                    message = '理想的ですが、改良に必要な時間とリソースを考慮する必要があります。';
+                    break;
+                case 'conditional':
+                    message = 'バランスの取れたアプローチです。段階的な改善が可能です。';
+                    break;
+                case 'reject':
+                    message = '慎重なアプローチですが、技術発展の機会を逸する可能性があります。';
+                    break;
+            }
+            
+            showNotification(message, 'info');
+        }
+
+        // シナリオビルダー機能
+        function selectBuilder(element, category, value) {
+            // 同カテゴリの他選択を解除
+            element.parentElement.querySelectorAll('.builder-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            aiScenarioBuilder[`selected${category.charAt(0).toUpperCase() + category.slice(1)}`] = value;
+        }
+
+        function generateAIScenario() {
+            const {selectedTech, selectedDomain, selectedIssue} = aiScenarioBuilder;
+            
+            if (!selectedTech || !selectedDomain || !selectedIssue) {
+                showNotification('すべての要素を選択してください', 'warning');
+                return;
+            }
+            
+            const scenarios = {
+                'ml-healthcare-bias': '機械学習を用いた医療診断システムにおいて、特定の人種・性別に対するバイアスが発見されました。',
+                'nlp-education-privacy': '自然言語処理を活用した教育支援システムで、学生の個人情報が適切に保護されていない可能性があります。',
+                'cv-finance-transparency': 'コンピュータビジョンを使った金融審査システムの判断根拠が不透明で、顧客に説明できません。'
+            };
+            
+            const scenarioKey = `${selectedTech}-${selectedDomain}-${selectedIssue}`;
+            const scenario = scenarios[scenarioKey] || `${selectedTech}技術を${selectedDomain}分野に適用する際の${selectedIssue}問題について考察してください。`;
+            
+            showNotification(`新しいシナリオを生成しました: ${scenario}`, 'success');
+        }
+
+        // ケーススタディ機能
+        function selectCaseChoice(element, choice) {
+            document.querySelectorAll('#cases .choice-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            analyzeCaseChoice(choice);
+        }
+
+        function analyzeCaseChoice(choice) {
+            const analyses = {
+                'delay': '長期的信頼を重視した判断です。CSRと持続可能な事業成長を優先しています。',
+                'launch': '市場競争力を重視した判断です。アジャイル型の改善アプローチを採用しています。',
+                'limited': 'リスク管理を重視した判断です。段階的展開により問題の早期発見を図っています。',
+                'partnership': '業界全体の発展を重視した判断です。協調的アプローチにより共存共栄を目指しています。'
+            };
+            
+            showNotification(analyses[choice], 'info');
+        }
+
+        // 理論比較機能
+        function compareTheories() {
+            const theory1 = document.getElementById('theory1').value;
+            const theory2 = document.getElementById('theory2').value;
+            
+            showNotification(`${theory1}と${theory2}の比較分析を開始します`, 'info');
+            learningProgress.theoriesStudied.add(theory1);
+            learningProgress.theoriesStudied.add(theory2);
+        }
+
+        function showTheoryTimeline() {
+            showNotification('倫理思想の歴史的発展を表示します', 'info');
+        }
+
+        // 討論機能
+        function joinDebate(side) {
+            const messages = {
+                pro: '功利主義の立場で討論に参加しました',
+                con: '義務論の立場で討論に参加しました'
+            };
+            
+            showNotification(messages[side], 'success');
+            learningProgress.discussionsParticipated++;
+        }
+
+        function seekSynthesis() {
+            showNotification('統合案の模索を開始します。建設的な対話を心がけましょう。', 'info');
+        }
+
+        // 分析・評価機能
+        function analyzeDecision() {
+            if (!currentScenarioData.selectedChoice) {
+                showNotification('まず選択肢を選んでください', 'warning');
+                return;
+            }
+            
+            const analysis = generateComprehensiveAnalysis();
+            showNotification('包括的な分析を完了しました', 'success');
+            
+            // 分析履歴に追加
+            currentScenarioData.analysisHistory.push({
+                timestamp: new Date(),
+                choice: currentScenarioData.selectedChoice,
+                values: {...currentScenarioData.userValues},
+                analysis: analysis
+            });
+        }
+
+        function generateComprehensiveAnalysis() {
+            return {
+                ethicalFrameworks: ['功利主義', '義務論', '徳倫理学'],
+                stakeholderImpact: calculateStakeholderImpact(),
+                riskAssessment: assessRisks(),
+                recommendations: generateRecommendations()
+            };
+        }
+
+        function calculateStakeholderImpact() {
+            return {
+                primary: '直接的影響を受ける当事者',
+                secondary: '間接的影響を受ける関係者',
+                societal: '社会全体への長期的影響'
+            };
+        }
+
+        function assessRisks() {
+            return {
+                immediate: '即座に生じるリスク',
+                longterm: '長期的に懸念されるリスク',
+                mitigation: '軽減策の提案'
+            };
+        }
+
+        function generateRecommendations() {
+            return [
+                '多様な観点からの継続的検討',
+                '利害関係者との対話促進',
+                '段階的実施と評価'
+            ];
+        }
+
+        function compareWithExperts() {
+            showNotification('専門家の見解との比較を表示します', 'info');
+        }
+
+        function saveReflection() {
+            showNotification('考察を保存しました', 'success');
+            learningProgress.reflectionsWritten++;
+        }
+
+        // 学習設定・進捗管理
+        function updateLearningSettings() {
+            const level = document.getElementById('learningLevel').value;
+            const specialization = document.getElementById('specialization').value;
+            const style = document.getElementById('learningStyle').value;
+            
+            showNotification(`学習設定を更新しました: ${level}・${specialization}・${style}`, 'success');
+        }
+
+        function updateLearningProgress() {
+            // 学習進捗の可視化更新
+            const progressBar = document.querySelector('#learning .progress-bar');
+            const totalProgress = calculateTotalProgress();
+            
+            if (progressBar) {
+                progressBar.style.width = totalProgress + '%';
+            }
+        }
+
+        function calculateTotalProgress() {
+            const theoriesWeight = Math.min(learningProgress.theoriesStudied.size * 10, 40);
+            const dilemmasWeight = Math.min(learningProgress.dilemmasSolved * 15, 30);
+            const reflectionsWeight = Math.min(learningProgress.reflectionsWritten * 10, 20);
+            const discussionsWeight = Math.min(learningProgress.discussionsParticipated * 5, 10);
+            
+            return theoriesWeight + dilemmasWeight + reflectionsWeight + discussionsWeight;
+        }
+
+        function updateLearningMetrics() {
+            // 学習メトリクスの更新
+            updateLearningProgress();
+            updateEthicsRadar();
+        }
+
+        function updateEthicsRadar() {
+            // 倫理判断レーダーの更新
+            const radarValue = Math.min(75 + learningProgress.dilemmasSolved, 100);
+            const meterValue = document.querySelector('.meter-value');
+            
+            if (meterValue) {
+                meterValue.textContent = radarValue;
+            }
+        }
+
+        // ジレンマ読み込み機能
+        function loadDilemma() {
+            const dilemmaType = document.getElementById('dilemmaType')?.value;
+            if (!dilemmaType) return;
+            
+            const dilemmas = {
+                'trolley': {
+                    title: 'トロッコ問題',
+                    scenario: '制御不能になったトロッコが5人の作業員に向かって突進しています...'
+                },
+                'lifeboat': {
+                    title: '救命ボート問題',
+                    scenario: '沈没船から救命ボートに逃れましたが、定員オーバーです...'
+                }
+            };
+            
+            if (dilemmas[dilemmaType]) {
+                showNotification(`${dilemmas[dilemmaType].title}を読み込みました`, 'info');
+            }
+        }
+
+        function generateCustomDilemma() {
+            showNotification('カスタムジレンマを生成中...', 'info');
+        }
+
+        // ケース分析ツール
+        function showStakeholderAnalysis() {
+            showNotification('利害関係者の詳細分析を表示します', 'info');
+        }
+
+        function showRiskAssessment() {
+            showNotification('リスク評価マトリックスを表示します', 'info');
+        }
+
+        function showEthicalFramework() {
+            showNotification('倫理的枠組みの適用結果を表示します', 'info');
+        }
+
+        function generateAlternatives() {
+            showNotification('代替案を生成中...', 'info');
+        }
+
+        function exportCaseReport() {
+            showNotification('分析レポートをエクスポート中...', 'info');
+        }
+
+        // AI チャット機能
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function handleChatInput(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const message = input.value.trim();
+                
+                if (message) {
+                    addChatMessage('user', message);
+                    input.value = '';
+                    
+                    // AI応答のシミュレーション
+                    setTimeout(() => {
+                        const aiResponse = generateAIResponse(message);
+                        addChatMessage('ai', aiResponse);
+                    }, 1000);
+                }
+            }
+        }
+
+        function addChatMessage(sender, message) {
+            const chatBody = document.getElementById('chatBody');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.marginBottom = '10px';
+            messageDiv.style.padding = '8px';
+            messageDiv.style.borderRadius = '6px';
+            
+            if (sender === 'user') {
+                messageDiv.style.backgroundColor = '#e3f2fd';
+                messageDiv.style.textAlign = 'right';
+            } else {
+                messageDiv.style.backgroundColor = '#f5f5f5';
+            }
+            
+            messageDiv.textContent = message;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function generateAIResponse(userMessage) {
+            const responses = {
+                'トロッコ': 'トロッコ問題は功利主義と義務論の根本的な対立を示す古典的なジレンマです。',
+                '功利主義': '功利主義は結果の総合的な価値を最大化することを目指す理論です。',
+                '義務論': '義務論は行為の動機と普遍化可能性を重視するカントの倫理理論です。',
+                'AI': 'AI倫理では、公正性・透明性・説明責任・プライバシー保護が重要な原則です。',
+                'default': 'それは興味深い倫理的問題ですね。どの理論的観点から考えてみたいですか？'
+            };
+            
+            for (const keyword in responses) {
+                if (userMessage.includes(keyword)) {
+                    return responses[keyword];
+                }
+            }
+            
+            return responses['default'];
+        }
+
+        // 初期化関数
+        function initializeEthicsComponents() {
+            // 初期値設定
+            updateValueWeight();
+            updateLearningMetrics();
+            
+            // イベントリスナー設定
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // スライダーの初期化
+            const sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', updateValueWeight);
+            });
+        }
+
+        function loadUserProgress() {
+            // ローカルストレージから学習進捗を読み込み
+            const saved = localStorage.getItem('ethicsLearningProgress');
+            if (saved) {
+                try {
+                    const progress = JSON.parse(saved);
+                    learningProgress = {...learningProgress, ...progress};
+                    learningProgress.theoriesStudied = new Set(progress.theoriesStudied || []);
+                } catch (e) {
+                    console.warn('学習進捗の読み込みに失敗しました:', e);
+                }
+            }
+        }
+
+        function saveUserProgress() {
+            // 学習進捗をローカルストレージに保存
+            const progress = {
+                ...learningProgress,
+                theoriesStudied: Array.from(learningProgress.theoriesStudied)
+            };
+            
+            try {
+                localStorage.setItem('ethicsLearningProgress', JSON.stringify(progress));
+            } catch (e) {
+                console.warn('学習進捗の保存に失敗しました:', e);
+            }
+        }
+
+        // 通知機能
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '15px 20px';
+            notification.style.borderRadius = '6px';
+            notification.style.color = 'white';
+            notification.style.fontWeight = '600';
+            notification.style.zIndex = '10000';
+            notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            notification.textContent = message;
+            
+            switch(type) {
+                case 'success':
+                    notification.style.backgroundColor = '#28a745';
+                    break;
+                case 'warning':
+                    notification.style.backgroundColor = '#ffc107';
+                    notification.style.color = '#212529';
+                    break;
+                case 'error':
+                    notification.style.backgroundColor = '#dc3545';
+                    break;
+                default:
+                    notification.style.backgroundColor = '#6f42c1';
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 定期的な自動保存
+        setInterval(saveUserProgress, 30000); // 30秒ごと
+
+        // ページ離脱時の保存
+        window.addEventListener('beforeunload', saveUserProgress);
+
+        // エラーハンドリング
+        window.addEventListener('error', function(event) {
+            console.error('アプリケーションエラー:', event.error);
+            showNotification('予期しないエラーが発生しました', 'error');
+        });
+
+        // パフォーマンス監視
+        let performanceMetrics = {
+            interactionTime: 0,
+            analysisTime: 0,
+            lastActivity: null
+        };
+
+        function trackUserInteraction(action) {
+            performanceMetrics.lastActivity = new Date();
+            // ユーザー行動の記録（分析用）
+        }
+
+        // アクセシビリティ対応
+        document.addEventListener('keydown', function(event) {
+            // キーボードナビゲーション
+            if (event.key === 'Tab') {
+                // フォーカス可視化の改善
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', function() {
+            document.body.classList.remove('keyboard-navigation');
+        });
+    </script>
+</body>
+</html>
