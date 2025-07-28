@@ -1,6 +1,6 @@
 {
-  "appRequests": "https://github.com/[YOUR_USERNAME]/app-request-list",
-  "publishedApps": "https://github.com/[YOUR_USERNAME]/published-apps",
+  "appRequests": "https://github.com/muumuu8181/app-request-list",
+  "publishedApps": "https://github.com/muumuu8181/published-apps",
   "generatorRepo": "https://github.com/muumuu8181/ai-auto-generator",
   "notes": {
     "setup": "Replace [YOUR_USERNAME] with your actual GitHub username",

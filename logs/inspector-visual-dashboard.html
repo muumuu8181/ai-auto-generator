@@ -161,8 +161,109 @@
             margin-bottom: 10px;
         }
         
+        .tab-navigation {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab-btn.active {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .app-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border-left: 4px solid #27ae60;
+            transition: transform 0.2s ease;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .app-card.error {
+            border-left-color: #e74c3c;
+        }
+        
+        .app-card h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .app-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .app-status.working {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .app-status.error {
+            background: #fdeaea;
+            color: #e74c3c;
+        }
+        
+        .app-url {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+        
+        .app-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #95a5a6;
+        }
+
         @media (max-width: 768px) {
-            .dashboard-grid {
+            .dashboard-grid, .app-grid {
                 grid-template-columns: 1fr;
                 padding: 20px;
             }
@@ -170,29 +271,43 @@
             .metric-value {
                 font-size: 2.5em;
             }
+            
+            .tab-navigation {
+                flex-direction: column;
+                gap: 5px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-header">
         <h1>🔍 Inspector AI Dashboard</h1>
-        <div class="timestamp">最終更新: 2025/7/27 11:33:26</div>
+        <div class="timestamp">最終更新: 2025/7/27 13:20:53 (最新GitHub clone完了)</div>
+        
+        <!-- タブナビゲーション -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="showTab('overview')">📊 概要</button>
+            <button class="tab-btn" onclick="showTab('applist')">📱 アプリ一覧</button>
+            <button class="tab-btn" onclick="showTab('details')">🔧 詳細分析</button>
+        </div>
     </div>
     
-    <div class="dashboard-grid">
+    <!-- 概要タブ -->
+    <div id="overview" class="tab-content active">
+        <div class="dashboard-grid">
         <!-- アプリ統計 -->
         <div class="metric-card">
             <h3>📱 アプリ統計</h3>
-            <div class="metric-value warning">4</div>
+            <div class="metric-value success">145</div>
             <div class="metric-label">総アプリ数</div>
             <div class="status-grid">
                 <div class="status-item">
-                    <div class="number">1</div>
-                    <div class="label">本番デプロイ済み</div>
+                    <div class="number">107</div>
+                    <div class="label">正常動作</div>
                 </div>
                 <div class="status-item">
-                    <div class="number">3</div>
-                    <div class="label">開発中</div>
+                    <div class="number">38</div>
+                    <div class="label">404エラー</div>
                 </div>
             </div>
         </div>
@@ -200,18 +315,18 @@
         <!-- URL健全性 -->
         <div class="metric-card">
             <h3>🌐 URL健全性</h3>
-            <div class="metric-value success">100%</div>
+            <div class="metric-value warning">74%</div>
             <div class="metric-label">稼働率</div>
             <div class="progress-bar">
-                <div class="progress-fill" style="width: 100%"></div>
+                <div class="progress-fill" style="width: 74%"></div>
             </div>
             <div class="status-grid">
                 <div class="status-item">
-                    <div class="number">1</div>
+                    <div class="number">107</div>
                     <div class="label">正常URL</div>
                 </div>
                 <div class="status-item">
-                    <div class="number">0</div>
+                    <div class="number">38</div>
                     <div class="label">異常URL</div>
                 </div>
             </div>
@@ -220,8 +335,8 @@
         <!-- 品質スコア -->
         <div class="metric-card">
             <h3>⭐ 品質スコア</h3>
-            <div class="metric-value success">100</div>
-            <div class="metric-label">総合品質</div>
+            <div class="metric-value warning">74</div>
+            <div class="metric-label">総合品質 (74%成功率)</div>
             <div class="chart-container">
                 <canvas id="qualityChart"></canvas>
             </div>
@@ -230,16 +345,16 @@
         <!-- パフォーマンス -->
         <div class="metric-card">
             <h3>⚡ パフォーマンス</h3>
-            <div class="metric-value warning">335ms</div>
+            <div class="metric-value success">361ms</div>
             <div class="metric-label">平均レスポンス時間</div>
             <div class="status-grid">
                 <div class="status-item">
-                    <div class="number">0%</div>
+                    <div class="number">26%</div>
                     <div class="label">エラー率</div>
                 </div>
                 <div class="status-item">
-                    <div class="number">0</div>
-                    <div class="label">ルール変更</div>
+                    <div class="number">145</div>
+                    <div class="label">検出改善</div>
                 </div>
             </div>
         </div>
@@ -247,22 +362,242 @@
         <!-- ルール同期状況 -->
         <div class="metric-card">
             <h3>📋 ルール同期</h3>
-            <div class="metric-value success">5</div>
-            <div class="metric-label">監視中ファイル数</div>
+            <div class="metric-value success">145</div>
+            <div class="metric-label">新規検出アプリ数</div>
             <div class="chart-container">
                 <canvas id="ruleChart"></canvas>
             </div>
         </div>
         
         <!-- システム状態 -->
-        <div class="alert-section success">
-                <div class="alert-icon">🎉</div>
-                <h2>システム全体: 正常稼働中</h2>
-                <p>全てのアプリが正常に動作しており、品質スコアも高水準を維持しています。</p>
+        <div class="alert-section">
+                <div class="alert-icon">⚠️</div>
+                <h2>システム状態: 改善必要</h2>
+                <p>145件のアプリを検出済み。107件が正常動作中、38件の404エラーアプリの修復が必要です。</p>
             </div>
+        </div>
+    </div>
+    
+    <!-- アプリ一覧タブ -->
+    <div id="applist" class="tab-content">
+        <div class="app-grid" id="appListContainer">
+            <!-- 動的にアプリ一覧が生成される -->
+        </div>
+    </div>
+    
+    <!-- 詳細分析タブ -->
+    <div id="details" class="tab-content">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <h3>🔍 エラー詳細分析</h3>
+                <div class="metric-value danger">38</div>
+                <div class="metric-label">404エラーアプリ</div>
+                <div id="errorAppsList" style="max-height: 200px; overflow-y: auto; margin-top: 15px;">
+                    <!-- 動的にエラーリストが生成される -->
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>📊 レスポンス時間分析</h3>
+                <div class="chart-container">
+                    <canvas id="responseTimeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>📈 時系列分析</h3>
+                <div class="metric-value success">107</div>
+                <div class="metric-label">正常動作アプリ推移</div>
+                <div class="chart-container">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script>
+        // アプリデータ（実際のデータから生成）
+        const appData = {
+            working: [
+                {name: "app-0000001-297gku", url: "https://muumuu8181.github.io/published-apps/app-0000001-297gku/", responseTime: 460},
+                {name: "app-0000001-2k6sxh", url: "https://muumuu8181.github.io/published-apps/app-0000001-2k6sxh/", responseTime: 335},
+                {name: "app-0000001-34xzgi", url: "https://muumuu8181.github.io/published-apps/app-0000001-34xzgi/", responseTime: 347},
+                {name: "app-0000001-3fmmt2", url: "https://muumuu8181.github.io/published-apps/app-0000001-3fmmt2/", responseTime: 705},
+                {name: "app-0000001-44kiri", url: "https://muumuu8181.github.io/published-apps/app-0000001-44kiri/", responseTime: 320},
+                {name: "app-0000001-4ijs4a", url: "https://muumuu8181.github.io/published-apps/app-0000001-4ijs4a/", responseTime: 338},
+                {name: "app-0000001-6njwdc", url: "https://muumuu8181.github.io/published-apps/app-0000001-6njwdc/", responseTime: 322},
+                {name: "app-0000001-78vfe5", url: "https://muumuu8181.github.io/published-apps/app-0000001-78vfe5/", responseTime: 353},
+                {name: "app-0000001-7uibj5", url: "https://muumuu8181.github.io/published-apps/app-0000001-7uibj5/", responseTime: 312},
+                {name: "app-0000001-87da9z", url: "https://muumuu8181.github.io/published-apps/app-0000001-87da9z/", responseTime: 306},
+                {name: "app-001-auctrh", url: "https://muumuu8181.github.io/published-apps/app-001-auctrh/", responseTime: 283},
+                {name: "app-001-c5qw5s", url: "https://muumuu8181.github.io/published-apps/app-001-c5qw5s/", responseTime: 276},
+                {name: "app-002-7k55w2", url: "https://muumuu8181.github.io/published-apps/app-002-7k55w2/", responseTime: 276},
+                {name: "app-003-thqdtb", url: "https://muumuu8181.github.io/published-apps/app-003-thqdtb/", responseTime: 293},
+                {name: "app-004-383f9j", url: "https://muumuu8181.github.io/published-apps/app-004-383f9j/", responseTime: 279}
+            ],
+            broken: [
+                {name: "app-0000001-nqvmtw", url: "https://muumuu8181.github.io/published-apps/app-0000001-nqvmtw/", error: "HTTP 404"},
+                {name: "app-0000003-xjt6y6", url: "https://muumuu8181.github.io/published-apps/app-0000003-xjt6y6/", error: "HTTP 404"},
+                {name: "app-00000032-6a0778", url: "https://muumuu8181.github.io/published-apps/app-00000032-6a0778/", error: "HTTP 404"},
+                {name: "app-00000033-b059d4", url: "https://muumuu8181.github.io/published-apps/app-00000033-b059d4/", error: "HTTP 404"},
+                {name: "app-00000034-827e29", url: "https://muumuu8181.github.io/published-apps/app-00000034-827e29/", error: "HTTP 404"}
+            ]
+        };
+
+        // タブ切り替え機能
+        function showTab(tabName) {
+            // 全てのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 全てのタブボタンを非アクティブ
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 選択されたタブを表示
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // アプリ一覧タブの場合、データを生成
+            if (tabName === 'applist') {
+                generateAppList();
+            }
+            
+            // 詳細分析タブの場合、エラーリストを生成
+            if (tabName === 'details') {
+                generateErrorList();
+                generateDetailCharts();
+            }
+        }
+
+        // アプリ一覧生成
+        function generateAppList() {
+            const container = document.getElementById('appListContainer');
+            container.innerHTML = '';
+            
+            // 正常動作アプリ（最初の15件表示）
+            appData.working.slice(0, 15).forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'app-card';
+                card.innerHTML = `
+                    <h4>${app.name}</h4>
+                    <div class="app-status working">✅ 正常動作</div>
+                    <div class="app-url">${app.url}</div>
+                    <div class="app-metrics">
+                        <span>レスポンス: ${app.responseTime}ms</span>
+                        <span>HTTP: 200</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // エラーアプリ（最初の5件表示）
+            appData.broken.slice(0, 5).forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'app-card error';
+                card.innerHTML = `
+                    <h4>${app.name}</h4>
+                    <div class="app-status error">❌ エラー</div>
+                    <div class="app-url">${app.url}</div>
+                    <div class="app-metrics">
+                        <span>エラー: ${app.error}</span>
+                        <span>要修復</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // 残りのアプリ数表示
+            if (appData.working.length > 15 || appData.broken.length > 5) {
+                const moreCard = document.createElement('div');
+                moreCard.className = 'app-card';
+                moreCard.style.background = 'rgba(103, 126, 234, 0.1)';
+                moreCard.innerHTML = `
+                    <h4>📊 その他のアプリ</h4>
+                    <div class="metric-value" style="font-size: 2em; color: #667eea;">${145 - 20}</div>
+                    <div class="metric-label">追加アプリが存在</div>
+                    <div class="app-metrics">
+                        <span>正常: ${appData.working.length - 15}件</span>
+                        <span>エラー: ${appData.broken.length - 5}件</span>
+                    </div>
+                `;
+                container.appendChild(moreCard);
+            }
+        }
+
+        // エラーリスト生成
+        function generateErrorList() {
+            const container = document.getElementById('errorAppsList');
+            container.innerHTML = '';
+            
+            appData.broken.forEach(app => {
+                const item = document.createElement('div');
+                item.style.cssText = 'padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9em;';
+                item.innerHTML = `
+                    <div style="font-weight: bold; color: #e74c3c;">${app.name}</div>
+                    <div style="color: #7f8c8d; font-size: 0.8em;">${app.error}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 詳細チャート生成
+        function generateDetailCharts() {
+            // レスポンス時間チャート
+            const responseCtx = document.getElementById('responseTimeChart').getContext('2d');
+            const responseTimes = appData.working.slice(0, 10).map(app => app.responseTime);
+            const appNames = appData.working.slice(0, 10).map(app => app.name.substring(0, 12) + '...');
+            
+            new Chart(responseCtx, {
+                type: 'line',
+                data: {
+                    labels: appNames,
+                    datasets: [{
+                        label: 'レスポンス時間 (ms)',
+                        data: responseTimes,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(103, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // 時系列チャート
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            new Chart(timelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['今日', '昨日', '3日前', '1週間前'],
+                    datasets: [{
+                        label: '正常アプリ数',
+                        data: [107, 105, 98, 95],
+                        backgroundColor: '#27ae60'
+                    }, {
+                        label: 'エラーアプリ数',
+                        data: [38, 40, 47, 50],
+                        backgroundColor: '#e74c3c'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
         // 品質チャート
         const qualityCtx = document.getElementById('qualityChart').getContext('2d');
         new Chart(qualityCtx, {
@@ -270,7 +605,7 @@
             data: {
                 labels: ['品質スコア', '改善余地'],
                 datasets: [{
-                    data: [100, 0],
+                    data: [74, 26],
                     backgroundColor: ['#27ae60', '#ecf0f1'],
                     borderWidth: 0
                 }]
@@ -289,9 +624,9 @@
         new Chart(ruleCtx, {
             type: 'bar',
             data: {
-                labels: ['監視中', '変更検出'],
+                labels: ['正常動作', '404エラー'],
                 datasets: [{
-                    data: [5, 0],
+                    data: [107, 38],
                     backgroundColor: ['#3498db', '#e74c3c'],
                     borderRadius: 5
                 }]
