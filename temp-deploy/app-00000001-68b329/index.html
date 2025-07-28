@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地理・地球科学統合シミュレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tab-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-size: 0.9em;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.2);
+            border-bottom-color: #4fc3f7;
+        }
+
+        .content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            background: rgba(255,255,255,0.1);
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        .section h3 {
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .card h4 {
+            color: #81c784;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            color: #b0bec5;
+        }
+
+        select, input[type="range"], input[type="number"], button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.9em;
+        }
+
+        select option {
+            background: #2a5298;
+            color: #fff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #29b6f6, #0288d1);
+            transform: translateY(-2px);
+        }
+
+        .visualization {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        canvas {
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .info-panel {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .data-table th, .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .data-table th {
+            background: rgba(255,255,255,0.1);
+            color: #4fc3f7;
+        }
+
+        .slider-container {
+            margin: 15px 0;
+        }
+
+        .slider-container input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .slider-value {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .alert {
+            background: rgba(255,152,0,0.2);
+            border: 1px solid #ff9800;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .alert.warning {
+            background: rgba(244,67,54,0.2);
+            border-color: #f44336;
+        }
+
+        .alert.info {
+            background: rgba(33,150,243,0.2);
+            border-color: #2196f3;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                min-width: unset;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .scenario-builder {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌍 地理・地球科学統合シミュレーター</h1>
+        <p>気候変動・災害予測・地形解析の統合プラットフォーム</p>
+    </div>
+
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('overview')">概要</div>
+            <div class="tab" onclick="showTab('climate')">気候変動</div>
+            <div class="tab" onclick="showTab('disaster')">災害予測</div>
+            <div class="tab" onclick="showTab('terrain')">地形解析</div>
+            <div class="tab" onclick="showTab('gis')">GIS統合</div>
+            <div class="tab" onclick="showTab('scenarios')">シナリオ</div>
+            <div class="tab" onclick="showTab('education')">教育</div>
+            <div class="tab" onclick="showTab('analysis')">データ分析</div>
+        </div>
+
+        <!-- 概要タブ -->
+        <div id="overview" class="content active">
+            <div class="section">
+                <h3>🌍 地球科学統合シミュレーター</h3>
+                <p>気候変動、自然災害、地形変化を統合的に解析・予測する先進的なシミュレーションプラットフォームです。</p>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>🌡️ 気候変動モデリング</h4>
+                        <p>全球・地域気候モデルによる温暖化予測、極端気象の頻度変化、海面上昇シミュレーション</p>
+                    </div>
+                    <div class="card">
+                        <h4>⚡ 自然災害予測</h4>
+                        <p>地震・津波・台風・洪水・土砂災害・火山噴火の発生確率とリスク評価</p>
+                    </div>
+                    <div class="card">
+                        <h4>🗺️ 地形・地質解析</h4>
+                        <p>標高・傾斜・地質構造の解析、流域・水系ネットワーク、土地利用変化検出</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 GIS統合分析</h4>
+                        <p>多層データ重ね合わせ、空間統計解析、リモートセンシング画像処理</p>
+                    </div>
+                    <div class="card">
+                        <h4>📈 シナリオ評価</h4>
+                        <p>温室効果ガス削減シナリオ、適応策効果、防災・減災対策の費用便益分析</p>
+                    </div>
+                    <div class="card">
+                        <h4>🎓 教育支援</h4>
+                        <p>段階的学習システム、実習・演習モード、視覚的理解促進</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🎯 主要機能</h3>
+                <div class="grid">
+                    <div class="info-panel">
+                        <h4>🔥 温室効果ガス濃度</h4>
+                        <p>現在のCO₂濃度: <strong>425 ppm</strong></p>
+                        <p>産業革命前比: <strong>+52%</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="info-panel">
+                        <h4>🌡️ 全球平均気温上昇</h4>
+                        <p>現在の上昇: <strong>+1.2°C</strong></p>
+                        <p>2100年予測: <strong>+2.8°C</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div class="info-panel">
+                        <h4>🌊 海面上昇</h4>
+                        <p>20世紀上昇: <strong>17 cm</strong></p>
+                        <p>2100年予測: <strong>+65 cm</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 気候変動タブ -->
+        <div id="climate" class="content">
+            <div class="section">
+                <h3>🌡️ 気候変動シミュレーション</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>温室効果ガスシナリオ</label>
+                        <select id="ghgScenario">
+                            <option value="ssp126">SSP1-2.6 (1.5℃目標)</option>
+                            <option value="ssp245" selected>SSP2-4.5 (中位シナリオ)</option>
+                            <option value="ssp370">SSP3-7.0 (高排出)</option>
+                            <option value="ssp585">SSP5-8.5 (最高排出)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>予測期間</label>
+                        <select id="timePeriod">
+                            <option value="2030">2030年まで</option>
+                            <option value="2050" selected>2050年まで</option>
+                            <option value="2100">2100年まで</option>
+                        </select>
+                    </div>
+                    <button onclick="runClimateSimulation()">シミュレーション実行</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="climateChart" width="800" height="400"></canvas>
+                    <p>気温・降水量変化予測グラフ</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🌡️ 温度変化</h4>
+                        <div class="slider-container">
+                            <label>CO₂濃度 (ppm): <span class="slider-value" id="co2Value">425</span></label>
+                            <input type="range" id="co2Slider" min="350" max="800" value="425" onchange="updateClimateModel()" />
+                        </div>
+                        <div class="info-panel">
+                            <p>予測温度上昇: <span id="tempIncrease">+1.8°C</span></p>
+                            <p>影響評価: <span id="tempImpact">中程度リスク</span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🌊 海面上昇</h4>
+                        <div class="slider-container">
+                            <label>氷床融解率 (%): <span class="slider-value" id="iceValue">15</span></label>
+                            <input type="range" id="iceSlider" min="0" max="50" value="15" onchange="updateSeaLevel()" />
+                        </div>
+                        <div class="info-panel">
+                            <p>予測海面上昇: <span id="seaLevelRise">45 cm</span></p>
+                            <p>沿岸影響: <span id="coastalImpact">3億人</span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>☔ 降水パターン</h4>
+                        <div class="info-panel">
+                            <p>極端降水増加: <strong>+25%</strong></p>
+                            <p>干ばつ頻度: <strong>+40%</strong></p>
+                            <p>季節変動: <strong>+15%</strong></p>
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #1976d2"></div>
+                                <span>増加</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #d32f2f"></div>
+                                <span>減少</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <strong>シミュレーション結果:</strong> 現在の排出傾向が続くと、2050年までに全球平均気温は産業革命前比+2.1°C上昇し、海面は38cm上昇すると予測されます。
+                </div>
+            </div>
+        </div>
+
+        <!-- 災害予測タブ -->
+        <div id="disaster" class="content">
+            <div class="section">
+                <h3>⚡ 自然災害リスク評価</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>災害種別</label>
+                        <select id="disasterType" onchange="updateDisasterModel()">
+                            <option value="earthquake">地震・津波</option>
+                            <option value="typhoon">台風・豪雨</option>
+                            <option value="flood">洪水・氾濫</option>
+                            <option value="landslide">土砂災害</option>
+                            <option value="volcano">火山噴火</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>確率年</label>
+                        <select id="returnPeriod">
+                            <option value="10">10年確率</option>
+                            <option value="50">50年確率</option>
+                            <option value="100" selected>100年確率</option>
+                            <option value="500">500年確率</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateDisasterRisk()">リスク計算</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="disasterMap" width="800" height="500"></canvas>
+                    <p>災害リスクマップ</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🏠 地震リスク</h4>
+                        <div class="slider-container">
+                            <label>マグニチュード: <span class="slider-value" id="magnitudeValue">7.0</span></label>
+                            <input type="range" id="magnitudeSlider" min="5.0" max="9.0" step="0.1" value="7.0" onchange="updateEarthquakeModel()" />
+                        </div>
+                        <div class="info-panel">
+                            <p>最大震度: <span id="maxIntensity">震度6強</span></p>
+                            <p>建物被害率: <span id="buildingDamage">15%</span></p>
+                            <p>人的被害: <span id="casualties">450人</span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🌀 台風リスク</h4>
+                        <div class="slider-container">
+                            <label>中心気圧 (hPa): <span class="slider-value" id="pressureValue">950</span></label>
+                            <input type="range" id="pressureSlider" min="900" max="1000" value="950" onchange="updateTyphoonModel()" />
+                        </div>
+                        <div class="info-panel">
+                            <p>最大風速: <span id="maxWind">45 m/s</span></p>
+                            <p>高潮高: <span id="stormSurge">2.8 m</span></p>
+                            <p>影響範囲: <span id="affectedArea">半径200km</span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>💧 洪水リスク</h4>
+                        <div class="info-panel">
+                            <p>浸水深: <strong>最大5.2m</strong></p>
+                            <p>浸水面積: <strong>850 km²</strong></p>
+                            <p>避難対象: <strong>12万人</strong></p>
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #ffeb3b"></div>
+                                <span>0.5m未満</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #ff9800"></div>
+                                <span>0.5-3.0m</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #f44336"></div>
+                                <span>3.0m以上</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert warning">
+                    <strong>警告:</strong> 気候変動により極端気象の頻度・強度が増加傾向にあります。従来の確率評価を見直し、適応策の強化が必要です。
+                </div>
+            </div>
+        </div>
+
+        <!-- 地形解析タブ -->
+        <div id="terrain" class="content">
+            <div class="section">
+                <h3>🗺️ 地形・地質解析</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>解析対象</label>
+                        <select id="terrainAnalysis">
+                            <option value="elevation">標高・傾斜</option>
+                            <option value="watershed">流域・水系</option>
+                            <option value="geology">地質構造</option>
+                            <option value="landuse">土地利用</option>
+                            <option value="geomorphology">地形分類</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>解析範囲</label>
+                        <select id="analysisArea">
+                            <option value="local">局地 (10km×10km)</option>
+                            <option value="regional" selected>地域 (100km×100km)</option>
+                            <option value="national">全国</option>
+                        </select>
+                    </div>
+                    <button onclick="analyzeterrain()">地形解析実行</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="terrainMap" width="800" height="600"></canvas>
+                    <p>地形解析結果マップ</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>📏 標高統計</h4>
+                        <table class="data-table">
+                            <tr><th>項目</th><th>値</th></tr>
+                            <tr><td>最高標高</td><td id="maxElevation">1,456 m</td></tr>
+                            <tr><td>最低標高</td><td id="minElevation">12 m</td></tr>
+                            <tr><td>平均標高</td><td id="avgElevation">324 m</td></tr>
+                            <tr><td>標準偏差</td><td id="elevationStd">±185 m</td></tr>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h4>📐 傾斜分析</h4>
+                        <div class="info-panel">
+                            <p>平坦地 (0-5°): <strong>45%</strong></p>
+                            <p>緩斜面 (5-15°): <strong>32%</strong></p>
+                            <p>急斜面 (15-30°): <strong>18%</strong></p>
+                            <p>急峻地 (30°+): <strong>5%</strong></p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 77%"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🌊 流域解析</h4>
+                        <div class="slider-container">
+                            <label>集水面積閾値 (km²): <span class="slider-value" id="watershedValue">10</span></label>
+                            <input type="range" id="watershedSlider" min="1" max="100" value="10" onchange="updateWatershed()" />
+                        </div>
+                        <div class="info-panel">
+                            <p>抽出流域数: <span id="basinCount">24</span></p>
+                            <p>最大流域面積: <span id="maxBasin">156 km²</span></p>
+                            <p>河川総延長: <span id="riverLength">387 km</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🪨 地質・土壌情報</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <h4>岩石種別分布</h4>
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #8d6e63"></div>
+                                    <span>花崗岩 (35%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #607d8b"></div>
+                                    <span>堆積岩 (42%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #e53935"></div>
+                                    <span>火山岩 (23%)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>土壌タイプ</h4>
+                            <div class="info-panel">
+                                <p>褐色森林土: <strong>48%</strong></p>
+                                <p>黒色土: <strong>28%</strong></p>
+                                <p>灰色低地土: <strong>15%</strong></p>
+                                <p>その他: <strong>9%</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GIS統合タブ -->
+        <div id="gis" class="content">
+            <div class="section">
+                <h3>📊 GIS統合分析</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>レイヤー管理</label>
+                        <div>
+                            <label><input type="checkbox" id="elevationLayer" checked onchange="toggleLayer('elevation')"> 標高</label><br>
+                            <label><input type="checkbox" id="slopeLayer" onchange="toggleLayer('slope')"> 傾斜</label><br>
+                            <label><input type="checkbox" id="landcoverLayer" onchange="toggleLayer('landcover')"> 土地被覆</label><br>
+                            <label><input type="checkbox" id="populationLayer" onchange="toggleLayer('population')"> 人口密度</label><br>
+                            <label><input type="checkbox" id="infrastructureLayer" onchange="toggleLayer('infrastructure')"> インフラ</label>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>空間解析</label>
+                        <select id="spatialAnalysis">
+                            <option value="buffer">バッファ解析</option>
+                            <option value="overlay">重ね合わせ解析</option>
+                            <option value="network">ネットワーク解析</option>
+                            <option value="interpolation">空間補間</option>
+                            <option value="clustering">クラスタ分析</option>
+                        </select>
+                    </div>
+                    <button onclick="performSpatialAnalysis()">解析実行</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="gisMap" width="800" height="600"></canvas>
+                    <p>多層データ統合表示</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🛰️ リモートセンシング</h4>
+                        <div class="controls">
+                            <div class="control-group">
+                                <label>衛星データ</label>
+                                <select id="satelliteData">
+                                    <option value="landsat">Landsat-8</option>
+                                    <option value="sentinel">Sentinel-2</option>
+                                    <option value="modis">MODIS</option>
+                                    <option value="himawari">ひまわり8号</option>
+                                </select>
+                            </div>
+                            <button onclick="processSatelliteImage()">画像処理</button>
+                        </div>
+                        <div class="info-panel">
+                            <p>解像度: <span id="resolution">30m</span></p>
+                            <p>撮影日: <span id="acquisitionDate">2024-07-15</span></p>
+                            <p>雲被覆率: <span id="cloudCover">8%</span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>📈 植生指数</h4>
+                        <div class="slider-container">
+                            <label>NDVI閾値: <span class="slider-value" id="ndviValue">0.3</span></label>
+                            <input type="range" id="ndviSlider" min="0" max="1" step="0.1" value="0.3" onchange="updateNDVI()" />
+                        </div>
+                        <div class="info-panel">
+                            <p>植生域: <span id="vegetationArea">65%</span></p>
+                            <p>農地: <span id="croplandArea">25%</span></p>
+                            <p>都市域: <span id="urbanArea">10%</span></p>
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #4caf50"></div>
+                                <span>高植生</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #8bc34a"></div>
+                                <span>中植生</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #cddc39"></div>
+                                <span>低植生</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #607d8b"></div>
+                                <span>非植生</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🏙️ 土地利用変化</h4>
+                        <div class="controls">
+                            <div class="control-group">
+                                <label>比較期間</label>
+                                <select id="changeDetection">
+                                    <option value="5year">過去5年</option>
+                                    <option value="10year" selected>過去10年</option>
+                                    <option value="20year">過去20年</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="info-panel">
+                            <p>森林減少: <strong>-5.2%</strong></p>
+                            <p>都市拡大: <strong>+12.8%</strong></p>
+                            <p>農地転用: <strong>-3.1%</strong></p>
+                            <p>水域変化: <strong>+0.8%</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <strong>統計情報:</strong> 空間解析により、過去10年間で都市域が12.8%拡大し、森林が5.2%減少していることが判明しました。
+                </div>
+            </div>
+        </div>
+
+        <!-- シナリオタブ -->
+        <div id="scenarios" class="content">
+            <div class="section">
+                <h3>📈 シナリオ分析・政策評価</h3>
+                
+                <div class="scenario-builder">
+                    <h4>シナリオ構築</h4>
+                    <div class="parameter-grid">
+                        <div class="control-group">
+                            <label>CO₂削減目標 (%)</label>
+                            <input type="number" id="co2Reduction" value="50" min="0" max="100">
+                        </div>
+                        <div class="control-group">
+                            <label>再生可能エネルギー比率 (%)</label>
+                            <input type="number" id="renewableEnergy" value="60" min="0" max="100">
+                        </div>
+                        <div class="control-group">
+                            <label>森林保護面積 (万ha)</label>
+                            <input type="number" id="forestProtection" value="200" min="0" max="1000">
+                        </div>
+                        <div class="control-group">
+                            <label>防災インフラ投資 (兆円)</label>
+                            <input type="number" id="disasterInvestment" value="10" min="0" max="50">
+                        </div>
+                    </div>
+                    <button onclick="buildScenario()">シナリオ生成</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="scenarioChart" width="800" height="400"></canvas>
+                    <p>シナリオ比較グラフ</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🎯 2030年目標</h4>
+                        <div class="info-panel">
+                            <p>温室効果ガス削減: <strong>46%減</strong></p>
+                            <p>再エネ比率: <strong>36-38%</strong></p>
+                            <p>達成確率: <span id="target2030">75%</span></p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🏆 2050年目標</h4>
+                        <div class="info-panel">
+                            <p>カーボンニュートラル: <strong>実質ゼロ</strong></p>
+                            <p>再エネ比率: <strong>50-60%</strong></p>
+                            <p>達成確率: <span id="target2050">60%</span></p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>💰 費用便益分析</h4>
+                        <table class="data-table">
+                            <tr><th>項目</th><th>費用</th><th>便益</th></tr>
+                            <tr><td>緩和策</td><td>150兆円</td><td>280兆円</td></tr>
+                            <tr><td>適応策</td><td>80兆円</td><td>350兆円</td></tr>
+                            <tr><td>防災対策</td><td>50兆円</td><td>200兆円</td></tr>
+                        </table>
+                        <p><strong>総便益比:</strong> 2.9 (投資効果は高い)</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🌍 国際比較</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <h4>主요国の削減目標</h4>
+                            <table class="data-table">
+                                <tr><th>国</th><th>2030年目標</th><th>2050年目標</th></tr>
+                                <tr><td>日本</td><td>-46%</td><td>ネットゼロ</td></tr>
+                                <tr><td>米国</td><td>-50%</td><td>ネットゼロ</td></tr>
+                                <tr><td>EU</td><td>-55%</td><td>ネットゼロ</td></tr>
+                                <tr><td>中国</td><td>-18%</td><td>2060年</td></tr>
+                            </table>
+                        </div>
+                        <div class="card">
+                            <h4>技術導入シナリオ</h4>
+                            <div class="info-panel">
+                                <p>水素社会実現: <strong>2030年代</strong></p>
+                                <p>CCS大規模導入: <strong>2040年代</strong></p>
+                                <p>核融合実用化: <strong>2050年代</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 教育タブ -->
+        <div id="education" class="content">
+            <div class="section">
+                <h3>🎓 地球科学教育システム</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>学習レベル</label>
+                        <select id="learningLevel">
+                            <option value="beginner">初級 (中学生)</option>
+                            <option value="intermediate" selected>中級 (高校生)</option>
+                            <option value="advanced">上級 (大学生)</option>
+                            <option value="expert">専門 (研究者)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>学習モード</label>
+                        <select id="learningMode">
+                            <option value="theory">理論学習</option>
+                            <option value="simulation" selected>シミュレーション</option>
+                            <option value="case_study">事例研究</option>
+                            <option value="lab">実習・演習</option>
+                        </select>
+                    </div>
+                    <button onclick="startLearning()">学習開始</button>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>🌍 地球システム理解</h4>
+                        <div class="info-panel">
+                            <p><strong>学習目標:</strong> 大気・海洋・陸面・氷圏の相互作用理解</p>
+                            <p><strong>進捗度:</strong> 65%</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <p><strong>次の課題:</strong> エルニーニョ・ラニーニャ現象</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>⚡ 自然災害メカニズム</h4>
+                        <div class="info-panel">
+                            <p><strong>学習目標:</strong> 地震・津波・台風・火山の発生原理</p>
+                            <p><strong>進捗度:</strong> 45%</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%"></div>
+                            </div>
+                            <p><strong>次の課題:</strong> プレートテクトニクス</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🗺️ GIS・リモートセンシング</h4>
+                        <div class="info-panel">
+                            <p><strong>学習目標:</strong> 空間データ解析・衛星画像処理</p>
+                            <p><strong>進捗度:</strong> 80%</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 80%"></div>
+                            </div>
+                            <p><strong>次の課題:</strong> 機械学習による分類</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📚 学習コンテンツ</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <h4>インタラクティブ実験</h4>
+                            <div class="controls">
+                                <button onclick="runExperiment('greenhouse')">温室効果実験</button>
+                                <button onclick="runExperiment('earthquake')">地震波伝播実験</button>
+                                <button onclick="runExperiment('weather')">気象予測実験</button>
+                            </div>
+                            <div id="experimentArea" class="info-panel" style="min-height: 150px;">
+                                <p>実験を選択してください</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>ケーススタディ</h4>
+                            <div class="info-panel">
+                                <p><strong>東日本大震災 (2011)</strong></p>
+                                <p>M9.0の巨大地震と津波による複合災害</p>
+                                <button onclick="loadCaseStudy('tohoku2011')">詳細学習</button>
+                            </div>
+                            <div class="info-panel">
+                                <p><strong>令和元年東日本台風 (2019)</strong></p>
+                                <p>温暖化による台風の大型化と記録的豪雨</p>
+                                <button onclick="loadCaseStudy('hagibis2019')">詳細学習</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>🤖 AI学習支援</h4>
+                            <div class="info-panel">
+                                <p><strong>質問:</strong> 地球温暖化の主要因は何ですか？</p>
+                                <textarea id="studentQuestion" placeholder="質問を入力してください" style="width: 100%; height: 60px; margin: 10px 0;"></textarea>
+                                <button onclick="askAI()">AI助手に質問</button>
+                            </div>
+                            <div id="aiResponse" class="info-panel" style="display: none;">
+                                <p><strong>AI回答:</strong> <span id="aiAnswerText"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <strong>学習ガイド:</strong> 各レベルに応じた段階的学習により、地球科学の基礎から最新研究まで体系的に習得できます。
+                </div>
+            </div>
+        </div>
+
+        <!-- データ分析タブ -->
+        <div id="analysis" class="content">
+            <div class="section">
+                <h3>📊 統計分析・データマイニング</h3>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>データセット</label>
+                        <select id="datasetSelect">
+                            <option value="climate">気候観測データ</option>
+                            <option value="disaster">災害履歴データ</option>
+                            <option value="satellite">衛星観測データ</option>
+                            <option value="socioeconomic">社会経済データ</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>分析手法</label>
+                        <select id="analysisMethod">
+                            <option value="trend">トレンド分析</option>
+                            <option value="correlation">相関分析</option>
+                            <option value="regression">回帰分析</option>
+                            <option value="clustering">クラスタ分析</option>
+                            <option value="timeseries">時系列分析</option>
+                        </select>
+                    </div>
+                    <button onclick="performAnalysis()">分析実行</button>
+                </div>
+
+                <div class="visualization">
+                    <canvas id="analysisChart" width="800" height="400"></canvas>
+                    <p>統計分析結果</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h4>📈 時系列分析</h4>
+                        <div class="info-panel">
+                            <p><strong>データ期間:</strong> 1990-2024年 (35年間)</p>
+                            <p><strong>トレンド:</strong> +0.18°C/10年</p>
+                            <p><strong>季節性:</strong> 検出 (年周期)</p>
+                            <p><strong>異常値:</strong> 2023年 (+2.1σ)</p>
+                            <p><strong>予測精度:</strong> RMSE = 0.8°C</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🔗 相関分析</h4>
+                        <table class="data-table">
+                            <tr><th>変数ペア</th><th>相関係数</th><th>p値</th></tr>
+                            <tr><td>気温 vs CO₂</td><td>0.89</td><td>&lt;0.001</td></tr>
+                            <tr><td>降水量 vs 気温</td><td>0.34</td><td>0.02</td></tr>
+                            <tr><td>台風強度 vs 海水温</td><td>0.72</td><td>&lt;0.001</td></tr>
+                            <tr><td>災害頻度 vs 気温</td><td>0.58</td><td>&lt;0.01</td></tr>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h4>🎯 機械学習予測</h4>
+                        <div class="controls">
+                            <div class="control-group">
+                                <label>予測モデル</label>
+                                <select id="mlModel">
+                                    <option value="lstm">LSTM (長短期記憶)</option>
+                                    <option value="randomforest">ランダムフォレスト</option>
+                                    <option value="svm">サポートベクター回帰</option>
+                                    <option value="xgboost">XGBoost</option>
+                                </select>
+                            </div>
+                            <button onclick="trainModel()">モデル訓練</button>
+                        </div>
+                        <div class="info-panel">
+                            <p><strong>訓練精度:</strong> R² = 0.92</p>
+                            <p><strong>検証精度:</strong> R² = 0.87</p>
+                            <p><strong>特徴重要度:</strong> CO₂濃度 (0.45), 海水温 (0.32)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🌐 空間統計解析</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <h4>📍 ホットスポット分析</h4>
+                            <div class="info-panel">
+                                <p><strong>高温ホットスポット:</strong> 都市部+2.8°C</p>
+                                <p><strong>豪雨ホットスポット:</strong> 山地西側+30%</p>
+                                <p><strong>災害集中域:</strong> 沿岸平野部</p>
+                            </div>
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #f44336"></div>
+                                    <span>高リスク</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #ff9800"></div>
+                                    <span>中リスク</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #4caf50"></div>
+                                    <span>低リスク</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>🗺️ 地理加重回帰</h4>
+                            <div class="info-panel">
+                                <p><strong>局所R²平均:</strong> 0.78</p>
+                                <p><strong>空間変動:</strong> 0.12-0.94</p>
+                                <p><strong>有意領域:</strong> 82%</p>
+                                <p><strong>最高精度地域:</strong> 関東平野</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>📊 データ品質評価</h4>
+                            <div class="info-panel">
+                                <p><strong>完全性:</strong> 96.5%</p>
+                                <p><strong>正確性:</strong> 98.2%</p>
+                                <p><strong>整合性:</strong> 94.8%</p>
+                                <p><strong>適時性:</strong> 99.1%</p>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 97%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <strong>分析結果:</strong> 過去35年間の気候データ分析により、都市部でのヒートアイランド現象が+2.8°C、豪雨頻度が山地西側で30%増加していることが判明しました。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // タブ切り替え機能
+        function showTab(tabName) {
+            // すべてのコンテンツを非表示
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // すべてのタブを非アクティブ
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // 選択されたコンテンツとタブをアクティブ
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 気候変動シミュレーション
+        function runClimateSimulation() {
+            const scenario = document.getElementById('ghgScenario').value;
+            const period = document.getElementById('timePeriod').value;
+            
+            const canvas = document.getElementById('climateChart');
+            const ctx = canvas.getContext('2d');
+            
+            // キャンバスクリア
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 軸の描画
+            drawAxes(ctx, canvas, '年', '気温上昇 (°C)');
+            
+            // シナリオに応じた予測データ生成
+            const years = [];
+            const temperatures = [];
+            const startYear = 2020;
+            const endYear = parseInt(period);
+            
+            for (let year = startYear; year <= endYear; year += 5) {
+                years.push(year);
+                let temp = 1.2; // 現在の上昇温度
+                const yearDiff = year - startYear;
+                
+                switch(scenario) {
+                    case 'ssp126':
+                        temp += yearDiff * 0.02; // 1.5°C目標
+                        break;
+                    case 'ssp245':
+                        temp += yearDiff * 0.035; // 中位シナリオ
+                        break;
+                    case 'ssp370':
+                        temp += yearDiff * 0.05; // 高排出
+                        break;
+                    case 'ssp585':
+                        temp += yearDiff * 0.07; // 最高排出
+                        break;
+                }
+                temperatures.push(temp);
+            }
+            
+            // データプロット
+            plotData(ctx, canvas, years, temperatures, '#f44336', 'temperature');
+            
+            // 結果の更新
+            updateClimateResults(scenario, period);
+        }
+
+        // 気候モデル更新
+        function updateClimateModel() {
+            const co2Value = document.getElementById('co2Slider').value;
+            document.getElementById('co2Value').textContent = co2Value;
+            
+            // 温度上昇計算 (簡易式)
+            const tempIncrease = 1.2 + (co2Value - 425) * 0.003;
+            document.getElementById('tempIncrease').textContent = '+' + tempIncrease.toFixed(1) + '°C';
+            
+            // 影響評価
+            let impact = '低リスク';
+            if (tempIncrease > 2.0) impact = '高リスク';
+            else if (tempIncrease > 1.5) impact = '中程度リスク';
+            
+            document.getElementById('tempImpact').textContent = impact;
+        }
+
+        // 海面上昇更新
+        function updateSeaLevel() {
+            const iceValue = document.getElementById('iceSlider').value;
+            document.getElementById('iceValue').textContent = iceValue;
+            
+            const seaLevel = 17 + iceValue * 2.1; // cm
+            document.getElementById('seaLevelRise').textContent = seaLevel.toFixed(0) + ' cm';
+            
+            const population = Math.round(iceValue * 20 + 100); // 百万人
+            document.getElementById('coastalImpact').textContent = population + '百万人';
+        }
+
+        // 災害リスク計算
+        function calculateDisasterRisk() {
+            const disasterType = document.getElementById('disasterType').value;
+            const returnPeriod = document.getElementById('returnPeriod').value;
+            
+            const canvas = document.getElementById('disasterMap');
+            const ctx = canvas.getContext('2d');
+            
+            // リスクマップ描画
+            drawDisasterMap(ctx, canvas, disasterType, returnPeriod);
+        }
+
+        function drawDisasterMap(ctx, canvas, type, period) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 日本列島の簡略形状
+            ctx.fillStyle = '#2e7d32';
+            ctx.fillRect(200, 100, 400, 300);
+            
+            // リスクレベルに応じた色分け
+            const riskColors = ['#4caf50', '#ffeb3b', '#ff9800', '#f44336'];
+            const riskLevels = generateRiskData(type, period);
+            
+            for (let i = 0; i < riskLevels.length; i++) {
+                ctx.fillStyle = riskColors[riskLevels[i]];
+                const x = 220 + (i % 20) * 18;
+                const y = 120 + Math.floor(i / 20) * 15;
+                ctx.fillRect(x, y, 15, 12);
+            }
+            
+            // 凡例
+            drawLegend(ctx, riskColors, ['低', '中', '高', '極高']);
+        }
+
+        // 地震モデル更新
+        function updateEarthquakeModel() {
+            const magnitude = parseFloat(document.getElementById('magnitudeSlider').value);
+            document.getElementById('magnitudeValue').textContent = magnitude.toFixed(1);
+            
+            // 震度計算 (簡易式)
+            const intensity = Math.min(7, Math.round(magnitude - 0.5));
+            const intensityText = ['震度' + intensity + '弱', '震度' + intensity + '強'];
+            document.getElementById('maxIntensity').textContent = intensityText[Math.round(Math.random())];
+            
+            // 被害予測
+            const damage = Math.round((magnitude - 5) * 8);
+            document.getElementById('buildingDamage').textContent = Math.max(0, damage) + '%';
+            
+            const casualties = Math.round((magnitude - 6) * 200);
+            document.getElementById('casualties').textContent = Math.max(0, casualties) + '人';
+        }
+
+        // 台風モデル更新
+        function updateTyphoonModel() {
+            const pressure = parseInt(document.getElementById('pressureSlider').value);
+            document.getElementById('pressureValue').textContent = pressure;
+            
+            // 風速計算 (簡易式)
+            const windSpeed = Math.round((1000 - pressure) * 0.9);
+            document.getElementById('maxWind').textContent = windSpeed + ' m/s';
+            
+            // 高潮計算
+            const stormSurge = ((1000 - pressure) * 0.01 + Math.random() * 1).toFixed(1);
+            document.getElementById('stormSurge').textContent = stormSurge + ' m';
+            
+            // 影響範囲
+            const radius = Math.round(200 + (1000 - pressure) * 0.5);
+            document.getElementById('affectedArea').textContent = '半径' + radius + 'km';
+        }
+
+        // 地形解析
+        function analyzeTerrain() {
+            const analysisType = document.getElementById('terrainAnalysis').value;
+            const area = document.getElementById('analysisArea').value;
+            
+            const canvas = document.getElementById('terrainMap');
+            const ctx = canvas.getContext('2d');
+            
+            drawTerrainMap(ctx, canvas, analysisType, area);
+            updateTerrainStats(analysisType);
+        }
+
+        function drawTerrainMap(ctx, canvas, type, area) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 地形に応じた描画
+            switch(type) {
+                case 'elevation':
+                    drawElevationMap(ctx, canvas);
+                    break;
+                case 'watershed':
+                    drawWatershedMap(ctx, canvas);
+                    break;
+                case 'geology':
+                    drawGeologyMap(ctx, canvas);
+                    break;
+                case 'landuse':
+                    drawLanduseMap(ctx, canvas);
+                    break;
+                case 'geomorphology':
+                    drawGeomorphologyMap(ctx, canvas);
+                    break;
+            }
+        }
+
+        function drawElevationMap(ctx, canvas) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#8d4e85'); // 高標高 (紫)
+            gradient.addColorStop(0.3, '#d73027'); // 中標高 (赤)
+            gradient.addColorStop(0.6, '#fdae61'); // 低標高 (オレンジ)
+            gradient.addColorStop(1, '#4575b4'); // 海面 (青)
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(100, 50, 600, 500);
+            
+            // 等高線風の線
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath();
+                ctx.moveTo(100, 100 + i * 40);
+                ctx.lineTo(700, 120 + i * 40);
+                ctx.stroke();
+            }
+        }
+
+        // 流域解析更新
+        function updateWatershed() {
+            const threshold = document.getElementById('watershedSlider').value;
+            document.getElementById('watershedValue').textContent = threshold;
+            
+            // 流域数計算
+            const basinCount = Math.round(50 - threshold * 0.8);
+            document.getElementById('basinCount').textContent = basinCount;
+            
+            // 最大流域面積
+            const maxBasin = Math.round(100 + threshold * 8);
+            document.getElementById('maxBasin').textContent = maxBasin + ' km²';
+            
+            // 河川延長
+            const riverLength = Math.round(300 + threshold * 12);
+            document.getElementById('riverLength').textContent = riverLength + ' km';
+        }
+
+        // GIS空間解析
+        function performSpatialAnalysis() {
+            const analysisType = document.getElementById('spatialAnalysis').value;
+            
+            const canvas = document.getElementById('gisMap');
+            const ctx = canvas.getContext('2d');
+            
+            drawGISAnalysis(ctx, canvas, analysisType);
+        }
+
+        function drawGISAnalysis(ctx, canvas, type) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // ベースマップ
+            ctx.fillStyle = '#e8f5e8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // レイヤーに応じた描画
+            if (document.getElementById('elevationLayer').checked) {
+                drawElevationLayer(ctx, canvas);
+            }
+            if (document.getElementById('landcoverLayer').checked) {
+                drawLandcoverLayer(ctx, canvas);
+            }
+            if (document.getElementById('populationLayer').checked) {
+                drawPopulationLayer(ctx, canvas);
+            }
+        }
+
+        function drawElevationLayer(ctx, canvas) {
+            const gradient = ctx.createRadialGradient(400, 300, 50, 400, 300, 200);
+            gradient.addColorStop(0, 'rgba(139,69,19,0.8)'); // 山地
+            gradient.addColorStop(1, 'rgba(139,69,19,0.1)'); // 平地
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(200, 100, 400, 400);
+        }
+
+        // レイヤー表示切り替え
+        function toggleLayer(layerName) {
+            // レイヤーの表示・非表示を切り替え
+            performSpatialAnalysis(); // 再描画
+        }
+
+        // 衛星画像処理
+        function processSatelliteImage() {
+            const satellite = document.getElementById('satelliteData').value;
+            
+            // 解像度設定
+            let resolution;
+            switch(satellite) {
+                case 'landsat': resolution = '30m'; break;
+                case 'sentinel': resolution = '10m'; break;
+                case 'modis': resolution = '250m'; break;
+                case 'himawari': resolution = '1km'; break;
+            }
+            
+            document.getElementById('resolution').textContent = resolution;
+            document.getElementById('acquisitionDate').textContent = '2024-07-' + (Math.floor(Math.random() * 28) + 1);
+            document.getElementById('cloudCover').textContent = Math.floor(Math.random() * 20) + '%';
+        }
+
+        // NDVI更新
+        function updateNDVI() {
+            const ndvi = parseFloat(document.getElementById('ndviSlider').value);
+            document.getElementById('ndviValue').textContent = ndvi.toFixed(1);
+            
+            // 植生域計算
+            const vegetation = Math.round(100 - ndvi * 50);
+            document.getElementById('vegetationArea').textContent = vegetation + '%';
+            
+            const cropland = Math.round(ndvi * 40);
+            document.getElementById('croplandArea').textContent = cropland + '%';
+            
+            const urban = Math.round(100 - vegetation - cropland);
+            document.getElementById('urbanArea').textContent = Math.max(0, urban) + '%';
+        }
+
+        // シナリオ生成
+        function buildScenario() {
+            const co2Reduction = document.getElementById('co2Reduction').value;
+            const renewableEnergy = document.getElementById('renewableEnergy').value;
+            const forestProtection = document.getElementById('forestProtection').value;
+            const disasterInvestment = document.getElementById('disasterInvestment').value;
+            
+            // 2030年目標達成確率計算
+            let probability2030 = 50;
+            probability2030 += (co2Reduction - 46) * 2;
+            probability2030 += (renewableEnergy - 36) * 1.5;
+            probability2030 = Math.max(0, Math.min(100, Math.round(probability2030)));
+            
+            // 2050年目標達成確率計算
+            let probability2050 = 40;
+            probability2050 += (co2Reduction - 50) * 1.5;
+            probability2050 += (renewableEnergy - 50) * 1.2;
+            probability2050 += (forestProtection - 200) * 0.1;
+            probability2050 = Math.max(0, Math.min(100, Math.round(probability2050)));
+            
+            document.getElementById('target2030').textContent = probability2030 + '%';
+            document.getElementById('target2050').textContent = probability2050 + '%';
+            
+            // グラフ更新
+            drawScenarioChart();
+        }
+
+        // 学習開始
+        function startLearning() {
+            const level = document.getElementById('learningLevel').value;
+            const mode = document.getElementById('learningMode').value;
+            
+            let message = `${level}レベルの${mode}を開始しました。`;
+            
+            switch(mode) {
+                case 'theory':
+                    message += '基礎理論から学習します。';
+                    break;
+                case 'simulation':
+                    message += 'インタラクティブシミュレーションで学習します。';
+                    break;
+                case 'case_study':
+                    message += '実際の事例から学習します。';
+                    break;
+                case 'lab':
+                    message += '実習形式で学習します。';
+                    break;
+            }
+            
+            alert(message);
+        }
+
+        // 実験実行
+        function runExperiment(type) {
+            const area = document.getElementById('experimentArea');
+            
+            switch(type) {
+                case 'greenhouse':
+                    area.innerHTML = `
+                        <h4>🌡️ 温室効果実験</h4>
+                        <p>CO₂濃度を変更して温度変化を観察:</p>
+                        <input type="range" min="280" max="800" value="415" onchange="updateGreenhouseExp(this.value)">
+                        <p>現在のCO₂濃度: <span id="expCO2">415</span> ppm</p>
+                        <p>温度上昇: <span id="expTemp">+1.2</span>°C</p>
+                    `;
+                    break;
+                case 'earthquake':
+                    area.innerHTML = `
+                        <h4>⚡ 地震波伝播実験</h4>
+                        <p>震源からの距離による震度変化:</p>
+                        <canvas id="seismicCanvas" width="300" height="200" style="border: 1px solid #fff;"></canvas>
+                        <button onclick="simulateSeismic()">地震発生</button>
+                    `;
+                    break;
+                case 'weather':
+                    area.innerHTML = `
+                        <h4>🌦️ 気象予測実験</h4>
+                        <p>気圧配置から天気を予測:</p>
+                        <p>高気圧: 🌞 晴れ</p>
+                        <p>低気圧: ☔ 雨</p>
+                        <p>前線: ⛈️ 雷雨</p>
+                    `;
+                    break;
+            }
+        }
+
+        // AI質問
+        function askAI() {
+            const question = document.getElementById('studentQuestion').value;
+            const responseArea = document.getElementById('aiResponse');
+            const answerText = document.getElementById('aiAnswerText');
+            
+            if (!question.trim()) {
+                alert('質問を入力してください');
+                return;
+            }
+            
+            // 簡単なキーワード応答システム
+            let answer = '';
+            if (question.includes('温暖化') || question.includes('気候変動')) {
+                answer = '地球温暖化の主要因は人間活動による温室効果ガス（CO₂、CH₄、N₂O等）の排出増加です。産業革命以降、化石燃料の燃焼により大気中のCO₂濃度が約50%増加し、これが地球の平均気温を1.2°C上昇させています。';
+            } else if (question.includes('地震')) {
+                answer = '地震は地球内部のプレートの動きによって発生します。日本は4つのプレート（太平洋、フィリピン海、北米、ユーラシア）の境界に位置するため、地震活動が活発です。';
+            } else if (question.includes('台風')) {
+                answer = '台風は熱帯海上で発生する低気圧です。海水温26°C以上の海域で発生し、コリオリの力により渦を巻きます。近年、温暖化により台風の大型化・強大化が懸念されています。';
+            } else {
+                answer = 'その質問について詳しく学習するには、該当するタブのシミュレーション機能をご利用ください。より具体的な質問をしていただければ、詳細な回答が可能です。';
+            }
+            
+            answerText.textContent = answer;
+            responseArea.style.display = 'block';
+        }
+
+        // データ分析実行
+        function performAnalysis() {
+            const dataset = document.getElementById('datasetSelect').value;
+            const method = document.getElementById('analysisMethod').value;
+            
+            const canvas = document.getElementById('analysisChart');
+            const ctx = canvas.getContext('2d');
+            
+            drawAnalysisChart(ctx, canvas, dataset, method);
+        }
+
+        // 機械学習モデル訓練
+        function trainModel() {
+            const model = document.getElementById('mlModel').value;
+            
+            let message = `${model}モデルの訓練を開始しました。\n`;
+            
+            switch(model) {
+                case 'lstm':
+                    message += '長短期記憶ネットワークで時系列予測を学習中...';
+                    break;
+                case 'randomforest':
+                    message += 'ランダムフォレストで特徴量重要度を計算中...';
+                    break;
+                case 'svm':
+                    message += 'サポートベクター回帰で非線形関係を学習中...';
+                    break;
+                case 'xgboost':
+                    message += 'XGBoostで勾配ブースティングを実行中...';
+                    break;
+            }
+            
+            alert(message);
+        }
+
+        // 共通描画関数
+        function drawAxes(ctx, canvas, xLabel, yLabel) {
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            
+            // X軸
+            ctx.beginPath();
+            ctx.moveTo(80, canvas.height - 80);
+            ctx.lineTo(canvas.width - 50, canvas.height - 80);
+            ctx.stroke();
+            
+            // Y軸
+            ctx.beginPath();
+            ctx.moveTo(80, 50);
+            ctx.lineTo(80, canvas.height - 80);
+            ctx.stroke();
+            
+            // ラベル
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.fillText(xLabel, canvas.width - 100, canvas.height - 20);
+            ctx.fillText(yLabel, 20, 40);
+        }
+
+        function plotData(ctx, canvas, xData, yData, color, label) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            const xScale = (canvas.width - 130) / (xData.length - 1);
+            const yScale = (canvas.height - 130) / (Math.max(...yData) - Math.min(...yData));
+            
+            for (let i = 0; i < xData.length; i++) {
+                const x = 80 + i * xScale;
+                const y = canvas.height - 80 - (yData[i] - Math.min(...yData)) * yScale;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                // データポイント
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            ctx.stroke();
+        }
+
+        function drawLegend(ctx, colors, labels) {
+            const startX = 50;
+            const startY = 50;
+            
+            for (let i = 0; i < colors.length; i++) {
+                ctx.fillStyle = colors[i];
+                ctx.fillRect(startX, startY + i * 25, 20, 15);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Arial';
+                ctx.fillText(labels[i], startX + 30, startY + i * 25 + 12);
+            }
+        }
+
+        // データ生成関数
+        function generateRiskData(type, period) {
+            const data = [];
+            for (let i = 0; i < 400; i++) {
+                let risk = Math.floor(Math.random() * 4);
+                
+                // 災害タイプに応じたリスク分布
+                switch(type) {
+                    case 'earthquake':
+                        if (i % 20 < 5) risk = Math.min(3, risk + 1); // 沿岸部高リスク
+                        break;
+                    case 'typhoon':
+                        if (i < 200) risk = Math.min(3, risk + 1); // 南部高リスク
+                        break;
+                    case 'flood':
+                        if (i % 20 > 15) risk = Math.min(3, risk + 1); // 河川沿い高リスク
+                        break;
+                }
+                
+                data.push(risk);
+            }
+            return data;
+        }
+
+        // グラフ描画関数
+        function drawScenarioChart() {
+            const canvas = document.getElementById('scenarioChart');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawAxes(ctx, canvas, '年', 'CO₂削減率 (%)');
+            
+            const years = [2020, 2030, 2040, 2050];
+            const baseline = [0, 20, 35, 50];
+            const enhanced = [0, 46, 70, 100];
+            
+            plotData(ctx, canvas, years, baseline, '#ff9800', 'ベースライン');
+            plotData(ctx, canvas, years, enhanced, '#4caf50', '強化シナリオ');
+        }
+
+        function drawAnalysisChart(ctx, canvas, dataset, method) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            switch(method) {
+                case 'trend':
+                    drawTrendChart(ctx, canvas, dataset);
+                    break;
+                case 'correlation':
+                    drawCorrelationChart(ctx, canvas, dataset);
+                    break;
+                case 'timeseries':
+                    drawTimeseriesChart(ctx, canvas, dataset);
+                    break;
+                default:
+                    drawAxes(ctx, canvas, '時間', '値');
+                    break;
+            }
+        }
+
+        function drawTrendChart(ctx, canvas, dataset) {
+            drawAxes(ctx, canvas, '年', '値');
+            
+            const years = [];
+            const values = [];
+            
+            for (let year = 1990; year <= 2024; year += 2) {
+                years.push(year);
+                values.push(15 + (year - 1990) * 0.18 + Math.random() * 3 - 1.5);
+            }
+            
+            plotData(ctx, canvas, years, values, '#2196f3', dataset);
+        }
+
+        // 初期化
+        function initializeApp() {
+            // 初期値設定
+            updateClimateModel();
+            updateSeaLevel();
+            updateEarthquakeModel();
+            updateTyphoonModel();
+            updateWatershed();
+            updateNDVI();
+            
+            // デフォルトチャート描画
+            setTimeout(() => {
+                runClimateSimulation();
+                calculateDisasterRisk();
+                analyzeTerrain();
+                performSpatialAnalysis();
+                buildScenario();
+                performAnalysis();
+            }, 1000);
+        }
+
+        // アプリ初期化
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
