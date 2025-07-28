@@ -1,0 +1,101 @@
+{
+  "searches": [
+    {
+      "id": 1753664365187,
+      "timestamp": "2025-07-28T00:59:26.880Z",
+      "search_type": "pattern_search",
+      "arguments": {
+        "pattern": "*.cjs",
+        "basePath": "."
+      },
+      "results_count": 50,
+      "execution_time": 1693,
+      "success": true
+    },
+    {
+      "id": 1753664374651,
+      "timestamp": "2025-07-28T00:59:34.750Z",
+      "search_type": "content_search",
+      "arguments": {
+        "searchTerm": "Glob\\ < /dev/null | Grep\\|LS\\|Read",
+        "filePattern": "*.cjs",
+        "basePath": "."
+      },
+      "results_count": 0,
+      "execution_time": 99,
+      "success": true
+    },
+    {
+      "id": 1753664381615,
+      "timestamp": "2025-07-28T00:59:41.713Z",
+      "search_type": "content_search",
+      "arguments": {
+        "searchTerm": "Read\\ < /dev/null | Glob\\|Grep",
+        "filePattern": "*.cjs",
+        "basePath": "."
+      },
+      "results_count": 0,
+      "execution_time": 98,
+      "success": true
+    },
+    {
+      "id": 1753664389457,
+      "timestamp": "2025-07-28T00:59:49.560Z",
+      "search_type": "content_search",
+      "arguments": {
+        "searchTerm": "published-apps-inventory",
+        "filePattern": "*",
+        "basePath": "."
+      },
+      "results_count": 0,
+      "execution_time": 103,
+      "success": true
+    },
+    {
+      "id": 1753664394972,
+      "timestamp": "2025-07-28T00:59:54.983Z",
+      "search_type": "directory_list",
+      "arguments": {
+        "dirPath": "core",
+        "options": {
+          "filesOnly": true
+        }
+      },
+      "results_count": 51,
+      "execution_time": 11,
+      "success": true
+    },
+    {
+      "id": 1753664400631,
+      "timestamp": "2025-07-28T01:00:00.672Z",
+      "search_type": "file_read",
+      "arguments": {
+        "filePath": "core/published-apps-inventory.cjs",
+        "options": {
+          "limit": 10
+        }
+      },
+      "results_count": 0,
+      "execution_time": 41,
+      "success": true
+    }
+  ],
+  "statistics": {
+    "pattern_search": {
+      "count": 1,
+      "success_rate": 0
+    },
+    "content_search": {
+      "count": 3,
+      "success_rate": 0
+    },
+    "directory_list": {
+      "count": 1,
+      "success_rate": 0
+    },
+    "file_read": {
+      "count": 1,
+      "success_rate": 0
+    }
+  }
+}

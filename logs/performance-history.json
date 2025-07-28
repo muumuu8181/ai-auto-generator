@@ -1,0 +1,45 @@
+[
+  {
+    "timestamp": "2025-07-28T01:23:24.216Z",
+    "managerAI": {
+      "score": 79,
+      "details": {
+        "todoExecutionRate": 80,
+        "importanceCheckRate": 85,
+        "toolUsageRate": 75,
+        "decisionAccuracy": 70
+      }
+    },
+    "workerAI": {
+      "score": 63,
+      "details": {
+        "appCompletionRate": 65,
+        "reflectionQuality": 60,
+        "errorRecoveryRate": 55,
+        "processingEfficiency": 70
+      }
+    },
+    "inspectorAI": {
+      "score": 44,
+      "details": {
+        "monitoringExecutionRate": 50,
+        "problemDetectionRate": 40,
+        "reportGenerationRate": 45,
+        "automationRate": 35
+      }
+    },
+    "overallCollaboration": {
+      "score": 33,
+      "details": {
+        "mutualMonitoringEffectiveness": 30,
+        "informationTransferEfficiency": 35,
+        "collaborativeAchievementRate": 40,
+        "improvementCycleEffectiveness": 25
+      }
+    },
+    "improvementTrend": {
+      "status": "データ不足",
+      "message": "継続測定が必要"
+    }
+  }
+]
