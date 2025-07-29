@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スマートメモ管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .search-box {
+            width: 300px;
+            padding: 12px 20px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 25px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .memo-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-width: 400px;
+            height: fit-content;
+        }
+
+        .memo-form h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .priority-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .priority-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .priority-btn.active {
+            color: white;
+            border-color: transparent;
+        }
+
+        .priority-btn.high.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .priority-btn.medium.active {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+        }
+
+        .priority-btn.low.active {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+        }
+
+        .memo-list {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .memo-list h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .memo-count {
+            font-size: 1rem;
+            color: #888;
+            font-weight: normal;
+        }
+
+        .memo-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .memo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .memo-item.high {
+            border-left-color: #ff6b6b;
+        }
+
+        .memo-item.medium {
+            border-left-color: #feca57;
+        }
+
+        .memo-item.low {
+            border-left-color: #48dbfb;
+        }
+
+        .memo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .memo-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .memo-priority {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .memo-priority.high {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .memo-priority.medium {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+        }
+
+        .memo-priority.low {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+        }
+
+        .memo-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .memo-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .memo-tag {
+            padding: 4px 10px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .memo-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .memo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+            color: white;
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .no-memos {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .memo-form {
+                min-width: auto;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .search-box {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* アニメーション */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .memo-item {
+            animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📝 スマートメモ管理システム</h1>
+        <div class="controls">
+            <div class="control-group">
+                <input type="text" class="search-box" id="searchBox" placeholder="メモを検索...">
+                <select class="filter-select" id="filterSelect">
+                    <option value="all">すべて</option>
+                    <option value="high">高優先度</option>
+                    <option value="medium">中優先度</option>
+                    <option value="low">低優先度</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button class="btn" onclick="exportMemos()">エクスポート</button>
+                <button class="btn danger" onclick="clearAllMemos()">全削除</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="memo-form">
+            <h2>新規メモ作成</h2>
+            <form id="memoForm">
+                <div class="form-group">
+                    <label for="memoTitle">タイトル</label>
+                    <input type="text" id="memoTitle" class="form-input" placeholder="メモのタイトルを入力" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="memoContent">内容</label>
+                    <textarea id="memoContent" class="form-input form-textarea" placeholder="メモの内容を入力" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="memoTags">タグ (カンマ区切り)</label>
+                    <input type="text" id="memoTags" class="form-input" placeholder="例: 仕事, アイデア, TODO">
+                </div>
+                
+                <div class="form-group">
+                    <label>優先度</label>
+                    <div class="priority-buttons">
+                        <button type="button" class="priority-btn high" data-priority="high">高</button>
+                        <button type="button" class="priority-btn medium active" data-priority="medium">中</button>
+                        <button type="button" class="priority-btn low" data-priority="low">低</button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">メモを追加</button>
+            </form>
+        </div>
+
+        <div class="memo-list">
+            <h2>
+                メモ一覧
+                <span class="memo-count" id="memoCount">0件</span>
+            </h2>
+            
+            <div class="stats" id="statsSection">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">総メモ数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="highCount">0</div>
+                    <div class="stat-label">高優先度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="mediumCount">0</div>
+                    <div class="stat-label">中優先度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="lowCount">0</div>
+                    <div class="stat-label">低優先度</div>
+                </div>
+            </div>
+            
+            <div id="memoContainer">
+                <div class="no-memos">
+                    まだメモがありません。<br>
+                    左側のフォームから新しいメモを作成してください。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SmartMemoSystem {
+            constructor() {
+                this.memos = JSON.parse(localStorage.getItem('smartMemos')) || [];
+                this.currentEditId = null;
+                this.selectedPriority = 'medium';
+                
+                this.initEventListeners();
+                this.displayMemos();
+                this.updateStats();
+            }
+
+            initEventListeners() {
+                // フォーム送信
+                document.getElementById('memoForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addOrUpdateMemo();
+                });
+
+                // 優先度ボタン
+                document.querySelectorAll('.priority-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.selectedPriority = btn.dataset.priority;
+                    });
+                });
+
+                // 検索とフィルタ
+                document.getElementById('searchBox').addEventListener('input', (e) => {
+                    this.displayMemos(e.target.value);
+                });
+
+                document.getElementById('filterSelect').addEventListener('change', (e) => {
+                    this.displayMemos(document.getElementById('searchBox').value, e.target.value);
+                });
+            }
+
+            addOrUpdateMemo() {
+                const title = document.getElementById('memoTitle').value.trim();
+                const content = document.getElementById('memoContent').value.trim();
+                const tagsInput = document.getElementById('memoTags').value.trim();
+                const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+
+                if (!title || !content) {
+                    alert('タイトルと内容は必須です。');
+                    return;
+                }
+
+                const memo = {
+                    id: this.currentEditId || Date.now(),
+                    title,
+                    content,
+                    tags,
+                    priority: this.selectedPriority,
+                    createdAt: this.currentEditId ? 
+                        this.memos.find(m => m.id === this.currentEditId).createdAt : 
+                        new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (this.currentEditId) {
+                    const index = this.memos.findIndex(m => m.id === this.currentEditId);
+                    this.memos[index] = memo;
+                    this.currentEditId = null;
+                } else {
+                    this.memos.unshift(memo);
+                }
+
+                this.saveMemos();
+                this.displayMemos();
+                this.updateStats();
+                this.resetForm();
+            }
+
+            editMemo(id) {
+                const memo = this.memos.find(m => m.id === id);
+                if (!memo) return;
+
+                document.getElementById('memoTitle').value = memo.title;
+                document.getElementById('memoContent').value = memo.content;
+                document.getElementById('memoTags').value = memo.tags.join(', ');
+
+                // 優先度ボタンの選択
+                document.querySelectorAll('.priority-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.priority === memo.priority) {
+                        btn.classList.add('active');
+                    }
+                });
+
+                this.selectedPriority = memo.priority;
+                this.currentEditId = id;
+
+                // フォームまでスクロール
+                document.querySelector('.memo-form').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            deleteMemo(id) {
+                if (confirm('このメモを削除しますか？')) {
+                    this.memos = this.memos.filter(m => m.id !== id);
+                    this.saveMemos();
+                    this.displayMemos();
+                    this.updateStats();
+                }
+            }
+
+            displayMemos(searchTerm = '', priorityFilter = 'all') {
+                const container = document.getElementById('memoContainer');
+                
+                let filteredMemos = this.memos;
+
+                // 検索フィルタ
+                if (searchTerm) {
+                    filteredMemos = filteredMemos.filter(memo =>
+                        memo.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        memo.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        memo.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+                    );
+                }
+
+                // 優先度フィルタ
+                if (priorityFilter !== 'all') {
+                    filteredMemos = filteredMemos.filter(memo => memo.priority === priorityFilter);
+                }
+
+                if (filteredMemos.length === 0) {
+                    container.innerHTML = '<div class="no-memos">条件に一致するメモがありません。</div>';
+                    document.getElementById('memoCount').textContent = '0件';
+                    return;
+                }
+
+                document.getElementById('memoCount').textContent = `${filteredMemos.length}件`;
+
+                container.innerHTML = filteredMemos.map(memo => `
+                    <div class="memo-item ${memo.priority}">
+                        <div class="memo-header">
+                            <div class="memo-title">${this.escapeHtml(memo.title)}</div>
+                            <div class="memo-priority ${memo.priority}">
+                                ${memo.priority === 'high' ? '高' : memo.priority === 'medium' ? '中' : '低'}
+                            </div>
+                        </div>
+                        <div class="memo-content">${this.escapeHtml(memo.content).replace(/\n/g, '<br>')}</div>
+                        ${memo.tags.length > 0 ? `
+                            <div class="memo-tags">
+                                ${memo.tags.map(tag => `<span class="memo-tag">${this.escapeHtml(tag)}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="memo-footer">
+                            <div>
+                                作成: ${this.formatDate(memo.createdAt)}
+                                ${memo.updatedAt !== memo.createdAt ? `<br>更新: ${this.formatDate(memo.updatedAt)}` : ''}
+                            </div>
+                            <div class="memo-actions">
+                                <button class="action-btn edit-btn" onclick="memoSystem.editMemo(${memo.id})">編集</button>
+                                <button class="action-btn delete-btn" onclick="memoSystem.deleteMemo(${memo.id})">削除</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const total = this.memos.length;
+                const high = this.memos.filter(m => m.priority === 'high').length;
+                const medium = this.memos.filter(m => m.priority === 'medium').length;
+                const low = this.memos.filter(m => m.priority === 'low').length;
+
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('highCount').textContent = high;
+                document.getElementById('mediumCount').textContent = medium;
+                document.getElementById('lowCount').textContent = low;
+            }
+
+            resetForm() {
+                document.getElementById('memoForm').reset();
+                document.querySelectorAll('.priority-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.priority-btn.medium').classList.add('active');
+                this.selectedPriority = 'medium';
+                this.currentEditId = null;
+            }
+
+            saveMemos() {
+                localStorage.setItem('smartMemos', JSON.stringify(this.memos));
+            }
+
+            exportMemos() {
+                if (this.memos.length === 0) {
+                    alert('エクスポートするメモがありません。');
+                    return;
+                }
+
+                const exportData = {
+                    exportDate: new Date().toISOString(),
+                    totalMemos: this.memos.length,
+                    memos: this.memos
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `smart-memos-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            clearAllMemos() {
+                if (confirm('すべてのメモを削除しますか？この操作は取り消せません。')) {
+                    this.memos = [];
+                    this.saveMemos();
+                    this.displayMemos();
+                    this.updateStats();
+                    this.resetForm();
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // グローバル関数
+        let memoSystem;
+
+        function exportMemos() {
+            memoSystem.exportMemos();
+        }
+
+        function clearAllMemos() {
+            memoSystem.clearAllMemos();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            memoSystem = new SmartMemoSystem();
+        });
+    </script>
+</body>
+</html>
