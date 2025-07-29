@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インタラクティブカラーパレットジェネレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #FF6B9D;
+            --accent-color: #4ECDC4;
+            --success-color: #95E1D3;
+            --warning-color: #FFD93D;
+            --dark-color: #2C3E50;
+            --light-color: #FFFFFF;
+            --shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --border-radius: 20px;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientMove 4s ease-in-out infinite;
+        }
+
+        .header .subtitle {
+            font-size: 1.4rem;
+            color: var(--dark-color);
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .control-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+        .color-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .color-input-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .color-input {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .color-input:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .hex-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'SF Mono', monospace;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .hex-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), #8A7CFF);
+            color: var(--light-color);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, var(--secondary-color), #FF8FB3);
+            color: var(--light-color);
+        }
+
+        .btn-accent {
+            background: linear-gradient(45deg, var(--accent-color), #6BDBDB);
+            color: var(--light-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .generation-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .palette-display {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .palette-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--dark-color);
+        }
+
+        .current-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .color-swatch {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+        }
+
+        .color-hex {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'SF Mono', monospace;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .color-swatch:hover .color-hex {
+            opacity: 1;
+        }
+
+        .palette-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .harmony-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .harmony-btn {
+            padding: 15px 20px;
+            border: 2px solid rgba(108, 99, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--dark-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .harmony-btn:hover, .harmony-btn.active {
+            background: var(--primary-color);
+            color: var(--light-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .saved-palettes {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .saved-palette-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .saved-palette-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .mini-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .palette-info {
+            flex: 1;
+        }
+
+        .palette-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .palette-date {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .export-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .export-formats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .format-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .format-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .format-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .format-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .format-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .code-preview {
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-top: 20px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .accessibility-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contrast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .contrast-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .contrast-preview {
+            height: 50px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .contrast-ratio {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: var(--light-color);
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, var(--success-color), #B8E6B8);
+            color: var(--dark-color);
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .controls-section {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .current-palette {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 15px;
+            }
+
+            .harmony-types {
+                grid-template-columns: 1fr;
+            }
+
+            .export-formats {
+                grid-template-columns: 1fr;
+            }
+
+            .generation-controls, .palette-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .loading .color-swatch::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 カラーパレットジェネレーター</h1>
+            <div class="subtitle">プロフェッショナルなカラーパレットを瞬時に生成・管理</div>
+        </div>
+
+        <div class="controls-section">
+            <div class="control-panel">
+                <div class="panel-title">🎯 ベースカラー設定</div>
+                <div class="color-input-group">
+                    <div class="color-input-row">
+                        <input type="color" class="color-input" id="baseColor" value="#6C63FF">
+                        <input type="text" class="hex-input" id="baseHex" value="#6C63FF" maxlength="7" placeholder="#000000">
+                    </div>
+                </div>
+                <div class="generation-controls">
+                    <button class="btn btn-primary" onclick="generateRandomColor()">ランダム</button>
+                    <button class="btn btn-secondary" onclick="generateFromImage()">画像から抽出</button>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="panel-title">🎨 カラーハーモニー</div>
+                <div class="harmony-types">
+                    <button class="harmony-btn active" data-type="complementary">補色</button>
+                    <button class="harmony-btn" data-type="triadic">三角配色</button>
+                    <button class="harmony-btn" data-type="analogous">類似配色</button>
+                    <button class="harmony-btn" data-type="monochromatic">単色</button>
+                    <button class="harmony-btn" data-type="tetradic">四角配色</button>
+                    <button class="harmony-btn" data-type="compound">複合配色</button>
+                </div>
+                <div class="generation-controls">
+                    <button class="btn btn-accent" onclick="generateHarmony()">パレット生成</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="palette-display">
+            <div class="palette-title">✨ 現在のパレット</div>
+            <div class="current-palette" id="currentPalette">
+                <!-- パレットがここに動的生成される -->
+            </div>
+            <div class="palette-actions">
+                <button class="btn btn-primary" onclick="savePalette()">保存</button>
+                <button class="btn btn-secondary" onclick="shufflePalette()">シャッフル</button>
+                <button class="btn btn-accent" onclick="adjustBrightness()">明度調整</button>
+                <button class="btn" onclick="lockColors()" style="background: linear-gradient(45deg, #FFD93D, #FFEB3B);">ロック切替</button>
+            </div>
+        </div>
+
+        <div class="accessibility-info">
+            <div class="palette-title">♿ アクセシビリティ情報</div>
+            <div class="contrast-grid" id="contrastGrid">
+                <!-- コントラスト情報がここに表示される -->
+            </div>
+        </div>
+
+        <div class="saved-palettes">
+            <div class="palette-title">💾 保存済みパレット</div>
+            <div id="savedPalettesList">
+                <div style="text-align: center; padding: 40px; color: #666; font-style: italic;">
+                    まだパレットが保存されていません。<br>
+                    気に入ったパレットを保存してください。
+                </div>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <div class="palette-title">📤 エクスポート</div>
+            <div class="export-formats">
+                <div class="format-card" onclick="exportAs('css')">
+                    <span class="format-icon">📝</span>
+                    <div class="format-title">CSS Variables</div>
+                    <div class="format-description">CSS カスタムプロパティとして出力</div>
+                </div>
+                <div class="format-card" onclick="exportAs('scss')">
+                    <span class="format-icon">💎</span>
+                    <div class="format-title">SCSS Variables</div>
+                    <div class="format-description">Sass変数として出力</div>
+                </div>
+                <div class="format-card" onclick="exportAs('json')">
+                    <span class="format-icon">📊</span>
+                    <div class="format-title">JSON</div>
+                    <div class="format-description">構造化データとして出力</div>
+                </div>
+                <div class="format-card" onclick="exportAs('adobe')">
+                    <span class="format-icon">🎨</span>
+                    <div class="format-title">Adobe ASE</div>
+                    <div class="format-description">Adobe製品用スウォッチ</div>
+                </div>
+            </div>
+            <div class="code-preview" id="codePreview">
+                /* パレットを選択してエクスポート形式をクリックしてください */
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-action" onclick="generateRandomPalette()" title="ランダムパレット生成">🎲</button>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        class ColorPaletteGenerator {
+            constructor() {
+                this.currentPalette = [];
+                this.savedPalettes = JSON.parse(localStorage.getItem('colorPalettes')) || [];
+                this.lockedColors = new Set();
+                this.currentHarmony = 'complementary';
+                this.baseColor = '#6C63FF';
+                
+                this.initEventListeners();
+                this.generateInitialPalette();
+                this.renderSavedPalettes();
+            }
+
+            initEventListeners() {
+                // Base color input
+                document.getElementById('baseColor').addEventListener('change', (e) => {
+                    this.baseColor = e.target.value;
+                    document.getElementById('baseHex').value = e.target.value.toUpperCase();
+                    this.generateHarmony();
+                });
+
+                document.getElementById('baseHex').addEventListener('input', (e) => {
+                    const hex = e.target.value;
+                    if (this.isValidHex(hex)) {
+                        this.baseColor = hex;
+                        document.getElementById('baseColor').value = hex;
+                        this.generateHarmony();
+                    }
+                });
+
+                // Harmony type buttons
+                document.querySelectorAll('.harmony-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.harmony-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentHarmony = e.target.dataset.type;
+                        this.generateHarmony();
+                    });
+                });
+            }
+
+            generateInitialPalette() {
+                this.generateHarmony();
+            }
+
+            generateHarmony() {
+                const baseHsl = this.hexToHsl(this.baseColor);
+                let colors = [];
+
+                switch(this.currentHarmony) {
+                    case 'complementary':
+                        colors = this.generateComplementary(baseHsl);
+                        break;
+                    case 'triadic':
+                        colors = this.generateTriadic(baseHsl);
+                        break;
+                    case 'analogous':
+                        colors = this.generateAnalogous(baseHsl);
+                        break;
+                    case 'monochromatic':
+                        colors = this.generateMonochromatic(baseHsl);
+                        break;
+                    case 'tetradic':
+                        colors = this.generateTetradic(baseHsl);
+                        break;
+                    case 'compound':
+                        colors = this.generateCompound(baseHsl);
+                        break;
+                }
+
+                this.currentPalette = colors.map(color => this.hslToHex(color));
+                this.renderCurrentPalette();
+                this.updateAccessibilityInfo();
+            }
+
+            generateComplementary(baseHsl) {
+                const [h, s, l] = baseHsl;
+                return [
+                    [h, s, l],
+                    [(h + 180) % 360, s, l],
+                    [h, s * 0.7, Math.min(l + 20, 90)],
+                    [(h + 180) % 360, s * 0.7, Math.min(l + 20, 90)],
+                    [h, s * 0.5, Math.max(l - 30, 10)]
+                ];
+            }
+
+            generateTriadic(baseHsl) {
+                const [h, s, l] = baseHsl;
+                return [
+                    [h, s, l],
+                    [(h + 120) % 360, s, l],
+                    [(h + 240) % 360, s, l],
+                    [h, s * 0.6, Math.min(l + 25, 95)],
+                    [(h + 120) % 360, s * 0.6, Math.max(l - 25, 5)]
+                ];
+            }
+
+            generateAnalogous(baseHsl) {
+                const [h, s, l] = baseHsl;
+                return [
+                    [(h - 30 + 360) % 360, s, l],
+                    [(h - 15 + 360) % 360, s, l],
+                    [h, s, l],
+                    [(h + 15) % 360, s, l],
+                    [(h + 30) % 360, s, l]
+                ];
+            }
+
+            generateMonochromatic(baseHsl) {
+                const [h, s, l] = baseHsl;
+                return [
+                    [h, s, Math.max(l - 40, 5)],
+                    [h, s, Math.max(l - 20, 10)],
+                    [h, s, l],
+                    [h, s, Math.min(l + 20, 90)],
+                    [h, s, Math.min(l + 40, 95)]
+                ];
+            }
+
+            generateTetradic(baseHsl) {
+                const [h, s, l] = baseHsl;
+                return [
+                    [h, s, l],
+                    [(h + 90) % 360, s, l],
+                    [(h + 180) % 360, s, l],
+                    [(h + 270) % 360, s, l],
+                    [h, s * 0.5, Math.min(l + 30, 90)]
+                ];
+            }
+
+            generateCompound(baseHsl) {
+                const [h, s, l] = baseHsl;
+                return [
+                    [h, s, l],
+                    [(h + 150) % 360, s, l],
+                    [(h + 180) % 360, s, l],
+                    [(h + 210) % 360, s, l],
+                    [h, s * 0.7, Math.max(l - 20, 15)]
+                ];
+            }
+
+            renderCurrentPalette() {
+                const container = document.getElementById('currentPalette');
+                container.innerHTML = '';
+
+                this.currentPalette.forEach((color, index) => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    swatch.style.backgroundColor = color;
+                    swatch.innerHTML = `
+                        <div class="color-hex">${color}</div>
+                    `;
+                    
+                    swatch.addEventListener('click', () => this.copyToClipboard(color));
+                    container.appendChild(swatch);
+                });
+            }
+
+            updateAccessibilityInfo() {
+                const container = document.getElementById('contrastGrid');
+                container.innerHTML = '';
+
+                // Test contrast ratios between colors
+                for (let i = 0; i < this.currentPalette.length - 1; i++) {
+                    for (let j = i + 1; j < this.currentPalette.length; j++) {
+                        const color1 = this.currentPalette[i];
+                        const color2 = this.currentPalette[j];
+                        const ratio = this.calculateContrastRatio(color1, color2);
+                        
+                        const item = document.createElement('div');
+                        item.className = 'contrast-item';
+                        item.innerHTML = `
+                            <div class="contrast-preview" style="background: ${color1}; color: ${color2};">
+                                Sample Text
+                            </div>
+                            <div class="contrast-ratio">
+                                ${ratio.toFixed(2)}:1 
+                                ${ratio >= 4.5 ? '✅' : ratio >= 3 ? '⚠️' : '❌'}
+                            </div>
+                        `;
+                        
+                        container.appendChild(item);
+                        
+                        // Limit the number of contrast checks to avoid clutter
+                        if (container.children.length >= 6) break;
+                    }
+                    if (container.children.length >= 6) break;
+                }
+            }
+
+            calculateContrastRatio(color1, color2) {
+                const rgb1 = this.hexToRgb(color1);
+                const rgb2 = this.hexToRgb(color2);
+                
+                const l1 = this.getRelativeLuminance(rgb1);
+                const l2 = this.getRelativeLuminance(rgb2);
+                
+                const lighter = Math.max(l1, l2);
+                const darker = Math.min(l1, l2);
+                
+                return (lighter + 0.05) / (darker + 0.05);
+            }
+
+            getRelativeLuminance([r, g, b]) {
+                const [rs, gs, bs] = [r, g, b].map(c => {
+                    c = c / 255;
+                    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+                });
+                
+                return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+            }
+
+            savePalette() {
+                const name = prompt('パレット名を入力してください:', `パレット ${this.savedPalettes.length + 1}`);
+                if (!name) return;
+
+                const palette = {
+                    id: Date.now(),
+                    name,
+                    colors: [...this.currentPalette],
+                    harmony: this.currentHarmony,
+                    date: new Date().toISOString()
+                };
+
+                this.savedPalettes.push(palette);
+                localStorage.setItem('colorPalettes', JSON.stringify(this.savedPalettes));
+                this.renderSavedPalettes();
+                this.showNotification(`パレット "${name}" を保存しました！`);
+            }
+
+            renderSavedPalettes() {
+                const container = document.getElementById('savedPalettesList');
+                
+                if (this.savedPalettes.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666; font-style: italic;">
+                            まだパレットが保存されていません。<br>
+                            気に入ったパレットを保存してください。
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.savedPalettes.map(palette => `
+                    <div class="saved-palette-item" onclick="colorGenerator.loadPalette('${palette.id}')">
+                        <div style="display: flex; gap: 5px;">
+                            ${palette.colors.map(color => `
+                                <div class="mini-swatch" style="background: ${color};"></div>
+                            `).join('')}
+                        </div>
+                        <div class="palette-info">
+                            <div class="palette-name">${palette.name}</div>
+                            <div class="palette-date">${new Date(palette.date).toLocaleDateString('ja-JP')}</div>
+                        </div>
+                        <button class="btn" onclick="event.stopPropagation(); colorGenerator.deletePalette('${palette.id}')" 
+                                style="background: #ff6b6b; color: white; padding: 8px 16px; font-size: 0.8rem;">
+                            削除
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            loadPalette(paletteId) {
+                const palette = this.savedPalettes.find(p => p.id === parseInt(paletteId));
+                if (!palette) return;
+
+                this.currentPalette = [...palette.colors];
+                this.baseColor = palette.colors[0];
+                document.getElementById('baseColor').value = this.baseColor;
+                document.getElementById('baseHex').value = this.baseColor;
+                
+                // Update harmony selection
+                document.querySelectorAll('.harmony-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-type="${palette.harmony}"]`).classList.add('active');
+                this.currentHarmony = palette.harmony;
+
+                this.renderCurrentPalette();
+                this.updateAccessibilityInfo();
+                this.showNotification(`パレット "${palette.name}" を読み込みました！`);
+            }
+
+            deletePalette(paletteId) {
+                if (!confirm('このパレットを削除しますか？')) return;
+
+                this.savedPalettes = this.savedPalettes.filter(p => p.id !== parseInt(paletteId));
+                localStorage.setItem('colorPalettes', JSON.stringify(this.savedPalettes));
+                this.renderSavedPalettes();
+                this.showNotification('パレットを削除しました。');
+            }
+
+            shufflePalette() {
+                // Keep locked colors in place, shuffle others
+                const shuffledPalette = [...this.currentPalette];
+                const unlockedIndices = [];
+                const unlockedColors = [];
+
+                shuffledPalette.forEach((color, index) => {
+                    if (!this.lockedColors.has(index)) {
+                        unlockedIndices.push(index);
+                        unlockedColors.push(color);
+                    }
+                });
+
+                // Fisher-Yates shuffle
+                for (let i = unlockedColors.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [unlockedColors[i], unlockedColors[j]] = [unlockedColors[j], unlockedColors[i]];
+                }
+
+                unlockedIndices.forEach((index, i) => {
+                    shuffledPalette[index] = unlockedColors[i];
+                });
+
+                this.currentPalette = shuffledPalette;
+                this.renderCurrentPalette();
+                this.updateAccessibilityInfo();
+            }
+
+            adjustBrightness() {
+                const adjustment = (Math.random() - 0.5) * 40; // -20 to +20
+                
+                this.currentPalette = this.currentPalette.map((color, index) => {
+                    if (this.lockedColors.has(index)) return color;
+                    
+                    const hsl = this.hexToHsl(color);
+                    hsl[2] = Math.max(5, Math.min(95, hsl[2] + adjustment));
+                    return this.hslToHex(hsl);
+                });
+
+                this.renderCurrentPalette();
+                this.updateAccessibilityInfo();
+            }
+
+            generateRandomColor() {
+                this.baseColor = this.getRandomHex();
+                document.getElementById('baseColor').value = this.baseColor;
+                document.getElementById('baseHex').value = this.baseColor;
+                this.generateHarmony();
+            }
+
+            generateRandomPalette() {
+                this.generateRandomColor();
+                const harmonies = ['complementary', 'triadic', 'analogous', 'monochromatic', 'tetradic', 'compound'];
+                const randomHarmony = harmonies[Math.floor(Math.random() * harmonies.length)];
+                
+                document.querySelectorAll('.harmony-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-type="${randomHarmony}"]`).classList.add('active');
+                this.currentHarmony = randomHarmony;
+                
+                this.generateHarmony();
+                this.showNotification('ランダムパレットを生成しました！');
+            }
+
+            exportAs(format) {
+                const preview = document.getElementById('codePreview');
+                let code = '';
+
+                switch(format) {
+                    case 'css':
+                        code = this.generateCSSCode();
+                        break;
+                    case 'scss':
+                        code = this.generateSCSSCode();
+                        break;
+                    case 'json':
+                        code = this.generateJSONCode();
+                        break;
+                    case 'adobe':
+                        code = this.generateAdobeCode();
+                        break;
+                }
+
+                preview.textContent = code;
+                this.copyToClipboard(code);
+                this.showNotification(`${format.toUpperCase()} コードをクリップボードにコピーしました！`);
+            }
+
+            generateCSSCode() {
+                return `:root {\n${this.currentPalette.map((color, index) => 
+                    `  --color-${index + 1}: ${color};`
+                ).join('\n')}\n}`;
+            }
+
+            generateSCSSCode() {
+                return this.currentPalette.map((color, index) => 
+                    `$color-${index + 1}: ${color};`
+                ).join('\n');
+            }
+
+            generateJSONCode() {
+                return JSON.stringify({
+                    name: "Generated Palette",
+                    harmony: this.currentHarmony,
+                    colors: this.currentPalette.map((color, index) => ({
+                        name: `Color ${index + 1}`,
+                        hex: color,
+                        rgb: this.hexToRgb(color),
+                        hsl: this.hexToHsl(color)
+                    }))
+                }, null, 2);
+            }
+
+            generateAdobeCode() {
+                return `Adobe Swatch Exchange (ASE) format:\n\n${this.currentPalette.map((color, index) => 
+                    `Color ${index + 1}: ${color} (RGB: ${this.hexToRgb(color).join(', ')})`
+                ).join('\n')}\n\nNote: Use Adobe Color CC to import these values.`;
+            }
+
+            // Utility methods
+            hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? [
+                    parseInt(result[1], 16),
+                    parseInt(result[2], 16),
+                    parseInt(result[3], 16)
+                ] : null;
+            }
+
+            rgbToHex(r, g, b) {
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            }
+
+            hexToHsl(hex) {
+                const [r, g, b] = this.hexToRgb(hex).map(x => x / 255);
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+
+                if (max === min) {
+                    h = s = 0;
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+
+                return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+            }
+
+            hslToHex([h, s, l]) {
+                h /= 360;
+                s /= 100;
+                l /= 100;
+                
+                const c = (1 - Math.abs(2 * l - 1)) * s;
+                const x = c * (1 - Math.abs((h * 6) % 2 - 1));
+                const m = l - c/2;
+                let r = 0, g = 0, b = 0;
+
+                if (0 <= h && h < 1/6) {
+                    r = c; g = x; b = 0;
+                } else if (1/6 <= h && h < 2/6) {
+                    r = x; g = c; b = 0;
+                } else if (2/6 <= h && h < 3/6) {
+                    r = 0; g = c; b = x;
+                } else if (3/6 <= h && h < 4/6) {
+                    r = 0; g = x; b = c;
+                } else if (4/6 <= h && h < 5/6) {
+                    r = x; g = 0; b = c;
+                } else if (5/6 <= h && h < 1) {
+                    r = c; g = 0; b = x;
+                }
+
+                r = Math.round((r + m) * 255);
+                g = Math.round((g + m) * 255);
+                b = Math.round((b + m) * 255);
+
+                return this.rgbToHex(r, g, b);
+            }
+
+            getRandomHex() {
+                return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            }
+
+            isValidHex(hex) {
+                return /^#[0-9A-F]{6}$/i.test(hex);
+            }
+
+            copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    this.showNotification('クリップボードにコピーしました！');
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    this.showNotification('クリップボードにコピーしました！');
+                });
+            }
+
+            showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Global functions
+        let colorGenerator;
+
+        function generateRandomColor() {
+            colorGenerator.generateRandomColor();
+        }
+
+        function generateFromImage() {
+            // Placeholder for image color extraction
+            colorGenerator.showNotification('画像からの色抽出機能は開発中です。');
+        }
+
+        function generateHarmony() {
+            colorGenerator.generateHarmony();
+        }
+
+        function savePalette() {
+            colorGenerator.savePalette();
+        }
+
+        function shufflePalette() {
+            colorGenerator.shufflePalette();
+        }
+
+        function adjustBrightness() {
+            colorGenerator.adjustBrightness();
+        }
+
+        function lockColors() {
+            colorGenerator.showNotification('カラーロック機能は開発中です。');
+        }
+
+        function generateRandomPalette() {
+            colorGenerator.generateRandomPalette();
+        }
+
+        function exportAs(format) {
+            colorGenerator.exportAs(format);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            colorGenerator = new ColorPaletteGenerator();
+        });
+    </script>
+</body>
+</html>
