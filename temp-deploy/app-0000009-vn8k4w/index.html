@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プログレッシブ音楽プレイヤー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: radial-gradient(ellipse at center, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            background-size: 400% 400%;
+            animation: gradientPulse 25s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #ecf0f1;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientPulse {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 50% 100%; }
+            75% { background-position: 0% 0%; }
+        }
+
+        .header {
+            background: rgba(236, 240, 241, 0.95);
+            backdrop-filter: blur(25px);
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid rgba(52, 152, 219, 0.3);
+            color: #2c3e50;
+        }
+
+        .header h1 {
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #3498db, #e74c3c, #f39c12, #27ae60);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientPulse 12s ease-in-out infinite;
+            letter-spacing: -2px;
+        }
+
+        .controls-main {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .btn.warning {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .upload-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            padding: 15px 35px;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.4s ease;
+            display: inline-block;
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(155, 89, 182, 0.4);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+            gap: 30px;
+            width: 100%;
+        }
+
+        .player-section {
+            flex: 2;
+            background: rgba(236, 240, 241, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            color: #2c3e50;
+        }
+
+        .playlist-section {
+            flex: 1;
+            background: rgba(236, 240, 241, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            color: #2c3e50;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .now-playing {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .album-art {
+            width: 300px;
+            height: 300px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #3498db, #e74c3c, #f39c12, #27ae60);
+            background-size: 400% 400%;
+            animation: gradientPulse 15s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .album-art::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(44, 62, 80, 0.8);
+            transform: translate(-50%, -50%);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .album-art::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2c3e50;
+            transform: translate(-50%, -50%);
+        }
+
+        .track-info {
+            margin-bottom: 30px;
+        }
+
+        .track-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .track-artist {
+            font-size: 1.5rem;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .progress-section {
+            margin-bottom: 40px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #e74c3c);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'SF Mono', monospace;
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .control-btn.play-pause {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .volume-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 10px;
+            background: rgba(52, 152, 219, 0.2);
+            outline: none;
+            appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        }
+
+        .playlist-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .playlist-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(231, 76, 60, 0.05));
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .playlist-item:hover {
+            transform: translateX(5px);
+            border-left-color: #3498db;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2);
+        }
+
+        .playlist-item.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-left-color: #e74c3c;
+        }
+
+        .playlist-track-name {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .playlist-track-duration {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .playlist-item.active .playlist-track-duration {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .no-music {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 60px 20px;
+            font-size: 1.2rem;
+        }
+
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            height: 100px;
+            gap: 3px;
+            margin-bottom: 20px;
+        }
+
+        .visualizer-bar {
+            width: 4px;
+            background: linear-gradient(to top, #3498db, #e74c3c, #f39c12);
+            border-radius: 2px;
+            animation: visualize 0.8s infinite ease-in-out;
+        }
+
+        @keyframes visualize {
+            0%, 100% { height: 10px; }
+            50% { height: 60px; }
+        }
+
+        .equalizer-section {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .eq-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eq-slider {
+            width: 6px;
+            height: 100px;
+            border-radius: 10px;
+            background: rgba(52, 152, 219, 0.2);
+            outline: none;
+            appearance: none;
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+        }
+
+        .eq-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2.8rem;
+            }
+
+            .album-art {
+                width: 250px;
+                height: 250px;
+            }
+
+            .track-title {
+                font-size: 2rem;
+            }
+
+            .player-controls {
+                gap: 15px;
+            }
+
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .control-btn.play-pause {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+        }
+
+        /* アニメーション */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: slideIn 0.6s ease;
+        }
+
+        /* 再生中のビジュアルエフェクト */
+        .playing .album-art {
+            animation: gradientPulse 10s ease infinite, rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 プログレッシブ音楽プレイヤー</h1>
+        
+        <div class="controls-main">
+            <button class="btn success" onclick="togglePlaylist()">プレイリスト表示</button>
+            <button class="btn warning" onclick="shufflePlaylist()">シャッフル</button>
+            <button class="btn" onclick="toggleRepeat()">リピート</button>
+            <button class="btn danger" onclick="clearPlaylist()">プレイリストクリア</button>
+        </div>
+
+        <div class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="musicFiles" class="file-input" multiple accept="audio/*">
+                <label for="musicFiles" class="file-input-label">🎵 音楽ファイル選択</label>
+            </div>
+            <span id="fileCount" style="color: #7f8c8d; font-weight: 600;">ファイル未選択</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="player-section">
+            <div class="now-playing">
+                <div class="album-art" id="albumArt"></div>
+                <div class="track-info">
+                    <div class="track-title" id="trackTitle">音楽を選択してください</div>
+                    <div class="track-artist" id="trackArtist">アーティスト未設定</div>
+                </div>
+            </div>
+
+            <div class="visualizer" id="visualizer">
+                <!-- ビジュアライザーバーは動的に生成 -->
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">00:00</span>
+                    <span id="totalTime">00:00</span>
+                </div>
+            </div>
+
+            <div class="player-controls">
+                <button class="control-btn" onclick="previousTrack()">⏮️</button>
+                <button class="control-btn" onclick="seekBackward()">⏪</button>
+                <button class="control-btn play-pause" id="playPauseBtn" onclick="togglePlayPause()">▶️</button>
+                <button class="control-btn" onclick="seekForward()">⏩</button>
+                <button class="control-btn" onclick="nextTrack()">⏭️</button>
+            </div>
+
+            <div class="volume-section">
+                <span>🔉</span>
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
+                <span>🔊</span>
+            </div>
+
+            <div class="equalizer-section">
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">60Hz</span>
+                </div>
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">170Hz</span>
+                </div>
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">310Hz</span>
+                </div>
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">600Hz</span>
+                </div>
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">1kHz</span>
+                </div>
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">3kHz</span>
+                </div>
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">6kHz</span>
+                </div>
+                <div class="eq-control">
+                    <input type="range" class="eq-slider" min="-10" max="10" value="0" orient="vertical">
+                    <span class="eq-label">12kHz</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="playlist-section">
+            <h2 class="playlist-title">🎵 プレイリスト</h2>
+            <div id="playlistContainer">
+                <div class="no-music">
+                    音楽ファイルをアップロードして<br>
+                    プレイリストを作成してください
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="metadata"></audio>
+
+    <script>
+        class ProgressiveMusicPlayer {
+            constructor() {
+                this.playlist = [];
+                this.currentTrackIndex = 0;
+                this.isPlaying = false;
+                this.isShuffled = false;
+                this.isRepeating = false;
+                this.audioContext = null;
+                this.analyser = null;
+                this.equalizer = null;
+                this.visualizerBars = 32;
+                
+                this.audio = document.getElementById('audioPlayer');
+                this.initEventListeners();
+                this.createVisualizer();
+                this.initWebAudio();
+            }
+
+            initEventListeners() {
+                // ファイル選択
+                document.getElementById('musicFiles').addEventListener('change', (e) => {
+                    this.loadMusicFiles(e.target.files);
+                });
+
+                // オーディオイベント
+                this.audio.addEventListener('loadedmetadata', () => this.updateTrackInfo());
+                this.audio.addEventListener('timeupdate', () => this.updateProgress());
+                this.audio.addEventListener('ended', () => this.nextTrack());
+
+                // プログレスバークリック
+                document.getElementById('progressBar').addEventListener('click', (e) => {
+                    this.seekToPosition(e);
+                });
+
+                // ボリューム調整
+                document.getElementById('volumeSlider').addEventListener('input', (e) => {
+                    this.setVolume(e.target.value);
+                });
+
+                // イコライザー
+                document.querySelectorAll('.eq-slider').forEach((slider, index) => {
+                    slider.addEventListener('input', (e) => {
+                        this.adjustEqualizer(index, e.target.value);
+                    });
+                });
+            }
+
+            async initWebAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.analyser = this.audioContext.createAnalyser();
+                    this.analyser.fftSize = 256;
+                    
+                    const source = this.audioContext.createMediaElementSource(this.audio);
+                    source.connect(this.analyser);
+                    this.analyser.connect(this.audioContext.destination);
+                    
+                    this.animateVisualizer();
+                } catch (error) {
+                    console.warn('Web Audio API not supported:', error);
+                }
+            }
+
+            createVisualizer() {
+                const visualizer = document.getElementById('visualizer');
+                visualizer.innerHTML = '';
+                
+                for (let i = 0; i < this.visualizerBars; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'visualizer-bar';
+                    bar.style.animationDelay = `${i * 0.05}s`;
+                    visualizer.appendChild(bar);
+                }
+            }
+
+            animateVisualizer() {
+                if (!this.analyser) return;
+
+                const bars = document.querySelectorAll('.visualizer-bar');
+                const bufferLength = this.analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                const animate = () => {
+                    this.analyser.getByteFrequencyData(dataArray);
+                    
+                    bars.forEach((bar, index) => {
+                        const value = dataArray[Math.floor(index * bufferLength / bars.length)];
+                        const height = (value / 255) * 80 + 10;
+                        bar.style.height = `${height}px`;
+                    });
+
+                    requestAnimationFrame(animate);
+                };
+
+                animate();
+            }
+
+            loadMusicFiles(files) {
+                const newTracks = Array.from(files).map((file, index) => ({
+                    id: Date.now() + index,
+                    name: file.name.replace(/\.[^/.]+$/, ""),
+                    artist: "Unknown Artist",
+                    duration: "00:00",
+                    file: file,
+                    url: URL.createObjectURL(file)
+                }));
+
+                this.playlist = [...this.playlist, ...newTracks];
+                this.updateFileCount();
+                this.renderPlaylist();
+                
+                if (this.playlist.length === newTracks.length) {
+                    this.loadTrack(0);
+                }
+            }
+
+            updateFileCount() {
+                const count = this.playlist.length;
+                document.getElementById('fileCount').textContent = 
+                    count > 0 ? `${count}曲選択済み` : 'ファイル未選択';
+            }
+
+            renderPlaylist() {
+                const container = document.getElementById('playlistContainer');
+                
+                if (this.playlist.length === 0) {
+                    container.innerHTML = '<div class="no-music">音楽ファイルをアップロードして<br>プレイリストを作成してください</div>';
+                    return;
+                }
+
+                container.innerHTML = this.playlist.map((track, index) => `
+                    <div class="playlist-item ${index === this.currentTrackIndex ? 'active' : ''}" 
+                         onclick="musicPlayer.loadTrack(${index})">
+                        <div class="playlist-track-name">${this.escapeHtml(track.name)}</div>
+                        <div class="playlist-track-duration">${track.duration}</div>
+                    </div>
+                `).join('');
+            }
+
+            loadTrack(index) {
+                if (index < 0 || index >= this.playlist.length) return;
+
+                this.currentTrackIndex = index;
+                const track = this.playlist[index];
+                
+                this.audio.src = track.url;
+                document.getElementById('trackTitle').textContent = track.name;
+                document.getElementById('trackArtist').textContent = track.artist;
+                
+                this.renderPlaylist();
+                
+                if (this.isPlaying) {
+                    this.audio.play();
+                }
+            }
+
+            updateTrackInfo() {
+                const track = this.playlist[this.currentTrackIndex];
+                if (!track) return;
+
+                const duration = this.formatTime(this.audio.duration);
+                track.duration = duration;
+                document.getElementById('totalTime').textContent = duration;
+                this.renderPlaylist();
+            }
+
+            updateProgress() {
+                if (!this.audio.duration) return;
+
+                const progress = (this.audio.currentTime / this.audio.duration) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                document.getElementById('currentTime').textContent = this.formatTime(this.audio.currentTime);
+            }
+
+            togglePlayPause() {
+                if (this.playlist.length === 0) {
+                    alert('音楽ファイルを選択してください。');
+                    return;
+                }
+
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+
+                if (this.isPlaying) {
+                    this.audio.pause();
+                    this.isPlaying = false;
+                    document.getElementById('playPauseBtn').textContent = '▶️';
+                    document.body.classList.remove('playing');
+                } else {
+                    this.audio.play();
+                    this.isPlaying = true;
+                    document.getElementById('playPauseBtn').textContent = '⏸️';
+                    document.body.classList.add('playing');
+                }
+            }
+
+            previousTrack() {
+                let newIndex = this.currentTrackIndex - 1;
+                if (newIndex < 0) {
+                    newIndex = this.playlist.length - 1;
+                }
+                this.loadTrack(newIndex);
+            }
+
+            nextTrack() {
+                let newIndex;
+                if (this.isShuffled) {
+                    newIndex = Math.floor(Math.random() * this.playlist.length);
+                } else {
+                    newIndex = this.currentTrackIndex + 1;
+                    if (newIndex >= this.playlist.length) {
+                        if (this.isRepeating) {
+                            newIndex = 0;
+                        } else {
+                            this.isPlaying = false;
+                            document.getElementById('playPauseBtn').textContent = '▶️';
+                            document.body.classList.remove('playing');
+                            return;
+                        }
+                    }
+                }
+                this.loadTrack(newIndex);
+            }
+
+            seekBackward() {
+                this.audio.currentTime = Math.max(0, this.audio.currentTime - 10);
+            }
+
+            seekForward() {
+                this.audio.currentTime = Math.min(this.audio.duration, this.audio.currentTime + 10);
+            }
+
+            seekToPosition(e) {
+                if (!this.audio.duration) return;
+
+                const rect = e.target.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                this.audio.currentTime = pos * this.audio.duration;
+            }
+
+            setVolume(value) {
+                this.audio.volume = value / 100;
+            }
+
+            shufflePlaylist() {
+                this.isShuffled = !this.isShuffled;
+                const btn = event.target;
+                btn.style.background = this.isShuffled ? 
+                    'linear-gradient(45deg, #27ae60, #2ecc71)' : 
+                    'linear-gradient(45deg, #f39c12, #e67e22)';
+                btn.textContent = this.isShuffled ? 'シャッフル ON' : 'シャッフル';
+            }
+
+            toggleRepeat() {
+                this.isRepeating = !this.isRepeating;
+                const btn = event.target;
+                btn.style.background = this.isRepeating ? 
+                    'linear-gradient(45deg, #27ae60, #2ecc71)' : 
+                    'linear-gradient(45deg, #3498db, #2980b9)';
+                btn.textContent = this.isRepeating ? 'リピート ON' : 'リピート';
+            }
+
+            togglePlaylist() {
+                const playlistSection = document.querySelector('.playlist-section');
+                const isHidden = playlistSection.style.display === 'none';
+                playlistSection.style.display = isHidden ? 'block' : 'none';
+                event.target.textContent = isHidden ? 'プレイリスト非表示' : 'プレイリスト表示';
+            }
+
+            clearPlaylist() {
+                if (confirm('プレイリストをすべて削除しますか？')) {
+                    this.playlist.forEach(track => {
+                        if (track.url) URL.revokeObjectURL(track.url);
+                    });
+                    
+                    this.playlist = [];
+                    this.currentTrackIndex = 0;
+                    this.isPlaying = false;
+                    
+                    this.audio.src = '';
+                    document.getElementById('trackTitle').textContent = '音楽を選択してください';
+                    document.getElementById('trackArtist').textContent = 'アーティスト未設定';
+                    document.getElementById('playPauseBtn').textContent = '▶️';
+                    document.body.classList.remove('playing');
+                    
+                    this.updateFileCount();
+                    this.renderPlaylist();
+                }
+            }
+
+            adjustEqualizer(bandIndex, value) {
+                // イコライザー機能（Web Audio APIの詳細実装は複雑なため、基本的なフィードバックのみ）
+                console.log(`EQ Band ${bandIndex}: ${value}dB`);
+                // 実際の実装では BiquadFilterNode を使用してフィルタリング
+            }
+
+            formatTime(seconds) {
+                if (isNaN(seconds)) return '00:00';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // グローバル関数
+        let musicPlayer;
+
+        function togglePlayPause() {
+            musicPlayer.togglePlayPause();
+        }
+
+        function previousTrack() {
+            musicPlayer.previousTrack();
+        }
+
+        function nextTrack() {
+            musicPlayer.nextTrack();
+        }
+
+        function seekBackward() {
+            musicPlayer.seekBackward();
+        }
+
+        function seekForward() {
+            musicPlayer.seekForward();
+        }
+
+        function shufflePlaylist() {
+            musicPlayer.shufflePlaylist();
+        }
+
+        function toggleRepeat() {
+            musicPlayer.toggleRepeat();
+        }
+
+        function togglePlaylist() {
+            musicPlayer.togglePlaylist();
+        }
+
+        function clearPlaylist() {
+            musicPlayer.clearPlaylist();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            musicPlayer = new ProgressiveMusicPlayer();
+        });
+    </script>
+</body>
+</html>
