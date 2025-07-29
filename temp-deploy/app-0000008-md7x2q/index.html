@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リアルタイムマークダウンエディター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 400% 400%;
+            animation: gradientWave 20s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        @keyframes gradientWave {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientWave 8s ease-in-out infinite;
+            letter-spacing: -1px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+        }
+
+        .btn.success {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-btn {
+            padding: 8px 18px;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .word-count {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .editor-section, .preview-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            padding: 25px;
+            border: none;
+            outline: none;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 16px;
+            line-height: 1.8;
+            resize: none;
+            background: transparent;
+            color: #333;
+            min-height: 400px;
+        }
+
+        .editor-textarea::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .preview-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            line-height: 1.8;
+            color: #333;
+            min-height: 400px;
+        }
+
+        /* マークダウンスタイル */
+        .preview-content h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .preview-content h2 {
+            color: #764ba2;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 25px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #764ba2;
+        }
+
+        .preview-content h3 {
+            color: #667eea;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+        }
+
+        .preview-content h4, .preview-content h5, .preview-content h6 {
+            color: #555;
+            font-weight: 600;
+            margin: 15px 0 10px 0;
+        }
+
+        .preview-content p {
+            margin: 15px 0;
+            text-align: justify;
+        }
+
+        .preview-content ul, .preview-content ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .preview-content li {
+            margin: 8px 0;
+        }
+
+        .preview-content blockquote {
+            margin: 20px 0;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+            border-left: 4px solid #667eea;
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        .preview-content code {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 0.9em;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .preview-content pre {
+            background: #1e1e1e;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            line-height: 1.5;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-weight: normal;
+        }
+
+        .preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-content th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .preview-content td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .preview-content tr:nth-child(even) {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .preview-content a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .preview-content a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .preview-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .preview-content hr {
+            border: none;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            margin: 30px 0;
+            border-radius: 2px;
+        }
+
+        .preview-content strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .preview-content em {
+            color: #764ba2;
+            font-style: italic;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .toolbar {
+                justify-content: center;
+            }
+
+            .view-toggle {
+                justify-content: center;
+            }
+
+            .editor-textarea, .preview-content {
+                min-height: 300px;
+            }
+        }
+
+        /* 分割表示の調整 */
+        .split-view .editor-section,
+        .split-view .preview-section {
+            flex: 1;
+        }
+
+        .editor-only .preview-section,
+        .preview-only .editor-section {
+            display: none;
+        }
+
+        .editor-only .editor-section,
+        .preview-only .preview-section {
+            flex: 1;
+            max-width: none;
+        }
+
+        /* ローディング・エラー表示 */
+        .loading {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #e74c3c;
+        }
+
+        /* アニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* シンタックスハイライト風スタイル */
+        .preview-content .highlight-js {
+            color: #f92672;
+        }
+
+        .preview-content .highlight-string {
+            color: #a6e22e;
+        }
+
+        .preview-content .highlight-number {
+            color: #ae81ff;
+        }
+
+        .preview-content .highlight-comment {
+            color: #75715e;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📝 リアルタイムマークダウンエディター</h1>
+        
+        <div class="toolbar">
+            <button class="btn" onclick="insertMarkdown('**', '**')">太字</button>
+            <button class="btn" onclick="insertMarkdown('*', '*')">斜体</button>
+            <button class="btn" onclick="insertMarkdown('`', '`')">コード</button>
+            <button class="btn" onclick="insertMarkdown('[', '](url)')">リンク</button>
+            <button class="btn secondary" onclick="insertMarkdown('## ', '')">見出し</button>
+            <button class="btn secondary" onclick="insertMarkdown('- ', '')">リスト</button>
+            <button class="btn secondary" onclick="insertMarkdown('> ', '')">引用</button>
+            <button class="btn success" onclick="exportMarkdown()">エクスポート</button>
+            <button class="btn danger" onclick="clearEditor()">クリア</button>
+        </div>
+
+        <div class="view-toggle">
+            <button class="toggle-btn active" onclick="setViewMode('split')">分割表示</button>
+            <button class="toggle-btn" onclick="setViewMode('editor')">エディターのみ</button>
+            <button class="toggle-btn" onclick="setViewMode('preview')">プレビューのみ</button>
+        </div>
+
+        <div class="word-count" id="wordCount">
+            文字数: 0 | 単語数: 0 | 行数: 1
+        </div>
+    </div>
+
+    <div class="main-container split-view" id="mainContainer">
+        <div class="editor-section">
+            <div class="section-header">📝 Markdownエディター</div>
+            <textarea 
+                class="editor-textarea" 
+                id="markdownEditor"
+                placeholder="ここにMarkdownを入力してください...
+
+# 見出し1
+## 見出し2
+### 見出し3
+
+**太字テキスト**
+*斜体テキスト*
+`インラインコード`
+
+- リスト項目1
+- リスト項目2
+- リスト項目3
+
+1. 番号付きリスト1
+2. 番号付きリスト2
+
+> これは引用文です。
+> 複数行にわたって書くことができます。
+
+[リンクテキスト](https://example.com)
+
+```javascript
+// コードブロック
+function hello() {
+    console.log('Hello, World!');
+}
+```
+
+---
+
+| 表のヘッダー1 | 表のヘッダー2 |
+|-------------|-------------|
+| セル1        | セル2        |
+| セル3        | セル4        |
+"></textarea>
+        </div>
+
+        <div class="preview-section">
+            <div class="section-header">👁️ リアルタイムプレビュー</div>
+            <div class="preview-content" id="previewContent">
+                <div class="loading">マークダウンを入力するとここにプレビューが表示されます...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MarkdownEditor {
+            constructor() {
+                this.editor = document.getElementById('markdownEditor');
+                this.preview = document.getElementById('previewContent');
+                this.wordCount = document.getElementById('wordCount');
+                this.viewMode = 'split';
+                
+                this.initEventListeners();
+                this.loadSavedContent();
+                this.updatePreview();
+                this.updateWordCount();
+            }
+
+            initEventListeners() {
+                // エディターの入力イベント
+                this.editor.addEventListener('input', () => {
+                    this.updatePreview();
+                    this.updateWordCount();
+                    this.saveContent();
+                });
+
+                // キーボードショートカット
+                this.editor.addEventListener('keydown', (e) => {
+                    this.handleKeyboardShortcuts(e);
+                });
+
+                // タブキー対応
+                this.editor.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        this.insertText('    ');
+                    }
+                });
+            }
+
+            handleKeyboardShortcuts(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'b':
+                            e.preventDefault();
+                            this.insertMarkdown('**', '**');
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            this.insertMarkdown('*', '*');
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            this.exportMarkdown();
+                            break;
+                    }
+                }
+            }
+
+            insertText(text) {
+                const start = this.editor.selectionStart;
+                const end = this.editor.selectionEnd;
+                const value = this.editor.value;
+                
+                this.editor.value = value.substring(0, start) + text + value.substring(end);
+                this.editor.selectionStart = this.editor.selectionEnd = start + text.length;
+                this.editor.focus();
+                
+                this.updatePreview();
+                this.updateWordCount();
+                this.saveContent();
+            }
+
+            insertMarkdown(before, after) {
+                const start = this.editor.selectionStart;
+                const end = this.editor.selectionEnd;
+                const selectedText = this.editor.value.substring(start, end);
+                const replacement = before + selectedText + after;
+                
+                this.editor.value = 
+                    this.editor.value.substring(0, start) + 
+                    replacement + 
+                    this.editor.value.substring(end);
+                
+                // カーソル位置を調整
+                if (selectedText) {
+                    this.editor.selectionStart = start;
+                    this.editor.selectionEnd = start + replacement.length;
+                } else {
+                    this.editor.selectionStart = this.editor.selectionEnd = start + before.length;
+                }
+                
+                this.editor.focus();
+                this.updatePreview();
+                this.updateWordCount();
+                this.saveContent();
+            }
+
+            updatePreview() {
+                const markdown = this.editor.value;
+                const html = this.markdownToHtml(markdown);
+                this.preview.innerHTML = html || '<div class="loading">マークダウンを入力するとここにプレビューが表示されます...</div>';
+            }
+
+            markdownToHtml(markdown) {
+                if (!markdown.trim()) return '';
+
+                let html = markdown;
+
+                // コードブロックを最初に処理（他の変換から保護）
+                const codeBlocks = [];
+                html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                    const index = codeBlocks.length;
+                    codeBlocks.push(`<pre><code class="language-${lang || 'text'}">${this.escapeHtml(code.trim())}</code></pre>`);
+                    return `__CODE_BLOCK_${index}__`;
+                });
+
+                // インラインコードを処理
+                const inlineCodes = [];
+                html = html.replace(/`([^`]+)`/g, (match, code) => {
+                    const index = inlineCodes.length;
+                    inlineCodes.push(`<code>${this.escapeHtml(code)}</code>`);
+                    return `__INLINE_CODE_${index}__`;
+                });
+
+                // 見出し
+                html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+                html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+                html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+
+                // 太字・斜体
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+                // リンク
+                html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+                // 画像
+                html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+
+                // 水平線
+                html = html.replace(/^---$/gm, '<hr>');
+
+                // 引用
+                html = html.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
+
+                // テーブル
+                html = this.parseTable(html);
+
+                // リスト
+                html = this.parseList(html);
+
+                // 段落
+                html = html.replace(/\n\n/g, '</p><p>');
+                html = '<p>' + html + '</p>';
+
+                // 空の段落を削除
+                html = html.replace(/<p><\/p>/g, '');
+                html = html.replace(/<p>(<h[1-6]>)/g, '$1');
+                html = html.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
+                html = html.replace(/<p>(<hr>)<\/p>/g, '$1');
+                html = html.replace(/<p>(<blockquote>.*<\/blockquote>)<\/p>/g, '$1');
+
+                // 改行
+                html = html.replace(/\n/g, '<br>');
+
+                // コードブロックを復元
+                codeBlocks.forEach((code, index) => {
+                    html = html.replace(`__CODE_BLOCK_${index}__`, code);
+                });
+
+                // インラインコードを復元
+                inlineCodes.forEach((code, index) => {
+                    html = html.replace(`__INLINE_CODE_${index}__`, code);
+                });
+
+                return html;
+            }
+
+            parseTable(html) {
+                const lines = html.split('\n');
+                let result = [];
+                let inTable = false;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    if (line.includes('|') && !inTable) {
+                        // テーブル開始
+                        const headers = line.split('|').map(h => h.trim()).filter(h => h);
+                        let tableHtml = '<table><thead><tr>';
+                        headers.forEach(header => {
+                            tableHtml += `<th>${header}</th>`;
+                        });
+                        tableHtml += '</tr></thead><tbody>';
+                        result.push(tableHtml);
+                        inTable = true;
+                        
+                        // 次の行がセパレーター行かチェック
+                        if (i + 1 < lines.length && lines[i + 1].includes('---')) {
+                            i++; // セパレーター行をスキップ
+                        }
+                    } else if (line.includes('|') && inTable) {
+                        // テーブル行
+                        const cells = line.split('|').map(c => c.trim()).filter(c => c);
+                        let rowHtml = '<tr>';
+                        cells.forEach(cell => {
+                            rowHtml += `<td>${cell}</td>`;
+                        });
+                        rowHtml += '</tr>';
+                        result.push(rowHtml);
+                    } else {
+                        if (inTable) {
+                            result.push('</tbody></table>');
+                            inTable = false;
+                        }
+                        result.push(line);
+                    }
+                }
+                
+                if (inTable) {
+                    result.push('</tbody></table>');
+                }
+                
+                return result.join('\n');
+            }
+
+            parseList(html) {
+                const lines = html.split('\n');
+                let result = [];
+                let inOrderedList = false;
+                let inUnorderedList = false;
+                
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    
+                    if (trimmedLine.match(/^\d+\. /)) {
+                        // 番号付きリスト
+                        if (!inOrderedList) {
+                            if (inUnorderedList) {
+                                result.push('</ul>');
+                                inUnorderedList = false;
+                            }
+                            result.push('<ol>');
+                            inOrderedList = true;
+                        }
+                        const content = trimmedLine.replace(/^\d+\. /, '');
+                        result.push(`<li>${content}</li>`);
+                    } else if (trimmedLine.match(/^- /)) {
+                        // 番号なしリスト
+                        if (!inUnorderedList) {
+                            if (inOrderedList) {
+                                result.push('</ol>');
+                                inOrderedList = false;
+                            }
+                            result.push('<ul>');
+                            inUnorderedList = true;
+                        }
+                        const content = trimmedLine.replace(/^- /, '');
+                        result.push(`<li>${content}</li>`);
+                    } else {
+                        if (inOrderedList) {
+                            result.push('</ol>');
+                            inOrderedList = false;
+                        }
+                        if (inUnorderedList) {
+                            result.push('</ul>');
+                            inUnorderedList = false;
+                        }
+                        result.push(line);
+                    }
+                }
+                
+                if (inOrderedList) result.push('</ol>');
+                if (inUnorderedList) result.push('</ul>');
+                
+                return result.join('\n');
+            }
+
+            updateWordCount() {
+                const text = this.editor.value;
+                const characters = text.length;
+                const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+                const lines = text.split('\n').length;
+                
+                this.wordCount.textContent = `文字数: ${characters} | 単語数: ${words} | 行数: ${lines}`;
+            }
+
+            setViewMode(mode) {
+                this.viewMode = mode;
+                const container = document.getElementById('mainContainer');
+                const buttons = document.querySelectorAll('.toggle-btn');
+                
+                // ボタンの状態更新
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                // クラスの更新
+                container.className = `main-container ${mode === 'split' ? 'split-view' : mode === 'editor' ? 'editor-only' : 'preview-only'}`;
+            }
+
+            exportMarkdown() {
+                const content = this.editor.value;
+                if (!content.trim()) {
+                    alert('エクスポートする内容がありません。');
+                    return;
+                }
+                
+                const blob = new Blob([content], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `markdown-export-${new Date().toISOString().split('T')[0]}.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            clearEditor() {
+                if (confirm('エディターの内容をすべて削除しますか？')) {
+                    this.editor.value = '';
+                    this.updatePreview();
+                    this.updateWordCount();
+                    this.saveContent();
+                    this.editor.focus();
+                }
+            }
+
+            saveContent() {
+                localStorage.setItem('markdownEditorContent', this.editor.value);
+            }
+
+            loadSavedContent() {
+                const saved = localStorage.getItem('markdownEditorContent');
+                if (saved) {
+                    this.editor.value = saved;
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // グローバル関数
+        let markdownEditor;
+
+        function insertMarkdown(before, after) {
+            markdownEditor.insertMarkdown(before, after);
+        }
+
+        function setViewMode(mode) {
+            markdownEditor.setViewMode(mode);
+        }
+
+        function exportMarkdown() {
+            markdownEditor.exportMarkdown();
+        }
+
+        function clearEditor() {
+            markdownEditor.clearEditor();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            markdownEditor = new MarkdownEditor();
+        });
+    </script>
+</body>
+</html>
