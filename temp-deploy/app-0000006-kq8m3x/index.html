@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロジェクト型タスク管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #1e3c72;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #1e3c72, #2a5298, #1e3c72);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(30, 60, 114, 0.4);
+        }
+
+        .btn.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .btn.warning {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid #1e3c72;
+            background: transparent;
+            color: #1e3c72;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .filter-btn.active {
+            background: #1e3c72;
+            color: white;
+            box-shadow: 0 0 15px rgba(30, 60, 114, 0.4);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            gap: 30px;
+            width: 100%;
+        }
+
+        .projects-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .projects-section h2 {
+            color: #1e3c72;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .project-stats {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.1), rgba(42, 82, 152, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(30, 60, 114, 0.2);
+        }
+
+        .stat-card {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .project-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 6px solid;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298, #1e3c72);
+            background-size: 300% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        .project-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-item.todo {
+            border-left-color: #3498db;
+        }
+
+        .project-item.progress {
+            border-left-color: #f39c12;
+        }
+
+        .project-item.completed {
+            border-left-color: #27ae60;
+        }
+
+        .project-item.blocked {
+            border-left-color: #e74c3c;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #1e3c72;
+        }
+
+        .project-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .project-status.todo {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .project-status.progress {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .project-status.completed {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .project-status.blocked {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .project-description {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .project-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            color: #777;
+        }
+
+        .project-priority {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .priority-medium {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .priority-low {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(30, 60, 114, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            border-radius: 10px;
+            transition: width 0.6s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .edit-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .complete-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            min-width: 450px;
+            height: fit-content;
+        }
+
+        .task-form h2 {
+            color: #1e3c72;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #1e3c72;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(30, 60, 114, 0.2);
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 20px rgba(30, 60, 114, 0.3);
+            background: white;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .progress-input {
+            width: 100%;
+            margin-top: 10px;
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(30, 60, 114, 0.1);
+            outline: none;
+            appearance: none;
+        }
+
+        .progress-input::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(30, 60, 114, 0.5);
+        }
+
+        .no-projects {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 60px;
+            font-size: 1.2rem;
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+            backdrop-filter: blur(20px);
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #1e3c72;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .task-form {
+                min-width: auto;
+                order: -1;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .project-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .project-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .project-actions {
+                justify-content: center;
+            }
+        }
+
+        /* アニメーション */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .project-item {
+            animation: slideIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 プロジェクト型タスク管理システム</h1>
+        <div class="toolbar">
+            <button class="btn success" onclick="openModal()">新規プロジェクト</button>
+            <button class="btn warning" onclick="exportProjects()">エクスポート</button>
+            <button class="btn danger" onclick="clearAllProjects()">全削除</button>
+        </div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">すべて</button>
+            <button class="filter-btn" data-filter="todo">未着手</button>
+            <button class="filter-btn" data-filter="progress">進行中</button>
+            <button class="filter-btn" data-filter="completed">完了</button>
+            <button class="filter-btn" data-filter="blocked">ブロック</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="projects-section">
+            <h2>
+                プロジェクト一覧
+                <span id="projectCount" style="font-size: 1rem; color: #888; font-weight: normal;">0件</span>
+            </h2>
+            
+            <div class="project-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalProjects">0</div>
+                    <div class="stat-label">総プロジェクト</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedProjects">0</div>
+                    <div class="stat-label">完了済み</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="progressProjects">0</div>
+                    <div class="stat-label">進行中</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgProgress">0%</div>
+                    <div class="stat-label">平均進捗</div>
+                </div>
+            </div>
+            
+            <div id="projectsContainer">
+                <div class="no-projects">
+                    まだプロジェクトがありません。<br>
+                    上のボタンから新しいプロジェクトを作成してください。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- モーダル -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">新規プロジェクト作成</h2>
+            <form id="projectForm">
+                <div class="form-group">
+                    <label for="projectTitle">プロジェクト名</label>
+                    <input type="text" id="projectTitle" class="form-input" placeholder="プロジェクトのタイトルを入力" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectDescription">説明</label>
+                    <textarea id="projectDescription" class="form-input form-textarea" placeholder="プロジェクトの詳細な説明を入力" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectStatus">ステータス</label>
+                    <select id="projectStatus" class="form-input form-select">
+                        <option value="todo">未着手</option>
+                        <option value="progress">進行中</option>
+                        <option value="completed">完了</option>
+                        <option value="blocked">ブロック</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectPriority">優先度</label>
+                    <select id="projectPriority" class="form-input form-select">
+                        <option value="high">高</option>
+                        <option value="medium">中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectDeadline">期限</label>
+                    <input type="date" id="projectDeadline" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectProgress">進捗率 (<span id="progressValue">0</span>%)</label>
+                    <input type="range" id="projectProgress" class="progress-input" min="0" max="100" value="0">
+                </div>
+                
+                <button type="submit" class="btn success" style="width: 100%; margin-top: 20px;">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        class ProjectTaskManager {
+            constructor() {
+                this.projects = JSON.parse(localStorage.getItem('projectTasks')) || [];
+                this.currentEditId = null;
+                this.currentFilter = 'all';
+                
+                this.initEventListeners();
+                this.displayProjects();
+                this.updateStats();
+            }
+
+            initEventListeners() {
+                // フォーム送信
+                document.getElementById('projectForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addOrUpdateProject();
+                });
+
+                // 進捗バー
+                document.getElementById('projectProgress').addEventListener('input', (e) => {
+                    document.getElementById('progressValue').textContent = e.target.value;
+                });
+
+                // フィルタボタン
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentFilter = e.target.dataset.filter;
+                        this.displayProjects();
+                    });
+                });
+
+                // モーダル
+                document.querySelector('.close').addEventListener('click', () => this.closeModal());
+                document.getElementById('projectModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'projectModal') this.closeModal();
+                });
+            }
+
+            addOrUpdateProject() {
+                const title = document.getElementById('projectTitle').value.trim();
+                const description = document.getElementById('projectDescription').value.trim();
+                const status = document.getElementById('projectStatus').value;
+                const priority = document.getElementById('projectPriority').value;
+                const deadline = document.getElementById('projectDeadline').value;
+                const progress = parseInt(document.getElementById('projectProgress').value);
+
+                if (!title || !description) {
+                    alert('プロジェクト名と説明は必須です。');
+                    return;
+                }
+
+                const project = {
+                    id: this.currentEditId || Date.now(),
+                    title,
+                    description,
+                    status,
+                    priority,
+                    deadline,
+                    progress,
+                    createdAt: this.currentEditId ? 
+                        this.projects.find(p => p.id === this.currentEditId).createdAt : 
+                        new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (this.currentEditId) {
+                    const index = this.projects.findIndex(p => p.id === this.currentEditId);
+                    this.projects[index] = project;
+                    this.currentEditId = null;
+                } else {
+                    this.projects.unshift(project);
+                }
+
+                this.saveProjects();
+                this.displayProjects();
+                this.updateStats();
+                this.closeModal();
+                this.resetForm();
+            }
+
+            editProject(id) {
+                const project = this.projects.find(p => p.id === id);
+                if (!project) return;
+
+                document.getElementById('projectTitle').value = project.title;
+                document.getElementById('projectDescription').value = project.description;
+                document.getElementById('projectStatus').value = project.status;
+                document.getElementById('projectPriority').value = project.priority;
+                document.getElementById('projectDeadline').value = project.deadline || '';
+                document.getElementById('projectProgress').value = project.progress;
+                document.getElementById('progressValue').textContent = project.progress;
+
+                this.currentEditId = id;
+                document.getElementById('modalTitle').textContent = 'プロジェクト編集';
+                this.openModal();
+            }
+
+            deleteProject(id) {
+                if (confirm('このプロジェクトを削除しますか？')) {
+                    this.projects = this.projects.filter(p => p.id !== id);
+                    this.saveProjects();
+                    this.displayProjects();
+                    this.updateStats();
+                }
+            }
+
+            completeProject(id) {
+                const project = this.projects.find(p => p.id === id);
+                if (project) {
+                    project.status = 'completed';
+                    project.progress = 100;
+                    project.updatedAt = new Date().toISOString();
+                    this.saveProjects();
+                    this.displayProjects();
+                    this.updateStats();
+                }
+            }
+
+            displayProjects() {
+                const container = document.getElementById('projectsContainer');
+                
+                let filteredProjects = this.projects;
+
+                if (this.currentFilter !== 'all') {
+                    filteredProjects = filteredProjects.filter(project => project.status === this.currentFilter);
+                }
+
+                if (filteredProjects.length === 0) {
+                    container.innerHTML = '<div class="no-projects">条件に一致するプロジェクトがありません。</div>';
+                    document.getElementById('projectCount').textContent = '0件';
+                    return;
+                }
+
+                document.getElementById('projectCount').textContent = `${filteredProjects.length}件`;
+
+                container.innerHTML = filteredProjects.map(project => {
+                    const deadlineText = project.deadline ? 
+                        new Date(project.deadline).toLocaleDateString('ja-JP') : '期限なし';
+                    const isOverdue = project.deadline && new Date(project.deadline) < new Date() && project.status !== 'completed';
+                    
+                    return `
+                        <div class="project-item ${project.status}">
+                            <div class="project-header">
+                                <div class="project-title">${this.escapeHtml(project.title)}</div>
+                                <div class="project-status ${project.status}">
+                                    ${this.getStatusText(project.status)}
+                                </div>
+                            </div>
+                            <div class="project-description">${this.escapeHtml(project.description)}</div>
+                            <div class="project-details">
+                                <div>
+                                    <strong>期限:</strong> ${deadlineText}
+                                    ${isOverdue ? '<span style="color: #e74c3c; font-weight: bold;"> (期限超過)</span>' : ''}
+                                </div>
+                                <div class="project-priority priority-${project.priority}">
+                                    ${project.priority === 'high' ? '高優先度' : project.priority === 'medium' ? '中優先度' : '低優先度'}
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${project.progress}%"></div>
+                            </div>
+                            <div style="text-align: center; margin-bottom: 15px; font-weight: bold; color: #1e3c72;">
+                                進捗: ${project.progress}%
+                            </div>
+                            <div style="font-size: 0.9rem; color: #777; margin-bottom: 15px;">
+                                作成: ${this.formatDate(project.createdAt)}
+                                ${project.updatedAt !== project.createdAt ? `<br>更新: ${this.formatDate(project.updatedAt)}` : ''}
+                            </div>
+                            <div class="project-actions">
+                                <button class="action-btn edit-btn" onclick="taskManager.editProject(${project.id})">編集</button>
+                                ${project.status !== 'completed' ? 
+                                    `<button class="action-btn complete-btn" onclick="taskManager.completeProject(${project.id})">完了</button>` : ''}
+                                <button class="action-btn delete-btn" onclick="taskManager.deleteProject(${project.id})">削除</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                const total = this.projects.length;
+                const completed = this.projects.filter(p => p.status === 'completed').length;
+                const progress = this.projects.filter(p => p.status === 'progress').length;
+                const avgProgress = total > 0 ? 
+                    Math.round(this.projects.reduce((sum, p) => sum + p.progress, 0) / total) : 0;
+
+                document.getElementById('totalProjects').textContent = total;
+                document.getElementById('completedProjects').textContent = completed;
+                document.getElementById('progressProjects').textContent = progress;
+                document.getElementById('avgProgress').textContent = avgProgress + '%';
+            }
+
+            openModal() {
+                document.getElementById('projectModal').style.display = 'block';
+            }
+
+            closeModal() {
+                document.getElementById('projectModal').style.display = 'none';
+                this.resetForm();
+            }
+
+            resetForm() {
+                document.getElementById('projectForm').reset();
+                document.getElementById('progressValue').textContent = '0';
+                document.getElementById('modalTitle').textContent = '新規プロジェクト作成';
+                this.currentEditId = null;
+            }
+
+            saveProjects() {
+                localStorage.setItem('projectTasks', JSON.stringify(this.projects));
+            }
+
+            exportProjects() {
+                if (this.projects.length === 0) {
+                    alert('エクスポートするプロジェクトがありません。');
+                    return;
+                }
+
+                const exportData = {
+                    exportDate: new Date().toISOString(),
+                    totalProjects: this.projects.length,
+                    projects: this.projects
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `project-tasks-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            clearAllProjects() {
+                if (confirm('すべてのプロジェクトを削除しますか？この操作は取り消せません。')) {
+                    this.projects = [];
+                    this.saveProjects();
+                    this.displayProjects();
+                    this.updateStats();
+                }
+            }
+
+            getStatusText(status) {
+                const statusMap = {
+                    'todo': '未着手',
+                    'progress': '進行中',
+                    'completed': '完了',
+                    'blocked': 'ブロック'
+                };
+                return statusMap[status] || status;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // グローバル関数
+        let taskManager;
+
+        function openModal() {
+            taskManager.openModal();
+        }
+
+        function exportProjects() {
+            taskManager.exportProjects();
+        }
+
+        function clearAllProjects() {
+            taskManager.clearAllProjects();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            taskManager = new ProjectTaskManager();
+        });
+    </script>
+</body>
+</html>
